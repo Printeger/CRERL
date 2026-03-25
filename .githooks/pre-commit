@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root="$(git rev-parse --show-toplevel)"
+cd "$repo_root"
+
+if [[ ! -f "Traceability.md" ]]; then
+  exit 0
+fi
+
+python3 tools/update_traceability.py >/dev/null || true
+git add Traceability.md

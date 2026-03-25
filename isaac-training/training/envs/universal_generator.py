@@ -46,6 +46,15 @@ class ArenaMode(Enum):
     SHOOTING_GALLERY = "E"    # Dynamic obstacles
 
 
+class CREScenarioFamily(Enum):
+    """CRE Phase 1 scenario families built on top of low-level arena modes."""
+    OPEN = "open"
+    NARROW_CORRIDOR = "narrow_corridor"
+    VERTICAL_CONSTRAINT = "vertical_constraint"
+    DYNAMIC_STRESS = "dynamic_stress"
+    MIXED = "mixed"
+
+
 class ChannelOrientation(Enum):
     """Sub-types for Mode C: Restricted Channels"""
     HORIZONTAL = "horizontal"  # Window/horizontal pipe (60%)
@@ -99,6 +108,39 @@ class ArenaConfig:
 
     # Channel mode parameters
     channel_weights: Tuple[float, float, float] = (0.6, 0.3, 0.1)  # H, V, S
+
+
+@dataclass
+class CREScenarioRequest:
+    """Semantic scene request for CRE Phase 1 consumers."""
+    family: CREScenarioFamily
+    seed: Optional[int] = None
+    difficulty: float = 0.5
+    corridor_width: Optional[float] = None
+    obstacle_density: Optional[float] = None
+    dynamic_obstacle_ratio: float = 0.0
+    gravity_tilt_enabled: bool = True
+    sub_mode: Optional[str] = None
+    preferred_mode: Optional[ArenaMode] = None
+
+
+@dataclass
+class CREScenarioMetadata:
+    """Scene-level metadata needed by CRE measurement and logging layers."""
+    family: str
+    seed: Optional[int]
+    requested_difficulty: float
+    realized_mode: str
+    realized_sub_mode: Optional[str]
+    scene_tags: Dict[str, Any]
+    estimated_min_gap: Optional[float]
+    obstacle_count: int
+    static_obstacle_count: int
+    dynamic_obstacle_count: int
+    requires_vertical_flight: bool
+    gravity_tilt_enabled: bool
+    solvable: bool
+    complexity: float
 
 
 @dataclass
@@ -158,6 +200,7 @@ class ArenaResult:
     # Suggested path waypoints
     suggested_path: List[Tuple[float, float, float]
                          ] = field(default_factory=list)
+    cre_metadata: Optional[CREScenarioMetadata] = None
 
 
 # =============================================================================
@@ -182,6 +225,7 @@ class UniversalArenaGenerator:
         """
         self.cfg = cfg or ArenaConfig()
         self.seed = seed
+        self._gap_size_override: Optional[float] = None
 
         if seed is not None:
             random.seed(seed)
@@ -207,6 +251,7 @@ class UniversalArenaGenerator:
         mode_weights: Optional[List[float]] = None,
         difficulty: float = 0.5,
         sub_mode: Optional[str] = None,
+        seed: Optional[int] = None,
     ) -> ArenaResult:
         """
         Generate a new arena configuration.
@@ -217,10 +262,16 @@ class UniversalArenaGenerator:
             mode_weights: Weights for random mode selection [A, B, C, D, E]
             difficulty: Difficulty level (0.0 - 1.0)
             sub_mode: Specific sub-mode for modes C and D
+            seed: Optional per-reset seed for reproducible generation
 
         Returns:
             ArenaResult with obstacles and metadata
         """
+        if seed is not None:
+            self.seed = seed
+            random.seed(seed)
+            np.random.seed(seed)
+
         # Select mode
         if mode is None:
             if mode_weights is None:
@@ -236,6 +287,57 @@ class UniversalArenaGenerator:
         self._current_result = result
         self._sim_time = 0.0
 
+        return result
+
+    def generate_from_request(self, request: CREScenarioRequest) -> ArenaResult:
+        """
+        Generate a CRE Phase 1 scene from a semantic scenario request.
+        """
+        preferred_mode = request.preferred_mode
+        mode = preferred_mode
+        mode_weights = None
+
+        difficulty = max(0.0, min(1.0, request.difficulty))
+        if request.obstacle_density is not None:
+            density = max(0.0, min(1.0, request.obstacle_density))
+            difficulty = max(difficulty, density)
+
+        if request.family == CREScenarioFamily.OPEN:
+            if mode is None:
+                mode = ArenaMode.LATTICE_FOREST
+                if request.obstacle_density is not None and request.obstacle_density > 0.6:
+                    mode = ArenaMode.ANT_NEST
+        elif request.family == CREScenarioFamily.NARROW_CORRIDOR:
+            mode = ArenaMode.RESTRICTED_CHANNEL
+        elif request.family == CREScenarioFamily.VERTICAL_CONSTRAINT:
+            mode = ArenaMode.LETHAL_SANDWICH
+        elif request.family == CREScenarioFamily.DYNAMIC_STRESS:
+            mode = ArenaMode.SHOOTING_GALLERY
+            difficulty = max(difficulty, 0.6)
+        elif request.family == CREScenarioFamily.MIXED:
+            mode = None
+            mode_weights = [0.25, 0.2, 0.2, 0.15, 0.2]
+
+        original_max_tilt = self.cfg.max_tilt_angle
+        original_gap_override = self._gap_size_override
+        if not request.gravity_tilt_enabled:
+            self.cfg.max_tilt_angle = 0.0
+        if request.corridor_width is not None:
+            self._gap_size_override = max(0.4, float(request.corridor_width))
+
+        try:
+            result = self.reset(
+                mode=mode,
+                mode_weights=mode_weights,
+                difficulty=difficulty,
+                sub_mode=request.sub_mode,
+                seed=request.seed,
+            )
+        finally:
+            self.cfg.max_tilt_angle = original_max_tilt
+            self._gap_size_override = original_gap_override
+
+        result.cre_metadata = self._build_cre_metadata(result, request)
         return result
 
     def update_dynamic_obstacles(self, dt: float) -> List[Tuple[float, float, float]]:
@@ -367,9 +469,77 @@ class UniversalArenaGenerator:
         difficulty 0.0 -> gap = 2.0m (easy)
         difficulty 1.0 -> gap = 0.4m (very tight)
         """
+        if self._gap_size_override is not None:
+            return self._gap_size_override
+
         min_gap = 0.4
         max_gap = 2.0
         return max_gap - (max_gap - min_gap) * difficulty
+
+    def _build_cre_metadata(
+        self, result: ArenaResult, request: CREScenarioRequest
+    ) -> CREScenarioMetadata:
+        gap_estimate = None
+        if result.gaps:
+            gap_estimate = min(min(gap.size[0], gap.size[1]) for gap in result.gaps)
+        elif result.labels.gap_size is not None:
+            gap_estimate = min(result.labels.gap_size[0], result.labels.gap_size[1])
+
+        dynamic_count = sum(1 for obs in result.obstacles if obs.is_dynamic)
+        static_count = len(result.obstacles) - dynamic_count
+
+        scene_tags = {
+            "family": request.family.value,
+            "seed": request.seed,
+            "mode": result.mode.value,
+            "sub_mode": result.sub_mode,
+            "difficulty": result.difficulty,
+            "requested_difficulty": request.difficulty,
+            "corridor_width": request.corridor_width,
+            "obstacle_density": request.obstacle_density,
+            "dynamic_obstacle_ratio": request.dynamic_obstacle_ratio,
+            "gravity_tilt_enabled": request.gravity_tilt_enabled,
+            "requires_vertical_flight": result.labels.requires_vertical_flight,
+        }
+
+        return CREScenarioMetadata(
+            family=request.family.value,
+            seed=request.seed,
+            requested_difficulty=request.difficulty,
+            realized_mode=result.mode.value,
+            realized_sub_mode=result.sub_mode,
+            scene_tags=scene_tags,
+            estimated_min_gap=gap_estimate,
+            obstacle_count=len(result.obstacles),
+            static_obstacle_count=static_count,
+            dynamic_obstacle_count=dynamic_count,
+            requires_vertical_flight=result.labels.requires_vertical_flight,
+            gravity_tilt_enabled=request.gravity_tilt_enabled,
+            solvable=result.solvable,
+            complexity=result.complexity,
+        )
+
+    def summarize_result(self, result: ArenaResult) -> Dict[str, Any]:
+        """Return a compact dict for logging and debug printing."""
+        metadata = result.cre_metadata
+        gap_estimate = None
+        if metadata is not None:
+            gap_estimate = metadata.estimated_min_gap
+        elif result.labels.gap_size is not None:
+            gap_estimate = min(result.labels.gap_size[0], result.labels.gap_size[1])
+
+        return {
+            "mode": result.mode.value,
+            "sub_mode": result.sub_mode,
+            "difficulty": result.difficulty,
+            "solvable": result.solvable,
+            "complexity": result.complexity,
+            "obstacle_count": len(result.obstacles),
+            "dynamic_obstacle_count": sum(1 for obs in result.obstacles if obs.is_dynamic),
+            "estimated_min_gap": gap_estimate,
+            "gravity_tilt": result.gravity_tilt_euler,
+            "scene_tags": metadata.scene_tags if metadata else {},
+        }
 
     def _compute_gravity_tilt(self, apply_tilt: bool = True) -> Tuple[Tuple[float, float, float, float], Tuple[float, float]]:
         """

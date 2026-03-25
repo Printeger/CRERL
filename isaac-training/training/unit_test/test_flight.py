@@ -2,10 +2,10 @@
 """
 UAV Flight Test in Universal Arena
 ====================================
-结合 Universal Arena Generator 场景与无人机飞行控制和 LiDAR 传感器。
+结合 Env Primitive Generator 场景与无人机飞行控制和 LiDAR 传感器。
 
 功能:
-    - 使用 UniversalArenaGenerator 生成 5 种模式的训练场景
+    - 使用 Env Primitive Spec v0 驱动的场景生成器
     - 无人机配备 Livox Mid-360 LiDAR 传感器
     - 实时点云可视化
     - 键盘控制飞行 + 场景切换
@@ -21,8 +21,8 @@ UAV Flight Test in Universal Arena
         B       : 重置无人机 (位置+速度+姿态)
 
     场景控制:
-        1-5     : 切换场景模式 (1=Lattice, 2=Ant Nest, 3=Channel, 4=Sandwich, 5=Shooting)
-        6-8     : 切换子模式 (Mode 3: 6=Horiz, 7=Vert, 8=Sloped; Mode 4: 6=Cave, 7=Hazards)
+        1-5     : 切换 CRE 场景族 (1=Open, 2=Narrow, 3=Vertical, 4=Dynamic, 5=Mixed)
+        6-8     : 切换子模式 (Narrow: 6=Horiz,7=Vert,8=Sloped; Vertical: 6=Cave,7=Hazards)
         R       : 重新生成当前场景
         +/-     : 增加/减少难度
         G       : 开关重力倾斜
@@ -65,13 +65,37 @@ from omegaconf import DictConfig
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 TRAINING_ROOT = os.path.dirname(SCRIPT_DIR)
 SCRIPTS_PATH = os.path.join(TRAINING_ROOT, "scripts")
-MODULE_PATH = os.path.join(TRAINING_ROOT, "envs", "universal_generator.py")
+ENVS_PATH = os.path.join(TRAINING_ROOT, "envs")
+MODULE_PATH = os.path.join(TRAINING_ROOT, "envs", "env_gen.py")
+LOGGER_MODULE_PATH = os.path.join(TRAINING_ROOT, "envs", "cre_logging.py")
 CFG_PATH = os.path.join(TRAINING_ROOT, "cfg")
+LOG_DIR = os.path.join(TRAINING_ROOT, "logs")
 
 if TRAINING_ROOT not in sys.path:
     sys.path.insert(0, TRAINING_ROOT)
 if SCRIPTS_PATH not in sys.path:
     sys.path.insert(0, SCRIPTS_PATH)
+if ENVS_PATH not in sys.path:
+    sys.path.insert(0, ENVS_PATH)
+
+
+def _load_local_module(name: str, path: str):
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location(name, path)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+def _headless_explicitly_set() -> bool:
+    """Return True when headless is explicitly overridden on the CLI."""
+    for arg in sys.argv[1:]:
+        normalized = arg.lstrip("+")
+        if normalized.startswith("headless="):
+            return True
+    return False
 
 
 @hydra.main(config_path=CFG_PATH, config_name="train", version_base=None)
@@ -81,6 +105,7 @@ def main(cfg: DictConfig):
     Args:
         cfg: Hydra configuration object (from train.yaml)
     """
+    effective_headless = cfg.headless if _headless_explicitly_set() else False
 
     # =========================================================================
     # Step 1: Launch Isaac Sim (MUST be first before any omni/pxr imports)
@@ -88,7 +113,7 @@ def main(cfg: DictConfig):
     print("=" * 70)
     print("🚁 UAV Flight Test in Universal Arena")
     print("=" * 70)
-    print(f"[INFO] Headless mode: {cfg.headless}")
+    print(f"[INFO] Headless mode: {effective_headless}")
     print(f"[INFO] Device: {cfg.device}")
     print(f"[INFO] LiDAR range: {cfg.sensor.lidar_range} m")
     print(f"[INFO] Vertical FOV: {cfg.sensor.lidar_vfov}")
@@ -101,7 +126,7 @@ def main(cfg: DictConfig):
 
     from omni.isaac.kit import SimulationApp
     simulation_app = SimulationApp({
-        "headless": cfg.headless,
+        "headless": effective_headless,
         "width": 1920,
         "height": 1080,
         "anti_aliasing": 1,
@@ -112,7 +137,6 @@ def main(cfg: DictConfig):
     # =========================================================================
     print("[INFO] Importing dependencies...")
 
-    import importlib.util
     import torch
     import numpy as np
     import carb
@@ -128,15 +152,16 @@ def main(cfg: DictConfig):
     from pxr import Usd, UsdGeom, Gf, UsdLux
 
     # Import the generator module
-    spec = importlib.util.spec_from_file_location(
-        "universal_generator", MODULE_PATH)
-    generator_module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(generator_module)
+    generator_module = _load_local_module("universal_generator", MODULE_PATH)
+    logging_module = _load_local_module("cre_logging", LOGGER_MODULE_PATH)
 
     UniversalArenaGenerator = generator_module.UniversalArenaGenerator
     ArenaSpawner = generator_module.ArenaSpawner
     ArenaMode = generator_module.ArenaMode
     ArenaConfig = generator_module.ArenaConfig
+    CREScenarioFamily = generator_module.CREScenarioFamily
+    CREScenarioRequest = generator_module.CREScenarioRequest
+    FlightEpisodeLogger = logging_module.FlightEpisodeLogger
 
     print("[INFO] Dependencies loaded successfully")
 
@@ -194,20 +219,22 @@ def main(cfg: DictConfig):
 
     print("[INFO] Lighting configured")
 
+    arena_cfg = ArenaConfig()
+
     # Arena boundary markers (corners)
-    for i, (cx, cy) in enumerate([(-5, -5), (5, -5), (5, 5), (-5, 5)]):
+    half_x = arena_cfg.size_x / 2.0
+    half_y = arena_cfg.size_y / 2.0
+    for i, (cx, cy) in enumerate([(-half_x, -half_y), (half_x, -half_y), (half_x, half_y), (-half_x, half_y)]):
         marker = UsdGeom.Cylinder.Define(stage, f"/World/BoundaryMarker_{i}")
         xform = UsdGeom.Xformable(marker.GetPrim())
         xform.ClearXformOpOrder()
         xform.AddTranslateOp().Set(Gf.Vec3d(cx, cy, 0.1))
-        xform.AddScaleOp().Set(Gf.Vec3d(0.1, 0.1, 0.1))
+        xform.AddScaleOp().Set(Gf.Vec3d(0.15, 0.15, 0.15))
         marker.CreateDisplayColorAttr([(0.8, 0.8, 0.2)])
 
     # =========================================================================
     # Step 5: Create Start/Goal Markers
     # =========================================================================
-    arena_cfg = ArenaConfig()
-
     # Start marker (green sphere)
     start_marker = UsdGeom.Sphere.Define(stage, "/World/StartMarker")
     xf = UsdGeom.Xformable(start_marker.GetPrim())
@@ -307,26 +334,37 @@ def main(cfg: DictConfig):
     # =========================================================================
     # Step 12: State Variables
     # =========================================================================
-    mode_names = {
-        ArenaMode.LATTICE_FOREST: "1: Lattice Forest",
-        ArenaMode.ANT_NEST: "2: Ant Nest (Maze)",
-        ArenaMode.RESTRICTED_CHANNEL: "3: Restricted Channel",
-        ArenaMode.LETHAL_SANDWICH: "4: Lethal Sandwich",
-        ArenaMode.SHOOTING_GALLERY: "5: Shooting Gallery",
+    family_names = {
+        CREScenarioFamily.OPEN: "1: Open",
+        CREScenarioFamily.NARROW_CORRIDOR: "2: Narrow Corridor",
+        CREScenarioFamily.VERTICAL_CONSTRAINT: "3: Vertical Constraint",
+        CREScenarioFamily.DYNAMIC_STRESS: "4: Dynamic Stress",
+        CREScenarioFamily.MIXED: "5: Mixed",
     }
 
     sub_mode_names = {
-        ArenaMode.RESTRICTED_CHANNEL: ["horizontal", "vertical", "sloped"],
-        ArenaMode.LETHAL_SANDWICH: ["cave", "hazards"],
+        CREScenarioFamily.NARROW_CORRIDOR: ["horizontal", "vertical", "sloped"],
+        CREScenarioFamily.VERTICAL_CONSTRAINT: ["cave", "hazards"],
     }
 
     # Arena state
-    current_mode = ArenaMode.LATTICE_FOREST
+    current_family = CREScenarioFamily.OPEN
     current_sub_mode = None
     current_difficulty = 0.5
     current_result = None
     apply_gravity_tilt = False  # Start with no tilt for easier flight
     paused = False
+    current_seed = 42
+    regeneration_index = 0
+    current_corridor_width = None
+    current_obstacle_density = None
+    current_dynamic_ratio = 0.5
+    episode_index = 0
+    episode_logger = FlightEpisodeLogger(
+        run_name="test_flight",
+        base_dir=LOG_DIR,
+        near_violation_distance=0.5,
+    )
 
     # Flight state
     target_pos = torch.tensor(
@@ -367,6 +405,66 @@ def main(cfg: DictConfig):
     # =========================================================================
     # Step 14: Helper Functions
     # =========================================================================
+    def get_scene_tags():
+        if current_result is None or current_result.cre_metadata is None:
+            return {}
+        return dict(current_result.cre_metadata.scene_tags)
+
+    def get_scene_id():
+        return str(get_scene_tags().get("scene_id", ""))
+
+    def get_scenario_type():
+        if current_result is None or current_result.cre_metadata is None:
+            return ""
+        return str(current_result.cre_metadata.family)
+
+    def get_drone_state_vector():
+        raw_state = drone.get_state()
+        if raw_state.dim() == 3:
+            return raw_state[0, 0, :13]
+        if raw_state.dim() == 2:
+            return raw_state[0, :13]
+        return raw_state[:13]
+
+    def compute_goal_distance(position):
+        if current_result is None:
+            return None
+        if current_result.labels.local_goal:
+            goal = current_result.labels.local_goal
+        else:
+            goal = arena_cfg.goal_pos
+        return math.sqrt(
+            (float(position[0]) - goal[0]) ** 2 +
+            (float(position[1]) - goal[1]) ** 2 +
+            (float(position[2]) - goal[2]) ** 2
+        )
+
+    def compute_proximity_metrics(ray_hits, lidar_pos):
+        if ray_hits is None or lidar_pos is None:
+            return 0, None
+
+        distances = (ray_hits - lidar_pos.unsqueeze(1)).norm(dim=-1)
+        valid_mask = distances < lidar_range
+        num_hits = valid_mask.sum().item()
+        if num_hits > 0:
+            min_dist = float(distances[valid_mask].min().item())
+        else:
+            min_dist = None
+        return num_hits, min_dist
+
+    def export_episode_log(reason: str):
+        nonlocal episode_index
+
+        if not episode_logger.has_steps():
+            return
+
+        episode_summary = episode_logger.finalize_episode(done_type=reason)
+        print(
+            f"[INFO] Episode log exported: {episode_logger.run_dir} | "
+            f"done_type={episode_summary.get('done_type')}"
+        )
+        episode_index += 1
+
     def update_endpoint_markers(result):
         """Update start/goal markers based on arena result."""
         if result.labels.local_start:
@@ -566,30 +664,44 @@ def main(cfg: DictConfig):
         )
 
     def regenerate_arena():
-        nonlocal current_result, sim_time, target_pos
+        nonlocal current_result, sim_time, target_pos, current_seed, regeneration_index
 
         print(f"\n{'='*60}")
-        print(f"Generating: {mode_names[current_mode]}")
+        print(f"Generating: {family_names[current_family]}")
         print(f"Difficulty: {current_difficulty:.2f}")
         if current_sub_mode:
             print(f"Sub-mode: {current_sub_mode}")
         print(f"Gravity Tilt: {'ON' if apply_gravity_tilt else 'OFF'}")
         print(f"{'='*60}")
 
-        # Configure gravity tilt
-        original_max_tilt = arena_cfg.max_tilt_angle
-        if not apply_gravity_tilt:
-            arena_cfg.max_tilt_angle = 0.0
+        export_episode_log("regen")
 
-        generator.cfg = arena_cfg
+        current_seed = 42 + regeneration_index
+        regeneration_index += 1
 
-        current_result = generator.reset(
-            mode=current_mode,
+        corridor_width = current_corridor_width
+        if current_family == CREScenarioFamily.NARROW_CORRIDOR and corridor_width is None:
+            corridor_width = max(0.4, 2.0 - 1.6 * current_difficulty)
+
+        obstacle_density = current_obstacle_density
+        if current_family in (CREScenarioFamily.OPEN, CREScenarioFamily.MIXED) and obstacle_density is None:
+            obstacle_density = current_difficulty
+
+        dynamic_ratio = current_dynamic_ratio if current_family == CREScenarioFamily.DYNAMIC_STRESS else 0.0
+
+        request = CREScenarioRequest(
+            family=current_family,
+            seed=current_seed,
             difficulty=current_difficulty,
+            corridor_width=corridor_width,
+            obstacle_density=obstacle_density,
+            dynamic_obstacle_ratio=dynamic_ratio,
+            gravity_tilt_enabled=apply_gravity_tilt,
             sub_mode=current_sub_mode,
         )
 
-        arena_cfg.max_tilt_angle = original_max_tilt
+        generator.cfg = arena_cfg
+        current_result = generator.generate_from_request(request)
 
         # Spawn obstacles
         spawner.spawn(current_result)
@@ -604,15 +716,27 @@ def main(cfg: DictConfig):
 
         # Print stats
         result = current_result
-        print(f"Obstacles: {len(result.obstacles)}")
+        summary = generator.summarize_result(result)
+        print(f"Seed: {current_seed}")
+        print(f"Resolved mode: {summary['mode']} / {summary['sub_mode'] or 'N/A'}")
+        print(f"Obstacles: {summary['obstacle_count']}")
+        print(f"Dynamic obstacles: {summary['dynamic_obstacle_count']}")
         print(f"Solvable: {result.solvable}")
         print(f"Complexity: {result.complexity:.3f}")
+        print(f"Estimated min gap: {summary['estimated_min_gap']}")
         print(
             f"Tilt: roll={result.gravity_tilt_euler[0]:.1f}°, pitch={result.gravity_tilt_euler[1]:.1f}°")
         print(f"Start: {start_pos}, Goal: {goal_pos}")
 
         _rebuild_lidar_sensor()
 
+        episode_logger.reset(
+            episode_index=episode_index,
+            seed=current_seed,
+            scene_id=get_scene_id(),
+            scenario_type=get_scenario_type(),
+            scene_tags=get_scene_tags(),
+        )
         sim_time = 0.0
 
     def draw_gravity_vector():
@@ -682,10 +806,14 @@ def main(cfg: DictConfig):
             return
 
         r = current_result
+        metadata = r.cre_metadata
         print("\n" + "="*60)
         print("ARENA & FLIGHT STATISTICS")
         print("="*60)
-        print(f"Mode: {r.mode.value} ({mode_names[r.mode]})")
+        if metadata is not None:
+            print(f"Family: {metadata.family}")
+            print(f"Seed: {metadata.seed}")
+        print(f"Mode: {r.mode.value}")
         print(f"Sub-mode: {r.sub_mode or 'N/A'}")
         print(f"Difficulty: {r.difficulty:.2f}")
         print(f"Solvable: {r.solvable}")
@@ -694,6 +822,9 @@ def main(cfg: DictConfig):
         print(f"  - Static: {sum(1 for o in r.obstacles if not o.is_dynamic)}")
         print(f"  - Dynamic: {sum(1 for o in r.obstacles if o.is_dynamic)}")
         print(f"  - Hazards: {sum(1 for o in r.obstacles if o.is_hazard)}")
+        if metadata is not None:
+            print(f"Estimated Min Gap: {metadata.estimated_min_gap}")
+            print(f"Scene Tags: {metadata.scene_tags}")
         print(
             f"Gravity Tilt: roll={r.gravity_tilt_euler[0]:.2f}°, pitch={r.gravity_tilt_euler[1]:.2f}°")
 
@@ -768,8 +899,8 @@ def main(cfg: DictConfig):
     print("  B       : Reset Drone (position + velocity)")
     print("")
     print("Arena Controls:")
-    print("  1-5     : Switch Mode (1=Lattice, 2=Maze, 3=Channel, 4=Sandwich, 5=Dynamic)")
-    print("  6-8     : Sub-mode (Mode3: 6=H,7=V,8=S; Mode4: 6=Cave,7=Hazard)")
+    print("  1-5     : Switch Family (1=Open, 2=Narrow, 3=Vertical, 4=Dynamic, 5=Mixed)")
+    print("  6-8     : Sub-mode (Narrow: 6=H,7=V,8=S; Vertical: 6=Cave,7=Hazard)")
     print("  R       : Regenerate")
     print("  +/-     : Difficulty")
     print("  G       : Toggle Gravity Tilt")
@@ -868,51 +999,51 @@ def main(cfg: DictConfig):
             # =================================================================
             arena_changed = False
 
-            # Mode selection (1-5)
+            # Scenario family selection (1-5)
             if key_pressed.get(carb.input.KeyboardInput.KEY_1, False):
-                current_mode = ArenaMode.LATTICE_FOREST
+                current_family = CREScenarioFamily.OPEN
                 current_sub_mode = None
                 arena_changed = True
                 key_pressed[carb.input.KeyboardInput.KEY_1] = False
             elif key_pressed.get(carb.input.KeyboardInput.KEY_2, False):
-                current_mode = ArenaMode.ANT_NEST
+                current_family = CREScenarioFamily.NARROW_CORRIDOR
                 current_sub_mode = None
                 arena_changed = True
                 key_pressed[carb.input.KeyboardInput.KEY_2] = False
             elif key_pressed.get(carb.input.KeyboardInput.KEY_3, False):
-                current_mode = ArenaMode.RESTRICTED_CHANNEL
+                current_family = CREScenarioFamily.VERTICAL_CONSTRAINT
                 current_sub_mode = None
                 arena_changed = True
                 key_pressed[carb.input.KeyboardInput.KEY_3] = False
             elif key_pressed.get(carb.input.KeyboardInput.KEY_4, False):
-                current_mode = ArenaMode.LETHAL_SANDWICH
+                current_family = CREScenarioFamily.DYNAMIC_STRESS
                 current_sub_mode = None
                 arena_changed = True
                 key_pressed[carb.input.KeyboardInput.KEY_4] = False
             elif key_pressed.get(carb.input.KeyboardInput.KEY_5, False):
-                current_mode = ArenaMode.SHOOTING_GALLERY
+                current_family = CREScenarioFamily.MIXED
                 current_sub_mode = None
                 arena_changed = True
                 key_pressed[carb.input.KeyboardInput.KEY_5] = False
 
             # Sub-mode selection (6-8)
             if key_pressed.get(carb.input.KeyboardInput.KEY_6, False):
-                if current_mode in sub_mode_names:
-                    subs = sub_mode_names[current_mode]
+                if current_family in sub_mode_names:
+                    subs = sub_mode_names[current_family]
                     if len(subs) >= 1:
                         current_sub_mode = subs[0]
                         arena_changed = True
                 key_pressed[carb.input.KeyboardInput.KEY_6] = False
             elif key_pressed.get(carb.input.KeyboardInput.KEY_7, False):
-                if current_mode in sub_mode_names:
-                    subs = sub_mode_names[current_mode]
+                if current_family in sub_mode_names:
+                    subs = sub_mode_names[current_family]
                     if len(subs) >= 2:
                         current_sub_mode = subs[1]
                         arena_changed = True
                 key_pressed[carb.input.KeyboardInput.KEY_7] = False
             elif key_pressed.get(carb.input.KeyboardInput.KEY_8, False):
-                if current_mode in sub_mode_names:
-                    subs = sub_mode_names[current_mode]
+                if current_family in sub_mode_names:
+                    subs = sub_mode_names[current_family]
                     if len(subs) >= 3:
                         current_sub_mode = subs[2]
                         arena_changed = True
@@ -980,9 +1111,13 @@ def main(cfg: DictConfig):
                 regenerate_arena()
 
             # =================================================================
-            # Update Dynamic Obstacles (Mode E)
+            # Update Dynamic Obstacles
             # =================================================================
-            if not paused and current_result and current_mode == ArenaMode.SHOOTING_GALLERY:
+            has_dynamic_obstacles = (
+                current_result is not None and
+                any(obs.is_dynamic for obs in current_result.obstacles)
+            )
+            if not paused and has_dynamic_obstacles:
                 new_positions = generator.update_dynamic_obstacles(dt)
                 if new_positions:
                     spawner.update_positions(new_positions)
@@ -993,13 +1128,7 @@ def main(cfg: DictConfig):
             # Flight Control
             # =================================================================
             # Get drone state
-            raw_state = drone.get_state()
-            if raw_state.dim() == 3:
-                drone_state = raw_state[0, 0, :13]
-            elif raw_state.dim() == 2:
-                drone_state = raw_state[0, :13]
-            else:
-                drone_state = raw_state[:13]
+            drone_state = get_drone_state_vector()
 
             # Compute control action
             action = controller(
@@ -1022,6 +1151,9 @@ def main(cfg: DictConfig):
             if lidar_initialized and lidar is not None:
                 lidar.update(dt)
 
+            # Refresh state after physics for logging/printing
+            drone_state = get_drone_state_vector()
+
             # =================================================================
             # Visualization
             # =================================================================
@@ -1039,25 +1171,58 @@ def main(cfg: DictConfig):
             # =================================================================
             # Periodic Status Print
             # =================================================================
-            if step % print_interval == 0:
-                pos = drone_state[:3]
-                if ray_hits is not None and lidar_pos is not None:
-                    distances = (
-                        ray_hits - lidar_pos.unsqueeze(1)).norm(dim=-1)
-                    valid_mask = distances < lidar_range
-                    num_hits = valid_mask.sum().item()
-                    if num_hits > 0:
-                        min_dist = distances[valid_mask].min().item()
-                    else:
-                        min_dist = float('inf')
-                else:
-                    num_hits = 0
-                    min_dist = float('inf')
+            pos = drone_state[:3]
+            vel = drone_state[7:10]
+            yaw_rate = float(drone_state[12]) if drone_state.numel() >= 13 else 0.0
+            num_hits, min_dist = compute_proximity_metrics(ray_hits, lidar_pos)
+            goal_distance = compute_goal_distance(pos)
+            reached_goal = bool(goal_distance is not None and goal_distance < 0.5)
+            collision_proxy = bool(
+                min_dist is not None and min_dist < max(0.15, arena_cfg.drone_radius)
+            )
+            out_of_bounds_flag = bool(
+                abs(float(pos[0])) > arena_cfg.size_x / 2.0 or
+                abs(float(pos[1])) > arena_cfg.size_y / 2.0 or
+                float(pos[2]) < 0.0 or
+                float(pos[2]) > arena_cfg.size_z
+            )
+            if collision_proxy:
+                step_done_type = "collision"
+            elif out_of_bounds_flag:
+                step_done_type = "out_of_bounds"
+            elif reached_goal:
+                step_done_type = "success"
+            else:
+                step_done_type = "running"
 
-                print(f"[{mode_names[current_mode]}] "
+            episode_logger.log_step(
+                step_idx=step,
+                sim_time=sim_time,
+                scene_id=get_scene_id(),
+                scenario_type=get_scenario_type(),
+                position=(float(pos[0]), float(pos[1]), float(pos[2])),
+                velocity=(float(vel[0]), float(vel[1]), float(vel[2])),
+                yaw_rate=yaw_rate,
+                target_position=(float(target_pos[0]), float(target_pos[1]), float(target_pos[2])),
+                goal_distance=goal_distance,
+                reward_total=0.0,
+                reward_components={},
+                collision_flag=collision_proxy,
+                min_obstacle_distance=min_dist,
+                out_of_bounds_flag=out_of_bounds_flag,
+                done_type=step_done_type,
+                reached_goal=reached_goal,
+                scene_tags=get_scene_tags(),
+            )
+
+            if step % print_interval == 0:
+                min_dist_display = min_dist if min_dist is not None else float('inf')
+                goal_dist_display = goal_distance if goal_distance is not None else float('inf')
+                print(f"[{family_names[current_family]}] "
                       f"Pos: ({pos[0]:.1f}, {pos[1]:.1f}, {pos[2]:.1f}) | "
                       f"Target: ({target_pos[0]:.1f}, {target_pos[1]:.1f}, {target_pos[2]:.1f}) | "
-                      f"LiDAR: {num_hits} pts, min={min_dist:.1f}m")
+                      f"Goal={goal_dist_display:.1f}m | "
+                      f"LiDAR: {num_hits} pts, min={min_dist_display:.1f}m")
 
             step += 1
 
@@ -1067,6 +1232,7 @@ def main(cfg: DictConfig):
     # =========================================================================
     # Cleanup
     # =========================================================================
+    export_episode_log("final")
     input_interface.unsubscribe_to_keyboard_events(keyboard, keyboard_sub)
     debug_draw.clear_points()
     debug_draw.clear_lines()

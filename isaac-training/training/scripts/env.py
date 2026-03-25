@@ -443,10 +443,35 @@ class NavigationEnv(IsaacEnv):
             "reach_goal": UnboundedContinuousTensorSpec(1),
             "collision": UnboundedContinuousTensorSpec(1),
             "truncated": UnboundedContinuousTensorSpec(1),
+            "goal_distance": UnboundedContinuousTensorSpec(1),
+            "min_obstacle_distance": UnboundedContinuousTensorSpec(1),
+            "near_violation_steps": UnboundedContinuousTensorSpec(1),
+            "near_violation_ratio": UnboundedContinuousTensorSpec(1),
+            "out_of_bounds": UnboundedContinuousTensorSpec(1),
+            "done_type": UnboundedContinuousTensorSpec(1),
+            "reward_progress_total": UnboundedContinuousTensorSpec(1),
+            "reward_safety_static_total": UnboundedContinuousTensorSpec(1),
+            "reward_safety_dynamic_total": UnboundedContinuousTensorSpec(1),
+            "penalty_smooth_total": UnboundedContinuousTensorSpec(1),
+            "penalty_height_total": UnboundedContinuousTensorSpec(1),
         }).expand(self.num_envs).to(self.device)
 
         info_spec = CompositeSpec({
             "drone_state": UnboundedContinuousTensorSpec((self.drone.n, 13), device=self.device),
+            "goal_distance": UnboundedContinuousTensorSpec(1),
+            "min_obstacle_distance": UnboundedContinuousTensorSpec(1),
+            "near_violation_flag": UnboundedContinuousTensorSpec(1),
+            "out_of_bounds_flag": UnboundedContinuousTensorSpec(1),
+            "collision_flag": UnboundedContinuousTensorSpec(1),
+            "yaw_rate": UnboundedContinuousTensorSpec(1),
+            "speed_norm": UnboundedContinuousTensorSpec(1),
+            "done_type": UnboundedContinuousTensorSpec(1),
+            "reward_total": UnboundedContinuousTensorSpec(1),
+            "reward_progress": UnboundedContinuousTensorSpec(1),
+            "reward_safety_static": UnboundedContinuousTensorSpec(1),
+            "reward_safety_dynamic": UnboundedContinuousTensorSpec(1),
+            "penalty_smooth": UnboundedContinuousTensorSpec(1),
+            "penalty_height": UnboundedContinuousTensorSpec(1),
         }).expand(self.num_envs).to(self.device)
         self.observation_spec["stats"] = stats_spec
         self.observation_spec["info"] = info_spec
@@ -687,15 +712,23 @@ class NavigationEnv(IsaacEnv):
         # a. 静态障碍物安全奖励
         # 原理：距离越远，奖励越高（使用对数，避免奖励过大）
         # log(distance) 保证：很近时惩罚大，较远时惩罚小
-        reward_safety_static = torch.log(
-            (self.lidar_range - self.lidar_scan).clamp(min=1e-6, max=self.lidar_range)
-        ).mean(dim=(2, 3))
+        static_obstacle_distance = (self.lidar_range - self.lidar_scan).clamp(min=1e-6, max=self.lidar_range)
+        reward_safety_static = torch.log(static_obstacle_distance).mean(dim=(2, 3))
+        min_static_obstacle_distance = einops.reduce(
+            static_obstacle_distance, "n 1 w h -> n 1", "min"
+        )
 
         # b. 动态障碍物安全奖励
         if (self.cfg.env_dyn.num_obstacles != 0):
             reward_safety_dynamic = torch.log(
                 (closest_dyn_obs_distance_reward).clamp(min=1e-6, max=self.lidar_range)
             ).mean(dim=-1, keepdim=True)
+            min_dynamic_obstacle_distance = closest_dyn_obs_distance_reward.min(dim=1, keepdim=True).values
+        else:
+            reward_safety_dynamic = torch.zeros(self.num_envs, 1, device=self.cfg.device)
+            min_dynamic_obstacle_distance = torch.full(
+                (self.num_envs, 1), self.lidar_range, device=self.cfg.device
+            )
 
         # c. 速度奖励（朝向目标方向的速度越快，奖励越高）
         # 计算：速度 · 目标方向（点积）
@@ -723,6 +756,8 @@ class NavigationEnv(IsaacEnv):
         # 静态碰撞：LiDAR 检测到距离 < 0.3m
         static_collision = einops.reduce(self.lidar_scan, "n 1 w h -> n 1", "max") > (self.lidar_range - 0.3)
         collision = static_collision | dynamic_collision
+        min_obstacle_distance = torch.minimum(min_static_obstacle_distance, min_dynamic_obstacle_distance)
+        near_violation_flag = min_obstacle_distance < 0.5
         
         # ============================================
         # 最终奖励计算（权重调优）
@@ -746,10 +781,19 @@ class NavigationEnv(IsaacEnv):
         # 失败：飞出边界或碰撞
         below_bound = self.drone.pos[..., 2] < 0.2  # 低于 0.2m
         above_bound = self.drone.pos[..., 2] > 4.  # 高于 4m
-        self.terminated = below_bound | above_bound | collision
+        out_of_bounds_flag = below_bound | above_bound
+        self.terminated = out_of_bounds_flag | collision
         
         # 截断：达到最大步数（500 步）
         self.truncated = (self.progress_buf >= self.max_episode_length).unsqueeze(-1)
+        done_type = torch.zeros_like(reach_goal, dtype=torch.float)
+        done_type[reach_goal] = 1.0
+        done_type[out_of_bounds_flag] = 3.0
+        done_type[collision] = 2.0
+        done_type[self.truncated.squeeze(-1) & ~collision.squeeze(-1) & ~out_of_bounds_flag.squeeze(-1)] = 4.0
+        goal_distance = distance.squeeze(-1)
+        speed_norm = self.drone.vel_w[..., :3].norm(dim=-1)
+        yaw_rate = self.root_state[..., 12]
 
         # 更新前一步速度（用于下一步的平滑性计算）
         self.prev_drone_vel_w = self.drone.vel_w[..., :3].clone()
@@ -760,6 +804,37 @@ class NavigationEnv(IsaacEnv):
         self.stats["reach_goal"] = reach_goal.float()
         self.stats["collision"] = collision.float()
         self.stats["truncated"] = self.truncated.float()
+        self.stats["goal_distance"] = goal_distance
+        prev_min_obstacle_distance = self.stats["min_obstacle_distance"].clone()
+        self.stats["min_obstacle_distance"] = torch.where(
+            prev_min_obstacle_distance > 0,
+            torch.minimum(prev_min_obstacle_distance, min_obstacle_distance),
+            min_obstacle_distance,
+        )
+        self.stats["near_violation_steps"] += near_violation_flag.float()
+        self.stats["near_violation_ratio"] = self.stats["near_violation_steps"] / self.progress_buf.unsqueeze(1).clamp(min=1)
+        self.stats["out_of_bounds"] = out_of_bounds_flag.float()
+        self.stats["done_type"] = done_type
+        self.stats["reward_progress_total"] += reward_vel
+        self.stats["reward_safety_static_total"] += reward_safety_static
+        self.stats["reward_safety_dynamic_total"] += reward_safety_dynamic
+        self.stats["penalty_smooth_total"] += penalty_smooth
+        self.stats["penalty_height_total"] += penalty_height
+
+        self.info["goal_distance"] = goal_distance
+        self.info["min_obstacle_distance"] = min_obstacle_distance
+        self.info["near_violation_flag"] = near_violation_flag.float()
+        self.info["out_of_bounds_flag"] = out_of_bounds_flag.float()
+        self.info["collision_flag"] = collision.float()
+        self.info["yaw_rate"] = yaw_rate
+        self.info["speed_norm"] = speed_norm
+        self.info["done_type"] = done_type
+        self.info["reward_total"] = self.reward
+        self.info["reward_progress"] = reward_vel
+        self.info["reward_safety_static"] = reward_safety_static
+        self.info["reward_safety_dynamic"] = reward_safety_dynamic
+        self.info["penalty_smooth"] = penalty_smooth
+        self.info["penalty_height"] = penalty_height
 
         return TensorDict({
             "agents": TensorDict(

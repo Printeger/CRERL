@@ -50,16 +50,23 @@ This keeps the workflow inside the current repo and avoids touching files outsid
 ## Latest Staged Change Summary
 
 <!-- TRACEABILITY:BEGIN -->
-_Updated: `2026-03-25T15:14:51`_
+_Updated: `2026-03-25T23:00:00`_
 
 - Scope: `/home/mint/rl_dev/CRERL`
 - Branch: `main`
 - Source: `staged diff`
-- Impacted phases: `Workflow`
-- Diff stat: 4 files changed, 298 insertions(+)
+- Impacted phases: `Phase 1, Phase 4, Phase 7`
+- Diff stat: 11 files changed, 3379 insertions(+), 86 deletions(-)
 
 ### Changed Files
-- `A` [.githooks/pre-commit](.githooks/pre-commit) [Developer Workflow]
-- `A` [tools/update_traceability.py](tools/update_traceability.py) [Developer Workflow]
-- `A` [tools/vibe-sync.sh](tools/vibe-sync.sh) [Developer Workflow]
+- `A` [isaac-training/training/envs/cre_logging.py](isaac-training/training/envs/cre_logging.py) [Procedural Env / Sensors]
+- `A` [isaac-training/training/envs/env_gen.py](isaac-training/training/envs/env_gen.py) [Procedural Env / Sensors]
+- `M` [isaac-training/training/envs/universal_generator.py](isaac-training/training/envs/universal_generator.py) [Procedural Env / Sensors]
+- `M` [isaac-training/training/scripts/env.py](isaac-training/training/scripts/env.py) [Isaac Env Core]
+- `A` [isaac-training/training/unit_test/test_env/test_cre_logging.py](isaac-training/training/unit_test/test_env/test_cre_logging.py) [Training Tests]
+- `A` [isaac-training/training/unit_test/test_env/test_perforated_slab.py](isaac-training/training/unit_test/test_env/test_perforated_slab.py) [Training Tests]
+- `A` [isaac-training/training/unit_test/test_env/test_primitives.py](isaac-training/training/unit_test/test_env/test_primitives.py) [Training Tests]
+- `A` [isaac-training/training/unit_test/test_env/test_scene_generation.py](isaac-training/training/unit_test/test_env/test_scene_generation.py) [Training Tests]
+- `A` [isaac-training/training/unit_test/test_env/test_serialization_and_motion.py](isaac-training/training/unit_test/test_env/test_serialization_and_motion.py) [Training Tests]
+- `M` [isaac-training/training/unit_test/test_flight.py](isaac-training/training/unit_test/test_flight.py) [Training Tests]
 <!-- TRACEABILITY:END -->

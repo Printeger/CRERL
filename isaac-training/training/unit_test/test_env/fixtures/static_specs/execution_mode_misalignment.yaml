@@ -1,0 +1,6 @@
+spec_cfg:
+  reward_spec_v0.yaml:
+    components:
+      reward_progress:
+        execution_modes:
+          - "manual"

@@ -4,113 +4,127 @@ Updated: 2026-03-26
 
 ## 1. This Iteration Goal
 
-This iteration finishes the third implementation batch of Phase 4:
+This iteration finishes the fourth implementation batch of Phase 4:
 
-- add synthetic bad-spec fixtures for deterministic negative testing
+- add another set of synthetic bad-spec fixtures
 - extend the static analyzer with:
-  - `check_scene_family_coverage(...)`
-  - `check_required_runtime_fields(...)`
-- add a lightweight CLI:
-  - `run_static_audit.py`
-- keep the output machine-readable and usable without Isaac Sim
+  - `check_scene_family_structure(...)`
+  - `check_execution_mode_alignment(...)`
+- add a standard reports-directory wrapper for static audit artifacts
+- keep the analyzer runnable without Isaac Sim or training
 
 This batch is the bridge from:
 
-- "we have a static analyzer core"
+- "we can run a static analyzer and catch a few direct issues"
 
 to:
 
-- "we can audit the current spec bundle, inject controlled spec faults, and run the analyzer directly from the command line."
+- "we can package static audit artifacts in a stable way and validate more of the environment/reward contract before dynamic analysis begins."
 
 ## 2. Implemented Results
 
-### 2.1 Synthetic Bad-Spec Fixtures Added
+### 2.1 Additional Synthetic Bad-Spec Fixtures Added
 
-The following synthetic fixture files were added under:
+The synthetic fixture set under:
 
 - `isaac-training/training/unit_test/test_env/fixtures/static_specs/`
 
-Current fixtures:
+was expanded with:
 
-- `reward_constraint_conflict.yaml`
-  - disables both static and dynamic safety reward support
-- `missing_runtime_field.yaml`
-  - points `reward_progress.expected_logged_key` to a missing runtime field
-- `scene_family_undercoverage.yaml`
-  - injects a `dynamic_obstacles` scene requirement into `safety_margin`
+- `scene_family_structure_invalid.yaml`
+  - forces `min_templates_per_scene > max_templates_per_scene`
+- `execution_mode_misalignment.yaml`
+  - forces `reward_progress.execution_modes = ["manual"]`
 
-These fixtures let the analyzer prove that it can reject bad spec bundles in a deterministic and testable way.
+Together with the previous fixtures, the current static fixture pack now covers:
 
-### 2.2 Scene-Family Coverage Check Implemented
+- direct reward/constraint conflict
+- runtime-field binding mismatch
+- scene-family undercoverage
+- scene-family structural invalidity
+- execution-mode misalignment
 
-`isaac-training/training/analyzers/static_checks.py` now implements:
-
-- `check_scene_family_coverage(...)`
-
-Current behavior:
-
-- infers capabilities from each loaded scene family
-- compares those capabilities to `constraint.active_scene_requirements`
-- emits a high-severity failure when a declared requirement is not covered by any scene family
-
-Example:
-
-- if a constraint says it must be exercised in `dynamic_obstacles`
-- but no current family enables dynamic obstacles
-- the check fails
-
-### 2.3 Required Runtime Field Check Implemented
+### 2.2 Scene-Family Structural Validation Check Implemented
 
 `isaac-training/training/analyzers/static_checks.py` now implements:
 
-- `check_required_runtime_fields(...)`
+- `check_scene_family_structure(...)`
 
 Current behavior:
 
-- verifies presence of required core step fields such as:
-  - `scene_id`
-  - `scenario_type`
-  - `scene_cfg_name`
-  - `reward_total`
-  - `done_type`
-  - `source`
-- verifies that enabled reward components map to expected logged keys
-- verifies that enabled reward components map to expected total fields
-- verifies required `done_type` labels when policy/runtime assumptions require them
+- validates workspace dimensions and height-band consistency
+- validates background-placement free-space fraction ranges
+- validates start-goal distance range consistency
+- validates template count ranges and candidate/template parameter presence
+- validates perforated-barrier requirements when traversability is required
+- flags template-driven families that do not actually provide usable templates
 
-This turns the runtime schema from "a documented expectation" into "a statically checkable contract."
+This turns scene-family configs from "loadable" into "structurally auditable."
 
-### 2.4 Static Audit CLI Added
+### 2.3 Execution-Mode Alignment Check Implemented
 
-A lightweight direct entrypoint was added:
+`isaac-training/training/analyzers/static_checks.py` now implements:
 
-- `isaac-training/training/scripts/run_static_audit.py`
+- `check_execution_mode_alignment(...)`
 
 Current behavior:
 
-- loads the default spec bundle from:
-  - `cfg/spec_cfg/`
-  - `cfg/env_cfg/`
-  - `cfg/detector_cfg/`
-- optionally narrows the scene-family set
-- optionally narrows the check set
-- writes `static_report.json`
-- prints a concise machine-readable summary to stdout
+- validates reward component `execution_modes`
+- checks for unknown execution modes
+- enforces that rollout reward components cover:
+  - `train`
+  - `eval`
+  - `baseline`
+- enforces that `manual_control` remains manual-only
 
-This is the first analyzer entrypoint that can be run directly without writing a Python snippet.
+This makes the static analyzer aware of a core Phase 3 contract:
 
-### 2.5 Static Analyzer Test Coverage Expanded
+- the same audited reward schema must align with the supported execution paths.
+
+### 2.4 Standard Static Audit Reports Bundle Added
+
+`isaac-training/training/analyzers/detector_runner.py` now provides:
+
+- `write_static_audit_bundle(...)`
+- `run_static_analysis_bundle(...)`
+
+Current bundle layout:
+
+- `static_report.json`
+- `summary.json`
+- `manifest.json`
+
+This gives static audit output a stable reports-directory shape that is easier to consume from later analyzer/report pipeline stages.
+
+### 2.5 CLI Updated To Emit Standard Audit Bundles
+
+`isaac-training/training/scripts/run_static_audit.py` now supports:
+
+- `--report-dir`
+- optional standalone `--output`
+
+Current behavior:
+
+- writes the standard bundle under the chosen report directory
+- optionally writes an extra standalone `static_report.json` copy
+- prints bundle paths and summary fields to stdout
+
+This means Phase 4 now has both:
+
+- a reusable Python API
+- a stable filesystem artifact layout
+
+### 2.6 Static Analyzer Test Coverage Expanded Again
 
 `isaac-training/training/unit_test/test_env/test_static_analyzer.py` now covers:
 
 - default static report generation
-- missing constraint runtime binding
-- reward/constraint conflict detection
-- reward proxy suspicion detection
-- scene-family undercoverage detection
-- missing required runtime field detection
-- fixture-driven blocking static report generation
-- CLI execution via `run_static_audit.py`
+- reward/constraint conflict fixture failure
+- missing runtime field failure
+- scene-family undercoverage failure
+- scene-family structural invalidity failure
+- execution-mode misalignment failure
+- CLI bundle generation
 
 ## 3. Main Files Added or Changed
 
@@ -121,9 +135,8 @@ Code/config files:
 - `isaac-training/training/analyzers/__init__.py`
 - `isaac-training/training/scripts/run_static_audit.py`
 - `isaac-training/training/unit_test/test_env/test_static_analyzer.py`
-- `isaac-training/training/unit_test/test_env/fixtures/static_specs/reward_constraint_conflict.yaml`
-- `isaac-training/training/unit_test/test_env/fixtures/static_specs/missing_runtime_field.yaml`
-- `isaac-training/training/unit_test/test_env/fixtures/static_specs/scene_family_undercoverage.yaml`
+- `isaac-training/training/unit_test/test_env/fixtures/static_specs/scene_family_structure_invalid.yaml`
+- `isaac-training/training/unit_test/test_env/fixtures/static_specs/execution_mode_misalignment.yaml`
 
 Documentation/state files:
 
@@ -165,22 +178,26 @@ pytest -q \
 Expected result:
 
 - tests pass without Isaac Sim
-- bad-spec fixtures trigger the expected failures
+- synthetic bad-spec fixtures trigger the intended failures
 
-### 4.3 CLI Smoke Test
+### 4.3 Static Audit Bundle Smoke Test
 
 Run from repo root:
 
 ```bash
 python3 isaac-training/training/scripts/run_static_audit.py \
-  --output isaac-training/training/reports/static_report.json
+  --report-dir /tmp/crerl_static_audit_bundle \
+  --output /tmp/crerl_static_audit_bundle/static_report_copy.json
 ```
 
 Expected result:
 
-- a `static_report.json` file is written
-- stdout prints a machine-readable summary
-- the current nominal v0 bundle passes with at most warning-level findings
+- the bundle directory contains:
+  - `static_report.json`
+  - `summary.json`
+  - `manifest.json`
+- the standalone `static_report_copy.json` is also written
+- stdout reports `passed = true` for the current nominal v0 bundle
 
 ## 5. Validation Results
 
@@ -204,41 +221,39 @@ pytest -q \
 
 Result:
 
-- `10 passed`
+- `12 passed`
 
-### 5.3 CLI Smoke Test
+### 5.3 Static Audit Bundle Smoke Test
 
 Observed result:
 
 - `run_static_audit.py` completed successfully
-- `static_report.json` was written successfully
+- the bundle directory was written successfully
 - stdout summary reported:
   - `passed = true`
   - `max_severity = warning`
-  - `num_findings = 5`
+  - `num_findings = 7`
 
 ## 6. Current Conclusion
 
-The Phase 4 static analyzer is now in a useful "first operational" state:
+The Phase 4 static analyzer is now beyond the "minimal prototype" stage:
 
-- it can load the current machine-readable spec bundle
-- it can detect both clean and synthetic-bad configurations
-- it can emit a machine-readable static report
-- it now has a lightweight direct CLI
+- it can load the machine-readable spec bundle
+- it can fail deterministically on multiple classes of synthetic bad specs
+- it can validate more of the scene-family and execution-path contract
+- it now emits standard bundle-shaped artifacts into the reports directory
 
 This is enough to support the next implementation step:
 
-- broadening the static audit surface
-- then connecting it to higher-level detector orchestration
+- broadening static checks again
+- then connecting static findings into higher-level detector and report orchestration
 
 ## 7. Next Step
 
-The next best move is to continue Phase 4 with the fourth batch:
+The next best move is to continue Phase 4 with the next batch:
 
-- add more synthetic bad-spec fixtures
-- extend the static analyzer with:
-  - scene-family structural validation checks
-  - reward/runtime execution-mode alignment checks
-- add a repo-level report wrapper so static audit artifacts are emitted into a standard reports directory layout
+- add a scene-backend capability check that compares declared family claims against generator/backend expressivity
+- add reward/runtime execution-mode checks that go beyond reward components and include expected log artifacts
+- add a top-level wrapper that places static audit bundles under a consistent report namespace alongside later dynamic-analysis reports
 
-After that, the project can move into Phase 5 dynamic analysis with a stronger static pre-filter in place.
+After that, the project can start the first Phase 5 dynamic analyzer work with a stronger static pre-filter and cleaner artifact contract.

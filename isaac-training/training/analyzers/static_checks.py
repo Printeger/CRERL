@@ -7,6 +7,9 @@ from typing import Any, Dict, List, Sequence
 
 from .spec_ir import SpecIR
 
+SUPPORTED_EXECUTION_MODES = {"manual", "train", "eval", "baseline"}
+ROLLOUT_EXECUTION_MODES = {"train", "eval", "baseline"}
+
 
 @dataclass
 class StaticCheckResult:
@@ -77,6 +80,15 @@ def _family_capabilities(spec_ir: SpecIR) -> Dict[str, Dict[str, bool]]:
             "shifted_distribution": family_name == "shifted",
         }
     return capabilities
+
+
+def _coerce_range_pair(value: Any) -> tuple[float, float] | None:
+    if isinstance(value, (list, tuple)) and len(value) == 2:
+        try:
+            return float(value[0]), float(value[1])
+        except (TypeError, ValueError):
+            return None
+    return None
 
 
 def check_constraint_runtime_binding(spec_ir: SpecIR) -> StaticCheckResult:
@@ -391,6 +403,272 @@ def check_required_runtime_fields(spec_ir: SpecIR) -> StaticCheckResult:
     )
 
 
+def check_scene_family_structure(spec_ir: SpecIR) -> StaticCheckResult:
+    issues: List[Dict[str, Any]] = []
+
+    for family_name, family in spec_ir.environment_families.items():
+        workspace = family.workspace
+        if float(workspace.get("size_x", 0.0) or 0.0) <= 0.0:
+            issues.append(
+                {
+                    "family": family_name,
+                    "kind": "invalid_workspace_size_x",
+                    "value": workspace.get("size_x"),
+                }
+            )
+        if float(workspace.get("size_y", 0.0) or 0.0) <= 0.0:
+            issues.append(
+                {
+                    "family": family_name,
+                    "kind": "invalid_workspace_size_y",
+                    "value": workspace.get("size_y"),
+                }
+            )
+        size_z = float(workspace.get("size_z", 0.0) or 0.0)
+        height_min = float(workspace.get("flight_height_min", 0.0) or 0.0)
+        height_max = float(workspace.get("flight_height_max", 0.0) or 0.0)
+        if size_z <= 0.0:
+            issues.append(
+                {"family": family_name, "kind": "invalid_workspace_size_z", "value": size_z}
+            )
+        if not (0.0 <= height_min < height_max <= size_z):
+            issues.append(
+                {
+                    "family": family_name,
+                    "kind": "invalid_flight_height_band",
+                    "flight_height_min": height_min,
+                    "flight_height_max": height_max,
+                    "size_z": size_z,
+                }
+            )
+
+        background = family.background_placement
+        free_space_min = float(background.get("free_space_fraction_min", 0.0) or 0.0)
+        free_space_max = float(background.get("free_space_fraction_max", 0.0) or 0.0)
+        if not (0.0 <= free_space_min <= free_space_max <= 1.0):
+            issues.append(
+                {
+                    "family": family_name,
+                    "kind": "invalid_free_space_fraction_range",
+                    "free_space_fraction_min": free_space_min,
+                    "free_space_fraction_max": free_space_max,
+                }
+            )
+        if float(background.get("obstacle_obstacle_min_dist", 0.0) or 0.0) < 0.0:
+            issues.append(
+                {
+                    "family": family_name,
+                    "kind": "negative_obstacle_obstacle_min_dist",
+                    "value": background.get("obstacle_obstacle_min_dist"),
+                }
+            )
+
+        start_goal = family.start_goal
+        start_goal_range = (
+            float(start_goal.get("start_goal_distance_min", 0.0) or 0.0),
+            float(start_goal.get("start_goal_distance_max", 0.0) or 0.0),
+        )
+        if start_goal_range[0] <= 0.0 or start_goal_range[0] > start_goal_range[1]:
+            issues.append(
+                {
+                    "family": family_name,
+                    "kind": "invalid_start_goal_distance_range",
+                    "start_goal_distance_min": start_goal_range[0],
+                    "start_goal_distance_max": start_goal_range[1],
+                }
+            )
+        for clearance_key in (
+            "start_clearance_min",
+            "goal_clearance_min",
+            "goal_boundary_clearance_min",
+        ):
+            if float(start_goal.get(clearance_key, 0.0) or 0.0) < 0.0:
+                issues.append(
+                    {
+                        "family": family_name,
+                        "kind": "negative_clearance_requirement",
+                        "field": clearance_key,
+                        "value": start_goal.get(clearance_key),
+                    }
+                )
+
+        templates = family.templates
+        validation = family.validation
+        template_params = family.template_params
+        candidate_types = list(templates.get("candidate_types", []))
+        min_templates = int(templates.get("min_templates_per_scene", 0) or 0)
+        max_templates = int(templates.get("max_templates_per_scene", 0) or 0)
+        if bool(templates.get("enabled", False)):
+            if not candidate_types:
+                issues.append(
+                    {
+                        "family": family_name,
+                        "kind": "missing_template_candidates",
+                    }
+                )
+            if min_templates > max_templates:
+                issues.append(
+                    {
+                        "family": family_name,
+                        "kind": "invalid_template_count_range",
+                        "min_templates_per_scene": min_templates,
+                        "max_templates_per_scene": max_templates,
+                    }
+                )
+            if bool(validation.get("require_template_presence", False)) and max_templates < 1:
+                issues.append(
+                    {
+                        "family": family_name,
+                        "kind": "template_presence_impossible",
+                        "max_templates_per_scene": max_templates,
+                    }
+                )
+            for template_name in candidate_types:
+                template_cfg = template_params.get(template_name)
+                if not isinstance(template_cfg, dict):
+                    issues.append(
+                        {
+                            "family": family_name,
+                            "kind": "missing_template_params",
+                            "template": template_name,
+                        }
+                    )
+                    continue
+                if not bool(template_cfg.get("enabled", False)):
+                    issues.append(
+                        {
+                            "family": family_name,
+                            "kind": "disabled_candidate_template",
+                            "template": template_name,
+                        }
+                    )
+                count_range = _coerce_range_pair(template_cfg.get("count"))
+                if count_range is None or count_range[0] > count_range[1]:
+                    issues.append(
+                        {
+                            "family": family_name,
+                            "kind": "invalid_template_count_param",
+                            "template": template_name,
+                            "count": template_cfg.get("count"),
+                        }
+                    )
+                if template_name == "perforated_barrier" and bool(
+                    validation.get("require_traversable_perforation", False)
+                ):
+                    hole_range = _coerce_range_pair(template_cfg.get("hole_count_range"))
+                    if hole_range is None or hole_range[1] < 1.0:
+                        issues.append(
+                            {
+                                "family": family_name,
+                                "kind": "invalid_perforated_hole_count",
+                                "template": template_name,
+                                "hole_count_range": template_cfg.get("hole_count_range"),
+                            }
+                        )
+        elif str(family.distribution_modes.get("structure", "")) == "template_driven":
+            issues.append(
+                {
+                    "family": family_name,
+                    "kind": "template_driven_without_templates",
+                }
+            )
+
+    passed = not issues
+    return StaticCheckResult(
+        check_id="scene_family_structure",
+        passed=passed,
+        severity="high" if not passed else "info",
+        summary=(
+            "Scene family configs satisfy the current structural validation rules."
+            if passed
+            else "Some scene family configs violate required structural validation rules."
+        ),
+        details={"issues": issues},
+        affected_paths=_scene_cfg_paths(spec_ir),
+        recommended_action=(
+            "Repair scene-family config structure so workspace, start-goal, "
+            "template, and validation settings remain internally consistent."
+        ),
+    )
+
+
+def check_execution_mode_alignment(spec_ir: SpecIR) -> StaticCheckResult:
+    issues: List[Dict[str, Any]] = []
+
+    for component_key, component in spec_ir.reward_spec.components.items():
+        if not component.enabled:
+            continue
+        modes = set(component.execution_modes)
+        if not modes:
+            issues.append(
+                {
+                    "component_key": component_key,
+                    "kind": "missing_execution_modes",
+                }
+            )
+            continue
+        unknown_modes = sorted(modes - SUPPORTED_EXECUTION_MODES)
+        if unknown_modes:
+            issues.append(
+                {
+                    "component_key": component_key,
+                    "kind": "unknown_execution_modes",
+                    "unknown_modes": unknown_modes,
+                }
+            )
+        if component_key == "manual_control":
+            if modes != {"manual"}:
+                issues.append(
+                    {
+                        "component_key": component_key,
+                        "kind": "manual_component_mode_mismatch",
+                        "execution_modes": sorted(modes),
+                    }
+                )
+            continue
+
+        missing_rollout_modes = sorted(ROLLOUT_EXECUTION_MODES - modes)
+        if missing_rollout_modes:
+            issues.append(
+                {
+                    "component_key": component_key,
+                    "kind": "rollout_mode_gap",
+                    "missing_modes": missing_rollout_modes,
+                    "execution_modes": sorted(modes),
+                }
+            )
+        if "manual" in modes:
+            issues.append(
+                {
+                    "component_key": component_key,
+                    "kind": "manual_mode_mixed_into_rollout_component",
+                    "execution_modes": sorted(modes),
+                }
+            )
+
+    passed = not issues
+    return StaticCheckResult(
+        check_id="execution_mode_alignment",
+        passed=passed,
+        severity="high" if not passed else "info",
+        summary=(
+            "Reward component execution modes align with the supported execution paths."
+            if passed
+            else "Some reward components do not align with the supported execution paths."
+        ),
+        details={
+            "issues": issues,
+            "supported_execution_modes": sorted(SUPPORTED_EXECUTION_MODES),
+            "required_rollout_modes": sorted(ROLLOUT_EXECUTION_MODES),
+        },
+        affected_paths=[_reward_spec_path(spec_ir), _policy_spec_path(spec_ir)],
+        recommended_action=(
+            "Align reward component execution_modes with the supported manual, "
+            "train, eval, and baseline execution paths."
+        ),
+    )
+
+
 def run_static_checks(
     spec_ir: SpecIR,
     check_ids: Sequence[str] | None = None,
@@ -400,6 +678,8 @@ def run_static_checks(
         "reward_constraint_conflicts": check_reward_constraint_conflicts,
         "reward_proxy_suspicion": check_reward_proxy_suspicion,
         "scene_family_coverage": check_scene_family_coverage,
+        "scene_family_structure": check_scene_family_structure,
+        "execution_mode_alignment": check_execution_mode_alignment,
         "required_runtime_fields": check_required_runtime_fields,
     }
     selected = list(check_ids) if check_ids is not None else list(available.keys())

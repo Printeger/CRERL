@@ -1,0 +1,5 @@
+env_cfg:
+  scene_cfg_nominal.yaml:
+    templates:
+      min_templates_per_scene: 2
+      max_templates_per_scene: 1

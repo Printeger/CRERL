@@ -1,7 +1,12 @@
 """Analyzer package for CRE consistency checks."""
 
 from .aggregation import FindingRecord, StaticAnalyzerReport, build_static_report, write_static_report
-from .detector_runner import run_detectors, run_static_analysis
+from .detector_runner import (
+    run_detectors,
+    run_static_analysis,
+    run_static_analysis_bundle,
+    write_static_audit_bundle,
+)
 from .spec_ir import (
     ConstraintSpec,
     EnvironmentFamilySpec,
@@ -24,6 +29,8 @@ from .static_checks import (
     check_reward_constraint_conflicts,
     check_reward_proxy_suspicion,
     check_scene_family_coverage,
+    check_scene_family_structure,
+    check_execution_mode_alignment,
     run_static_checks,
 )
 
@@ -34,6 +41,8 @@ __all__ = [
     "write_static_report",
     "run_detectors",
     "run_static_analysis",
+    "run_static_analysis_bundle",
+    "write_static_audit_bundle",
     "ConstraintSpec",
     "EnvironmentFamilySpec",
     "PolicySpec",
@@ -53,5 +62,7 @@ __all__ = [
     "check_reward_constraint_conflicts",
     "check_reward_proxy_suspicion",
     "check_scene_family_coverage",
+    "check_scene_family_structure",
+    "check_execution_mode_alignment",
     "run_static_checks",
 ]

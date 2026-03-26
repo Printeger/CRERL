@@ -13,10 +13,12 @@ from analyzers.detector_runner import run_static_analysis
 from analyzers.spec_ir import _load_yaml_file, load_spec_ir
 from analyzers.static_checks import (
     check_constraint_runtime_binding,
+    check_execution_mode_alignment,
     check_required_runtime_fields,
     check_reward_constraint_conflicts,
     check_reward_proxy_suspicion,
     check_scene_family_coverage,
+    check_scene_family_structure,
 )
 
 FIXTURE_ROOT = Path(__file__).resolve().parent / "fixtures" / "static_specs"
@@ -75,7 +77,7 @@ def test_run_static_analysis_generates_machine_readable_report(tmp_path):
     assert payload["spec_version"] == "v0"
     assert payload["report_type"] == "static_analyzer_report.v1"
     assert payload["passed"] is True
-    assert payload["num_findings"] == 5
+    assert payload["num_findings"] == 7
 
 
 def test_constraint_runtime_binding_detects_missing_logged_variable():
@@ -184,11 +186,52 @@ def test_bad_reward_conflict_fixture_blocks_static_report(tmp_path):
     assert "reward_constraint_conflicts" in failing_checks
 
 
+def test_scene_family_structure_detects_invalid_template_range(tmp_path):
+    spec_cfg_dir, env_cfg_dir, detector_cfg_dir = _materialize_fixture_bundle(
+        tmp_path,
+        "scene_family_structure_invalid.yaml",
+    )
+    broken = load_spec_ir(
+        spec_cfg_dir=spec_cfg_dir,
+        env_cfg_dir=env_cfg_dir,
+        detector_cfg_dir=detector_cfg_dir,
+    )
+
+    result = check_scene_family_structure(broken)
+
+    assert result.passed is False
+    assert result.severity == "high"
+    issue_kinds = {issue["kind"] for issue in result.details["issues"]}
+    assert "invalid_template_count_range" in issue_kinds
+
+
+def test_execution_mode_alignment_detects_rollout_gap(tmp_path):
+    spec_cfg_dir, env_cfg_dir, detector_cfg_dir = _materialize_fixture_bundle(
+        tmp_path,
+        "execution_mode_misalignment.yaml",
+    )
+    broken = load_spec_ir(
+        spec_cfg_dir=spec_cfg_dir,
+        env_cfg_dir=env_cfg_dir,
+        detector_cfg_dir=detector_cfg_dir,
+    )
+
+    result = check_execution_mode_alignment(broken)
+
+    assert result.passed is False
+    assert result.severity == "high"
+    issue_kinds = {issue["kind"] for issue in result.details["issues"]}
+    assert "rollout_mode_gap" in issue_kinds
+
+
 def test_run_static_audit_cli_writes_machine_readable_report(tmp_path):
+    report_dir = tmp_path / "cli_bundle"
     output_path = tmp_path / "cli_static_report.json"
     command = [
         sys.executable,
         str(ROOT / "scripts" / "run_static_audit.py"),
+        "--report-dir",
+        str(report_dir),
         "--output",
         str(output_path),
     ]
@@ -201,8 +244,12 @@ def test_run_static_audit_cli_writes_machine_readable_report(tmp_path):
     )
 
     assert output_path.exists()
+    assert (report_dir / "static_report.json").exists()
+    assert (report_dir / "summary.json").exists()
+    assert (report_dir / "manifest.json").exists()
     stdout_payload = json.loads(result.stdout)
     file_payload = json.loads(output_path.read_text(encoding="utf-8"))
     assert stdout_payload["passed"] is True
-    assert stdout_payload["num_findings"] == 5
+    assert stdout_payload["num_findings"] == 7
+    assert stdout_payload["report_dir"] == str(report_dir)
     assert file_payload["report_type"] == "static_analyzer_report.v1"

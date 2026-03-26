@@ -46,9 +46,14 @@ def parse_args() -> argparse.Namespace:
         help="Optional comma-separated subset of static checks to run.",
     )
     parser.add_argument(
+        "--report-dir",
+        default=str(_training_root() / "reports" / "static_audits" / "static_audit_latest"),
+        help="Bundle directory for standard static audit artifacts.",
+    )
+    parser.add_argument(
         "--output",
-        default=str(_training_root() / "reports" / "static_report.json"),
-        help="Output path for the machine-readable static report.",
+        default="",
+        help="Optional extra output path for a standalone static_report.json copy.",
     )
     return parser.parse_args()
 
@@ -57,22 +62,27 @@ def main() -> int:
     args = parse_args()
     _ensure_training_root_on_path()
 
-    from analyzers.detector_runner import run_static_analysis
+    from analyzers.detector_runner import run_static_analysis_bundle
 
     scene_families = [item.strip() for item in args.scene_families.split(",") if item.strip()]
     checks = [item.strip() for item in args.checks.split(",") if item.strip()]
-    report = run_static_analysis(
+    report, bundle_paths = run_static_analysis_bundle(
         spec_cfg_dir=Path(args.spec_cfg_dir),
         env_cfg_dir=Path(args.env_cfg_dir),
         detector_cfg_dir=Path(args.detector_cfg_dir),
         scene_families=scene_families,
         check_ids=checks or None,
-        output_path=Path(args.output),
+        report_dir=Path(args.report_dir),
+        output_path=Path(args.output) if args.output else None,
     )
     print(
         json.dumps(
             {
-                "output": str(args.output),
+                "report_dir": str(bundle_paths["report_dir"]),
+                "output": str(args.output) if args.output else "",
+                "static_report_path": str(bundle_paths["static_report_path"]),
+                "summary_path": str(bundle_paths["summary_path"]),
+                "manifest_path": str(bundle_paths["manifest_path"]),
                 "passed": report.passed,
                 "max_severity": report.max_severity,
                 "num_findings": report.num_findings,

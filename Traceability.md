@@ -50,21 +50,21 @@ This keeps the workflow inside the current repo and avoids touching files outsid
 ## Latest Staged Change Summary
 
 <!-- TRACEABILITY:BEGIN -->
-_Updated: `2026-03-26T21:09:54`_
+_Updated: `2026-03-26T21:33:07`_
 
 - Scope: `/home/mint/rl_dev/CRERL`
 - Branch: `main`
 - Source: `staged diff`
 - Impacted phases: `Phase 4`
-- Diff stat: 9 files changed, 509 insertions(+), 167 deletions(-)
+- Diff stat: 9 files changed, 562 insertions(+), 104 deletions(-)
 
 ### Changed Files
 - `M` [doc/dev_log/phase_4.md](doc/dev_log/phase_4.md) [Project Docs]
 - `M` [isaac-training/training/analyzers/__init__.py](isaac-training/training/analyzers/__init__.py) [Analyzers]
+- `M` [isaac-training/training/analyzers/detector_runner.py](isaac-training/training/analyzers/detector_runner.py) [Analyzers]
 - `M` [isaac-training/training/analyzers/static_checks.py](isaac-training/training/analyzers/static_checks.py) [Analyzers]
-- `A` [isaac-training/training/scripts/run_static_audit.py](isaac-training/training/scripts/run_static_audit.py) [Training Pipeline]
-- `A` [isaac-training/training/unit_test/test_env/fixtures/static_specs/missing_runtime_field.yaml](isaac-training/training/unit_test/test_env/fixtures/static_specs/missing_runtime_field.yaml) [Training Tests]
-- `A` [isaac-training/training/unit_test/test_env/fixtures/static_specs/reward_constraint_conflict.yaml](isaac-training/training/unit_test/test_env/fixtures/static_specs/reward_constraint_conflict.yaml) [Training Tests]
-- `A` [isaac-training/training/unit_test/test_env/fixtures/static_specs/scene_family_undercoverage.yaml](isaac-training/training/unit_test/test_env/fixtures/static_specs/scene_family_undercoverage.yaml) [Training Tests]
+- `M` [isaac-training/training/scripts/run_static_audit.py](isaac-training/training/scripts/run_static_audit.py) [Training Pipeline]
+- `A` [isaac-training/training/unit_test/test_env/fixtures/static_specs/execution_mode_misalignment.yaml](isaac-training/training/unit_test/test_env/fixtures/static_specs/execution_mode_misalignment.yaml) [Training Tests]
+- `A` [isaac-training/training/unit_test/test_env/fixtures/static_specs/scene_family_structure_invalid.yaml](isaac-training/training/unit_test/test_env/fixtures/static_specs/scene_family_structure_invalid.yaml) [Training Tests]
 - `M` [isaac-training/training/unit_test/test_env/test_static_analyzer.py](isaac-training/training/unit_test/test_env/test_static_analyzer.py) [Training Tests]
 <!-- TRACEABILITY:END -->

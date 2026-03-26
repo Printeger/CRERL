@@ -1,0 +1,133 @@
+scene_id: "scene_template_v0"
+scene_family: "nominal"
+seed: 42
+
+workspace:
+  size_x: 40.0
+  size_y: 40.0
+  size_z: 4.5
+  flight_height_min: 0.5
+  flight_height_max: 4.5
+
+primitive_budget:
+  box: [2, 8]
+  cylinder: [4, 16]
+  slab: [0, 2]
+  perforated_slab: [0, 1]
+  sphere: [0, 3]
+  capsule: [0, 2]
+
+primitive_type_ratio:
+  static:
+    box: 0.40
+    cylinder: 0.45
+    slab: 0.10
+    perforated_slab: 0.05
+  dynamic:
+    sphere: 0.50
+    capsule: 0.50
+
+distribution_modes:
+  background: "constrained_random"
+  structure: "template_driven"
+  route_adjacent_bias: 0.30
+  boundary_adjacent_bias: 0.20
+
+background_placement:
+  obstacle_obstacle_min_dist: 0.8
+  obstacle_boundary_min_dist: 0.6
+  max_rejection_trials: 200
+  free_space_fraction_min: 0.35
+  free_space_fraction_max: 0.85
+
+templates:
+  enabled: true
+  min_templates_per_scene: 1
+  max_templates_per_scene: 1
+  candidate_types:
+    - bottleneck
+    - clutter_cluster
+    - perforated_barrier
+
+template_params:
+  bottleneck:
+    enabled: true
+    count: [0, 1]
+    width_range: [1.8, 2.6]
+    length_range: [2.0, 5.0]
+    placement_mode: "route_adjacent"
+    traversable_required: true
+
+  clutter_cluster:
+    enabled: true
+    count: [0, 1]
+    cluster_radius_range: [1.5, 3.0]
+    obstacle_count_range: [3, 8]
+    placement_mode: "random_free_region"
+    traversable_required: true
+
+  perforated_barrier:
+    enabled: true
+    count: [0, 1]
+    slab_mode: "vertical"
+    size_x_range: [2.0, 4.0]
+    size_y_range: [2.0, 4.0]
+    thickness_range: [0.10, 0.25]
+    hole_count_range: [1, 2]
+    hole_shape_candidates:
+      - circle
+      - rectangle
+    hole_margin_min: 0.25
+    hole_spacing_min: 0.25
+    placement_mode: "route_adjacent"
+    traversable_required: true
+
+dynamic_obstacles:
+  enabled: false
+  max_dynamic_count: 0
+
+  sphere:
+    motion_type_candidates:
+      - random_walk
+      - waypoint_patrol
+    radius_range: [0.20, 0.40]
+    speed_range: [0.2, 0.8]
+    pause_probability: 0.05
+
+  capsule:
+    motion_type_candidates:
+      - waypoint_patrol
+      - lane_patrol
+    radius_range: [0.20, 0.35]
+    segment_length_range: [0.60, 1.20]
+    speed_range: [0.3, 1.0]
+    pause_probability: 0.10
+
+start_goal:
+  start_sampling_mode: "inner_boundary_band"
+  start_band_min: 0.5
+  start_band_max: 1.5
+  start_clearance_min: 1.0
+
+  goal_sampling_mode: "interior_free_space"
+  goal_clearance_min: 1.0
+  goal_boundary_clearance_min: 1.0
+
+  start_goal_distance_min: 8.0
+  start_goal_distance_max: 16.0
+
+  heading_random: true
+
+validation:
+  enforce_connectivity: true
+  allow_failure_analysis_only: false
+  max_overlap_tolerance: 0.0
+  require_template_presence: true
+  require_start_goal_valid: true
+  require_traversable_perforation: true
+  validate_dynamic_spawn: true
+
+logging:
+  save_scene_json: true
+  save_validation_report: true
+  save_scene_stats: true

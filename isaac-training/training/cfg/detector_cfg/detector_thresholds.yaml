@@ -1,0 +1,10 @@
+# Transitional detector thresholds.
+# These values are placeholders until static and dynamic analyzers are implemented.
+
+near_violation_distance: 0.6
+collision_distance: 0.3
+goal_success_radius: 0.5
+out_of_bounds_height_min: 0.2
+out_of_bounds_height_max: 4.0
+warning_speed_norm: 1.5
+

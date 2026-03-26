@@ -1,0 +1,98 @@
+scene_id: "nominal_v0"
+scene_family: "nominal"
+seed: 1001
+
+workspace:
+  size_x: 40.0
+  size_y: 40.0
+  size_z: 4.5
+  flight_height_min: 0.5
+  flight_height_max: 4.0
+
+primitive_budget:
+  box: [2, 6]
+  cylinder: [4, 12]
+  slab: [0, 1]
+  perforated_slab: [0, 1]
+  sphere: [0, 1]
+  capsule: [0, 0]
+
+distribution_modes:
+  background: "constrained_random"
+  structure: "template_driven"
+  route_adjacent_bias: 0.25
+  boundary_adjacent_bias: 0.15
+
+background_placement:
+  obstacle_obstacle_min_dist: 1.0
+  obstacle_boundary_min_dist: 0.8
+  max_rejection_trials: 200
+  free_space_fraction_min: 0.45
+  free_space_fraction_max: 0.80
+
+templates:
+  enabled: true
+  min_templates_per_scene: 1
+  max_templates_per_scene: 1
+  candidate_types:
+    - bottleneck
+    - clutter_cluster
+    - perforated_barrier
+
+template_params:
+  bottleneck:
+    enabled: true
+    count: [0, 1]
+    width_range: [1.8, 2.6]
+    length_range: [2.0, 4.0]
+    placement_mode: "route_adjacent"
+    traversable_required: true
+
+  clutter_cluster:
+    enabled: true
+    count: [0, 1]
+    cluster_radius_range: [1.5, 2.5]
+    obstacle_count_range: [3, 6]
+    placement_mode: "random_free_region"
+    traversable_required: true
+
+  perforated_barrier:
+    enabled: true
+    count: [0, 1]
+    slab_mode: "vertical"
+    size_x_range: [2.0, 3.5]
+    size_y_range: [2.0, 3.5]
+    thickness_range: [0.10, 0.20]
+    hole_count_range: [1, 1]
+    hole_shape_candidates:
+      - circle
+      - rectangle
+    hole_margin_min: 0.30
+    hole_spacing_min: 0.30
+    placement_mode: "route_adjacent"
+    traversable_required: true
+
+dynamic_obstacles:
+  enabled: false
+  max_dynamic_count: 0
+
+start_goal:
+  start_sampling_mode: "inner_boundary_band"
+  start_band_min: 0.5
+  start_band_max: 1.5
+  start_clearance_min: 1.0
+  goal_sampling_mode: "interior_free_space"
+  goal_clearance_min: 1.0
+  goal_boundary_clearance_min: 1.0
+  start_goal_distance_min: 8.0
+  start_goal_distance_max: 16.0
+  heading_random: true
+
+validation:
+  enforce_connectivity: true
+  allow_failure_analysis_only: false
+  max_overlap_tolerance: 0.0
+  require_template_presence: true
+  require_start_goal_valid: true
+  require_traversable_perforation: true
+  validate_dynamic_spawn: true

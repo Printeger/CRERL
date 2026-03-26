@@ -23,7 +23,7 @@ def test_scene_json_round_trip(tmp_path):
     generator = EnvPrimitiveGenerator(ArenaConfig(), seed=5)
     result = generator.generate_from_request(
         CREScenarioRequest(
-            family=CREScenarioFamily.OPEN,
+            family=CREScenarioFamily.MIXED,
             seed=5,
             difficulty=0.3,
         )
@@ -40,7 +40,7 @@ def test_dynamic_motion_update_changes_positions():
     generator = EnvPrimitiveGenerator(ArenaConfig(), seed=17)
     result = generator.generate_from_request(
         CREScenarioRequest(
-            family=CREScenarioFamily.DYNAMIC_STRESS,
+            family=CREScenarioFamily.MIXED,
             seed=17,
             difficulty=0.8,
             dynamic_obstacle_ratio=0.8,
@@ -58,7 +58,7 @@ def test_dynamic_motion_avoids_static_collision():
     generator = EnvPrimitiveGenerator(cfg, seed=23)
     generator.generate_from_request(
         CREScenarioRequest(
-            family=CREScenarioFamily.OPEN,
+            family=CREScenarioFamily.MIXED,
             seed=23,
             difficulty=0.2,
         )

@@ -1,0 +1,113 @@
+scene_id: "shifted_v0"
+scene_family: "shifted"
+seed: 3001
+
+workspace:
+  size_x: 40.0
+  size_y: 40.0
+  size_z: 4.5
+  flight_height_min: 0.5
+  flight_height_max: 4.2
+
+primitive_budget:
+  box: [4, 8]
+  cylinder: [2, 10]
+  slab: [1, 2]
+  perforated_slab: [0, 1]
+  sphere: [0, 2]
+  capsule: [0, 1]
+
+primitive_type_ratio:
+  static:
+    box: 0.55
+    cylinder: 0.20
+    slab: 0.15
+    perforated_slab: 0.10
+  dynamic:
+    sphere: 0.35
+    capsule: 0.65
+
+distribution_modes:
+  background: "constrained_random"
+  structure: "template_driven"
+  route_adjacent_bias: 0.40
+  boundary_adjacent_bias: 0.05
+
+background_placement:
+  obstacle_obstacle_min_dist: 0.85
+  obstacle_boundary_min_dist: 0.65
+  max_rejection_trials: 220
+  free_space_fraction_min: 0.40
+  free_space_fraction_max: 0.78
+
+templates:
+  enabled: true
+  min_templates_per_scene: 1
+  max_templates_per_scene: 2
+  candidate_types:
+    - clutter_cluster
+    - perforated_barrier
+    - pillar_field
+    - low_clearance_passage
+
+template_params:
+  clutter_cluster:
+    enabled: true
+    count: [0, 1]
+    cluster_radius_range: [1.8, 3.4]
+    obstacle_count_range: [4, 7]
+    placement_mode: "random_free_region"
+    traversable_required: true
+
+  perforated_barrier:
+    enabled: true
+    count: [0, 1]
+    slab_mode: "vertical"
+    size_x_range: [2.0, 3.2]
+    size_y_range: [2.0, 3.4]
+    thickness_range: [0.10, 0.18]
+    hole_count_range: [1, 2]
+    hole_shape_candidates:
+      - rectangle
+      - circle
+    hole_margin_min: 0.28
+    hole_spacing_min: 0.28
+    placement_mode: "boundary_adjacent"
+    traversable_required: true
+
+  pillar_field:
+    enabled: true
+    count: [0, 1]
+    placement_mode: "random_free_region"
+    traversable_required: true
+
+  low_clearance_passage:
+    enabled: true
+    count: [0, 1]
+    placement_mode: "random_free_region"
+    traversable_required: true
+
+dynamic_obstacles:
+  enabled: false
+  max_dynamic_count: 0
+
+start_goal:
+  start_sampling_mode: "inner_boundary_band"
+  start_band_min: 0.5
+  start_band_max: 1.5
+  start_clearance_min: 0.9
+  goal_sampling_mode: "interior_free_space"
+  goal_clearance_min: 0.9
+  goal_boundary_clearance_min: 0.9
+  start_goal_distance_min: 8.0
+  start_goal_distance_max: 16.0
+  heading_random: true
+
+validation:
+  enforce_connectivity: true
+  allow_failure_analysis_only: false
+  max_overlap_tolerance: 0.0
+  require_template_presence: true
+  require_start_goal_valid: true
+  require_traversable_perforation: true
+  validate_dynamic_spawn: true

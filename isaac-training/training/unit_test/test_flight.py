@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 """
-UAV Flight Test in Universal Arena
-====================================
+UAV Flight Test in CRE Scene Families
+=====================================
 结合 Env Primitive Generator 场景与无人机飞行控制和 LiDAR 传感器。
 
 功能:
     - 使用 Env Primitive Spec v0 驱动的场景生成器
+    - 读取 `cfg/env_cfg/scene_cfg_*.yaml` 的 family-based 场景规则
     - 无人机配备 Livox Mid-360 LiDAR 传感器
     - 实时点云可视化
-    - 键盘控制飞行 + 场景切换
+    - 键盘控制飞行 + nominal / boundary-critical / shifted 场景重生成
 
 键盘控制:
     飞行控制:
@@ -21,8 +22,7 @@ UAV Flight Test in Universal Arena
         B       : 重置无人机 (位置+速度+姿态)
 
     场景控制:
-        1-5     : 切换 CRE 场景族 (1=Open, 2=Narrow, 3=Vertical, 4=Dynamic, 5=Mixed)
-        6-8     : 切换子模式 (Narrow: 6=Horiz,7=Vert,8=Sloped; Vertical: 6=Cave,7=Hazards)
+        1/2/3   : 切换场景族 (nominal / boundary-critical / shifted)
         R       : 重新生成当前场景
         +/-     : 增加/减少难度
         G       : 开关重力倾斜
@@ -31,7 +31,7 @@ UAV Flight Test in Universal Arena
         T       : 开关点云显示
         V       : 开关重力向量显示
         I       : 打印场景统计信息
-        H       : 打印危险物详情 (Mode 4)
+        H       : 打印危险物详情
         P       : 暂停/继续动态障碍物
 
 运行方式 (与 train.py 相同):
@@ -53,9 +53,11 @@ UAV Flight Test in Universal Arena
 Author: NavRL Team
 """
 
+import gc
 import os
 import sys
 import math
+import time
 import hydra
 from omegaconf import DictConfig
 
@@ -98,6 +100,23 @@ def _headless_explicitly_set() -> bool:
     return False
 
 
+def _can_try_gui() -> bool:
+    return bool(os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY"))
+
+
+def _warmup_simulation_app(simulation_app, steps: int = 4, sleep_s: float = 0.05) -> None:
+    """Warm up Kit/renderer before SimulationContext creation.
+
+    Several Isaac Sim examples do one or more `simulation_app.update()` calls
+    before stage initialization. This reduces crashes inside
+    `SimulationContext._init_stage -> render -> app.update()` on some GUI setups.
+    """
+    for _ in range(max(1, steps)):
+        simulation_app.update()
+        if sleep_s > 0.0:
+            time.sleep(sleep_s)
+
+
 @hydra.main(config_path=CFG_PATH, config_name="train", version_base=None)
 def main(cfg: DictConfig):
     """Main function - all imports happen here after SimulationApp
@@ -106,12 +125,15 @@ def main(cfg: DictConfig):
         cfg: Hydra configuration object (from train.yaml)
     """
     effective_headless = cfg.headless if _headless_explicitly_set() else False
+    if not effective_headless and not _can_try_gui():
+        print("[WARN] No GUI display detected; forcing headless=True for stability.")
+        effective_headless = True
 
     # =========================================================================
     # Step 1: Launch Isaac Sim (MUST be first before any omni/pxr imports)
     # =========================================================================
     print("=" * 70)
-    print("🚁 UAV Flight Test in Universal Arena")
+    print("🚁 UAV Flight Test in CRE Scene Families")
     print("=" * 70)
     print(f"[INFO] Headless mode: {effective_headless}")
     print(f"[INFO] Device: {cfg.device}")
@@ -131,6 +153,13 @@ def main(cfg: DictConfig):
         "height": 1080,
         "anti_aliasing": 1,
     })
+
+    print("[INFO] Warming up Isaac Sim before SimulationContext init...")
+    _warmup_simulation_app(
+        simulation_app,
+        steps=2 if effective_headless else 5,
+        sleep_s=0.02 if effective_headless else 0.05,
+    )
 
     # =========================================================================
     # Step 2: Import dependencies (AFTER SimulationApp is created)
@@ -152,7 +181,7 @@ def main(cfg: DictConfig):
     from pxr import Usd, UsdGeom, Gf, UsdLux
 
     # Import the generator module
-    generator_module = _load_local_module("universal_generator", MODULE_PATH)
+    generator_module = _load_local_module("env_gen", MODULE_PATH)
     logging_module = _load_local_module("cre_logging", LOGGER_MODULE_PATH)
 
     UniversalArenaGenerator = generator_module.UniversalArenaGenerator
@@ -160,7 +189,7 @@ def main(cfg: DictConfig):
     ArenaMode = generator_module.ArenaMode
     ArenaConfig = generator_module.ArenaConfig
     CREScenarioFamily = generator_module.CREScenarioFamily
-    CREScenarioRequest = generator_module.CREScenarioRequest
+    FAMILY_TO_SCENE_CFG = generator_module.FAMILY_TO_SCENE_CFG
     FlightEpisodeLogger = logging_module.FlightEpisodeLogger
 
     print("[INFO] Dependencies loaded successfully")
@@ -335,30 +364,19 @@ def main(cfg: DictConfig):
     # Step 12: State Variables
     # =========================================================================
     family_names = {
-        CREScenarioFamily.OPEN: "1: Open",
-        CREScenarioFamily.NARROW_CORRIDOR: "2: Narrow Corridor",
-        CREScenarioFamily.VERTICAL_CONSTRAINT: "3: Vertical Constraint",
-        CREScenarioFamily.DYNAMIC_STRESS: "4: Dynamic Stress",
-        CREScenarioFamily.MIXED: "5: Mixed",
-    }
-
-    sub_mode_names = {
-        CREScenarioFamily.NARROW_CORRIDOR: ["horizontal", "vertical", "sloped"],
-        CREScenarioFamily.VERTICAL_CONSTRAINT: ["cave", "hazards"],
+        CREScenarioFamily.NOMINAL: "Nominal",
+        CREScenarioFamily.BOUNDARY_CRITICAL: "Boundary Critical",
+        CREScenarioFamily.SHIFTED: "Shifted",
     }
 
     # Arena state
-    current_family = CREScenarioFamily.OPEN
-    current_sub_mode = None
+    current_family = CREScenarioFamily.NOMINAL
     current_difficulty = 0.5
     current_result = None
     apply_gravity_tilt = False  # Start with no tilt for easier flight
     paused = False
     current_seed = 42
     regeneration_index = 0
-    current_corridor_width = None
-    current_obstacle_density = None
-    current_dynamic_ratio = 0.5
     episode_index = 0
     episode_logger = FlightEpisodeLogger(
         run_name="test_flight",
@@ -417,6 +435,11 @@ def main(cfg: DictConfig):
         if current_result is None or current_result.cre_metadata is None:
             return ""
         return str(current_result.cre_metadata.family)
+
+    def get_scene_cfg_name():
+        preferred = FAMILY_TO_SCENE_CFG.get(current_family, "scene_cfg_base.yaml")
+        cfg_path = os.path.join(CFG_PATH, "env_cfg", preferred)
+        return preferred if os.path.exists(cfg_path) else f"{preferred} (fallback to scene_cfg_base.yaml)"
 
     def get_drone_state_vector():
         raw_state = drone.get_state()
@@ -668,9 +691,8 @@ def main(cfg: DictConfig):
 
         print(f"\n{'='*60}")
         print(f"Generating: {family_names[current_family]}")
+        print(f"Scene config: {get_scene_cfg_name()}")
         print(f"Difficulty: {current_difficulty:.2f}")
-        if current_sub_mode:
-            print(f"Sub-mode: {current_sub_mode}")
         print(f"Gravity Tilt: {'ON' if apply_gravity_tilt else 'OFF'}")
         print(f"{'='*60}")
 
@@ -679,29 +701,13 @@ def main(cfg: DictConfig):
         current_seed = 42 + regeneration_index
         regeneration_index += 1
 
-        corridor_width = current_corridor_width
-        if current_family == CREScenarioFamily.NARROW_CORRIDOR and corridor_width is None:
-            corridor_width = max(0.4, 2.0 - 1.6 * current_difficulty)
-
-        obstacle_density = current_obstacle_density
-        if current_family in (CREScenarioFamily.OPEN, CREScenarioFamily.MIXED) and obstacle_density is None:
-            obstacle_density = current_difficulty
-
-        dynamic_ratio = current_dynamic_ratio if current_family == CREScenarioFamily.DYNAMIC_STRESS else 0.0
-
-        request = CREScenarioRequest(
-            family=current_family,
+        generator.cfg = arena_cfg
+        current_result = generator.generate_from_scene_family(
+            scene_family=current_family,
             seed=current_seed,
             difficulty=current_difficulty,
-            corridor_width=corridor_width,
-            obstacle_density=obstacle_density,
-            dynamic_obstacle_ratio=dynamic_ratio,
             gravity_tilt_enabled=apply_gravity_tilt,
-            sub_mode=current_sub_mode,
         )
-
-        generator.cfg = arena_cfg
-        current_result = generator.generate_from_request(request)
 
         # Spawn obstacles
         spawner.spawn(current_result)
@@ -718,6 +724,7 @@ def main(cfg: DictConfig):
         result = current_result
         summary = generator.summarize_result(result)
         print(f"Seed: {current_seed}")
+        print(f"Scene family: {current_result.cre_metadata.family}")
         print(f"Resolved mode: {summary['mode']} / {summary['sub_mode'] or 'N/A'}")
         print(f"Obstacles: {summary['obstacle_count']}")
         print(f"Dynamic obstacles: {summary['dynamic_obstacle_count']}")
@@ -850,19 +857,18 @@ def main(cfg: DictConfig):
         print("="*60 + "\n")
 
     def print_hazard_details():
-        """Print hazard details for Mode D."""
+        """Print hazard details for the current arena."""
         if current_result is None:
             print("No arena generated")
             return
 
         hazards = [o for o in current_result.obstacles if o.is_hazard]
         if not hazards:
-            print(
-                "\n[INFO] No hazards in current arena (try Mode 4 with sub-mode 7: hazards)")
+            print("\n[INFO] No hazards in the current arena.")
             return
 
         print("\n" + "="*60)
-        print("HAZARD DETAILS (Mode 4: Lethal Sandwich)")
+        print(f"HAZARD DETAILS ({family_names[current_family]})")
         print("="*60)
 
         thin_wires = [h for h in hazards if h.scale[0] <= 0.015]
@@ -899,9 +905,8 @@ def main(cfg: DictConfig):
     print("  B       : Reset Drone (position + velocity)")
     print("")
     print("Arena Controls:")
-    print("  1-5     : Switch Family (1=Open, 2=Narrow, 3=Vertical, 4=Dynamic, 5=Mixed)")
-    print("  6-8     : Sub-mode (Narrow: 6=H,7=V,8=S; Vertical: 6=Cave,7=Hazard)")
-    print("  R       : Regenerate")
+    print("  1/2/3   : Switch Family (1=Nominal, 2=Boundary Critical, 3=Shifted)")
+    print("  R       : Regenerate current scene")
     print("  +/-     : Difficulty")
     print("  G       : Toggle Gravity Tilt")
     print("")
@@ -999,55 +1004,19 @@ def main(cfg: DictConfig):
             # =================================================================
             arena_changed = False
 
-            # Scenario family selection (1-5)
+            # Family switch (1/2/3)
             if key_pressed.get(carb.input.KeyboardInput.KEY_1, False):
-                current_family = CREScenarioFamily.OPEN
-                current_sub_mode = None
+                current_family = CREScenarioFamily.NOMINAL
                 arena_changed = True
                 key_pressed[carb.input.KeyboardInput.KEY_1] = False
-            elif key_pressed.get(carb.input.KeyboardInput.KEY_2, False):
-                current_family = CREScenarioFamily.NARROW_CORRIDOR
-                current_sub_mode = None
+            if key_pressed.get(carb.input.KeyboardInput.KEY_2, False):
+                current_family = CREScenarioFamily.BOUNDARY_CRITICAL
                 arena_changed = True
                 key_pressed[carb.input.KeyboardInput.KEY_2] = False
-            elif key_pressed.get(carb.input.KeyboardInput.KEY_3, False):
-                current_family = CREScenarioFamily.VERTICAL_CONSTRAINT
-                current_sub_mode = None
+            if key_pressed.get(carb.input.KeyboardInput.KEY_3, False):
+                current_family = CREScenarioFamily.SHIFTED
                 arena_changed = True
                 key_pressed[carb.input.KeyboardInput.KEY_3] = False
-            elif key_pressed.get(carb.input.KeyboardInput.KEY_4, False):
-                current_family = CREScenarioFamily.DYNAMIC_STRESS
-                current_sub_mode = None
-                arena_changed = True
-                key_pressed[carb.input.KeyboardInput.KEY_4] = False
-            elif key_pressed.get(carb.input.KeyboardInput.KEY_5, False):
-                current_family = CREScenarioFamily.MIXED
-                current_sub_mode = None
-                arena_changed = True
-                key_pressed[carb.input.KeyboardInput.KEY_5] = False
-
-            # Sub-mode selection (6-8)
-            if key_pressed.get(carb.input.KeyboardInput.KEY_6, False):
-                if current_family in sub_mode_names:
-                    subs = sub_mode_names[current_family]
-                    if len(subs) >= 1:
-                        current_sub_mode = subs[0]
-                        arena_changed = True
-                key_pressed[carb.input.KeyboardInput.KEY_6] = False
-            elif key_pressed.get(carb.input.KeyboardInput.KEY_7, False):
-                if current_family in sub_mode_names:
-                    subs = sub_mode_names[current_family]
-                    if len(subs) >= 2:
-                        current_sub_mode = subs[1]
-                        arena_changed = True
-                key_pressed[carb.input.KeyboardInput.KEY_7] = False
-            elif key_pressed.get(carb.input.KeyboardInput.KEY_8, False):
-                if current_family in sub_mode_names:
-                    subs = sub_mode_names[current_family]
-                    if len(subs) >= 3:
-                        current_sub_mode = subs[2]
-                        arena_changed = True
-                key_pressed[carb.input.KeyboardInput.KEY_8] = False
 
             # Regenerate (R)
             if key_pressed.get(carb.input.KeyboardInput.R, False):
@@ -1229,15 +1198,50 @@ def main(cfg: DictConfig):
     except KeyboardInterrupt:
         print("\n[INFO] Interrupted by user (Ctrl+C)")
 
+    if step == 0 and not simulation_app.is_running():
+        print(
+            "[WARN] Main loop exited before any simulation step. "
+            "Isaac Sim may have started shutting down immediately "
+            "(for example due to window/display issues)."
+        )
+
     # =========================================================================
     # Cleanup
     # =========================================================================
     export_episode_log("final")
-    input_interface.unsubscribe_to_keyboard_events(keyboard, keyboard_sub)
-    debug_draw.clear_points()
-    debug_draw.clear_lines()
-    spawner.clear()
-    simulation_app.close()
+
+    try:
+        input_interface.unsubscribe_to_keyboard_events(keyboard, keyboard_sub)
+    except Exception as exc:
+        print(f"[WARN] Failed to unsubscribe keyboard events cleanly: {exc}")
+
+    try:
+        if lidar is not None:
+            lidar = None
+        RayCaster.meshes.pop(lidar_scan_mesh_path, None)
+    except Exception as exc:
+        print(f"[WARN] Failed to release LiDAR cleanly: {exc}")
+
+    try:
+        debug_draw.clear_points()
+        debug_draw.clear_lines()
+    except Exception as exc:
+        print(f"[WARN] Failed to clear debug draw cleanly: {exc}")
+
+    try:
+        spawner.clear()
+    except Exception as exc:
+        print(f"[WARN] Failed to clear spawned obstacles cleanly: {exc}")
+
+    gc.collect()
+
+    try:
+        if simulation_app.app.is_running() and not simulation_app.is_exiting():
+            simulation_app.close(wait_for_replicator=False)
+        else:
+            print("[INFO] Simulation app is already shutting down; skipping explicit close().")
+    except Exception as exc:
+        print(f"[WARN] simulation_app.close() raised during shutdown: {exc}")
 
     print("\n" + "="*70)
     print("✅ Flight test finished!")

@@ -410,6 +410,8 @@ def run_acceptance_check(
     result = validate_run_directory(run_dir)
     if write_report:
         write_acceptance_report(run_dir, result)
+        result = validate_run_directory(run_dir)
+        write_acceptance_report(run_dir, result)
     return result
 
 

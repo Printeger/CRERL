@@ -14,6 +14,11 @@ from .dynamic_analyzer import (
     write_dynamic_analysis_bundle,
     write_dynamic_report,
 )
+from .dynamic_evidence import (
+    DynamicEvidenceObject,
+    build_dynamic_evidence_objects,
+    build_semantic_diagnosis_inputs,
+)
 from .dynamic_metrics import (
     DynamicMetricResult,
     DynamicWitnessResult,
@@ -69,9 +74,12 @@ from .static_checks import (
 __all__ = [
     "DYNAMIC_ANALYSIS_NAMESPACE",
     "DynamicAnalyzerReport",
+    "DynamicEvidenceObject",
     "DynamicFindingRecord",
     "DynamicMetricResult",
     "DynamicWitnessResult",
+    "build_dynamic_evidence_objects",
+    "build_semantic_diagnosis_inputs",
     "build_failure_summaries",
     "build_group_summaries",
     "FindingRecord",

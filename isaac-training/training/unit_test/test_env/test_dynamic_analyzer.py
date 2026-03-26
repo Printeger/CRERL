@@ -91,11 +91,8 @@ def _create_run(
     for episode_index, episode in enumerate(episodes):
         _write_episode(logger, episode_index=episode_index, **episode)
 
-    # The first pass writes acceptance.json; the second pass verifies the full artifact set.
-    first = run_acceptance_check(logger.run_dir, write_report=True)
-    second = run_acceptance_check(logger.run_dir, write_report=True)
-    assert first["passed"] is False
-    assert second["passed"] is True
+    result = run_acceptance_check(logger.run_dir, write_report=True)
+    assert result["passed"] is True
     return Path(logger.run_dir)
 
 
@@ -342,6 +339,9 @@ def test_dynamic_report_promotes_group_and_failure_summaries(tmp_path):
     )
     assert report.static_context["bundle_name"] == ""
     assert report.static_context["namespace_contract"] == {}
+    assert report.evidence_objects
+    assert report.semantic_inputs["semantic_input_type"] == "dynamic_semantic_input.v1"
+    assert report.semantic_inputs["failure_hotspots"]
 
 
 def test_run_dynamic_audit_cli_writes_machine_readable_bundle(tmp_path):
@@ -423,6 +423,8 @@ def test_run_dynamic_audit_cli_writes_machine_readable_bundle(tmp_path):
 
     assert output_path.exists()
     assert (report_dir / "dynamic_report.json").exists()
+    assert (report_dir / "dynamic_evidence.json").exists()
+    assert (report_dir / "semantic_inputs.json").exists()
     assert (report_dir / "summary.json").exists()
     assert (report_dir / "manifest.json").exists()
     assert namespace_manifest_path.exists()
@@ -437,6 +439,10 @@ def test_run_dynamic_audit_cli_writes_machine_readable_bundle(tmp_path):
     assert sorted(report_payload["primary_run_ids"]) == ["cli_nominal_run"]
     assert sorted(report_payload["comparison_run_ids"]) == ["cli_shifted_run"]
     assert report_payload["metadata"]["static_context"]["bundle_name"] == "cli_static_bundle"
+    evidence_payload = json.loads((report_dir / "dynamic_evidence.json").read_text(encoding="utf-8"))
+    semantic_payload = json.loads((report_dir / "semantic_inputs.json").read_text(encoding="utf-8"))
+    assert evidence_payload
+    assert semantic_payload["semantic_input_type"] == "dynamic_semantic_input.v1"
 
     loaded = load_accepted_run_directory(nominal_run)
     assert loaded["acceptance"]["passed"] is True

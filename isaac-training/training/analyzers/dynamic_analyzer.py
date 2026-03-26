@@ -7,6 +7,10 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence
 
+from analyzers.dynamic_evidence import (
+    build_dynamic_evidence_objects,
+    build_semantic_diagnosis_inputs,
+)
 from analyzers.dynamic_metrics import DynamicWitnessResult, compute_dynamic_metrics
 from analyzers.report_contract import (
     DEFAULT_REPORT_NAMESPACES,
@@ -55,6 +59,8 @@ class DynamicAnalyzerReport:
     group_summaries: Dict[str, Any] = field(default_factory=dict)
     failure_summaries: Dict[str, Any] = field(default_factory=dict)
     static_context: Dict[str, Any] = field(default_factory=dict)
+    evidence_objects: List[Dict[str, Any]] = field(default_factory=list)
+    semantic_inputs: Dict[str, Any] = field(default_factory=dict)
     metadata: Dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -108,6 +114,8 @@ def build_dynamic_report(
     group_summaries: Optional[Mapping[str, Any]] = None,
     failure_summaries: Optional[Mapping[str, Any]] = None,
     static_context: Optional[Mapping[str, Any]] = None,
+    evidence_objects: Optional[Sequence[Mapping[str, Any]]] = None,
+    semantic_inputs: Optional[Mapping[str, Any]] = None,
     metadata: Optional[Mapping[str, Any]] = None,
 ) -> DynamicAnalyzerReport:
     findings = [
@@ -130,6 +138,8 @@ def build_dynamic_report(
         group_summaries=dict(group_summaries or {}),
         failure_summaries=dict(failure_summaries or {}),
         static_context=dict(static_context or {}),
+        evidence_objects=[dict(item) for item in (evidence_objects or [])],
+        semantic_inputs=dict(semantic_inputs or {}),
         metadata=dict(metadata or {}),
     )
 
@@ -434,6 +444,24 @@ def run_dynamic_analysis(
         "comparison": build_failure_summaries(comparison_runs),
         "grouping_keys": list(GROUPING_KEYS),
     }
+    provisional_report_payload = {
+        "report_type": "dynamic_analyzer_report.v1",
+        "spec_version": effective_spec_ir.spec_version,
+        "primary_run_ids": [item["run_id"] for item in primary_runs],
+        "comparison_run_ids": [item["run_id"] for item in comparison_runs],
+        "passed": True,
+        "max_severity": "info",
+        "num_findings": len(witness_results),
+        "witnesses": [result.to_dict() for result in witness_results],
+        "group_summaries": group_summaries,
+        "failure_summaries": failure_summaries,
+        "static_context": static_context,
+    }
+    evidence_objects = build_dynamic_evidence_objects(provisional_report_payload)
+    semantic_inputs = build_semantic_diagnosis_inputs(
+        provisional_report_payload,
+        spec_ir=effective_spec_ir,
+    )
     report = build_dynamic_report(
         spec_version=effective_spec_ir.spec_version,
         primary_run_ids=[item["run_id"] for item in primary_runs],
@@ -442,6 +470,8 @@ def run_dynamic_analysis(
         group_summaries=group_summaries,
         failure_summaries=failure_summaries,
         static_context=static_context,
+        evidence_objects=evidence_objects,
+        semantic_inputs=semantic_inputs,
         metadata={
             "detector_type": "dynamic",
             "source_paths": dict(effective_spec_ir.source_paths),
@@ -480,8 +510,19 @@ def write_dynamic_analysis_bundle(
     report_path.mkdir(parents=True, exist_ok=True)
 
     dynamic_report_path = write_dynamic_report(report, report_path / "dynamic_report.json")
+    dynamic_evidence_path = report_path / "dynamic_evidence.json"
+    semantic_inputs_path = report_path / "semantic_inputs.json"
     summary_path = report_path / "summary.json"
     manifest_path = report_path / "manifest.json"
+
+    dynamic_evidence_path.write_text(
+        json.dumps(list(report.evidence_objects), indent=2, sort_keys=True),
+        encoding="utf-8",
+    )
+    semantic_inputs_path.write_text(
+        json.dumps(dict(report.semantic_inputs), indent=2, sort_keys=True),
+        encoding="utf-8",
+    )
 
     witness_scores = {
         witness["witness_id"]: float(witness["score"])
@@ -514,6 +555,8 @@ def write_dynamic_analysis_bundle(
         "passed": bool(report.passed),
         "max_severity": str(report.max_severity),
         "num_findings": int(report.num_findings),
+        "dynamic_evidence_path": dynamic_evidence_path.name,
+        "semantic_inputs_path": semantic_inputs_path.name,
         "metadata": dict(report.metadata),
     }
     manifest_path.write_text(json.dumps(manifest_payload, indent=2, sort_keys=True), encoding="utf-8")
@@ -521,6 +564,8 @@ def write_dynamic_analysis_bundle(
     bundle_paths: Dict[str, Path] = {
         "report_dir": report_path,
         "dynamic_report_path": dynamic_report_path,
+        "dynamic_evidence_path": dynamic_evidence_path,
+        "semantic_inputs_path": semantic_inputs_path,
         "summary_path": summary_path,
         "manifest_path": manifest_path,
     }

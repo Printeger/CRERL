@@ -24,6 +24,8 @@ DEFAULT_REPORT_MODE_ARTIFACTS = {
     ),
     DYNAMIC_ANALYSIS_MODE: (
         "dynamic_report.json",
+        "dynamic_evidence.json",
+        "semantic_inputs.json",
         "summary.json",
         "manifest.json",
         "namespace_manifest.json",

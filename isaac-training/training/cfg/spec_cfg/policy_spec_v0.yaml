@@ -47,6 +47,8 @@ runtime_expectations:
   dynamic_analysis_namespace: "analysis/dynamic"
   dynamic_analysis_required_artifacts:
     - "dynamic_report.json"
+    - "dynamic_evidence.json"
+    - "semantic_inputs.json"
     - "summary.json"
     - "manifest.json"
     - "namespace_manifest.json"

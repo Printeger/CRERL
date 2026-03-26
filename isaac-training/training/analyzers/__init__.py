@@ -7,6 +7,15 @@ from .detector_runner import (
     run_static_analysis_bundle,
     write_static_audit_bundle,
 )
+from .report_contract import (
+    DEFAULT_REPORT_MODE_ARTIFACTS,
+    DEFAULT_REPORT_NAMESPACES,
+    DYNAMIC_ANALYSIS_MODE,
+    STATIC_AUDIT_MODE,
+    resolve_report_namespace_root,
+    write_namespace_manifest,
+    write_report_namespace_contract,
+)
 from .spec_ir import (
     ConstraintSpec,
     EnvironmentFamilySpec,
@@ -44,6 +53,13 @@ __all__ = [
     "run_static_analysis",
     "run_static_analysis_bundle",
     "write_static_audit_bundle",
+    "STATIC_AUDIT_MODE",
+    "DYNAMIC_ANALYSIS_MODE",
+    "DEFAULT_REPORT_NAMESPACES",
+    "DEFAULT_REPORT_MODE_ARTIFACTS",
+    "resolve_report_namespace_root",
+    "write_namespace_manifest",
+    "write_report_namespace_contract",
     "ConstraintSpec",
     "EnvironmentFamilySpec",
     "PolicySpec",

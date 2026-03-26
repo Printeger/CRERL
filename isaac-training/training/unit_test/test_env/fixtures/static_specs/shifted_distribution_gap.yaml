@@ -1,0 +1,30 @@
+env_cfg:
+  scene_cfg_shifted.yaml:
+    primitive_type_ratio:
+      static:
+        box: 0.40
+        cylinder: 0.45
+        slab: 0.10
+        perforated_slab: 0.05
+      dynamic:
+        sphere: 0.50
+        capsule: 0.50
+    distribution_modes:
+      background: "constrained_random"
+      structure: "template_driven"
+      route_adjacent_bias: 0.25
+      boundary_adjacent_bias: 0.15
+    background_placement:
+      obstacle_obstacle_min_dist: 1.0
+      obstacle_boundary_min_dist: 0.8
+      max_rejection_trials: 200
+      free_space_fraction_min: 0.45
+      free_space_fraction_max: 0.80
+    templates:
+      enabled: true
+      min_templates_per_scene: 1
+      max_templates_per_scene: 1
+      candidate_types:
+        - "bottleneck"
+        - "clutter_cluster"
+        - "perforated_barrier"

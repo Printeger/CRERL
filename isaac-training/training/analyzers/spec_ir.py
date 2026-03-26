@@ -8,6 +8,10 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any, Dict, Mapping, Optional, Sequence, Tuple
 
+from analyzers.report_contract import (
+    DEFAULT_REPORT_MODE_ARTIFACTS,
+    DEFAULT_REPORT_NAMESPACES,
+)
 from envs.cre_logging import SCHEMA_VERSION as RUNTIME_LOG_SCHEMA_VERSION
 from envs.cre_logging import STANDARD_REWARD_COMPONENT_KEYS
 from runtime_logging.acceptance import (
@@ -173,17 +177,6 @@ DEFAULT_RUNTIME_STATS_FIELDS = (
 DEFAULT_EXECUTION_MODE_ARTIFACTS = {
     mode: tuple(REQUIRED_RUN_ARTIFACTS)
     for mode in ("manual", "train", "eval", "baseline")
-}
-DEFAULT_REPORT_MODE_ARTIFACTS = {
-    "static_audit": (
-        "static_report.json",
-        "summary.json",
-        "manifest.json",
-        "namespace_manifest.json",
-    )
-}
-DEFAULT_REPORT_NAMESPACES = {
-    "static_audit": "analysis/static",
 }
 
 

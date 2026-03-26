@@ -96,6 +96,7 @@ def main() -> int:
                 "summary_path": str(bundle_paths["summary_path"]),
                 "manifest_path": str(bundle_paths["manifest_path"]),
                 "namespace_manifest_path": str(bundle_paths.get("namespace_manifest_path", "")),
+                "namespace_contract_path": str(bundle_paths.get("namespace_contract_path", "")),
                 "passed": report.passed,
                 "max_severity": report.max_severity,
                 "num_findings": report.num_findings,

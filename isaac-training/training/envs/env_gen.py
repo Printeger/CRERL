@@ -150,6 +150,7 @@ ALLOWED_SEMANTIC_ROLES = {
 }
 
 ALLOWED_MOTION_TYPES = {"waypoint_patrol", "random_walk", "lane_patrol"}
+SUPPORTED_DYNAMIC_MOTION_TYPES = set(ALLOWED_MOTION_TYPES)
 
 
 class SceneMode(Enum):

@@ -6,7 +6,11 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Sequence
 
-from envs.env_gen import SUPPORTED_RULE_TEMPLATE_TYPES, SUPPORTED_SCENE_FAMILY_BACKEND
+from envs.env_gen import (
+    SUPPORTED_DYNAMIC_MOTION_TYPES,
+    SUPPORTED_RULE_TEMPLATE_TYPES,
+    SUPPORTED_SCENE_FAMILY_BACKEND,
+)
 from .spec_ir import SpecIR
 
 SUPPORTED_EXECUTION_MODES = {"manual", "train", "eval", "baseline"}
@@ -616,6 +620,15 @@ def check_execution_mode_alignment(spec_ir: SpecIR) -> StaticCheckResult:
     static_audit_required_artifacts = set(
         runtime_expectations.get("static_audit_required_artifacts", ())
     )
+    dynamic_analysis_namespace = str(
+        runtime_expectations.get(
+            "dynamic_analysis_namespace",
+            spec_ir.runtime_schema.report_namespaces.get("dynamic_analysis", "analysis/dynamic"),
+        )
+    )
+    dynamic_analysis_required_artifacts = set(
+        runtime_expectations.get("dynamic_analysis_required_artifacts", ())
+    )
 
     unknown_supported_modes = sorted(supported_execution_modes - SUPPORTED_EXECUTION_MODES)
     if unknown_supported_modes:
@@ -655,6 +668,26 @@ def check_execution_mode_alignment(spec_ir: SpecIR) -> StaticCheckResult:
             {
                 "kind": "missing_static_audit_report_artifacts",
                 "missing_artifacts": missing_static_artifacts,
+            }
+        )
+
+    actual_dynamic_namespace = spec_ir.runtime_schema.report_namespaces.get("dynamic_analysis", "")
+    if dynamic_analysis_namespace != actual_dynamic_namespace:
+        issues.append(
+            {
+                "kind": "dynamic_analysis_namespace_mismatch",
+                "expected_namespace": dynamic_analysis_namespace,
+                "actual_namespace": actual_dynamic_namespace,
+            }
+        )
+
+    actual_dynamic_artifacts = set(spec_ir.runtime_schema.report_mode_artifacts.get("dynamic_analysis", ()))
+    missing_dynamic_artifacts = sorted(dynamic_analysis_required_artifacts - actual_dynamic_artifacts)
+    if missing_dynamic_artifacts:
+        issues.append(
+            {
+                "kind": "missing_dynamic_analysis_report_artifacts",
+                "missing_artifacts": missing_dynamic_artifacts,
             }
         )
 
@@ -776,6 +809,53 @@ def check_scene_backend_capability(spec_ir: SpecIR) -> StaticCheckResult:
                         "max_dynamic_count": dynamic_cfg.get("max_dynamic_count"),
                     }
                 )
+            for primitive_type in ("sphere", "capsule"):
+                budget_hi = int((dynamic_budget.get(primitive_type) or [0, 0])[1]) > 0
+                primitive_cfg = dynamic_cfg.get(primitive_type, {})
+                if not budget_hi:
+                    continue
+                if not isinstance(primitive_cfg, dict) or not primitive_cfg:
+                    issues.append(
+                        {
+                            "family": family_name,
+                            "kind": "missing_dynamic_motion_profile",
+                            "primitive_type": primitive_type,
+                        }
+                    )
+                    continue
+                motion_candidates = {
+                    str(item)
+                    for item in primitive_cfg.get("motion_type_candidates", [])
+                    if str(item)
+                }
+                if not motion_candidates:
+                    issues.append(
+                        {
+                            "family": family_name,
+                            "kind": "missing_dynamic_motion_candidates",
+                            "primitive_type": primitive_type,
+                        }
+                    )
+                unsupported_motion_types = sorted(motion_candidates - SUPPORTED_DYNAMIC_MOTION_TYPES)
+                if unsupported_motion_types:
+                    issues.append(
+                        {
+                            "family": family_name,
+                            "kind": "unsupported_dynamic_motion_types",
+                            "primitive_type": primitive_type,
+                            "motion_types": unsupported_motion_types,
+                        }
+                    )
+                speed_range = _coerce_range_pair(primitive_cfg.get("speed_range"))
+                if speed_range is None or speed_range[0] < 0.0 or speed_range[1] <= 0.0 or speed_range[0] > speed_range[1]:
+                    issues.append(
+                        {
+                            "family": family_name,
+                            "kind": "invalid_dynamic_speed_range",
+                            "primitive_type": primitive_type,
+                            "speed_range": primitive_cfg.get("speed_range"),
+                        }
+                    )
 
         if family.validation.get("require_traversable_perforation", False):
             supports_perforation = (
@@ -789,6 +869,25 @@ def check_scene_backend_capability(spec_ir: SpecIR) -> StaticCheckResult:
                         "kind": "perforation_requirement_not_expressible",
                     }
                 )
+
+    nominal_family = spec_ir.environment_families.get("nominal")
+    shifted_family = spec_ir.environment_families.get("shifted")
+    if nominal_family is not None and shifted_family is not None:
+        distinguishing_signals = {
+            "distribution_modes": nominal_family.distribution_modes != shifted_family.distribution_modes,
+            "primitive_type_ratio": nominal_family.primitive_type_ratio != shifted_family.primitive_type_ratio,
+            "candidate_types": sorted(nominal_family.templates.get("candidate_types", []))
+            != sorted(shifted_family.templates.get("candidate_types", [])),
+            "background_placement": nominal_family.background_placement != shifted_family.background_placement,
+        }
+        if not any(distinguishing_signals.values()):
+            issues.append(
+                {
+                    "family": "shifted",
+                    "kind": "shifted_distribution_not_distinct_from_nominal",
+                    "signals_checked": distinguishing_signals,
+                }
+            )
 
     passed = not issues
     return StaticCheckResult(
@@ -804,6 +903,7 @@ def check_scene_backend_capability(spec_ir: SpecIR) -> StaticCheckResult:
             "issues": issues,
             "supported_scene_families": sorted(SUPPORTED_SCENE_FAMILY_BACKEND),
             "supported_rule_templates": sorted(SUPPORTED_RULE_TEMPLATE_TYPES),
+            "supported_dynamic_motion_types": sorted(SUPPORTED_DYNAMIC_MOTION_TYPES),
         },
         affected_paths=_scene_cfg_paths(spec_ir) + [_scene_backend_path()],
         recommended_action=(

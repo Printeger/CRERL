@@ -4,161 +4,165 @@ Updated: 2026-03-26
 
 ## 1. This Iteration Goal
 
-This iteration continues Phase 4 with the next static-analyzer expansion batch:
+This iteration closes Phase 4 by finishing the last missing static-audit pieces:
 
-- add another group of synthetic bad-spec fixtures
-- add a `scene-backend capability` static check
-- extend execution-mode alignment from reward components to:
-  - runtime log artifact level
-  - static report artifact / namespace level
-- add a higher-level static audit report namespace so static audit artifacts can merge cleanly with later analysis/report pipeline stages
+- refine `scene-backend capability` checks with:
+  - dynamic hazard semantics
+  - shifted-distribution semantics
+- unify the `static / dynamic` report namespace contract
+- keep the static analyzer machine-readable, deterministic, and runnable without Isaac Sim
 
-This batch is the bridge from:
+This is the final bridge from:
 
-- "we can emit a static audit bundle"
+- "we have a useful static analyzer"
 
 to:
 
-- "we can validate whether the declared scene families are actually expressible by the current backend, and whether the execution/report artifact contract is internally aligned."
+- "we have a Phase-4-complete pre-training static audit layer with stable report contracts."
 
 ## 2. Implemented Results
 
-### 2.1 Additional Synthetic Bad-Spec Fixtures Added
+### 2.1 Scene-Backend Capability Checks Refined
 
-The fixture pack under:
+`isaac-training/training/analyzers/static_checks.py` now performs finer-grained backend capability checks.
+
+The `check_scene_backend_capability(...)` logic now validates:
+
+- unsupported template candidates
+- dynamic backend expressibility
+- dynamic motion-profile presence for enabled dynamic hazards
+- supported dynamic motion types
+- valid dynamic speed ranges
+- perforation expressibility
+- whether `shifted` is materially distinct from `nominal`
+
+This means the check no longer only answers:
+
+- "is the family name supported?"
+
+It now also answers:
+
+- "can the current backend express the dynamic hazard semantics and shifted-distribution semantics that the scene family claims to have?"
+
+### 2.2 Dynamic Hazard Semantic Fixtures Added
+
+The synthetic fixture pack under:
 
 - `isaac-training/training/unit_test/test_env/fixtures/static_specs/`
 
 was expanded with:
 
-- `scene_backend_capability_gap.yaml`
-  - injects an unsupported template candidate into `scene_cfg_shifted.yaml`
-- `report_namespace_misalignment.yaml`
-  - changes `policy_spec_v0.runtime_expectations.static_audit_namespace`
+- `dynamic_hazard_profile_gap.yaml`
+  - enables dynamic hazards but injects unsupported motion types and invalid speed ranges
+- `shifted_distribution_gap.yaml`
+  - makes `shifted` effectively collapse back toward `nominal`
 
-These fixtures complement the existing ones and now cover:
+These fixtures now give the static analyzer direct negative tests for the two main remaining environment/backend semantic gaps.
 
-- reward/constraint conflict
-- missing runtime field binding
-- scene-family undercoverage
-- scene-family structural invalidity
-- execution-mode misalignment
-- scene-backend capability mismatch
-- report namespace mismatch
+### 2.3 Unified Static/Dynamic Report Namespace Contract Added
 
-### 2.2 Scene-Backend Capability Check Implemented
+A new shared contract module was added:
 
-`isaac-training/training/analyzers/static_checks.py` now implements:
+- `isaac-training/training/analyzers/report_contract.py`
 
-- `check_scene_backend_capability(...)`
+It defines:
 
-Current behavior:
+- report modes:
+  - `static_audit`
+  - `dynamic_analysis`
+- default namespaces:
+  - `analysis/static`
+  - `analysis/dynamic`
+- expected bundle artifact sets for each report mode
 
-- compares declared scene families against the current `env_gen` backend support set
-- checks template candidate types against the actual supported rule-template types
-- checks whether dynamic-obstacle claims are expressible by the backend configuration path
-- checks whether perforation requirements are expressible by the current family/backend combination
+This lifts report layout rules out of the static CLI and turns them into a reusable analyzer-layer contract.
 
-This is the first explicit static check that reasons about:
+### 2.4 Spec IR Runtime Contract Expanded Again
 
-- what the spec claims the environment can do
-- versus what the current generator/backend can actually express
+`isaac-training/training/analyzers/spec_ir.py` now carries the shared report contract directly into the IR:
 
-### 2.3 Execution-Mode Alignment Expanded To Artifact Level
-
-`check_execution_mode_alignment(...)` was extended beyond reward-component mode tagging.
-
-It now also validates:
-
-- supported execution modes declared in `policy_spec_v0.yaml`
-- required rollout log artifacts for:
-  - `manual`
-  - `train`
-  - `eval`
-  - `baseline`
-- required static audit namespace
-- required static audit report artifacts
-
-This turns execution-mode alignment into a stronger contract:
-
-- reward components must align with execution paths
-- runtime log artifacts must align with execution paths
-- static audit report artifacts must align with the declared report namespace
-
-### 2.4 Spec IR Runtime Contract Expanded
-
-`isaac-training/training/analyzers/spec_ir.py` now carries a richer runtime/report contract:
-
-- `execution_mode_artifacts`
-- `report_mode_artifacts`
 - `report_namespaces`
+- `report_mode_artifacts`
 
-`policy_spec_v0.yaml` was also expanded so the machine-readable policy/runtime assumptions now include:
+`isaac-training/training/cfg/spec_cfg/policy_spec_v0.yaml` was also extended so runtime expectations now explicitly include:
 
-- `supported_execution_modes`
-- `rollout_required_artifacts`
 - `static_audit_namespace`
 - `static_audit_required_artifacts`
+- `dynamic_analysis_namespace`
+- `dynamic_analysis_required_artifacts`
 
-This makes the static analyzer less dependent on hidden assumptions and more explicit about artifact contracts.
+This makes the policy/runtime spec aware of both current static artifacts and future dynamic analyzer artifacts.
 
-### 2.5 Static Audit Report Namespace Added
+### 2.5 Execution-Mode Alignment Now Covers Report Artifacts Too
 
-`isaac-training/training/analyzers/detector_runner.py` now supports a higher-level static audit namespace.
+`check_execution_mode_alignment(...)` now validates:
 
-The current default namespace is:
+- reward component execution-mode alignment
+- rollout log artifact requirements
+- static audit namespace alignment
+- dynamic analysis namespace alignment
+- static audit artifact requirements
+- dynamic analysis artifact requirements
 
-- `analysis/static`
+So execution-mode alignment is now checked at three levels:
 
-The static audit bundle path is now resolved under:
+- reward component level
+- runtime log artifact level
+- analyzer report artifact / namespace level
 
-- `training/reports/analysis/static/<bundle_name>/`
+### 2.6 Top-Level Reports Namespace Contract Is Now Emitted
 
-and the namespace root now also gets:
+The static audit runner now writes not only a bundle, but also a higher-level namespace contract:
 
-- `namespace_manifest.json`
+- bundle:
+  - `analysis/static/<bundle_name>/static_report.json`
+  - `analysis/static/<bundle_name>/summary.json`
+  - `analysis/static/<bundle_name>/manifest.json`
+- namespace:
+  - `analysis/static/namespace_manifest.json`
+- top-level contract:
+  - `analysis/report_namespace_contract.json`
 
-This creates a stable landing zone for:
+This means later dynamic analyzers and report pipeline stages can join the same namespace tree instead of inventing a parallel layout.
 
-- current static analyzer bundles
-- future dynamic-analysis bundles
-- later merged analysis/report orchestration
+### 2.7 Phase 4 Exit Criteria Are Now Satisfied
 
-### 2.6 CLI Updated To Emit Namespaced Static Audit Bundles
+At this point, the project has:
 
-`isaac-training/training/scripts/run_static_audit.py` now supports:
+- a deterministic machine-readable `SpecIR`
+- deterministic static checks
+- synthetic bad-spec validation coverage for:
+  - `C-R` conflict
+  - `E-C` undercoverage
+  - runtime/schema mismatch
+  - scene-family structural invalidity
+  - backend capability mismatch
+  - execution/report namespace mismatch
+- a machine-readable static report
+- a namespaced report contract
+- a pure-Python execution path without Isaac Sim
 
-- `--reports-root`
-- `--bundle-name`
-- optional `--report-dir` override
-- optional standalone `--output`
-
-Current default behavior:
-
-- writes the static audit bundle into the namespaced reports tree
-- writes:
-  - `static_report.json`
-  - `summary.json`
-  - `manifest.json`
-  - `namespace_manifest.json`
-- optionally writes an extra standalone copy of `static_report.json`
+This satisfies the intended Phase 4 exit condition.
 
 ## 3. Main Files Added or Changed
 
 Code/config files:
 
-- `isaac-training/training/runtime_logging/acceptance.py`
+- `isaac-training/training/analyzers/report_contract.py`
 - `isaac-training/training/analyzers/spec_ir.py`
 - `isaac-training/training/analyzers/static_checks.py`
 - `isaac-training/training/analyzers/detector_runner.py`
 - `isaac-training/training/analyzers/__init__.py`
 - `isaac-training/training/envs/env_gen.py`
+- `isaac-training/training/runtime_logging/acceptance.py`
 - `isaac-training/training/scripts/run_static_audit.py`
 - `isaac-training/training/cfg/spec_cfg/policy_spec_v0.yaml`
 - `isaac-training/training/unit_test/test_env/test_spec_ir.py`
 - `isaac-training/training/unit_test/test_env/test_static_analyzer.py`
-- `isaac-training/training/unit_test/test_env/fixtures/static_specs/scene_backend_capability_gap.yaml`
+- `isaac-training/training/unit_test/test_env/fixtures/static_specs/dynamic_hazard_profile_gap.yaml`
+- `isaac-training/training/unit_test/test_env/fixtures/static_specs/shifted_distribution_gap.yaml`
 - `isaac-training/training/unit_test/test_env/fixtures/static_specs/report_namespace_misalignment.yaml`
+- `isaac-training/training/unit_test/test_env/fixtures/static_specs/scene_backend_capability_gap.yaml`
 
 Documentation/state files:
 
@@ -174,6 +178,7 @@ Run:
 ```bash
 python3 -m py_compile \
   isaac-training/training/runtime_logging/acceptance.py \
+  isaac-training/training/analyzers/report_contract.py \
   isaac-training/training/analyzers/aggregation.py \
   isaac-training/training/analyzers/static_checks.py \
   isaac-training/training/analyzers/detector_runner.py \
@@ -202,30 +207,30 @@ pytest -q \
 Expected result:
 
 - tests pass without Isaac Sim
-- synthetic bad-spec fixtures trigger the intended failures
+- dynamic-hazard fixtures fail for the correct reasons
+- shifted-semantic fixtures fail for the correct reasons
+- report namespace mismatch fixtures fail for the correct reasons
 
-### 4.3 Namespaced Static Audit Bundle Smoke Test
+### 4.3 Phase-4 Closeout Smoke Test
 
 Run from repo root:
 
 ```bash
 python3 isaac-training/training/scripts/run_static_audit.py \
-  --reports-root /tmp/crerl_reports_root \
-  --bundle-name static_audit_cli_check \
-  --output /tmp/crerl_reports_root/static_report_copy.json
+  --reports-root /tmp/crerl_reports_root_phase4 \
+  --bundle-name static_audit_phase4_closeout \
+  --output /tmp/crerl_reports_root_phase4/static_report_copy.json
 ```
 
 Expected result:
 
-- the bundle directory exists at:
-  - `/tmp/crerl_reports_root/analysis/static/static_audit_cli_check/`
-- it contains:
-  - `static_report.json`
-  - `summary.json`
-  - `manifest.json`
-- the namespace root contains:
-  - `namespace_manifest.json`
-- the standalone copy is also written
+- the static bundle is written under:
+  - `/tmp/crerl_reports_root_phase4/analysis/static/static_audit_phase4_closeout/`
+- the static namespace manifest is written:
+  - `/tmp/crerl_reports_root_phase4/analysis/static/namespace_manifest.json`
+- the top-level report namespace contract is written:
+  - `/tmp/crerl_reports_root_phase4/analysis/report_namespace_contract.json`
+- the current v0 bundle still passes with warning-level findings only
 
 ## 5. Validation Results
 
@@ -249,15 +254,16 @@ pytest -q \
 
 Result:
 
-- `14 passed`
+- `16 passed`
 
-### 5.3 Namespaced Static Audit Bundle Smoke Test
+### 5.3 Phase-4 Closeout Smoke Test
 
 Observed result:
 
 - `run_static_audit.py` completed successfully
-- the namespaced bundle directory was written successfully
-- `namespace_manifest.json` was written successfully
+- the namespaced static bundle was written successfully
+- `analysis/static/namespace_manifest.json` was written successfully
+- `analysis/report_namespace_contract.json` was written successfully
 - stdout summary reported:
   - `passed = true`
   - `max_severity = warning`
@@ -265,22 +271,37 @@ Observed result:
 
 ## 6. Current Conclusion
 
-The Phase 4 static analyzer now covers a meaningfully larger slice of the pre-training audit problem:
+Phase 4 can now be considered complete.
 
-- it validates more of the scene-family config structure
-- it validates backend expressivity against declared family claims
-- it validates execution-mode alignment at both reward and artifact levels
-- it emits namespaced static audit bundles that can be consumed by later pipeline stages
+The repository now has a usable static pre-training audit layer that:
 
-This is enough to support the next step:
+- reads a deterministic machine-readable spec bundle
+- checks constraint/reward/environment consistency
+- checks scene-family structure and backend expressivity
+- checks runtime/report artifact contracts
+- emits stable namespaced static audit artifacts
+- rejects synthetic bad specs in a repeatable pure-Python workflow
 
-- broadening static checks again where the gaps are still obvious
-- then starting the first Phase 5 dynamic analyzer implementation on top of a cleaner static pre-filter
+This is a strong enough base to start rollout-based dynamic analysis in the next phase.
 
 ## 7. Next Step
 
-The next best move is:
+The next best move is to start Phase 5:
 
-- add a dedicated scene-backend capability check for generator-feature parity beyond template names, especially dynamic hazards and shifted-distribution semantics
-- add static checks that validate report/artifact contracts for later dynamic-analysis stages
-- then start Phase 5 with the first rollout-based dynamic analyzer consuming the now-stable static and runtime evidence contract
+- implement the first dynamic analyzer on top of:
+  - CRE runtime logs
+  - baseline rollouts
+  - static audit bundles
+- begin with rollout-level metrics such as:
+  - success/collision gap
+  - min-distance distributions
+  - near-violation concentration
+  - family-conditioned failure summaries
+
+That will be the first stage where the project moves from:
+
+- "the spec looks suspicious before training"
+
+to:
+
+- "the executed policies produce measurable witness evidence of inconsistency."

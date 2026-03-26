@@ -242,6 +242,7 @@ def test_execution_mode_alignment_detects_static_report_namespace_mismatch(tmp_p
     assert result.severity == "high"
     issue_kinds = {issue["kind"] for issue in result.details["issues"]}
     assert "static_audit_namespace_mismatch" in issue_kinds
+    assert "dynamic_analysis_namespace_mismatch" in issue_kinds
 
 
 def test_scene_backend_capability_detects_unsupported_template_candidate(tmp_path):
@@ -263,10 +264,50 @@ def test_scene_backend_capability_detects_unsupported_template_candidate(tmp_pat
     assert "unsupported_template_candidates" in issue_kinds
 
 
+def test_scene_backend_capability_detects_dynamic_hazard_profile_gap(tmp_path):
+    spec_cfg_dir, env_cfg_dir, detector_cfg_dir = _materialize_fixture_bundle(
+        tmp_path,
+        "dynamic_hazard_profile_gap.yaml",
+    )
+    broken = load_spec_ir(
+        spec_cfg_dir=spec_cfg_dir,
+        env_cfg_dir=env_cfg_dir,
+        detector_cfg_dir=detector_cfg_dir,
+    )
+
+    result = check_scene_backend_capability(broken)
+
+    assert result.passed is False
+    assert result.severity == "high"
+    issue_kinds = {issue["kind"] for issue in result.details["issues"]}
+    assert "unsupported_dynamic_motion_types" in issue_kinds
+    assert "invalid_dynamic_speed_range" in issue_kinds
+
+
+def test_scene_backend_capability_detects_shifted_distribution_gap(tmp_path):
+    spec_cfg_dir, env_cfg_dir, detector_cfg_dir = _materialize_fixture_bundle(
+        tmp_path,
+        "shifted_distribution_gap.yaml",
+    )
+    broken = load_spec_ir(
+        spec_cfg_dir=spec_cfg_dir,
+        env_cfg_dir=env_cfg_dir,
+        detector_cfg_dir=detector_cfg_dir,
+    )
+
+    result = check_scene_backend_capability(broken)
+
+    assert result.passed is False
+    assert result.severity == "high"
+    issue_kinds = {issue["kind"] for issue in result.details["issues"]}
+    assert "shifted_distribution_not_distinct_from_nominal" in issue_kinds
+
+
 def test_run_static_audit_cli_writes_machine_readable_report(tmp_path):
     reports_root = tmp_path / "reports_root"
     report_dir = reports_root / "analysis" / "static" / "cli_bundle"
     namespace_manifest_path = reports_root / "analysis" / "static" / "namespace_manifest.json"
+    namespace_contract_path = reports_root / "analysis" / "report_namespace_contract.json"
     output_path = tmp_path / "cli_static_report.json"
     command = [
         sys.executable,
@@ -291,10 +332,12 @@ def test_run_static_audit_cli_writes_machine_readable_report(tmp_path):
     assert (report_dir / "summary.json").exists()
     assert (report_dir / "manifest.json").exists()
     assert namespace_manifest_path.exists()
+    assert namespace_contract_path.exists()
     stdout_payload = json.loads(result.stdout)
     file_payload = json.loads(output_path.read_text(encoding="utf-8"))
     assert stdout_payload["passed"] is True
     assert stdout_payload["num_findings"] == 8
     assert stdout_payload["report_dir"] == str(report_dir)
     assert stdout_payload["namespace_manifest_path"] == str(namespace_manifest_path)
+    assert stdout_payload["namespace_contract_path"] == str(namespace_contract_path)
     assert file_payload["report_type"] == "static_analyzer_report.v1"

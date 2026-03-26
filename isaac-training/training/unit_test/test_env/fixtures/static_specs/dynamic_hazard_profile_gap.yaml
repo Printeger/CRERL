@@ -1,0 +1,9 @@
+env_cfg:
+  scene_cfg_boundary_critical.yaml:
+    dynamic_obstacles:
+      enabled: true
+      max_dynamic_count: 2
+      sphere:
+        motion_type_candidates:
+          - "teleport"
+        speed_range: [-0.5, 0.0]

@@ -3,19 +3,23 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Optional, Sequence
 
 from .aggregation import FindingRecord, StaticAnalyzerReport, build_static_report, write_static_report
-from .spec_ir import (
+from .report_contract import (
     DEFAULT_REPORT_NAMESPACES,
+    STATIC_AUDIT_MODE,
+    resolve_report_namespace_root,
+    write_namespace_manifest,
+    write_report_namespace_contract,
+)
+from .spec_ir import (
     SpecIR,
     load_spec_ir,
 )
 from .static_checks import StaticCheckResult, run_static_checks
 
-STATIC_AUDIT_MODE = "static_audit"
 STATIC_AUDIT_NAMESPACE = DEFAULT_REPORT_NAMESPACES[STATIC_AUDIT_MODE]
 
 
@@ -75,40 +79,6 @@ def run_static_analysis(
     return report
 
 
-def _resolve_namespace_root(reports_root: str | Path, namespace: str) -> Path:
-    return Path(reports_root) / Path(namespace)
-
-
-def _write_static_audit_namespace_manifest(
-    namespace_root: Path,
-    bundle_name: str,
-    report: StaticAnalyzerReport,
-    bundle_paths: Dict[str, Path],
-    namespace: str,
-) -> Path:
-    namespace_root.mkdir(parents=True, exist_ok=True)
-    manifest_path = namespace_root / "namespace_manifest.json"
-    payload = {
-        "namespace_type": "analysis_namespace.v1",
-        "namespace": namespace,
-        "latest_bundle": bundle_name,
-        "generated_at_utc": datetime.now(timezone.utc).isoformat(),
-        "bundle_dir": str(bundle_paths["report_dir"]),
-        "bundle_relative_dir": bundle_name,
-        "static_report_path": str(bundle_paths["static_report_path"]),
-        "summary_path": str(bundle_paths["summary_path"]),
-        "manifest_path": str(bundle_paths["manifest_path"]),
-        "passed": bool(report.passed),
-        "max_severity": str(report.max_severity),
-        "num_findings": int(report.num_findings),
-    }
-    manifest_path.write_text(
-        json.dumps(payload, indent=2, sort_keys=True),
-        encoding="utf-8",
-    )
-    return manifest_path
-
-
 def write_static_audit_bundle(
     report: StaticAnalyzerReport,
     report_dir: str | Path,
@@ -138,8 +108,7 @@ def write_static_audit_bundle(
     )
 
     manifest_payload = {
-        "bundle_type": "static_audit_bundle.v2",
-        "generated_at_utc": datetime.now(timezone.utc).isoformat(),
+        "bundle_type": "static_audit_bundle.v3",
         "namespace": namespace,
         "report_type": report.report_type,
         "spec_version": report.spec_version,
@@ -151,10 +120,7 @@ def write_static_audit_bundle(
         "num_findings": int(report.num_findings),
         "metadata": dict(report.metadata),
     }
-    manifest_path.write_text(
-        json.dumps(manifest_payload, indent=2, sort_keys=True),
-        encoding="utf-8",
-    )
+    manifest_path.write_text(json.dumps(manifest_payload, indent=2, sort_keys=True), encoding="utf-8")
 
     bundle_paths = {
         "report_dir": report_path,
@@ -163,12 +129,17 @@ def write_static_audit_bundle(
         "manifest_path": manifest_path,
     }
     if namespace_root is not None:
-        bundle_paths["namespace_manifest_path"] = _write_static_audit_namespace_manifest(
-            Path(namespace_root),
-            bundle_name,
-            report,
-            bundle_paths,
-            namespace,
+        bundle_paths["namespace_manifest_path"] = write_namespace_manifest(
+            namespace_root,
+            bundle_name=bundle_name,
+            report_mode=STATIC_AUDIT_MODE,
+            namespace=namespace,
+            bundle_paths=bundle_paths,
+            report_summary={
+                "passed": bool(report.passed),
+                "max_severity": str(report.max_severity),
+                "num_findings": int(report.num_findings),
+            },
         )
     return bundle_paths
 
@@ -186,12 +157,14 @@ def run_static_analysis_bundle(
     report_dir: str | Path | None = None,
     output_path: str | Path | None = None,
 ) -> tuple[StaticAnalyzerReport, Dict[str, Path]]:
-    report = run_static_analysis(
-        spec_ir=spec_ir,
+    effective_spec_ir = spec_ir or load_spec_ir(
         spec_cfg_dir=spec_cfg_dir,
         env_cfg_dir=env_cfg_dir,
         detector_cfg_dir=detector_cfg_dir,
-        scene_families=scene_families,
+        scene_families=scene_families or ("nominal", "boundary_critical", "shifted"),
+    )
+    report = run_static_analysis(
+        spec_ir=effective_spec_ir,
         check_ids=check_ids,
         output_path=output_path,
     )
@@ -201,7 +174,11 @@ def run_static_analysis_bundle(
     if report_dir is None:
         if reports_root is None:
             reports_root = Path(__file__).resolve().parents[1] / "reports"
-        namespace_root = _resolve_namespace_root(reports_root, namespace)
+        namespace_root = resolve_report_namespace_root(
+            reports_root,
+            STATIC_AUDIT_MODE,
+            namespaces=effective_spec_ir.runtime_schema.report_namespaces,
+        )
         report_dir = namespace_root / str(bundle_name)
 
     bundle_paths = write_static_audit_bundle(
@@ -211,6 +188,12 @@ def run_static_analysis_bundle(
         bundle_name=str(bundle_name),
         namespace=namespace,
     )
+    if reports_root is not None:
+        bundle_paths["namespace_contract_path"] = write_report_namespace_contract(
+            reports_root,
+            namespaces=effective_spec_ir.runtime_schema.report_namespaces,
+            report_mode_artifacts=effective_spec_ir.runtime_schema.report_mode_artifacts,
+        )
     return report, bundle_paths
 
 

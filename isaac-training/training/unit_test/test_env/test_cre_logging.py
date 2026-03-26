@@ -9,7 +9,13 @@ if str(ROOT) not in sys.path:
 if str(ENVS_PATH) not in sys.path:
     sys.path.insert(0, str(ENVS_PATH))
 
-from cre_logging import FlightEpisodeLogger, SCHEMA_VERSION, _default_logs_dir, aggregate_log_directory
+from cre_logging import (
+    FlightEpisodeLogger,
+    SCHEMA_VERSION,
+    STANDARD_REWARD_COMPONENT_KEYS,
+    _default_logs_dir,
+    aggregate_log_directory,
+)
 
 
 def test_default_logs_dir_points_to_training_logs():
@@ -105,6 +111,7 @@ def test_episode_logger_writes_complete_artifacts_and_schema(tmp_path):
         "scene_cfg_name",
     }
     assert required_fields.issubset(step_record.keys())
+    assert set(STANDARD_REWARD_COMPONENT_KEYS).issubset(step_record["reward_components"].keys())
 
 
 def test_aggregate_log_directory_computes_acceptance_metrics(tmp_path):

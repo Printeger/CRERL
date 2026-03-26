@@ -16,6 +16,7 @@ from runtime_logging.training_log_adapter import (
     done_type_code_to_string,
     extract_cre_env_metadata,
 )
+from runtime_logging.schema import STANDARD_REWARD_COMPONENT_KEYS
 
 
 def test_done_type_code_to_string_maps_expected_values():
@@ -96,6 +97,7 @@ def test_training_rollout_logger_emits_episode_artifacts(tmp_path):
     assert len(steps) == 2
     assert all(step["source"] == "train" for step in steps)
     assert all(step["scene_cfg_name"] == "legacy_train_env" for step in steps)
+    assert all(set(STANDARD_REWARD_COMPONENT_KEYS).issubset(step["reward_components"].keys()) for step in steps)
 
 
 def test_extract_cre_env_metadata_prefers_env_runtime_metadata():

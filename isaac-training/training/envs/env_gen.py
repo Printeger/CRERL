@@ -1207,6 +1207,7 @@ def load_scene_family_config(
     family_cfg = _load_yaml_file(family_path)
     merged = _deep_merge_dicts(base_cfg, family_cfg)
     merged["scene_family"] = family_value
+    merged["scene_cfg_name"] = family_cfg_name
     return merged
 
 
@@ -1488,6 +1489,7 @@ def compile_scene_config_from_rules(
         "goal": goal,
         "difficulty": float(difficulty),
         "scene_mode": str(scene_rules.get("scene_family", "nominal")),
+        "scene_cfg_name": scene_rules.get("scene_cfg_name"),
         "sub_mode": None,
         "corridor_width": None,
         "obstacle_density": float(difficulty),
@@ -2502,6 +2504,7 @@ def generate_scene(scene_config: Dict[str, Any]) -> Dict[str, Any]:
             "difficulty": difficulty,
             "scene_mode": scene_config.get("scene_mode", SceneMode.MIXED.value),
             "scene_family": scene_config.get("scene_family", scene_config.get("scene_mode", SceneMode.MIXED.value)),
+            "scene_cfg_name": scene_config.get("scene_cfg_name"),
             "sub_mode": scene_config.get("sub_mode"),
             "corridor_width": scene_config.get("corridor_width"),
             "obstacle_density": scene_config.get("obstacle_density"),
@@ -2880,6 +2883,7 @@ class EnvPrimitiveGenerator:
         scene_tags = {
             "scene_id": scene["scene_id"],
             "family": scene.get("scene_family", scene["scene_mode"]),
+            "scene_cfg_name": scene.get("scene_cfg_name"),
             "seed": scene["seed"],
             "difficulty": scene["difficulty"],
             "sub_mode": scene.get("sub_mode"),

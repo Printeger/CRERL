@@ -3,7 +3,13 @@
 from pathlib import Path
 from typing import Optional
 
-from envs.cre_logging import FlightEpisodeLogger, SCHEMA_VERSION, aggregate_log_directory
+from envs.cre_logging import (
+    FlightEpisodeLogger,
+    SCHEMA_VERSION,
+    STANDARD_REWARD_COMPONENT_KEYS,
+    aggregate_log_directory,
+    normalize_reward_components,
+)
 
 
 def create_run_logger(
@@ -24,4 +30,11 @@ def create_run_logger(
         schema_version=schema_version,
     )
 
-__all__ = ["FlightEpisodeLogger", "aggregate_log_directory", "create_run_logger"]
+__all__ = [
+    "FlightEpisodeLogger",
+    "SCHEMA_VERSION",
+    "STANDARD_REWARD_COMPONENT_KEYS",
+    "aggregate_log_directory",
+    "create_run_logger",
+    "normalize_reward_components",
+]

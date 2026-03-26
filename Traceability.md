@@ -50,20 +50,23 @@ This keeps the workflow inside the current repo and avoids touching files outsid
 ## Latest Staged Change Summary
 
 <!-- TRACEABILITY:BEGIN -->
-_Updated: `2026-03-26T16:47:13`_
+_Updated: `2026-03-26T16:54:29`_
 
 - Scope: `/home/mint/rl_dev/CRERL`
 - Branch: `main`
 - Source: `staged diff`
 - Impacted phases: `Phase 1, Phase 4, Phase 7`
-- Diff stat: 8 files changed, 349 insertions(+), 46 deletions(-)
+- Diff stat: 11 files changed, 89 insertions(+), 22 deletions(-)
 
 ### Changed Files
-- `M` [isaac-training/training/cfg/eval.yaml](isaac-training/training/cfg/eval.yaml) [Training Config]
-- `M` [isaac-training/training/cfg/train.yaml](isaac-training/training/cfg/train.yaml) [Training Config]
+- `M` [isaac-training/training/envs/cre_logging.py](isaac-training/training/envs/cre_logging.py) [Procedural Env / Sensors]
 - `M` [isaac-training/training/envs/env_gen.py](isaac-training/training/envs/env_gen.py) [Procedural Env / Sensors]
-- `M` [isaac-training/training/envs/runtime/__init__.py](isaac-training/training/envs/runtime/__init__.py) [Procedural Env / Sensors]
-- `A` [isaac-training/training/envs/runtime/scene_family_bridge.py](isaac-training/training/envs/runtime/scene_family_bridge.py) [Procedural Env / Sensors]
-- `M` [isaac-training/training/scripts/env.py](isaac-training/training/scripts/env.py) [Isaac Env Core]
-- `A` [isaac-training/training/unit_test/test_env/test_scene_family_bridge.py](isaac-training/training/unit_test/test_env/test_scene_family_bridge.py) [Training Tests]
+- `M` [isaac-training/training/runtime_logging/logger.py](isaac-training/training/runtime_logging/logger.py) [isaac-training]
+- `M` [isaac-training/training/runtime_logging/schema.py](isaac-training/training/runtime_logging/schema.py) [isaac-training]
+- `M` [isaac-training/training/runtime_logging/training_log_adapter.py](isaac-training/training/runtime_logging/training_log_adapter.py) [isaac-training]
+- `M` [isaac-training/training/scripts/eval.py](isaac-training/training/scripts/eval.py) [Training Pipeline]
+- `M` [isaac-training/training/scripts/train.py](isaac-training/training/scripts/train.py) [Training Pipeline]
+- `M` [isaac-training/training/unit_test/test_env/test_cre_logging.py](isaac-training/training/unit_test/test_env/test_cre_logging.py) [Training Tests]
+- `M` [isaac-training/training/unit_test/test_env/test_training_log_adapter.py](isaac-training/training/unit_test/test_env/test_training_log_adapter.py) [Training Tests]
+- `M` [isaac-training/training/unit_test/test_flight.py](isaac-training/training/unit_test/test_flight.py) [Training Tests]
 <!-- TRACEABILITY:END -->

@@ -184,6 +184,7 @@ def main(cfg):
         scenario_type=cre_env_metadata["scenario_type"],
         scene_cfg_name=cre_env_metadata["scene_cfg_name"],
         scene_id_prefix=cre_env_metadata["scene_id_prefix"],
+        done_type_labels=cre_env_metadata["done_type_labels"],
         seed=cfg.seed,
     )
     cre_eval_run_logger = create_run_logger(
@@ -199,6 +200,7 @@ def main(cfg):
         scenario_type=cre_env_metadata["scenario_type"],
         scene_cfg_name=cre_env_metadata["scene_cfg_name"],
         scene_id_prefix=cre_env_metadata["scene_id_prefix"],
+        done_type_labels=cre_env_metadata["done_type_labels"],
         seed=cfg.seed,
     )
 

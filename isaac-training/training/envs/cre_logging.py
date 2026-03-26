@@ -13,6 +13,14 @@ from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
 
 
 SCHEMA_VERSION = "cre_runtime_log.v1"
+STANDARD_REWARD_COMPONENT_KEYS = (
+    "reward_progress",
+    "reward_safety_static",
+    "reward_safety_dynamic",
+    "penalty_smooth",
+    "penalty_height",
+    "manual_control",
+)
 
 def _default_logs_dir() -> Path:
     return Path(__file__).resolve().parents[1] / "logs"
@@ -22,6 +30,15 @@ def _safe_float(value: Optional[Any], default: Optional[float] = None) -> Option
     if value is None:
         return default
     return float(value)
+
+
+def normalize_reward_components(
+    reward_components: Optional[Dict[str, Any]] = None,
+) -> Dict[str, float]:
+    normalized = {key: 0.0 for key in STANDARD_REWARD_COMPONENT_KEYS}
+    for key, value in (reward_components or {}).items():
+        normalized[str(key)] = float(value)
+    return normalized
 
 
 def _sum_reward_components(steps: Sequence["StepLog"]) -> Dict[str, float]:
@@ -243,10 +260,7 @@ class FlightEpisodeLogger:
         pos = tuple(float(v) for v in position[:3])
         vel = tuple(float(v) for v in velocity[:3])
         target = None if target_position is None else tuple(float(v) for v in target_position[:3])
-        reward_component_dict = {
-            str(key): float(value)
-            for key, value in (reward_components or {}).items()
-        }
+        reward_component_dict = normalize_reward_components(reward_components)
         if self._last_position is not None:
             self._trajectory_length += math.dist(self._last_position, pos)
         self._last_position = pos

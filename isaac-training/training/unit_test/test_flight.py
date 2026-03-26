@@ -191,6 +191,7 @@ def main(cfg: DictConfig):
     CREScenarioFamily = generator_module.CREScenarioFamily
     FAMILY_TO_SCENE_CFG = generator_module.FAMILY_TO_SCENE_CFG
     create_run_logger = logging_module.create_run_logger
+    normalize_reward_components = logging_module.normalize_reward_components
 
     print("[INFO] Dependencies loaded successfully")
 
@@ -438,6 +439,9 @@ def main(cfg: DictConfig):
         return str(current_result.cre_metadata.family)
 
     def get_scene_cfg_name():
+        scene_cfg_name = get_scene_tags().get("scene_cfg_name")
+        if scene_cfg_name:
+            return str(scene_cfg_name)
         preferred = FAMILY_TO_SCENE_CFG.get(current_family, "scene_cfg_base.yaml")
         cfg_path = os.path.join(CFG_PATH, "env_cfg", preferred)
         return preferred if os.path.exists(cfg_path) else f"{preferred} (fallback to scene_cfg_base.yaml)"
@@ -1177,7 +1181,7 @@ def main(cfg: DictConfig):
                 target_position=(float(target_pos[0]), float(target_pos[1]), float(target_pos[2])),
                 goal_distance=goal_distance,
                 reward_total=0.0,
-                reward_components={"manual_control": 0.0},
+                reward_components=normalize_reward_components({"manual_control": 0.0}),
                 collision_flag=collision_proxy,
                 min_obstacle_distance=min_dist,
                 out_of_bounds_flag=out_of_bounds_flag,

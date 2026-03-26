@@ -7,7 +7,7 @@ from typing import Any, Dict, Mapping, Optional, Sequence
 
 import torch
 
-from envs.cre_logging import FlightEpisodeLogger, StepLog
+from envs.cre_logging import FlightEpisodeLogger, StepLog, normalize_reward_components
 
 
 DONE_TYPE_CODE_MAP = {
@@ -26,6 +26,7 @@ def done_type_code_to_string(
     out_of_bounds_flag: bool = False,
     success_flag: bool = False,
     truncated_flag: bool = False,
+    done_type_labels: Optional[Mapping[Any, Any]] = None,
 ) -> str:
     if collision_flag:
         return "collision"
@@ -48,7 +49,8 @@ def done_type_code_to_string(
     else:
         value = float(value)
 
-    return DONE_TYPE_CODE_MAP.get(int(round(value)), "unknown")
+    labels = dict(done_type_labels or DONE_TYPE_CODE_MAP)
+    return str(labels.get(int(round(value)), "unknown"))
 
 
 def _as_tensor(value: Any) -> Optional[torch.Tensor]:
@@ -238,6 +240,7 @@ class TrainingRolloutLogger:
         scenario_type: str,
         scene_cfg_name: Optional[str] = None,
         scene_id_prefix: Optional[str] = None,
+        done_type_labels: Optional[Mapping[Any, Any]] = None,
         seed: Optional[int] = None,
     ) -> None:
         self.run_logger = run_logger
@@ -251,6 +254,7 @@ class TrainingRolloutLogger:
             if scene_id_prefix is not None
             else f"{self.scenario_type}_scene"
         )
+        self.done_type_labels = dict(done_type_labels or DONE_TYPE_CODE_MAP)
         self.seed = seed
         self._next_episode_index = 0
         self._buffers = [self._new_buffer() for _ in range(self.num_envs)]
@@ -321,15 +325,16 @@ class TrainingRolloutLogger:
                     out_of_bounds_flag=out_of_bounds_flag,
                     success_flag=success_flag,
                     truncated_flag=truncated_flag,
+                    done_type_labels=self.done_type_labels,
                 )
                 scene_id = self._build_scene_id(env_index, buffer.episode_index)
-                reward_components = {
+                reward_components = normalize_reward_components({
                     "reward_progress": 0.0 if reward_progress is None else _scalar(reward_progress[time_index, env_index]),
                     "reward_safety_static": 0.0 if reward_safety_static is None else _scalar(reward_safety_static[time_index, env_index]),
                     "reward_safety_dynamic": 0.0 if reward_safety_dynamic is None else _scalar(reward_safety_dynamic[time_index, env_index]),
                     "penalty_smooth": 0.0 if penalty_smooth is None else _scalar(penalty_smooth[time_index, env_index]),
                     "penalty_height": 0.0 if penalty_height is None else _scalar(penalty_height[time_index, env_index]),
-                }
+                })
                 step_log = StepLog(
                     episode_index=buffer.episode_index,
                     step_idx=buffer.step_index,

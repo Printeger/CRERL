@@ -42,6 +42,14 @@ from .semantic_inputs import (
     load_dynamic_bundle,
     load_static_bundle,
 )
+from .semantic_crosscheck import (
+    check_claim_evidence_support,
+    check_claim_scope_alignment,
+    check_claim_type_alignment,
+    check_claim_witness_alignment,
+    validate_semantic_claims,
+)
+from .semantic_provider import MockSemanticProvider, SemanticProvider, generate_mock_claims
 from .dynamic_metrics import (
     DynamicMetricResult,
     DynamicWitnessResult,
@@ -156,6 +164,14 @@ __all__ = [
     "load_reward_spec",
     "load_spec_ir",
     "load_static_bundle",
+    "check_claim_evidence_support",
+    "check_claim_scope_alignment",
+    "check_claim_type_alignment",
+    "check_claim_witness_alignment",
+    "validate_semantic_claims",
+    "MockSemanticProvider",
+    "SemanticProvider",
+    "generate_mock_claims",
     "CANONICAL_CLAIM_TYPES",
     "CANONICAL_CLAIM_STATUSES",
     "CANONICAL_SEVERITIES",

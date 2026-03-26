@@ -11,11 +11,13 @@ from analyzers.semantic_claims import (
     SemanticClaimSet,
     normalize_claim_type,
 )
+from analyzers.semantic_crosscheck import validate_semantic_claims
 from analyzers.semantic_inputs import (
     build_semantic_analysis_input,
     load_dynamic_bundle,
     load_static_bundle,
 )
+from analyzers.semantic_provider import MockSemanticProvider
 from analyzers.spec_ir import load_spec_ir
 
 
@@ -296,3 +298,71 @@ def test_normalize_claim_type_aliases():
     assert normalize_claim_type("e_c") == "E-C"
     assert normalize_claim_type("er") == "E-R"
     assert normalize_claim_type("mystery") == "unknown"
+
+
+def test_mock_provider_generates_grounded_er_claim(tmp_path):
+    static_dir = _make_static_bundle(tmp_path)
+    dynamic_dir = _make_dynamic_bundle(tmp_path)
+    semantic_input = build_semantic_analysis_input(
+        static_bundle_dir=static_dir,
+        dynamic_bundle_dir=dynamic_dir,
+    )
+
+    provider = MockSemanticProvider()
+    claims = provider.generate_claims(semantic_input)
+
+    assert claims
+    first = claims[0]
+    assert first.claim_type == "E-R"
+    assert first.supporting_witness_ids == ["W_ER"]
+    assert first.supporting_evidence_ids
+    assert first.affected_families == ["shifted"]
+    assert first.repair_direction_hint == "review shifted-family robustness and environment-reward alignment"
+
+
+def test_semantic_crosscheck_supports_grounded_mock_claim(tmp_path):
+    static_dir = _make_static_bundle(tmp_path)
+    dynamic_dir = _make_dynamic_bundle(tmp_path)
+    semantic_input = build_semantic_analysis_input(
+        static_bundle_dir=static_dir,
+        dynamic_bundle_dir=dynamic_dir,
+    )
+
+    provider = MockSemanticProvider()
+    claim_set = validate_semantic_claims(
+        provider.generate_claims(semantic_input),
+        semantic_input=semantic_input,
+    )
+
+    assert len(claim_set.supported_claims) == 1
+    assert claim_set.supported_claims[0].claim_type == "E-R"
+    assert claim_set.cross_checks[0].passed is True
+    assert claim_set.cross_checks[0].support_status == "supported"
+
+
+def test_semantic_crosscheck_rejects_unsupported_overclaim(tmp_path):
+    static_dir = _make_static_bundle(tmp_path)
+    dynamic_dir = _make_dynamic_bundle(tmp_path)
+    semantic_input = build_semantic_analysis_input(
+        static_bundle_dir=static_dir,
+        dynamic_bundle_dir=dynamic_dir,
+    )
+
+    overclaim = SemanticClaim(
+        claim_id="claim-over",
+        claim_type="C-R",
+        confidence=0.9,
+        severity="high",
+        summary="Unsupported C-R overclaim.",
+        supporting_evidence_ids=["missing-evidence"],
+        supporting_witness_ids=["W_CR"],
+        affected_families=["shifted"],
+    )
+
+    claim_set = validate_semantic_claims([overclaim], semantic_input=semantic_input)
+
+    assert not claim_set.supported_claims
+    assert len(claim_set.rejected_claims) == 1
+    assert claim_set.rejected_claims[0].claim_type == "C-R"
+    assert claim_set.cross_checks[0].passed is False
+    assert claim_set.cross_checks[0].support_status == "rejected"

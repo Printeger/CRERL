@@ -1,0 +1,6 @@
+spec_cfg:
+  constraint_spec_v0.yaml:
+    constraints:
+      safety_margin:
+        active_scene_requirements:
+          - "dynamic_obstacles"

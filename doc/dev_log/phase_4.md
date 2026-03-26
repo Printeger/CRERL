@@ -4,159 +4,129 @@ Updated: 2026-03-26
 
 ## 1. This Iteration Goal
 
-This iteration finishes the second implementation batch of Phase 4:
+This iteration finishes the third implementation batch of Phase 4:
 
-- implement the first three deterministic static checks:
-  - `check_constraint_runtime_binding(...)`
-  - `check_reward_constraint_conflicts(...)`
-  - `check_reward_proxy_suspicion(...)`
-- connect them through:
-  - `run_static_checks(...)`
-  - `run_static_analysis(...)`
-- add the first machine-readable static analyzer report
+- add synthetic bad-spec fixtures for deterministic negative testing
+- extend the static analyzer with:
+  - `check_scene_family_coverage(...)`
+  - `check_required_runtime_fields(...)`
+- add a lightweight CLI:
+  - `run_static_audit.py`
+- keep the output machine-readable and usable without Isaac Sim
 
 This batch is the bridge from:
 
-- "we have a machine-readable spec bundle"
+- "we have a static analyzer core"
 
 to:
 
-- "we can produce deterministic pre-training findings and a static report."
+- "we can audit the current spec bundle, inject controlled spec faults, and run the analyzer directly from the command line."
 
 ## 2. Implemented Results
 
-### 2.1 Transitional Spec Configs Added
+### 2.1 Synthetic Bad-Spec Fixtures Added
 
-The following new config files were added:
+The following synthetic fixture files were added under:
 
-- `isaac-training/training/cfg/spec_cfg/constraint_spec_v0.yaml`
-- `isaac-training/training/cfg/spec_cfg/reward_spec_v0.yaml`
-- `isaac-training/training/cfg/spec_cfg/policy_spec_v0.yaml`
+- `isaac-training/training/unit_test/test_env/fixtures/static_specs/`
 
-These files mirror the current v0 understanding of:
+Current fixtures:
 
-- constraints
-- reward components
-- policy/runtime assumptions
+- `reward_constraint_conflict.yaml`
+  - disables both static and dynamic safety reward support
+- `missing_runtime_field.yaml`
+  - points `reward_progress.expected_logged_key` to a missing runtime field
+- `scene_family_undercoverage.yaml`
+  - injects a `dynamic_obstacles` scene requirement into `safety_margin`
 
-in a form that can be loaded directly by the analyzer stack.
+These fixtures let the analyzer prove that it can reject bad spec bundles in a deterministic and testable way.
 
-### 2.2 `SpecIR` Is No Longer a Placeholder
+### 2.2 Scene-Family Coverage Check Implemented
 
-`isaac-training/training/analyzers/spec_ir.py` now implements:
+`isaac-training/training/analyzers/static_checks.py` now implements:
 
-- `ConstraintSpec`
-- `RewardComponentSpec`
-- `RewardSpec`
-- `EnvironmentFamilySpec`
-- `PolicySpec`
-- `RuntimeSchemaSpec`
-- `SpecIR`
-
-It also implements deterministic loaders for:
-
-- `constraint_spec_v0.yaml`
-- `reward_spec_v0.yaml`
-- `policy_spec_v0.yaml`
-- scene-family configs under `cfg/env_cfg/`
-- detector thresholds
-- witness weights
-
-### 2.3 Runtime Schema Expectations Are Bound Into the IR
-
-The `SpecIR` now carries the accepted runtime schema expectations, including:
-
-- canonical step fields
-- canonical episode fields
-- canonical reward component keys
-- canonical done-type set
-- default env runtime field expectations
-
-This is important because later static checks need to answer:
-
-- "does a declared constraint actually map to a real runtime field?"
-- "does a declared reward component match the canonical logged keys?"
-
-### 2.4 Scene Families Are Loaded as Executable Environment Spec
-
-The IR currently loads the three mainline families:
-
-- `nominal`
-- `boundary_critical`
-- `shifted`
-
-via merged family config loading, so the analyzer can reason over:
-
-- workspace
-- primitive budget
-- distribution modes
-- template parameters
-- dynamic obstacle settings
-- start-goal rules
-- validation rules
-
-### 2.5 First Static Checks Implemented
-
-`isaac-training/training/analyzers/static_checks.py` now implements the first
-three Phase 4 checks:
-
-- `check_constraint_runtime_binding(...)`
-- `check_reward_constraint_conflicts(...)`
-- `check_reward_proxy_suspicion(...)`
+- `check_scene_family_coverage(...)`
 
 Current behavior:
 
-- `constraint_runtime_binding`
-  - verifies that required constraints bind to actual runtime fields and threshold refs
-- `reward_constraint_conflicts`
-  - checks for obvious safety-support gaps between declared constraints and enabled reward components
-- `reward_proxy_suspicion`
-  - emits warning-level findings for proxy patterns such as:
-    - constant step bias
-    - progress shaping without success bonus
-    - no explicit collision penalty assumption
+- infers capabilities from each loaded scene family
+- compares those capabilities to `constraint.active_scene_requirements`
+- emits a high-severity failure when a declared requirement is not covered by any scene family
 
-### 2.6 Detector Runner and Static Report Added
+Example:
 
-`isaac-training/training/analyzers/detector_runner.py` now exposes:
+- if a constraint says it must be exercised in `dynamic_obstacles`
+- but no current family enables dynamic obstacles
+- the check fails
 
-- `run_static_analysis(...)`
-- `run_detectors(...)`
+### 2.3 Required Runtime Field Check Implemented
 
-and `isaac-training/training/analyzers/aggregation.py` now provides the first
-machine-readable static report container:
+`isaac-training/training/analyzers/static_checks.py` now implements:
 
-- `FindingRecord`
-- `StaticAnalyzerReport`
-- `build_static_report(...)`
-- `write_static_report(...)`
+- `check_required_runtime_fields(...)`
 
-This means the analyzer layer can now:
+Current behavior:
 
-- load `SpecIR`
-- run deterministic static checks
-- emit a machine-readable `static_report.json`
+- verifies presence of required core step fields such as:
+  - `scene_id`
+  - `scenario_type`
+  - `scene_cfg_name`
+  - `reward_total`
+  - `done_type`
+  - `source`
+- verifies that enabled reward components map to expected logged keys
+- verifies that enabled reward components map to expected total fields
+- verifies required `done_type` labels when policy/runtime assumptions require them
 
-without Isaac Sim or RL training.
+This turns the runtime schema from "a documented expectation" into "a statically checkable contract."
+
+### 2.4 Static Audit CLI Added
+
+A lightweight direct entrypoint was added:
+
+- `isaac-training/training/scripts/run_static_audit.py`
+
+Current behavior:
+
+- loads the default spec bundle from:
+  - `cfg/spec_cfg/`
+  - `cfg/env_cfg/`
+  - `cfg/detector_cfg/`
+- optionally narrows the scene-family set
+- optionally narrows the check set
+- writes `static_report.json`
+- prints a concise machine-readable summary to stdout
+
+This is the first analyzer entrypoint that can be run directly without writing a Python snippet.
+
+### 2.5 Static Analyzer Test Coverage Expanded
+
+`isaac-training/training/unit_test/test_env/test_static_analyzer.py` now covers:
+
+- default static report generation
+- missing constraint runtime binding
+- reward/constraint conflict detection
+- reward proxy suspicion detection
+- scene-family undercoverage detection
+- missing required runtime field detection
+- fixture-driven blocking static report generation
+- CLI execution via `run_static_audit.py`
 
 ## 3. Main Files Added or Changed
 
 Code/config files:
 
-- `isaac-training/training/analyzers/aggregation.py`
-- `isaac-training/training/analyzers/detector_runner.py`
 - `isaac-training/training/analyzers/static_checks.py`
-- `isaac-training/training/analyzers/spec_ir.py`
+- `isaac-training/training/analyzers/detector_runner.py`
 - `isaac-training/training/analyzers/__init__.py`
-- `isaac-training/training/cfg/spec_cfg/constraint_spec_v0.yaml`
-- `isaac-training/training/cfg/spec_cfg/reward_spec_v0.yaml`
-- `isaac-training/training/cfg/spec_cfg/policy_spec_v0.yaml`
-- `isaac-training/training/unit_test/test_env/test_spec_ir.py`
+- `isaac-training/training/scripts/run_static_audit.py`
 - `isaac-training/training/unit_test/test_env/test_static_analyzer.py`
+- `isaac-training/training/unit_test/test_env/fixtures/static_specs/reward_constraint_conflict.yaml`
+- `isaac-training/training/unit_test/test_env/fixtures/static_specs/missing_runtime_field.yaml`
+- `isaac-training/training/unit_test/test_env/fixtures/static_specs/scene_family_undercoverage.yaml`
 
 Documentation/state files:
 
-- `doc/roadmap/phase4.md`
 - `doc/dev_log/phase_4.md`
 - `Traceability.md`
 
@@ -167,12 +137,13 @@ Documentation/state files:
 Run:
 
 ```bash
-python -m py_compile \
+python3 -m py_compile \
   isaac-training/training/analyzers/aggregation.py \
   isaac-training/training/analyzers/static_checks.py \
   isaac-training/training/analyzers/detector_runner.py \
   isaac-training/training/analyzers/spec_ir.py \
   isaac-training/training/analyzers/__init__.py \
+  isaac-training/training/scripts/run_static_audit.py \
   isaac-training/training/unit_test/test_env/test_spec_ir.py \
   isaac-training/training/unit_test/test_env/test_static_analyzer.py
 ```
@@ -181,7 +152,7 @@ Expected result:
 
 - no syntax error
 
-### 4.2 Pure Python Unit Test
+### 4.2 Pure Python Unit Tests
 
 Run:
 
@@ -194,40 +165,22 @@ pytest -q \
 Expected result:
 
 - tests pass without Isaac Sim
+- bad-spec fixtures trigger the expected failures
 
-### 4.3 Static Report Smoke Test
+### 4.3 CLI Smoke Test
 
 Run from repo root:
 
 ```bash
-python - <<'PY'
-import json
-import sys
-import tempfile
-from pathlib import Path
-root = Path("isaac-training/training").resolve()
-if str(root) not in sys.path:
-    sys.path.insert(0, str(root))
-from analyzers.detector_runner import run_static_analysis
-with tempfile.TemporaryDirectory() as td:
-    output = Path(td) / "static_report.json"
-    report = run_static_analysis(output_path=output)
-    payload = json.loads(output.read_text())
-print({
-    "passed": report.passed,
-    "max_severity": report.max_severity,
-    "num_findings": report.num_findings,
-    "scene_family_set": report.scene_family_set,
-    "payload_passed": payload["passed"],
-})
-PY
+python3 isaac-training/training/scripts/run_static_audit.py \
+  --output isaac-training/training/reports/static_report.json
 ```
 
 Expected result:
 
 - a `static_report.json` file is written
-- the report is machine-readable
-- the nominal v0 bundle is accepted with no blocker-level finding
+- stdout prints a machine-readable summary
+- the current nominal v0 bundle passes with at most warning-level findings
 
 ## 5. Validation Results
 
@@ -251,40 +204,41 @@ pytest -q \
 
 Result:
 
-- `6 passed`
+- `10 passed`
 
-### 5.3 Static Report Smoke Test
+### 5.3 CLI Smoke Test
 
 Observed result:
 
+- `run_static_audit.py` completed successfully
 - `static_report.json` was written successfully
-- `passed = true`
-- `max_severity = warning`
-- `num_findings = 3`
-- loaded scene families in the report:
-  - `boundary_critical`
-  - `nominal`
-  - `shifted`
-- the nominal v0 spec therefore currently produces:
-  - passing static report
-  - non-blocking warning-level proxy findings
+- stdout summary reported:
+  - `passed = true`
+  - `max_severity = warning`
+  - `num_findings = 5`
 
 ## 6. Current Conclusion
 
-The first two batches of Phase 4 are now complete:
+The Phase 4 static analyzer is now in a useful "first operational" state:
 
-- the project has a machine-readable v0 spec mirror
-- the analyzer layer can run the first deterministic static checks
-- a machine-readable `static_report.json` can be generated without Isaac Sim
-- the nominal v0 bundle currently passes static analysis with warning-level proxy findings but no blocker-level failure
+- it can load the current machine-readable spec bundle
+- it can detect both clean and synthetic-bad configurations
+- it can emit a machine-readable static report
+- it now has a lightweight direct CLI
 
-## 7. What To Do Next
+This is enough to support the next implementation step:
 
-The next step is the third batch of Phase 4:
+- broadening the static audit surface
+- then connecting it to higher-level detector orchestration
 
-- add explicit synthetic bad-spec fixtures
+## 7. Next Step
+
+The next best move is to continue Phase 4 with the fourth batch:
+
+- add more synthetic bad-spec fixtures
 - extend the static analyzer with:
-  - `check_scene_family_coverage(...)`
-  - `check_required_runtime_fields(...)`
-- add a CLI entry such as `run_static_audit.py`
-- start writing the first acceptance-style static analyzer regression cases against bad-spec fixtures
+  - scene-family structural validation checks
+  - reward/runtime execution-mode alignment checks
+- add a repo-level report wrapper so static audit artifacts are emitted into a standard reports directory layout
+
+After that, the project can move into Phase 5 dynamic analysis with a stronger static pre-filter in place.

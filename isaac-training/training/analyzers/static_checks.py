@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, Iterable, List, Sequence
+from typing import Any, Dict, List, Sequence
 
 from .spec_ir import SpecIR
 
@@ -43,6 +43,40 @@ def _scene_cfg_paths(spec_ir: SpecIR) -> List[str]:
         for key, path in spec_ir.source_paths.items()
         if str(key).startswith("scene_family:")
     )
+
+
+def _runtime_fields(spec_ir: SpecIR) -> set[str]:
+    return (
+        set(spec_ir.runtime_schema.step_required_fields)
+        | set(spec_ir.runtime_schema.episode_required_fields)
+        | set(spec_ir.runtime_schema.runtime_info_fields)
+        | set(spec_ir.runtime_schema.runtime_stats_fields)
+    )
+
+
+def _family_capabilities(spec_ir: SpecIR) -> Dict[str, Dict[str, bool]]:
+    capabilities: Dict[str, Dict[str, bool]] = {}
+    for family_name, family in spec_ir.environment_families.items():
+        primitive_budget = family.primitive_budget
+        templates = family.templates
+        dynamic_cfg = family.dynamic_obstacles
+        candidate_types = set(templates.get("candidate_types", []))
+        capabilities[family_name] = {
+            "all_families": True,
+            "workspace_limits": bool(family.workspace),
+            "static_obstacles": any(
+                int((primitive_budget.get(key) or [0, 0])[1]) > 0
+                for key in ("box", "cylinder", "slab", "perforated_slab")
+            ) or bool(templates.get("enabled", False)),
+            "dynamic_obstacles": bool(dynamic_cfg.get("enabled"))
+            and int(dynamic_cfg.get("max_dynamic_count", 0) or 0) > 0,
+            "route_adjacent_structure": bool(templates.get("enabled", False))
+            and float(family.distribution_modes.get("route_adjacent_bias", 0.0) or 0.0) > 0.0,
+            "perforated_templates": "perforated_barrier" in candidate_types
+            or int((primitive_budget.get("perforated_slab") or [0, 0])[1]) > 0,
+            "shifted_distribution": family_name == "shifted",
+        }
+    return capabilities
 
 
 def check_constraint_runtime_binding(spec_ir: SpecIR) -> StaticCheckResult:
@@ -247,6 +281,116 @@ def check_reward_proxy_suspicion(spec_ir: SpecIR) -> StaticCheckResult:
     )
 
 
+def check_scene_family_coverage(spec_ir: SpecIR) -> StaticCheckResult:
+    capabilities = _family_capabilities(spec_ir)
+    uncovered_requirements: List[Dict[str, Any]] = []
+
+    for constraint_id, constraint in spec_ir.constraints.items():
+        for requirement in constraint.active_scene_requirements:
+            if requirement in ("", "all_families"):
+                continue
+            covered_by = sorted(
+                family_name
+                for family_name, family_caps in capabilities.items()
+                if family_caps.get(requirement, False)
+            )
+            if not covered_by:
+                uncovered_requirements.append(
+                    {
+                        "constraint_id": constraint_id,
+                        "requirement": requirement,
+                        "covered_by": covered_by,
+                    }
+                )
+
+    passed = not uncovered_requirements
+    return StaticCheckResult(
+        check_id="scene_family_coverage",
+        passed=passed,
+        severity="high" if not passed else "info",
+        summary=(
+            "Scene families cover the current constraint activation requirements."
+            if passed
+            else "Some declared constraint activation requirements are not covered by any scene family."
+        ),
+        details={
+            "uncovered_requirements": uncovered_requirements,
+            "family_capabilities": capabilities,
+        },
+        affected_paths=_scene_cfg_paths(spec_ir) + [_constraint_spec_path(spec_ir)],
+        recommended_action=(
+            "Add or adjust scene-family capabilities so every declared constraint "
+            "activation requirement is covered by at least one family."
+        ),
+    )
+
+
+def check_required_runtime_fields(spec_ir: SpecIR) -> StaticCheckResult:
+    runtime_fields = _runtime_fields(spec_ir)
+    missing_reward_logged_keys: List[Dict[str, Any]] = []
+    missing_reward_total_fields: List[Dict[str, Any]] = []
+    required_core_fields = {
+        "scene_id",
+        "scenario_type",
+        "scene_cfg_name",
+        "reward_total",
+        "done_type",
+        "source",
+    }
+    missing_core_fields = sorted(required_core_fields - set(spec_ir.runtime_schema.step_required_fields))
+
+    for component_key, component in spec_ir.reward_spec.components.items():
+        if not component.enabled:
+            continue
+        execution_modes = set(component.execution_modes)
+        if execution_modes and execution_modes <= {"manual"}:
+            continue
+        if component.expected_logged_key and component.expected_logged_key not in runtime_fields:
+            missing_reward_logged_keys.append(
+                {
+                    "component_key": component_key,
+                    "expected_logged_key": component.expected_logged_key,
+                }
+            )
+        if component.expected_total_field and component.expected_total_field not in runtime_fields:
+            missing_reward_total_fields.append(
+                {
+                    "component_key": component_key,
+                    "expected_total_field": component.expected_total_field,
+                }
+            )
+
+    missing_done_type_labels = []
+    if spec_ir.policy_spec.runtime_expectations.get("done_type_labels_required", False):
+        for code in (0, 1, 2, 3, 4):
+            if code not in spec_ir.runtime_schema.done_type_code_labels:
+                missing_done_type_labels.append(code)
+
+    passed = not (missing_core_fields or missing_reward_logged_keys or missing_reward_total_fields or missing_done_type_labels)
+    return StaticCheckResult(
+        check_id="required_runtime_fields",
+        passed=passed,
+        severity="high" if not passed else "info",
+        summary=(
+            "The runtime schema provides the required core fields and reward bindings."
+            if passed
+            else "The runtime schema is missing one or more required fields or reward bindings."
+        ),
+        details={
+            "missing_core_fields": missing_core_fields,
+            "missing_reward_logged_keys": missing_reward_logged_keys,
+            "missing_reward_total_fields": missing_reward_total_fields,
+            "missing_done_type_labels": missing_done_type_labels,
+            "runtime_fields_checked": sorted(runtime_fields),
+        },
+        affected_paths=[_reward_spec_path(spec_ir), _policy_spec_path(spec_ir)],
+        recommended_action=(
+            "Align the runtime schema with the declared reward and policy "
+            "expectations so all required fields are emitted and named consistently."
+        ),
+    )
+
+
 def run_static_checks(
     spec_ir: SpecIR,
     check_ids: Sequence[str] | None = None,
@@ -255,6 +399,8 @@ def run_static_checks(
         "constraint_runtime_binding": check_constraint_runtime_binding,
         "reward_constraint_conflicts": check_reward_constraint_conflicts,
         "reward_proxy_suspicion": check_reward_proxy_suspicion,
+        "scene_family_coverage": check_scene_family_coverage,
+        "required_runtime_fields": check_required_runtime_fields,
     }
     selected = list(check_ids) if check_ids is not None else list(available.keys())
     results: List[StaticCheckResult] = []

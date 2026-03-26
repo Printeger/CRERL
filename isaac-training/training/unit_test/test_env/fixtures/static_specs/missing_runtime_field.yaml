@@ -1,0 +1,5 @@
+spec_cfg:
+  reward_spec_v0.yaml:
+    components:
+      reward_progress:
+        expected_logged_key: "missing_reward_progress"

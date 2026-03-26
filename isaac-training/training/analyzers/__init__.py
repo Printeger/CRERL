@@ -20,8 +20,10 @@ from .spec_ir import (
 from .static_checks import (
     StaticCheckResult,
     check_constraint_runtime_binding,
+    check_required_runtime_fields,
     check_reward_constraint_conflicts,
     check_reward_proxy_suspicion,
+    check_scene_family_coverage,
     run_static_checks,
 )
 
@@ -47,7 +49,9 @@ __all__ = [
     "load_spec_ir",
     "StaticCheckResult",
     "check_constraint_runtime_binding",
+    "check_required_runtime_fields",
     "check_reward_constraint_conflicts",
     "check_reward_proxy_suspicion",
+    "check_scene_family_coverage",
     "run_static_checks",
 ]

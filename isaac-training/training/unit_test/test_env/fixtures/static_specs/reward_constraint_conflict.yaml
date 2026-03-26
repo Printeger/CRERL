@@ -1,0 +1,7 @@
+spec_cfg:
+  reward_spec_v0.yaml:
+    components:
+      reward_safety_static:
+        enabled: false
+      reward_safety_dynamic:
+        enabled: false

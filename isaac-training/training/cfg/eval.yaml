@@ -13,6 +13,12 @@ scene_logging:
   scene_cfg_name: legacy_eval_env
   scene_id_prefix: legacy_eval_scene
 
+scene_family_backend:
+  enabled: true
+  family: nominal
+  difficulty: 0.5
+  gravity_tilt_enabled: false
+
 # Total Training Length
 max_frame_num: 10000 # max frame 
 eval_interval: 1000 # evaluate the policy for every N training steps

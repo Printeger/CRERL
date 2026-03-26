@@ -12,6 +12,7 @@ import copy
 import json
 import math
 import random
+import ast
 from collections import deque
 from dataclasses import asdict, dataclass, field
 from enum import Enum
@@ -19,7 +20,103 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
 
 import numpy as np
-import yaml
+try:
+    import yaml
+except ModuleNotFoundError:  # pragma: no cover - fallback for minimal Isaac/Hydra envs
+    class _YamlCompat:
+        @staticmethod
+        def _strip_comment(line: str) -> str:
+            return line.split("#", 1)[0].rstrip()
+
+        @staticmethod
+        def _parse_scalar(value: str):
+            lowered = value.lower()
+            if lowered in {"true", "false"}:
+                return lowered == "true"
+            if lowered in {"null", "none", "~"}:
+                return None
+            if value.startswith(("'", '"')) and value.endswith(("'", '"')):
+                return value[1:-1]
+            if value.startswith(("[", "{", "(", "-")) or value[:1].isdigit():
+                try:
+                    normalized = (
+                        value.replace("true", "True")
+                        .replace("false", "False")
+                        .replace("null", "None")
+                    )
+                    return ast.literal_eval(normalized)
+                except Exception:
+                    pass
+            try:
+                if "." in value or "e" in lowered:
+                    return float(value)
+                return int(value)
+            except Exception:
+                return value
+
+        @classmethod
+        def _parse_block(cls, lines, start_idx: int, indent: int):
+            if start_idx >= len(lines):
+                return {}, start_idx
+
+            line_indent, content = lines[start_idx]
+            if content.startswith("- "):
+                items = []
+                idx = start_idx
+                while idx < len(lines):
+                    current_indent, current = lines[idx]
+                    if current_indent < indent or not current.startswith("- "):
+                        break
+                    if current_indent != indent:
+                        break
+                    payload = current[2:].strip()
+                    idx += 1
+                    if payload == "":
+                        child, idx = cls._parse_block(lines, idx, indent + 2)
+                        items.append(child)
+                    else:
+                        items.append(cls._parse_scalar(payload))
+                return items, idx
+
+            mapping = {}
+            idx = start_idx
+            while idx < len(lines):
+                current_indent, current = lines[idx]
+                if current_indent < indent:
+                    break
+                if current_indent != indent:
+                    break
+                key, sep, raw_value = current.partition(":")
+                if not sep:
+                    raise ValueError(f"Invalid YAML line: {current}")
+                key = key.strip()
+                value = raw_value.strip()
+                idx += 1
+                if value == "":
+                    if idx < len(lines) and lines[idx][0] > current_indent:
+                        child, idx = cls._parse_block(lines, idx, current_indent + 2)
+                        mapping[key] = child
+                    else:
+                        mapping[key] = {}
+                else:
+                    mapping[key] = cls._parse_scalar(value)
+            return mapping, idx
+
+        @classmethod
+        def safe_load(cls, text):
+            lines = []
+            for raw_line in text.splitlines():
+                stripped = cls._strip_comment(raw_line)
+                if not stripped.strip():
+                    continue
+                indent = len(stripped) - len(stripped.lstrip(" "))
+                lines.append((indent, stripped.lstrip(" ")))
+            if not lines:
+                return {}
+            parsed, _ = cls._parse_block(lines, 0, lines[0][0])
+            return parsed
+
+    yaml = _YamlCompat()
 
 
 ALLOWED_PRIMITIVE_TYPES = {

@@ -32,6 +32,10 @@ import omni.isaac.orbit.sim as sim_utils
 import omni.isaac.orbit.utils.math as math_utils
 from omni.isaac.orbit.assets import RigidObject, RigidObjectCfg
 import time
+from envs.runtime.scene_family_bridge import (
+    build_scene_family_runtime_profile,
+    sample_start_goal_from_profile,
+)
 
 
 DONE_TYPE_LABELS = {
@@ -101,6 +105,15 @@ class NavigationEnv(IsaacEnv):
         self.lidar_vbeams = cfg.sensor.lidar_vbeams  # 垂直线束数（例如4条）
         self.lidar_hres = cfg.sensor.lidar_hres  # 水平角分辨率（度，例如10°）
         self.lidar_hbeams = int(360/self.lidar_hres)  # 水平线束数（360°/10° = 36条）
+        self.done_type_labels = dict(DONE_TYPE_LABELS)
+        self.scene_family_profile = build_scene_family_runtime_profile(
+            getattr(cfg, "scene_family_backend", None),
+            seed=int(getattr(cfg, "seed", 0)),
+        )
+        self.scene_family_reset_counter = 0
+        self.runtime_dynamic_obstacle_count = int(getattr(cfg.env_dyn, "num_obstacles", 0))
+        if self.scene_family_profile.get("enabled") and not self.scene_family_profile.get("dynamic_obstacles_enabled", False):
+            self.runtime_dynamic_obstacle_count = 0
 
         # ============================================
         # 第 2 步：调用父类初始化（创建仿真场景）
@@ -110,7 +123,6 @@ class NavigationEnv(IsaacEnv):
         # 2. 调用 _design_scene() 创建场景
         # 3. 调用 _set_specs() 定义空间规范
         super().__init__(cfg, cfg.headless)
-        self.done_type_labels = dict(DONE_TYPE_LABELS)
         self.cre_runtime_metadata = self._build_cre_runtime_metadata(cfg)
         
         # ============================================
@@ -167,6 +179,18 @@ class NavigationEnv(IsaacEnv):
             self.prev_drone_vel_w = torch.zeros(self.num_envs, 1 , 3)     
 
     def _build_cre_runtime_metadata(self, cfg):
+        if self.scene_family_profile.get("enabled"):
+            profile = self.scene_family_profile
+            return {
+                "scene_id": profile["scene_id_prefix"],
+                "scene_id_prefix": profile["scene_id_prefix"],
+                "scenario_type": profile["family"],
+                "scene_cfg_name": profile["scene_cfg_name"],
+                "scene_family": profile["family"],
+                "distribution_modes": dict(profile.get("distribution_modes", {})),
+                "validation_rules": dict(profile.get("validation_rules", {})),
+                "done_type_labels": dict(self.done_type_labels),
+            }
         scene_logging = getattr(cfg, "scene_logging", None)
         scenario_type = str(_cfg_section_get(scene_logging, "scenario_type", "legacy_navigation_env"))
         scene_cfg_name = str(_cfg_section_get(scene_logging, "scene_cfg_name", "legacy_env"))
@@ -247,8 +271,16 @@ class NavigationEnv(IsaacEnv):
         # ============================================
         # 4. 生成静态障碍物地形
         # ============================================
-        # 地图范围：40m × 40m × 4.5m（x, y, z）
-        self.map_range = [20.0, 20.0, 4.5]
+        workspace = dict(self.scene_family_profile.get("workspace", {})) if self.scene_family_profile.get("enabled") else {}
+        size_x = float(workspace.get("size_x", 40.0))
+        size_y = float(workspace.get("size_y", 40.0))
+        size_z = float(workspace.get("size_z", 4.5))
+        # 地图范围：（半边长度 x, y）与高度 z
+        self.map_range = [size_x / 2.0, size_y / 2.0, size_z]
+        self.runtime_height_bounds = (
+            float(workspace.get("flight_height_min", 0.5)),
+            float(workspace.get("flight_height_max", 4.0)),
+        )
 
         terrain_cfg = TerrainImporterCfg(
             num_envs=self.num_envs,  # 多少个并行环境
@@ -292,7 +324,7 @@ class NavigationEnv(IsaacEnv):
         )
         terrain_importer = TerrainImporter(terrain_cfg)  # 导入地形
 
-        if (self.cfg.env_dyn.num_obstacles == 0):
+        if self.runtime_dynamic_obstacle_count == 0:
             return
         # Dynamic Obstacles
         # NOTE: we use cuboid to represent 3D dynamic obstacles which can float in the air 
@@ -308,19 +340,19 @@ class NavigationEnv(IsaacEnv):
         self.max_obs_2d_height = 5.0
         self.dyn_obs_width_res = max_obs_width/float(N_w)
         dyn_obs_category_num = N_w * N_h
-        self.dyn_obs_num_of_each_category = int(self.cfg.env_dyn.num_obstacles / dyn_obs_category_num)
-        self.cfg.env_dyn.num_obstacles = self.dyn_obs_num_of_each_category * dyn_obs_category_num # in case of the roundup error
+        self.dyn_obs_num_of_each_category = int(self.runtime_dynamic_obstacle_count / dyn_obs_category_num)
+        self.runtime_dynamic_obstacle_count = self.dyn_obs_num_of_each_category * dyn_obs_category_num
 
 
         # Dynamic obstacle info
         self.dyn_obs_list = []
-        self.dyn_obs_state = torch.zeros((self.cfg.env_dyn.num_obstacles, 13), dtype=torch.float, device=self.cfg.device) # 13 is based on the states from sim, we only care the first three which is position
+        self.dyn_obs_state = torch.zeros((self.runtime_dynamic_obstacle_count, 13), dtype=torch.float, device=self.cfg.device) # 13 is based on the states from sim, we only care the first three which is position
         self.dyn_obs_state[:, 3] = 1. # Quaternion
-        self.dyn_obs_goal = torch.zeros((self.cfg.env_dyn.num_obstacles, 3), dtype=torch.float, device=self.cfg.device)
-        self.dyn_obs_origin = torch.zeros((self.cfg.env_dyn.num_obstacles, 3), dtype=torch.float, device=self.cfg.device)
-        self.dyn_obs_vel = torch.zeros((self.cfg.env_dyn.num_obstacles, 3), dtype=torch.float, device=self.cfg.device)
+        self.dyn_obs_goal = torch.zeros((self.runtime_dynamic_obstacle_count, 3), dtype=torch.float, device=self.cfg.device)
+        self.dyn_obs_origin = torch.zeros((self.runtime_dynamic_obstacle_count, 3), dtype=torch.float, device=self.cfg.device)
+        self.dyn_obs_vel = torch.zeros((self.runtime_dynamic_obstacle_count, 3), dtype=torch.float, device=self.cfg.device)
         self.dyn_obs_step_count = 0 # dynamic obstacle motion step count
-        self.dyn_obs_size = torch.zeros((self.cfg.env_dyn.num_obstacles, 3), dtype=torch.float, device=self.device) # size of dynamic obstacles
+        self.dyn_obs_size = torch.zeros((self.runtime_dynamic_obstacle_count, 3), dtype=torch.float, device=self.device) # size of dynamic obstacles
 
 
         # helper function to check pos validity for even distribution condition
@@ -330,7 +362,7 @@ class NavigationEnv(IsaacEnv):
                     return False
             return True            
         
-        obs_dist = 2 * np.sqrt(self.map_range[0] * self.map_range[1] / self.cfg.env_dyn.num_obstacles) # prefered distance between each dynamic obstacle
+        obs_dist = 2 * np.sqrt(self.map_range[0] * self.map_range[1] / self.runtime_dynamic_obstacle_count) # prefered distance between each dynamic obstacle
         curr_obs_dist = obs_dist
         prev_pos_list = [] # for distance check
         cuboid_category_num = cylinder_category_num = int(dyn_obs_category_num/N_h)
@@ -525,6 +557,20 @@ class NavigationEnv(IsaacEnv):
         self.info = info_spec.zero()
 
     
+    def _sample_scene_family_positions(self, env_ids: torch.Tensor):
+        starts = torch.zeros(len(env_ids), 1, 3, dtype=torch.float, device=self.device)
+        goals = torch.zeros_like(starts)
+        base_seed = int(self.scene_family_profile.get("seed", 0)) + self.scene_family_reset_counter * max(1, self.num_envs)
+        for offset, env_id in enumerate(env_ids.tolist()):
+            start, goal = sample_start_goal_from_profile(
+                self.scene_family_profile,
+                seed=base_seed + int(env_id),
+            )
+            starts[offset, 0] = torch.tensor(start, dtype=torch.float, device=self.device)
+            goals[offset, 0] = torch.tensor(goal, dtype=torch.float, device=self.device)
+        self.scene_family_reset_counter += 1
+        return starts, goals
+
     def reset_target(self, env_ids: torch.Tensor):
         if (self.training):
             # decide which side
@@ -555,29 +601,28 @@ class NavigationEnv(IsaacEnv):
 
     def _reset_idx(self, env_ids: torch.Tensor):
         self.drone._reset_idx(env_ids, self.training)
-        self.reset_target(env_ids)
-        if (self.training):
-            masks = torch.tensor([[1., 0., 1.], [1., 0., 1.], [0., 1., 1.], [0., 1., 1.]], dtype=torch.float, device=self.device)
-            shifts = torch.tensor([[0., 24., 0.], [0., -24., 0.], [24., 0., 0.], [-24., 0., 0.]], dtype=torch.float, device=self.device)
-            mask_indices = np.random.randint(0, masks.size(0), size=env_ids.size(0))
-            selected_masks = masks[mask_indices].unsqueeze(1)
-            selected_shifts = shifts[mask_indices].unsqueeze(1)
-
-            # generate random positions
-            pos = 48. * torch.rand(env_ids.size(0), 1, 3, dtype=torch.float, device=self.device) + (-24.)
-            heights = 0.5 + torch.rand(env_ids.size(0), dtype=torch.float, device=self.device) * (2.5 - 0.5)
-            pos[:, 0, 2] = heights# height
-            pos = pos * selected_masks + selected_shifts
-            
-            # pos = torch.zeros(len(env_ids), 1, 3, device=self.device)
-            # pos[:, 0, 0] = (env_ids / self.num_envs - 0.5) * 32.
-            # pos[:, 0, 1] = -24.
-            # pos[:, 0, 2] = 2.
+        if self.scene_family_profile.get("enabled"):
+            pos, target_pos = self._sample_scene_family_positions(env_ids)
+            self.target_pos[env_ids] = target_pos
         else:
-            pos = torch.zeros(len(env_ids), 1, 3, device=self.device)
-            pos[:, 0, 0] = (env_ids / self.num_envs - 0.5) * 32.
-            pos[:, 0, 1] = 24.
-            pos[:, 0, 2] = 2.
+            self.reset_target(env_ids)
+            if (self.training):
+                masks = torch.tensor([[1., 0., 1.], [1., 0., 1.], [0., 1., 1.], [0., 1., 1.]], dtype=torch.float, device=self.device)
+                shifts = torch.tensor([[0., 24., 0.], [0., -24., 0.], [24., 0., 0.], [-24., 0., 0.]], dtype=torch.float, device=self.device)
+                mask_indices = np.random.randint(0, masks.size(0), size=env_ids.size(0))
+                selected_masks = masks[mask_indices].unsqueeze(1)
+                selected_shifts = shifts[mask_indices].unsqueeze(1)
+
+                # generate random positions
+                pos = 48. * torch.rand(env_ids.size(0), 1, 3, dtype=torch.float, device=self.device) + (-24.)
+                heights = 0.5 + torch.rand(env_ids.size(0), dtype=torch.float, device=self.device) * (2.5 - 0.5)
+                pos[:, 0, 2] = heights# height
+                pos = pos * selected_masks + selected_shifts
+            else:
+                pos = torch.zeros(len(env_ids), 1, 3, device=self.device)
+                pos[:, 0, 0] = (env_ids / self.num_envs - 0.5) * 32.
+                pos[:, 0, 1] = 24.
+                pos[:, 0, 2] = 2.
         
         # Coordinate change: after reset, the drone's target direction should be changed
         self.target_dir[env_ids] = self.target_pos[env_ids] - pos
@@ -602,7 +647,7 @@ class NavigationEnv(IsaacEnv):
         self.drone.apply_action(actions) 
 
     def _post_sim_step(self, tensordict: TensorDictBase):
-        if (self.cfg.env_dyn.num_obstacles != 0):
+        if self.runtime_dynamic_obstacle_count != 0:
             self.move_dynamic_obstacle()
         self.lidar.update(self.dt)
     
@@ -682,7 +727,7 @@ class NavigationEnv(IsaacEnv):
         # 拼接为无人机状态：[方向(3) + 水平距离(1) + 垂直距离(1) + 速度(3)] = 8维
         drone_state = torch.cat([rpos_clipped_g, distance_2d, distance_z, vel_g], dim=-1).squeeze(1)
 
-        if (self.cfg.env_dyn.num_obstacles != 0):
+        if self.runtime_dynamic_obstacle_count != 0:
             # ---------Network Input III: Dynamic obstacle states--------
             # ------------------------------------------------------------
             # a. Closest N obstacles relative position in the goal frame 
@@ -765,7 +810,7 @@ class NavigationEnv(IsaacEnv):
         )
 
         # b. 动态障碍物安全奖励
-        if (self.cfg.env_dyn.num_obstacles != 0):
+        if self.runtime_dynamic_obstacle_count != 0:
             reward_safety_dynamic = torch.log(
                 (closest_dyn_obs_distance_reward).clamp(min=1e-6, max=self.lidar_range)
             ).mean(dim=-1, keepdim=True)
@@ -813,7 +858,7 @@ class NavigationEnv(IsaacEnv):
         #          + safety_dynamic * 1.0
         #          - smoothness * 0.1
         #          - height_penalty * 8.0
-        if (self.cfg.env_dyn.num_obstacles != 0):
+        if self.runtime_dynamic_obstacle_count != 0:
             self.reward = reward_vel + 1. + reward_safety_static * 1.0 + reward_safety_dynamic * 1.0 - penalty_smooth * 0.1 - penalty_height * 8.0
         else:
             self.reward = reward_vel + 1. + reward_safety_static * 1.0 - penalty_smooth * 0.1 - penalty_height * 8.0
@@ -826,7 +871,7 @@ class NavigationEnv(IsaacEnv):
         
         # 失败：飞出边界或碰撞
         below_bound = self.drone.pos[..., 2] < 0.2  # 低于 0.2m
-        above_bound = self.drone.pos[..., 2] > 4.  # 高于 4m
+        above_bound = self.drone.pos[..., 2] > self.runtime_height_bounds[1]
         out_of_bounds_flag = below_bound | above_bound
         self.terminated = out_of_bounds_flag | collision
         

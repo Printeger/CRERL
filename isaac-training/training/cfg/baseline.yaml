@@ -1,0 +1,50 @@
+defaults:
+  - _self_
+  - drone
+  - ppo
+  - sim
+
+headless: True
+device: "cuda:0"
+seed: 0
+
+scene_logging:
+  scenario_type: legacy_navigation_env
+  scene_cfg_name: legacy_baseline_env
+  scene_id_prefix: legacy_baseline_scene
+
+scene_family_backend:
+  enabled: true
+  family: nominal
+  difficulty: 0.5
+  gravity_tilt_enabled: false
+
+env:
+  num_envs: 1
+  max_episode_length: 50
+  env_spacing: 8.0
+  num_obstacles: 350
+
+env_dyn:
+  num_obstacles: 80
+  vel_range: [0.5, 1.5]
+  local_range: [5.0, 5.0, 4.5]
+
+viewer:
+  eye: [0.0, 40.0, 40.0]
+  lookat: [0.0, 2.5, 0.0]
+  resolution: [960, 720]
+
+baseline:
+  name: random
+  num_episodes: 1
+  seeds: []
+  random_scale: 1.0
+  greedy_forward_speed: 1.5
+  greedy_vertical_gain: 0.8
+  conservative_forward_speed: 0.8
+  conservative_vertical_gain: 0.6
+  safety_distance: 1.5
+  stop_distance: 0.6
+  lateral_gain: 1.2
+  dynamic_avoidance_gain: 0.8

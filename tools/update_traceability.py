@@ -56,6 +56,10 @@ def module_label(path: str) -> str:
         return "Spec / Roadmap"
     if path.startswith("doc/"):
         return "Project Docs"
+    if path.startswith("isaac-training/training/runtime_logging/"):
+        return "Runtime Logging"
+    if path.startswith("isaac-training/training/execution/"):
+        return "Execution / Baselines"
     if path.startswith("isaac-training/training/envs/"):
         return "Procedural Env / Sensors"
     if path.startswith("isaac-training/training/scripts/env.py"):
@@ -82,6 +86,13 @@ def detect_phases(paths: Sequence[str]) -> List[str]:
     for path in paths:
         if path.startswith("doc/roadmap/") or path == TRACEABILITY_FILE:
             phases.add("Phase 0")
+        if (
+            path.startswith("isaac-training/training/execution/")
+            or "baseline" in path
+        ):
+            phases.add("Phase 3")
+        if path.startswith("isaac-training/training/runtime_logging/"):
+            phases.update({"Phase 2", "Phase 3"})
         if (
             path.startswith("isaac-training/training/scripts/env.py")
             or path.startswith("isaac-training/training/envs/")

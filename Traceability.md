@@ -50,17 +50,22 @@ This keeps the workflow inside the current repo and avoids touching files outsid
 ## Latest Staged Change Summary
 
 <!-- TRACEABILITY:BEGIN -->
-_Updated: `2026-03-26T18:11:19`_
+_Updated: `2026-03-26T19:06:46`_
 
 - Scope: `/home/mint/rl_dev/CRERL`
 - Branch: `main`
 - Source: `staged diff`
-- Impacted phases: `Phase 1, Phase 4, Phase 7`
-- Diff stat: 5 files changed, 425 insertions(+), 151 deletions(-)
+- Impacted phases: `Phase 1, Phase 3, Phase 4, Phase 7, Workflow`
+- Diff stat: 10 files changed, 868 insertions(+), 41 deletions(-)
 
 ### Changed Files
 - `M` [doc/dev_log/p3_dev_status.md](doc/dev_log/p3_dev_status.md) [Project Docs]
-- `M` [isaac-training/training/runtime_logging/training_log_adapter.py](isaac-training/training/runtime_logging/training_log_adapter.py) [isaac-training]
-- `M` [isaac-training/training/scripts/env.py](isaac-training/training/scripts/env.py) [Isaac Env Core]
-- `M` [isaac-training/training/scripts/train.py](isaac-training/training/scripts/train.py) [Training Pipeline]
+- `A` [isaac-training/training/cfg/baseline.yaml](isaac-training/training/cfg/baseline.yaml) [Training Config]
+- `M` [isaac-training/training/execution/__init__.py](isaac-training/training/execution/__init__.py) [Execution / Baselines]
+- `M` [isaac-training/training/execution/baseline_policies.py](isaac-training/training/execution/baseline_policies.py) [Execution / Baselines]
+- `A` [isaac-training/training/execution/baseline_runner.py](isaac-training/training/execution/baseline_runner.py) [Execution / Baselines]
+- `A` [isaac-training/training/scripts/run_baseline.py](isaac-training/training/scripts/run_baseline.py) [Training Pipeline]
+- `A` [isaac-training/training/unit_test/test_env/test_baseline_policies.py](isaac-training/training/unit_test/test_env/test_baseline_policies.py) [Training Tests]
+- `A` [isaac-training/training/unit_test/test_env/test_baseline_runner.py](isaac-training/training/unit_test/test_env/test_baseline_runner.py) [Training Tests]
+- `M` [tools/update_traceability.py](tools/update_traceability.py) [Developer Workflow]
 <!-- TRACEABILITY:END -->

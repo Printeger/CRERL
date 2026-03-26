@@ -81,11 +81,22 @@ All three runs emit the same CRE run artifact set:
 
 ## 3. Main Files Changed
 
-Code files:
+Acceptance/runtime files:
 
 - `isaac-training/training/scripts/env.py`
 - `isaac-training/training/runtime_logging/training_log_adapter.py`
 - `isaac-training/training/scripts/train.py`
+- `isaac-training/training/scripts/eval.py`
+
+Baseline execution files:
+
+- `isaac-training/training/cfg/baseline.yaml`
+- `isaac-training/training/execution/__init__.py`
+- `isaac-training/training/execution/baseline_policies.py`
+- `isaac-training/training/execution/baseline_runner.py`
+- `isaac-training/training/scripts/run_baseline.py`
+- `isaac-training/training/unit_test/test_env/test_baseline_policies.py`
+- `isaac-training/training/unit_test/test_env/test_baseline_runner.py`
 
 Documentation/state files:
 
@@ -309,23 +320,257 @@ Additional observation:
 
 - no `train_eval_rollout_20260326_1808*` directory was created in the short-train run after the `+skip_periodic_eval=True` guard fix
 
-## 6. Current Conclusion
+## 6. Baseline Execution Modes Implemented
 
-This Phase 3 close-out target is complete:
+The second half of Phase 3 is now implemented:
 
-- run-level acceptance is wired into all three main execution paths
-- all three paths have produced real accepted CRE run directories
-- Phase 2 logging is now not only schema-consistent in code, but also validated at directory level on real entrypoint executions
+- `random` baseline
+- `greedy` baseline
+- `conservative` baseline
 
-## 7. What To Do Next
+All three baselines reuse the same CRE runtime logging stack and the same
+run-level acceptance gate used by:
 
-The next step is to move from logging/acceptance infrastructure into baseline execution:
+- `test_flight.py`
+- `train.py`
+- `eval.py`
 
-- implement `Phase 3 baseline execution modes`
-  - `random`
-  - `greedy`
-  - `conservative`
-- make those baselines emit the same CRE run directories
-- run the same acceptance and aggregation checks on baseline outputs
+### 6.1 Main Files Added or Updated
 
-After that, the project can start the first analyzer implementation on top of a stable multi-source log stream.
+Code files:
+
+- `isaac-training/training/execution/baseline_policies.py`
+- `isaac-training/training/execution/baseline_runner.py`
+- `isaac-training/training/execution/__init__.py`
+- `isaac-training/training/scripts/run_baseline.py`
+- `isaac-training/training/cfg/baseline.yaml`
+- `isaac-training/training/unit_test/test_env/test_baseline_policies.py`
+- `isaac-training/training/unit_test/test_env/test_baseline_runner.py`
+
+Behavior summary:
+
+- `random`
+  - samples bounded velocity commands in the goal-aligned local frame
+- `greedy`
+  - drives toward the goal using the relative-goal state without obstacle-aware shaping
+- `conservative`
+  - moves more slowly and uses clearance-aware heuristics to bias away from nearby obstacles
+
+### 6.2 Logging and Acceptance Reuse
+
+Each baseline run now emits the standard CRE run artifacts under:
+
+- `isaac-training/training/logs/baseline_<name>_rollout_<timestamp>/`
+
+Each run directory contains:
+
+- `manifest.json`
+- `steps.jsonl`
+- `episodes.jsonl`
+- `summary.json`
+- `acceptance.json`
+
+Each baseline run is finalized through the same:
+
+- logger schema
+- aggregation path
+- acceptance gate
+
+used by the main execution paths.
+
+## 7. How To Validate The Baseline Stage
+
+### 7.1 Syntax Validation
+
+Run:
+
+```bash
+python -m py_compile \
+  isaac-training/training/execution/baseline_policies.py \
+  isaac-training/training/execution/baseline_runner.py \
+  isaac-training/training/scripts/run_baseline.py \
+  isaac-training/training/unit_test/test_env/test_baseline_policies.py \
+  isaac-training/training/unit_test/test_env/test_baseline_runner.py
+```
+
+Expected result:
+
+- no syntax error
+
+### 7.2 Baseline Runner Smoke Tests
+
+Run from `isaac-training/`:
+
+```bash
+source /home/mint/rl_dev/setup_conda_env.sh
+export HYDRA_FULL_ERROR=1
+/home/mint/miniconda3/envs/NavRL/bin/python \
+  training/scripts/run_baseline.py \
+  headless=True \
+  baseline.name=random \
+  baseline.num_episodes=1 \
+  env.num_envs=1 \
+  env.max_episode_length=20
+```
+
+```bash
+source /home/mint/rl_dev/setup_conda_env.sh
+export HYDRA_FULL_ERROR=1
+/home/mint/miniconda3/envs/NavRL/bin/python \
+  training/scripts/run_baseline.py \
+  headless=True \
+  baseline.name=greedy \
+  baseline.num_episodes=1 \
+  env.num_envs=1 \
+  env.max_episode_length=20
+```
+
+```bash
+source /home/mint/rl_dev/setup_conda_env.sh
+export HYDRA_FULL_ERROR=1
+/home/mint/miniconda3/envs/NavRL/bin/python \
+  training/scripts/run_baseline.py \
+  headless=True \
+  baseline.name=conservative \
+  baseline.num_episodes=1 \
+  env.num_envs=1 \
+  env.max_episode_length=20
+```
+
+What to verify:
+
+- a new `baseline_<name>_rollout_<timestamp>` directory appears under:
+  - `isaac-training/training/logs/`
+- each run directory contains:
+  - `manifest.json`
+  - `steps.jsonl`
+  - `episodes.jsonl`
+  - `summary.json`
+  - `acceptance.json`
+- `acceptance.json` reports `"passed": true`
+
+## 8. Validation Results For Baseline Stage
+
+Validation run on 2026-03-26:
+
+### 8.1 `py_compile`
+
+Command:
+
+```bash
+python -m py_compile \
+  isaac-training/training/execution/baseline_policies.py \
+  isaac-training/training/execution/baseline_runner.py \
+  isaac-training/training/scripts/run_baseline.py \
+  isaac-training/training/unit_test/test_env/test_baseline_policies.py \
+  isaac-training/training/unit_test/test_env/test_baseline_runner.py
+```
+
+Result:
+
+- passed
+
+### 8.2 Baseline Policy / Runner Tests
+
+Command:
+
+```bash
+pytest -q \
+  isaac-training/training/unit_test/test_env/test_baseline_runner.py \
+  isaac-training/training/unit_test/test_env/test_baseline_policies.py
+```
+
+Observed result in the system Python environment:
+
+- skipped because `torch` was not available there
+
+Practical replacement validation:
+
+- run the three real baseline rollouts in the `NavRL` environment
+
+### 8.3 Random Baseline Audit
+
+Observed run directory:
+
+- `isaac-training/training/logs/baseline_random_rollout_20260326_190148`
+
+Acceptance result:
+
+- passed
+
+Observed metrics:
+
+- `episode_count = 1`
+- `success_rate = 0.0`
+- `collision_rate = 0.0`
+- `min_distance = 0.5522346496582031`
+- `average_return = 3.2183146476745605`
+- `near_violation_ratio = 0.0`
+
+### 8.4 Greedy Baseline Audit
+
+Observed run directory:
+
+- `isaac-training/training/logs/baseline_greedy_rollout_20260326_190209`
+
+Acceptance result:
+
+- passed
+
+Observed metrics:
+
+- `episode_count = 1`
+- `success_rate = 0.0`
+- `collision_rate = 0.0`
+- `min_distance = 0.6328315734863281`
+- `average_return = 4.177304744720459`
+- `near_violation_ratio = 0.0`
+
+### 8.5 Conservative Baseline Audit
+
+Observed run directory:
+
+- `isaac-training/training/logs/baseline_conservative_rollout_20260326_190217`
+
+Acceptance result:
+
+- passed
+
+Observed metrics:
+
+- `episode_count = 1`
+- `success_rate = 0.0`
+- `collision_rate = 0.0`
+- `min_distance = 0.5791435241699219`
+- `average_return = 3.63120436668396`
+- `near_violation_ratio = 0.0`
+
+Additional observation:
+
+- an earlier failed random rollout directory also exists:
+  - `isaac-training/training/logs/baseline_random_rollout_20260326_190120`
+- it predates the random-policy generator fix and does not represent the final baseline path
+
+## 9. Current Conclusion
+
+Phase 3 is now complete at the baseline-execution layer:
+
+- the three main execution paths emit accepted CRE run directories
+- `random`, `greedy`, and `conservative` baseline runners are implemented
+- baseline runs reuse the same CRE log schema and the same acceptance gate
+- the project now has a stable multi-source evidence stream ready for analyzer work
+
+## 10. What To Do Next
+
+The next step is to start the first analyzer implementation on top of this
+accepted multi-source log stream.
+
+Recommended next move:
+
+- begin the first dynamic analyzer pass
+- consume `summary.json`, `episodes.jsonl`, and `acceptance.json`
+- compute the first stable evidence outputs for:
+  - success/collision gap
+  - min-distance distribution
+  - near-violation concentration
+  - scenario-family-conditioned failure summaries

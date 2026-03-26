@@ -6,6 +6,7 @@ This package intentionally uses the name `runtime_logging` instead of
 
 from .episode_writer import (
     create_episode_writer,
+    discover_accepted_run_directories,
     load_accepted_run_directory,
     load_run_directories,
     load_run_directory,
@@ -22,6 +23,7 @@ __all__ = [
     "aggregate_log_directory",
     "create_episode_writer",
     "create_run_logger",
+    "discover_accepted_run_directories",
     "load_accepted_run_directory",
     "load_run_directories",
     "load_run_directory",

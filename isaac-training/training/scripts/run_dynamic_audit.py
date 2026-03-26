@@ -23,7 +23,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--run-dir",
         action="append",
-        required=True,
+        default=[],
         help="Accepted CRE run directory to analyze. May be supplied multiple times.",
     )
     parser.add_argument(
@@ -31,6 +31,47 @@ def parse_args() -> argparse.Namespace:
         action="append",
         default=[],
         help="Optional accepted CRE comparison run directory. May be supplied multiple times.",
+    )
+    parser.add_argument(
+        "--logs-root",
+        default=str(_training_root() / "logs"),
+        help="Root logs directory used when discovering accepted runs from filters.",
+    )
+    parser.add_argument(
+        "--source",
+        action="append",
+        default=[],
+        help="Primary run source filter, for example baseline_greedy / eval / train.",
+    )
+    parser.add_argument(
+        "--compare-source",
+        action="append",
+        default=[],
+        help="Comparison run source filter.",
+    )
+    parser.add_argument(
+        "--scenario-type",
+        action="append",
+        default=[],
+        help="Primary run scenario_type filter.",
+    )
+    parser.add_argument(
+        "--compare-scenario-type",
+        action="append",
+        default=[],
+        help="Comparison run scenario_type filter.",
+    )
+    parser.add_argument(
+        "--scene-cfg-name",
+        action="append",
+        default=[],
+        help="Primary run scene_cfg_name filter.",
+    )
+    parser.add_argument(
+        "--compare-scene-cfg-name",
+        action="append",
+        default=[],
+        help="Comparison run scene_cfg_name filter.",
     )
     parser.add_argument(
         "--spec-cfg-dir",
@@ -77,11 +118,20 @@ def parse_args() -> argparse.Namespace:
         default="",
         help="Optional static audit bundle directory to reference in metadata.",
     )
+    parser.add_argument(
+        "--static-bundle-name",
+        default="",
+        help="Optional static audit bundle name under analysis/static/ when resolving from reports-root.",
+    )
     return parser.parse_args()
 
 
 def main() -> int:
     args = parse_args()
+    if not args.run_dir and not args.source and not args.scenario_type and not args.scene_cfg_name:
+        raise SystemExit(
+            "Provide at least one --run-dir or one discovery filter such as --source / --scenario-type / --scene-cfg-name."
+        )
     _ensure_training_root_on_path()
 
     from analyzers.dynamic_analyzer import run_dynamic_analysis_bundle
@@ -90,6 +140,13 @@ def main() -> int:
     report, bundle_paths = run_dynamic_analysis_bundle(
         run_dirs=[Path(path) for path in args.run_dir],
         compare_run_dirs=[Path(path) for path in args.compare_run_dir],
+        logs_root=Path(args.logs_root),
+        sources=list(args.source),
+        compare_sources=list(args.compare_source),
+        scenario_types=list(args.scenario_type),
+        compare_scenario_types=list(args.compare_scenario_type),
+        scene_cfg_names=list(args.scene_cfg_name),
+        compare_scene_cfg_names=list(args.compare_scene_cfg_name),
         spec_cfg_dir=Path(args.spec_cfg_dir),
         env_cfg_dir=Path(args.env_cfg_dir),
         detector_cfg_dir=Path(args.detector_cfg_dir),
@@ -99,6 +156,7 @@ def main() -> int:
         report_dir=Path(args.report_dir) if args.report_dir else None,
         output_path=Path(args.output) if args.output else None,
         static_bundle_dir=Path(args.static_bundle_dir) if args.static_bundle_dir else None,
+        static_bundle_name=args.static_bundle_name or None,
     )
     print(
         json.dumps(

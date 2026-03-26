@@ -7,8 +7,12 @@ ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from analyzers.dynamic_analyzer import run_dynamic_analysis
-from runtime_logging.episode_writer import load_accepted_run_directory
+from analyzers.detector_runner import run_static_analysis_bundle
+from analyzers.dynamic_analyzer import load_static_bundle_context, run_dynamic_analysis
+from runtime_logging.episode_writer import (
+    discover_accepted_run_directories,
+    load_accepted_run_directory,
+)
 from runtime_logging.logger import create_run_logger, run_acceptance_check
 
 
@@ -199,6 +203,90 @@ def test_dynamic_analysis_detects_transfer_fragility(tmp_path):
     assert witness["severity"] in {"warning", "medium", "high"}
 
 
+def test_discover_accepted_run_directories_filters_by_source_and_scene(tmp_path):
+    nominal_run = _create_run(
+        tmp_path,
+        run_name="discover_nominal_run",
+        source="eval",
+        episodes=[
+            {
+                "scene_id": "scene_discover_nominal",
+                "scenario_type": "nominal",
+                "scene_cfg_name": "scene_cfg_nominal.yaml",
+                "distances": [1.0, 0.95, 0.92],
+                "rewards": [0.7, 0.7, 0.6],
+                "done_type": "success",
+            }
+        ],
+    )
+    shifted_run = _create_run(
+        tmp_path,
+        run_name="discover_shifted_run",
+        source="baseline_greedy",
+        episodes=[
+            {
+                "scene_id": "scene_discover_shifted",
+                "scenario_type": "shifted",
+                "scene_cfg_name": "scene_cfg_shifted.yaml",
+                "distances": [0.6, 0.5, 0.4],
+                "rewards": [0.4, 0.3, 0.2],
+                "done_type": "collision",
+                "collision": True,
+            }
+        ],
+    )
+
+    by_source = discover_accepted_run_directories(tmp_path, sources=["baseline_greedy"])
+    by_scene = discover_accepted_run_directories(tmp_path, scenario_types=["shifted"])
+    by_cfg = discover_accepted_run_directories(tmp_path, scene_cfg_names=["scene_cfg_nominal.yaml"])
+
+    assert by_source == [shifted_run]
+    assert by_scene == [shifted_run]
+    assert by_cfg == [nominal_run]
+
+
+def test_dynamic_analysis_loads_static_bundle_context(tmp_path):
+    nominal_run = _create_run(
+        tmp_path,
+        run_name="static_context_nominal_run",
+        source="eval",
+        episodes=[
+            {
+                "scene_id": "scene_static_context_nominal",
+                "scenario_type": "nominal",
+                "scene_cfg_name": "scene_cfg_nominal.yaml",
+                "distances": [1.0, 0.95, 0.92],
+                "rewards": [0.7, 0.7, 0.6],
+                "done_type": "success",
+            }
+        ],
+    )
+    reports_root = tmp_path / "reports_root"
+    static_report, bundle_paths = run_static_analysis_bundle(
+        reports_root=reports_root,
+        bundle_name="static_context_bundle",
+    )
+    assert static_report.passed is True
+
+    report = run_dynamic_analysis(
+        run_dirs=[nominal_run],
+        reports_root=reports_root,
+        static_bundle_name="static_context_bundle",
+    )
+    static_context = report.metadata["static_context"]
+
+    assert static_context["bundle_name"] == "static_context_bundle"
+    assert static_context["spec_version"] == "v0"
+    assert static_context["report_path"].endswith("static_report.json")
+    assert static_context["namespace_contract"]["contract_type"] == "report_namespace_contract.v1"
+
+    loaded_context = load_static_bundle_context(
+        reports_root=reports_root,
+        static_bundle_name="static_context_bundle",
+    )
+    assert loaded_context["bundle_name"] == "static_context_bundle"
+
+
 def test_run_dynamic_audit_cli_writes_machine_readable_bundle(tmp_path):
     nominal_run = _create_run(
         tmp_path,
@@ -241,17 +329,30 @@ def test_run_dynamic_audit_cli_writes_machine_readable_bundle(tmp_path):
     namespace_manifest_path = reports_root / "analysis" / "dynamic" / "namespace_manifest.json"
     namespace_contract_path = reports_root / "analysis" / "report_namespace_contract.json"
     output_path = tmp_path / "cli_dynamic_report.json"
+    static_report, _bundle_paths = run_static_analysis_bundle(
+        reports_root=reports_root,
+        bundle_name="cli_static_bundle",
+    )
+    assert static_report.passed is True
     command = [
         sys.executable,
         str(ROOT / "scripts" / "run_dynamic_audit.py"),
-        "--run-dir",
-        str(nominal_run),
-        "--compare-run-dir",
-        str(shifted_run),
+        "--logs-root",
+        str(tmp_path),
+        "--source",
+        "eval",
+        "--compare-source",
+        "eval",
+        "--compare-scenario-type",
+        "shifted",
+        "--scenario-type",
+        "nominal",
         "--reports-root",
         str(reports_root),
         "--bundle-name",
         "cli_dynamic_bundle",
+        "--static-bundle-name",
+        "cli_static_bundle",
         "--output",
         str(output_path),
     ]
@@ -278,6 +379,7 @@ def test_run_dynamic_audit_cli_writes_machine_readable_bundle(tmp_path):
     assert report_payload["report_type"] == "dynamic_analyzer_report.v1"
     assert sorted(report_payload["primary_run_ids"]) == ["cli_nominal_run"]
     assert sorted(report_payload["comparison_run_ids"]) == ["cli_shifted_run"]
+    assert report_payload["metadata"]["static_context"]["bundle_name"] == "cli_static_bundle"
 
     loaded = load_accepted_run_directory(nominal_run)
     assert loaded["acceptance"]["passed"] is True

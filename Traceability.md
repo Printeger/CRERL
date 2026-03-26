@@ -50,18 +50,15 @@ This keeps the workflow inside the current repo and avoids touching files outsid
 ## Latest Staged Change Summary
 
 <!-- TRACEABILITY:BEGIN -->
-_Updated: `2026-03-26T23:34:09`_
+_Updated: `2026-03-26T23:39:45`_
 
 - Scope: `/home/mint/rl_dev/CRERL`
 - Branch: `main`
 - Source: `staged diff`
-- Impacted phases: `Phase 4`
-- Diff stat: 6 files changed, 689 insertions(+), 120 deletions(-)
+- Impacted phases: `unclassified`
+- Diff stat: 3 files changed, 289 insertions(+), 8 deletions(-)
 
 ### Changed Files
-- `M` [doc/dev_log/p6_dev_status.md](doc/dev_log/p6_dev_status.md) [Project Docs]
-- `M` [isaac-training/training/analyzers/__init__.py](isaac-training/training/analyzers/__init__.py) [Analyzers]
-- `A` [isaac-training/training/analyzers/semantic_crosscheck.py](isaac-training/training/analyzers/semantic_crosscheck.py) [Analyzers]
-- `A` [isaac-training/training/analyzers/semantic_provider.py](isaac-training/training/analyzers/semantic_provider.py) [Analyzers]
-- `M` [isaac-training/training/unit_test/test_env/test_semantic_analyzer.py](isaac-training/training/unit_test/test_env/test_semantic_analyzer.py) [Training Tests]
+- `A` [AGENTS.md](AGENTS.md) [Repo Root]
+- `A` [doc/dev_log/px_dev_status.md](doc/dev_log/px_dev_status.md) [Project Docs]
 <!-- TRACEABILITY:END -->

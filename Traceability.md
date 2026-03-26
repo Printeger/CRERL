@@ -50,14 +50,19 @@ This keeps the workflow inside the current repo and avoids touching files outsid
 ## Latest Staged Change Summary
 
 <!-- TRACEABILITY:BEGIN -->
-_Updated: `2026-03-26T20:45:58`_
+_Updated: `2026-03-26T20:52:56`_
 
 - Scope: `/home/mint/rl_dev/CRERL`
 - Branch: `main`
 - Source: `staged diff`
-- Impacted phases: `unclassified`
-- Diff stat: 2 files changed, 4 insertions(+), 161 deletions(-)
+- Impacted phases: `Phase 4`
+- Diff stat: 7 files changed, 599 insertions(+), 72 deletions(-)
 
 ### Changed Files
-- `D` [doc/dev_log/phase_3.md](doc/dev_log/phase_3.md) [Project Docs]
+- `M` [doc/dev_log/phase_4.md](doc/dev_log/phase_4.md) [Project Docs]
+- `M` [isaac-training/training/analyzers/__init__.py](isaac-training/training/analyzers/__init__.py) [Analyzers]
+- `M` [isaac-training/training/analyzers/aggregation.py](isaac-training/training/analyzers/aggregation.py) [Analyzers]
+- `M` [isaac-training/training/analyzers/detector_runner.py](isaac-training/training/analyzers/detector_runner.py) [Analyzers]
+- `M` [isaac-training/training/analyzers/static_checks.py](isaac-training/training/analyzers/static_checks.py) [Analyzers]
+- `A` [isaac-training/training/unit_test/test_env/test_static_analyzer.py](isaac-training/training/unit_test/test_env/test_static_analyzer.py) [Training Tests]
 <!-- TRACEABILITY:END -->

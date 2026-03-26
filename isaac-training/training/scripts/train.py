@@ -192,22 +192,25 @@ def main(cfg):
         done_type_labels=cre_env_metadata["done_type_labels"],
         seed=cfg.seed,
     )
-    cre_eval_run_logger = create_run_logger(
-        source="train_eval",
-        run_name="train_eval_rollout",
-        near_violation_distance=0.5,
-    )
-    cre_eval_log_adapter = TrainingRolloutLogger(
-        cre_eval_run_logger,
-        num_envs=cfg.env.num_envs,
-        dt=cfg.sim.dt * cfg.sim.substeps,
-        source="train_eval",
-        scenario_type=cre_env_metadata["scenario_type"],
-        scene_cfg_name=cre_env_metadata["scene_cfg_name"],
-        scene_id_prefix=cre_env_metadata["scene_id_prefix"],
-        done_type_labels=cre_env_metadata["done_type_labels"],
-        seed=cfg.seed,
-    )
+    cre_eval_run_logger = None
+    cre_eval_log_adapter = None
+    if not skip_periodic_eval:
+        cre_eval_run_logger = create_run_logger(
+            source="train_eval",
+            run_name="train_eval_rollout",
+            near_violation_distance=0.5,
+        )
+        cre_eval_log_adapter = TrainingRolloutLogger(
+            cre_eval_run_logger,
+            num_envs=cfg.env.num_envs,
+            dt=cfg.sim.dt * cfg.sim.substeps,
+            source="train_eval",
+            scenario_type=cre_env_metadata["scenario_type"],
+            scene_cfg_name=cre_env_metadata["scene_cfg_name"],
+            scene_id_prefix=cre_env_metadata["scene_id_prefix"],
+            done_type_labels=cre_env_metadata["done_type_labels"],
+            seed=cfg.seed,
+        )
 
     # ============================================
     # 第 8 步：创建强化学习数据收集器
@@ -327,22 +330,23 @@ def main(cfg):
         "cre/acceptance_passed": float(bool(cre_acceptance["passed"])),
         "cre/acceptance_error_count": float(len(cre_acceptance["errors"])),
     })
-    cre_eval_log_adapter.flush_open_episodes(done_type="manual_exit")
-    cre_eval_summary = aggregate_log_directory(cre_eval_run_logger.run_dir)
-    run.log({f"cre_eval/{k}": v for k, v in cre_eval_summary.items() if isinstance(v, (int, float))})
-    cre_eval_acceptance = run_acceptance_check(cre_eval_run_logger.run_dir, write_report=True)
-    print(
-        f"[CRE] train_eval run acceptance: {'PASS' if cre_eval_acceptance['passed'] else 'FAIL'} "
-        f"| run_dir={cre_eval_run_logger.run_dir}"
-    )
-    if cre_eval_acceptance["errors"]:
-        print("[CRE] train_eval acceptance errors:")
-        for error in cre_eval_acceptance["errors"]:
-            print(f"  - {error}")
-    run.log({
-        "cre_eval/acceptance_passed": float(bool(cre_eval_acceptance["passed"])),
-        "cre_eval/acceptance_error_count": float(len(cre_eval_acceptance["errors"])),
-    })
+    if cre_eval_log_adapter is not None and cre_eval_run_logger is not None:
+        cre_eval_log_adapter.flush_open_episodes(done_type="manual_exit")
+        cre_eval_summary = aggregate_log_directory(cre_eval_run_logger.run_dir)
+        run.log({f"cre_eval/{k}": v for k, v in cre_eval_summary.items() if isinstance(v, (int, float))})
+        cre_eval_acceptance = run_acceptance_check(cre_eval_run_logger.run_dir, write_report=True)
+        print(
+            f"[CRE] train_eval run acceptance: {'PASS' if cre_eval_acceptance['passed'] else 'FAIL'} "
+            f"| run_dir={cre_eval_run_logger.run_dir}"
+        )
+        if cre_eval_acceptance["errors"]:
+            print("[CRE] train_eval acceptance errors:")
+            for error in cre_eval_acceptance["errors"]:
+                print(f"  - {error}")
+        run.log({
+            "cre_eval/acceptance_passed": float(bool(cre_eval_acceptance["passed"])),
+            "cre_eval/acceptance_error_count": float(len(cre_eval_acceptance["errors"])),
+        })
     
     # 关闭 WandB 和仿真器
     wandb.finish()

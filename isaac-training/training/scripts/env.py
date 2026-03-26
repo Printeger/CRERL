@@ -13,8 +13,11 @@
 NavigationEnv -> IsaacEnv (OmniDrones) -> EnvBase (TorchRL)
 """
 
+import importlib
 import importlib.util
 import sys
+import types
+from dataclasses import dataclass
 from pathlib import Path
 
 import torch
@@ -22,23 +25,261 @@ import einops
 import numpy as np
 from tensordict.tensordict import TensorDict, TensorDictBase
 from torchrl.data import UnboundedContinuousTensorSpec, CompositeSpec, DiscreteTensorSpec
-import omni.isaac.orbit.sim as sim_utils
 from omni_drones.robots.drone import MultirotorBase
-from omni.isaac.orbit.assets import AssetBaseCfg
-from omni.isaac.orbit.terrains import TerrainImporterCfg, TerrainImporter, TerrainGeneratorCfg, HfDiscreteObstaclesTerrainCfg
 from omni_drones.utils.torch import euler_to_quaternion, quat_axis
-from omni.isaac.orbit.sensors import RayCaster, RayCasterCfg, patterns
 from omni.isaac.core.utils.viewports import set_camera_view
 from utils import vec_to_new_frame, vec_to_world, construct_input
 import omni.isaac.core.utils.prims as prim_utils
-import omni.isaac.orbit.sim as sim_utils
 import omni.isaac.orbit.utils.math as math_utils
-from omni.isaac.orbit.assets import RigidObject, RigidObjectCfg
 import time
 from envs.runtime.scene_family_bridge import (
     build_scene_family_runtime_profile,
     sample_start_goal_from_profile,
 )
+
+
+_ORBIT_ROOT = (
+    Path(__file__).resolve().parents[2]
+    / "third_party"
+    / "orbit"
+    / "source"
+    / "extensions"
+    / "omni.isaac.orbit"
+    / "omni"
+    / "isaac"
+    / "orbit"
+)
+
+
+def _ensure_package_shim(name: str, path: Path):
+    module = sys.modules.get(name)
+    if module is None:
+        module = types.ModuleType(name)
+        module.__path__ = [str(path)]
+        module.__package__ = name
+        sys.modules[name] = module
+        parent_name, _, child_name = name.rpartition(".")
+        parent = sys.modules.get(parent_name)
+        if parent is not None:
+            setattr(parent, child_name, module)
+    return module
+
+
+@dataclass
+class _VisualizationMarkersCfg:
+    prim_path: str
+    markers: dict
+
+    def replace(self, **kwargs):
+        data = {
+            "prim_path": self.prim_path,
+            "markers": self.markers,
+        }
+        data.update(kwargs)
+        return type(self)(**data)
+
+
+class _VisualizationMarkers:
+    def __init__(self, cfg):
+        self.cfg = cfg
+
+    def visualize(self, *args, **kwargs):
+        return None
+
+    def set_visibility(self, visible: bool):
+        return None
+
+
+@dataclass
+class _GroundPlaneCfg:
+    color: tuple[float, float, float] | None = (0.0, 0.0, 0.0)
+    size: tuple[float, float] = (100.0, 100.0)
+    physics_material: object | None = None
+
+    @staticmethod
+    def func(*args, **kwargs):
+        return None
+
+
+def _install_lightweight_orbit_shims():
+    """Install lightweight Orbit package shims to avoid converter/nucleus startup work.
+
+    The training env only needs a narrow subset of Orbit symbols. Importing the
+    root ``omni.isaac.orbit.sim`` package eagerly pulls converter modules that
+    probe Nucleus during startup, which blocks short train/eval audits before the
+    logger finalizes. We replace the package-level import path with a minimal
+    package shim and only expose the concrete symbols used by this env.
+    """
+
+    _ensure_package_shim("omni.isaac.orbit.sim", _ORBIT_ROOT / "sim")
+    _ensure_package_shim("omni.isaac.orbit.sim.schemas", _ORBIT_ROOT / "sim" / "schemas")
+    _ensure_package_shim("omni.isaac.orbit.sim.spawners", _ORBIT_ROOT / "sim" / "spawners")
+    _ensure_package_shim(
+        "omni.isaac.orbit.sim.spawners.materials",
+        _ORBIT_ROOT / "sim" / "spawners" / "materials",
+    )
+    _ensure_package_shim(
+        "omni.isaac.orbit.sim.spawners.lights",
+        _ORBIT_ROOT / "sim" / "spawners" / "lights",
+    )
+    _ensure_package_shim(
+        "omni.isaac.orbit.sim.spawners.shapes",
+        _ORBIT_ROOT / "sim" / "spawners" / "shapes",
+    )
+    _ensure_package_shim("omni.isaac.orbit.assets", _ORBIT_ROOT / "assets")
+    _ensure_package_shim("omni.isaac.orbit.assets.rigid_object", _ORBIT_ROOT / "assets" / "rigid_object")
+    _ensure_package_shim("omni.isaac.orbit.terrains", _ORBIT_ROOT / "terrains")
+    _ensure_package_shim(
+        "omni.isaac.orbit.terrains.height_field",
+        _ORBIT_ROOT / "terrains" / "height_field",
+    )
+    _ensure_package_shim("omni.isaac.orbit.sensors", _ORBIT_ROOT / "sensors")
+    _ensure_package_shim(
+        "omni.isaac.orbit.sensors.ray_caster",
+        _ORBIT_ROOT / "sensors" / "ray_caster",
+    )
+    _ensure_package_shim(
+        "omni.isaac.orbit.sensors.ray_caster.patterns",
+        _ORBIT_ROOT / "sensors" / "ray_caster" / "patterns",
+    )
+    terrains_pkg = sys.modules["omni.isaac.orbit.terrains"]
+    height_field_pkg = sys.modules["omni.isaac.orbit.terrains.height_field"]
+
+    markers_module = types.ModuleType("omni.isaac.orbit.markers")
+    markers_module.__package__ = "omni.isaac.orbit.markers"
+    markers_module.VisualizationMarkersCfg = _VisualizationMarkersCfg
+    markers_module.VisualizationMarkers = _VisualizationMarkers
+    sys.modules["omni.isaac.orbit.markers"] = markers_module
+    markers_config_module = types.ModuleType("omni.isaac.orbit.markers.config")
+    markers_config_module.__package__ = "omni.isaac.orbit.markers.config"
+    markers_config_module.RAY_CASTER_MARKER_CFG = _VisualizationMarkersCfg(
+        prim_path="/Visuals/RayCaster",
+        markers={},
+    )
+    markers_config_module.FRAME_MARKER_CFG = _VisualizationMarkersCfg(
+        prim_path="/Visuals/TerrainOrigin",
+        markers={},
+    )
+    sys.modules["omni.isaac.orbit.markers.config"] = markers_config_module
+    markers_module.config = markers_config_module
+
+    orbit_assets_utils = types.ModuleType("omni.isaac.orbit.utils.assets")
+    orbit_assets_utils.__package__ = "omni.isaac.orbit.utils.assets"
+    orbit_assets_utils.NVIDIA_NUCLEUS_DIR = ""
+    orbit_assets_utils.ISAAC_NUCLEUS_DIR = ""
+    orbit_assets_utils.ISAAC_ORBIT_NUCLEUS_DIR = ""
+    sys.modules["omni.isaac.orbit.utils.assets"] = orbit_assets_utils
+
+    schemas_pkg = importlib.import_module("omni.isaac.orbit.sim.schemas")
+    schemas_cfg_module = importlib.import_module("omni.isaac.orbit.sim.schemas.schemas_cfg")
+    schemas_ops_module = importlib.import_module("omni.isaac.orbit.sim.schemas.schemas")
+    spawner_cfg_module = importlib.import_module("omni.isaac.orbit.sim.spawners.spawner_cfg")
+    visual_materials_cfg_module = importlib.import_module(
+        "omni.isaac.orbit.sim.spawners.materials.visual_materials_cfg"
+    )
+    physics_materials_cfg_module = importlib.import_module(
+        "omni.isaac.orbit.sim.spawners.materials.physics_materials_cfg"
+    )
+    lights_cfg_module = importlib.import_module("omni.isaac.orbit.sim.spawners.lights.lights_cfg")
+    shapes_cfg_module = importlib.import_module("omni.isaac.orbit.sim.spawners.shapes.shapes_cfg")
+
+    sim_pkg = sys.modules["omni.isaac.orbit.sim"]
+    spawners_pkg = sys.modules["omni.isaac.orbit.sim.spawners"]
+    materials_pkg = sys.modules["omni.isaac.orbit.sim.spawners.materials"]
+    lights_pkg = sys.modules["omni.isaac.orbit.sim.spawners.lights"]
+    shapes_pkg = sys.modules["omni.isaac.orbit.sim.spawners.shapes"]
+    hf_terrains_cfg_module = importlib.import_module(
+        "omni.isaac.orbit.terrains.height_field.hf_terrains_cfg"
+    )
+    terrain_generator_cfg_module = importlib.import_module("omni.isaac.orbit.terrains.terrain_generator_cfg")
+    height_field_pkg.HfTerrainBaseCfg = hf_terrains_cfg_module.HfTerrainBaseCfg
+    height_field_pkg.HfDiscreteObstaclesTerrainCfg = hf_terrains_cfg_module.HfDiscreteObstaclesTerrainCfg
+    terrains_pkg.height_field = height_field_pkg
+    terrains_pkg.TerrainGeneratorCfg = terrain_generator_cfg_module.TerrainGeneratorCfg
+    terrains_pkg.SubTerrainBaseCfg = terrain_generator_cfg_module.SubTerrainBaseCfg
+    terrains_pkg.FlatPatchSamplingCfg = terrain_generator_cfg_module.FlatPatchSamplingCfg
+    schemas_pkg.ArticulationRootPropertiesCfg = schemas_cfg_module.ArticulationRootPropertiesCfg
+    schemas_pkg.RigidBodyPropertiesCfg = schemas_cfg_module.RigidBodyPropertiesCfg
+    schemas_pkg.CollisionPropertiesCfg = schemas_cfg_module.CollisionPropertiesCfg
+    schemas_pkg.MassPropertiesCfg = schemas_cfg_module.MassPropertiesCfg
+    schemas_pkg.FixedTendonPropertiesCfg = schemas_cfg_module.FixedTendonPropertiesCfg
+    schemas_pkg.JointDrivePropertiesCfg = schemas_cfg_module.JointDrivePropertiesCfg
+    schemas_pkg.define_collision_properties = schemas_ops_module.define_collision_properties
+    schemas_pkg.define_rigid_body_properties = schemas_ops_module.define_rigid_body_properties
+    schemas_pkg.define_mass_properties = schemas_ops_module.define_mass_properties
+    schemas_pkg.define_articulation_root_properties = schemas_ops_module.define_articulation_root_properties
+
+    materials_pkg.VisualMaterialCfg = visual_materials_cfg_module.VisualMaterialCfg
+    materials_pkg.PhysicsMaterialCfg = physics_materials_cfg_module.PhysicsMaterialCfg
+    materials_pkg.PreviewSurfaceCfg = visual_materials_cfg_module.PreviewSurfaceCfg
+    materials_pkg.RigidBodyMaterialCfg = physics_materials_cfg_module.RigidBodyMaterialCfg
+    lights_pkg.DistantLightCfg = lights_cfg_module.DistantLightCfg
+    lights_pkg.DomeLightCfg = lights_cfg_module.DomeLightCfg
+    shapes_pkg.SphereCfg = shapes_cfg_module.SphereCfg
+    shapes_pkg.CuboidCfg = shapes_cfg_module.CuboidCfg
+    shapes_pkg.CylinderCfg = shapes_cfg_module.CylinderCfg
+    spawners_pkg.SpawnerCfg = spawner_cfg_module.SpawnerCfg
+    spawners_pkg.DomeLightCfg = lights_cfg_module.DomeLightCfg
+    spawners_pkg.DistantLightCfg = lights_cfg_module.DistantLightCfg
+    spawners_pkg.GroundPlaneCfg = _GroundPlaneCfg
+    spawners_pkg.materials = materials_pkg
+    spawners_pkg.lights = lights_pkg
+    spawners_pkg.shapes = shapes_pkg
+
+    sim_context_module = importlib.import_module("omni.isaac.orbit.sim.simulation_context")
+    sim_utils_module = importlib.import_module("omni.isaac.orbit.sim.utils")
+
+    sim_pkg.schemas = schemas_pkg
+    sim_pkg.SpawnerCfg = spawner_cfg_module.SpawnerCfg
+    sim_pkg.VisualMaterialCfg = visual_materials_cfg_module.VisualMaterialCfg
+    sim_pkg.PhysicsMaterialCfg = physics_materials_cfg_module.PhysicsMaterialCfg
+    sim_pkg.PreviewSurfaceCfg = visual_materials_cfg_module.PreviewSurfaceCfg
+    sim_pkg.RigidBodyMaterialCfg = physics_materials_cfg_module.RigidBodyMaterialCfg
+    sim_pkg.DistantLightCfg = lights_cfg_module.DistantLightCfg
+    sim_pkg.DomeLightCfg = lights_cfg_module.DomeLightCfg
+    sim_pkg.SphereCfg = shapes_cfg_module.SphereCfg
+    sim_pkg.CuboidCfg = shapes_cfg_module.CuboidCfg
+    sim_pkg.CylinderCfg = shapes_cfg_module.CylinderCfg
+    sim_pkg.RigidBodyPropertiesCfg = schemas_cfg_module.RigidBodyPropertiesCfg
+    sim_pkg.MassPropertiesCfg = schemas_cfg_module.MassPropertiesCfg
+    sim_pkg.CollisionPropertiesCfg = schemas_cfg_module.CollisionPropertiesCfg
+    sim_pkg.SimulationContext = sim_context_module.SimulationContext
+    sim_pkg.find_matching_prims = sim_utils_module.find_matching_prims
+    sim_pkg.find_first_matching_prim = sim_utils_module.find_first_matching_prim
+    sim_pkg.get_first_matching_child_prim = sim_utils_module.get_first_matching_child_prim
+    sim_pkg.get_all_matching_child_prims = sim_utils_module.get_all_matching_child_prims
+    sim_pkg.bind_visual_material = sim_utils_module.bind_visual_material
+    sim_pkg.bind_physics_material = sim_utils_module.bind_physics_material
+    sim_pkg.define_collision_properties = schemas_ops_module.define_collision_properties
+
+    return types.SimpleNamespace(
+        DistantLightCfg=lights_cfg_module.DistantLightCfg,
+        DomeLightCfg=lights_cfg_module.DomeLightCfg,
+        SphereCfg=shapes_cfg_module.SphereCfg,
+        CuboidCfg=shapes_cfg_module.CuboidCfg,
+        CylinderCfg=shapes_cfg_module.CylinderCfg,
+        PreviewSurfaceCfg=visual_materials_cfg_module.PreviewSurfaceCfg,
+        RigidBodyMaterialCfg=physics_materials_cfg_module.RigidBodyMaterialCfg,
+        RigidBodyPropertiesCfg=schemas_cfg_module.RigidBodyPropertiesCfg,
+        MassPropertiesCfg=schemas_cfg_module.MassPropertiesCfg,
+        CollisionPropertiesCfg=schemas_cfg_module.CollisionPropertiesCfg,
+    )
+
+
+sim_utils = _install_lightweight_orbit_shims()
+
+from omni.isaac.orbit.assets.asset_base_cfg import AssetBaseCfg
+from omni.isaac.orbit.assets.rigid_object.rigid_object import RigidObject
+from omni.isaac.orbit.assets.rigid_object.rigid_object_cfg import RigidObjectCfg
+from omni.isaac.orbit.terrains.terrain_importer_cfg import TerrainImporterCfg
+from omni.isaac.orbit.terrains.terrain_importer import TerrainImporter
+from omni.isaac.orbit.terrains.terrain_generator_cfg import TerrainGeneratorCfg
+from omni.isaac.orbit.terrains.height_field.hf_terrains_cfg import HfDiscreteObstaclesTerrainCfg
+from omni.isaac.orbit.sensors.ray_caster.ray_caster import RayCaster
+from omni.isaac.orbit.sensors.ray_caster.ray_caster_cfg import RayCasterCfg
+from omni.isaac.orbit.sensors.ray_caster.patterns.patterns_cfg import BpearlPatternCfg
+
+patterns = types.SimpleNamespace(BpearlPatternCfg=BpearlPatternCfg)
 
 
 def _load_local_omnidrones_isaac_env():
@@ -142,6 +383,7 @@ class NavigationEnv(IsaacEnv):
         self.lidar_vbeams = cfg.sensor.lidar_vbeams  # 垂直线束数（例如4条）
         self.lidar_hres = cfg.sensor.lidar_hres  # 水平角分辨率（度，例如10°）
         self.lidar_hbeams = int(360/self.lidar_hres)  # 水平线束数（360°/10° = 36条）
+        self.drone_base_link_prim_expr = f"/World/envs/env_.*/{cfg.drone.model_name}_0/base_link"
         self.done_type_labels = dict(DONE_TYPE_LABELS)
         self.scene_family_profile = build_scene_family_runtime_profile(
             getattr(cfg, "scene_family_backend", None),
@@ -173,7 +415,7 @@ class NavigationEnv(IsaacEnv):
         # ============================================
         ray_caster_cfg = RayCasterCfg(
             # 绑定到无人机的 base_link（所有环境的所有无人机）
-            prim_path="/World/envs/env_.*/Hummingbird_0/base_link",
+            prim_path=self.drone_base_link_prim_expr,
             
             # 传感器相对于 base_link 的偏移（这里是原点）
             offset=RayCasterCfg.OffsetCfg(pos=(0.0, 0.0, 0.0)),
@@ -297,16 +539,7 @@ class NavigationEnv(IsaacEnv):
         sky_light.spawn.func(sky_light.prim_path, sky_light.spawn)
         
         # ============================================
-        # 3. 创建地面
-        # ============================================
-        cfg_ground = sim_utils.GroundPlaneCfg(
-            color=(0.1, 0.1, 0.1),  # 深灰色
-            size=(300., 300.)  # 300m × 300m
-        )
-        cfg_ground.func("/World/defaultGroundPlane", cfg_ground, translation=(0, 0, 0.01))
-
-        # ============================================
-        # 4. 生成静态障碍物地形
+        # 3. 生成静态障碍物地形
         # ============================================
         workspace = dict(self.scene_family_profile.get("workspace", {})) if self.scene_family_profile.get("enabled") else {}
         size_x = float(workspace.get("size_x", 40.0))

@@ -274,8 +274,12 @@ class TrainingRolloutLogger:
         scenario_type: Optional[str] = None,
         scene_cfg_name: Optional[str] = None,
     ) -> list[TrainingLogRecord]:
-        next_td = _get_nested(data, "next") or data
-        info = _get_nested(next_td, "info") or {}
+        next_td = _get_nested(data, "next")
+        if next_td is None:
+            next_td = data
+        info = _get_nested(next_td, "info")
+        if info is None:
+            info = {}
         done = _get_nested(next_td, "done")
         truncated = _get_nested(next_td, "truncated")
 

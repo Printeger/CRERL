@@ -192,6 +192,7 @@ def main(cfg: DictConfig):
     FAMILY_TO_SCENE_CFG = generator_module.FAMILY_TO_SCENE_CFG
     create_run_logger = logging_module.create_run_logger
     normalize_reward_components = logging_module.normalize_reward_components
+    run_acceptance_check = logging_module.run_acceptance_check
 
     print("[INFO] Dependencies loaded successfully")
 
@@ -379,6 +380,10 @@ def main(cfg: DictConfig):
     current_seed = 42
     regeneration_index = 0
     episode_index = 0
+    test_flight_cfg = cfg.get("test_flight", {})
+    auto_exit_steps = int(test_flight_cfg.get("auto_exit_steps", 0) or 0)
+    auto_goal_on_start = bool(test_flight_cfg.get("auto_goal_on_start", False))
+    auto_acceptance_on_exit = bool(test_flight_cfg.get("auto_acceptance_on_exit", True))
     episode_logger = create_run_logger(
         source="test_flight",
         run_name="test_flight",
@@ -750,6 +755,11 @@ def main(cfg: DictConfig):
             scene_cfg_name=get_scene_cfg_name(),
             scene_tags=get_scene_tags(),
         )
+        if auto_goal_on_start and current_result and current_result.labels.local_goal:
+            goal = current_result.labels.local_goal
+            target_pos[0] = goal[0]
+            target_pos[1] = goal[1]
+            target_pos[2] = goal[2]
         sim_time = 0.0
 
     def draw_gravity_vector():
@@ -1202,6 +1212,13 @@ def main(cfg: DictConfig):
 
             step += 1
 
+            if auto_exit_steps > 0 and step >= auto_exit_steps:
+                print(
+                    f"[INFO] Auto exit triggered after {step} steps "
+                    f"(test_flight.auto_exit_steps={auto_exit_steps})"
+                )
+                break
+
     except KeyboardInterrupt:
         print("\n[INFO] Interrupted by user (Ctrl+C)")
 
@@ -1216,6 +1233,17 @@ def main(cfg: DictConfig):
     # Cleanup
     # =========================================================================
     export_episode_log("final")
+
+    if auto_acceptance_on_exit and episode_logger.run_dir.exists():
+        acceptance = run_acceptance_check(episode_logger.run_dir, write_report=True)
+        print(
+            f"[CRE] test_flight run acceptance: "
+            f"{'PASS' if acceptance['passed'] else 'FAIL'} | run_dir={episode_logger.run_dir}"
+        )
+        if acceptance["errors"]:
+            print("[CRE] test_flight acceptance errors:")
+            for error in acceptance["errors"]:
+                print(f"  - {error}")
 
     try:
         input_interface.unsubscribe_to_keyboard_events(keyboard, keyboard_sub)

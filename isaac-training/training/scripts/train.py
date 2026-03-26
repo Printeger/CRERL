@@ -40,7 +40,11 @@ TRAINING_ROOT = os.path.dirname(os.path.dirname(__file__))
 if TRAINING_ROOT not in sys.path:
     sys.path.insert(0, TRAINING_ROOT)
 
-from runtime_logging.logger import aggregate_log_directory, create_run_logger
+from runtime_logging.logger import (
+    aggregate_log_directory,
+    create_run_logger,
+    run_acceptance_check,
+)
 from runtime_logging.training_log_adapter import (
     TrainingRolloutLogger,
     extract_cre_env_metadata,
@@ -59,6 +63,7 @@ def main(cfg):
              - cfg.algo: PPO 算法超参数
              - cfg.sensor: 传感器配置（LiDAR）
     """
+    skip_periodic_eval = bool(getattr(cfg, "skip_periodic_eval", False))
     # ============================================
     # 第 1 步：启动 Isaac Sim 仿真器
     # ============================================
@@ -266,7 +271,7 @@ def main(cfg):
             info.update(stats)
 
         # -------- 周期性评估策略 --------
-        if i % cfg.eval_interval == 0:
+        if (not skip_periodic_eval) and i % cfg.eval_interval == 0:
             print("[NavRL]: start evaluating policy at training step: ", i)
             
             # 开启渲染（用于录制视频）
@@ -309,9 +314,35 @@ def main(cfg):
     cre_log_adapter.flush_open_episodes(done_type="manual_exit")
     cre_summary = aggregate_log_directory(cre_run_logger.run_dir)
     run.log({f"cre/{k}": v for k, v in cre_summary.items() if isinstance(v, (int, float))})
+    cre_acceptance = run_acceptance_check(cre_run_logger.run_dir, write_report=True)
+    print(
+        f"[CRE] train run acceptance: {'PASS' if cre_acceptance['passed'] else 'FAIL'} "
+        f"| run_dir={cre_run_logger.run_dir}"
+    )
+    if cre_acceptance["errors"]:
+        print("[CRE] train acceptance errors:")
+        for error in cre_acceptance["errors"]:
+            print(f"  - {error}")
+    run.log({
+        "cre/acceptance_passed": float(bool(cre_acceptance["passed"])),
+        "cre/acceptance_error_count": float(len(cre_acceptance["errors"])),
+    })
     cre_eval_log_adapter.flush_open_episodes(done_type="manual_exit")
     cre_eval_summary = aggregate_log_directory(cre_eval_run_logger.run_dir)
     run.log({f"cre_eval/{k}": v for k, v in cre_eval_summary.items() if isinstance(v, (int, float))})
+    cre_eval_acceptance = run_acceptance_check(cre_eval_run_logger.run_dir, write_report=True)
+    print(
+        f"[CRE] train_eval run acceptance: {'PASS' if cre_eval_acceptance['passed'] else 'FAIL'} "
+        f"| run_dir={cre_eval_run_logger.run_dir}"
+    )
+    if cre_eval_acceptance["errors"]:
+        print("[CRE] train_eval acceptance errors:")
+        for error in cre_eval_acceptance["errors"]:
+            print(f"  - {error}")
+    run.log({
+        "cre_eval/acceptance_passed": float(bool(cre_eval_acceptance["passed"])),
+        "cre_eval/acceptance_error_count": float(len(cre_eval_acceptance["errors"])),
+    })
     
     # 关闭 WandB 和仿真器
     wandb.finish()

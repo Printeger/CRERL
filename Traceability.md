@@ -50,17 +50,18 @@ This keeps the workflow inside the current repo and avoids touching files outsid
 ## Latest Staged Change Summary
 
 <!-- TRACEABILITY:BEGIN -->
-_Updated: `2026-03-26T17:18:44`_
+_Updated: `2026-03-26T17:41:30`_
 
 - Scope: `/home/mint/rl_dev/CRERL`
 - Branch: `main`
 - Source: `staged diff`
-- Impacted phases: `unclassified`
-- Diff stat: 5 files changed, 767 insertions(+), 5 deletions(-)
+- Impacted phases: `Phase 1, Phase 4, Phase 7`
+- Diff stat: 6 files changed, 427 insertions(+), 12 deletions(-)
 
 ### Changed Files
-- `A` [doc/dev_log/phase_3.md](doc/dev_log/phase_3.md) [Project Docs]
-- `A` [isaac-training/training/runtime_logging/acceptance.py](isaac-training/training/runtime_logging/acceptance.py) [isaac-training]
-- `M` [isaac-training/training/runtime_logging/logger.py](isaac-training/training/runtime_logging/logger.py) [isaac-training]
-- `A` [isaac-training/training/unit_test/test_env/test_run_acceptance.py](isaac-training/training/unit_test/test_env/test_run_acceptance.py) [Training Tests]
+- `A` [doc/dev_log/p3_dev_status.md](doc/dev_log/p3_dev_status.md) [Project Docs]
+- `M` [isaac-training/training/scripts/env.py](isaac-training/training/scripts/env.py) [Isaac Env Core]
+- `M` [isaac-training/training/scripts/eval.py](isaac-training/training/scripts/eval.py) [Training Pipeline]
+- `M` [isaac-training/training/scripts/train.py](isaac-training/training/scripts/train.py) [Training Pipeline]
+- `M` [isaac-training/training/unit_test/test_flight.py](isaac-training/training/unit_test/test_flight.py) [Training Tests]
 <!-- TRACEABILITY:END -->

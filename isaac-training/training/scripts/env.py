@@ -13,12 +13,15 @@
 NavigationEnv -> IsaacEnv (OmniDrones) -> EnvBase (TorchRL)
 """
 
+import importlib.util
+import sys
+from pathlib import Path
+
 import torch
 import einops
 import numpy as np
 from tensordict.tensordict import TensorDict, TensorDictBase
 from torchrl.data import UnboundedContinuousTensorSpec, CompositeSpec, DiscreteTensorSpec
-from omni_drones.envs.isaac_env import IsaacEnv, AgentSpec
 import omni.isaac.orbit.sim as sim_utils
 from omni_drones.robots.drone import MultirotorBase
 from omni.isaac.orbit.assets import AssetBaseCfg
@@ -36,6 +39,40 @@ from envs.runtime.scene_family_bridge import (
     build_scene_family_runtime_profile,
     sample_start_goal_from_profile,
 )
+
+
+def _load_local_omnidrones_isaac_env():
+    """Load OmniDrones IsaacEnv directly from file.
+
+    Importing ``omni_drones.envs.isaac_env`` normally triggers
+    ``omni_drones.envs.__init__``, which pulls in optional Orbit/Nucleus-backed
+    environments unrelated to NavigationEnv. Loading the module file directly
+    keeps train/eval on the mainline path and avoids those startup side effects.
+    """
+
+    env_file = (
+        Path(__file__).resolve().parents[2]
+        / "third_party"
+        / "OmniDrones"
+        / "omni_drones"
+        / "envs"
+        / "isaac_env.py"
+    )
+    module_name = "crerl_omnidrones_isaac_env"
+    module = sys.modules.get(module_name)
+    if module is not None:
+        return module
+    spec = importlib.util.spec_from_file_location(module_name, env_file)
+    module = importlib.util.module_from_spec(spec)
+    assert spec.loader is not None
+    sys.modules[module_name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+_isaac_env_module = _load_local_omnidrones_isaac_env()
+IsaacEnv = _isaac_env_module.IsaacEnv
+AgentSpec = _isaac_env_module.AgentSpec
 
 
 DONE_TYPE_LABELS = {

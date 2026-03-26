@@ -31,7 +31,11 @@ TRAINING_ROOT = os.path.dirname(os.path.dirname(__file__))
 if TRAINING_ROOT not in sys.path:
     sys.path.insert(0, TRAINING_ROOT)
 
-from runtime_logging.logger import aggregate_log_directory, create_run_logger
+from runtime_logging.logger import (
+    aggregate_log_directory,
+    create_run_logger,
+    run_acceptance_check,
+)
 from runtime_logging.training_log_adapter import (
     TrainingRolloutLogger,
     extract_cre_env_metadata,
@@ -49,6 +53,11 @@ def main(cfg):
     4. 加载训练好的模型权重
     5. 运行评估循环（不训练，只测试）
     """
+    checkpoint = getattr(
+        cfg,
+        "checkpoint_path",
+        "./wandb/offline-run-20251209_201022-c9so0klx/files/checkpoint_final.pt",
+    )
     
     # ============================================
     # 第 1 步：启动 Isaac Sim 仿真应用
@@ -131,7 +140,6 @@ def main(cfg):
     # 第 6 步：加载训练好的模型权重 ⭐ 关键步骤
     # ============================================
     # 这是评估脚本最重要的部分：加载之前训练好的模型
-    checkpoint = "./wandb/offline-run-20251209_201022-c9so0klx/files/checkpoint_final.pt"
     print(f"[NavRL]: Loading checkpoint from {checkpoint}")
     policy.load_state_dict(torch.load(checkpoint))
     print("[NavRL]: Checkpoint loaded successfully!")
@@ -252,6 +260,19 @@ def main(cfg):
     cre_log_adapter.flush_open_episodes(done_type="manual_exit")
     cre_summary = aggregate_log_directory(cre_run_logger.run_dir)
     run.log({f"cre/{k}": v for k, v in cre_summary.items() if isinstance(v, (int, float))})
+    cre_acceptance = run_acceptance_check(cre_run_logger.run_dir, write_report=True)
+    print(
+        f"[CRE] eval run acceptance: {'PASS' if cre_acceptance['passed'] else 'FAIL'} "
+        f"| run_dir={cre_run_logger.run_dir}"
+    )
+    if cre_acceptance["errors"]:
+        print("[CRE] eval acceptance errors:")
+        for error in cre_acceptance["errors"]:
+            print(f"  - {error}")
+    run.log({
+        "cre/acceptance_passed": float(bool(cre_acceptance["passed"])),
+        "cre/acceptance_error_count": float(len(cre_acceptance["errors"])),
+    })
     wandb.finish()
     sim_app.close()
 

@@ -74,6 +74,53 @@ def _get_nested(container: Any, *keys: str) -> Any:
     return current
 
 
+def extract_cre_env_metadata(
+    env: Any,
+    *,
+    fallback_scenario_type: str,
+    fallback_scene_cfg_name: str,
+    fallback_scene_id_prefix: Optional[str] = None,
+) -> Dict[str, Any]:
+    metadata: Dict[str, Any] = {}
+    runtime_env = env
+    for attr_name in ("base_env", "env"):
+        if hasattr(runtime_env, attr_name):
+            try:
+                candidate = getattr(runtime_env, attr_name)
+            except Exception:
+                candidate = None
+            if candidate is not None:
+                runtime_env = candidate
+                break
+
+    if hasattr(runtime_env, "get_cre_runtime_metadata"):
+        try:
+            extracted = runtime_env.get_cre_runtime_metadata()
+        except Exception:
+            extracted = None
+        if isinstance(extracted, Mapping):
+            metadata.update(extracted)
+
+    scenario_type = str(metadata.get("scenario_type") or fallback_scenario_type)
+    scene_cfg_name = str(metadata.get("scene_cfg_name") or fallback_scene_cfg_name)
+    scene_id_prefix = str(
+        metadata.get("scene_id_prefix")
+        or metadata.get("scene_id")
+        or fallback_scene_id_prefix
+        or f"{scenario_type}_scene"
+    )
+    done_type_labels = metadata.get("done_type_labels")
+    if not isinstance(done_type_labels, Mapping):
+        done_type_labels = dict(DONE_TYPE_CODE_MAP)
+
+    return {
+        "scenario_type": scenario_type,
+        "scene_cfg_name": scene_cfg_name,
+        "scene_id_prefix": scene_id_prefix,
+        "done_type_labels": dict(done_type_labels),
+    }
+
+
 def _infer_batch_shape(tensor: Optional[torch.Tensor], num_envs: int) -> tuple[int, int]:
     if tensor is None:
         return 1, num_envs
@@ -190,6 +237,7 @@ class TrainingRolloutLogger:
         source: str,
         scenario_type: str,
         scene_cfg_name: Optional[str] = None,
+        scene_id_prefix: Optional[str] = None,
         seed: Optional[int] = None,
     ) -> None:
         self.run_logger = run_logger
@@ -198,6 +246,11 @@ class TrainingRolloutLogger:
         self.source = str(source)
         self.scenario_type = str(scenario_type)
         self.scene_cfg_name = scene_cfg_name
+        self.scene_id_prefix = (
+            str(scene_id_prefix)
+            if scene_id_prefix is not None
+            else f"{self.scenario_type}_scene"
+        )
         self.seed = seed
         self._next_episode_index = 0
         self._buffers = [self._new_buffer() for _ in range(self.num_envs)]
@@ -208,7 +261,7 @@ class TrainingRolloutLogger:
         return buffer
 
     def _build_scene_id(self, env_index: int, episode_index: int) -> str:
-        return f"{self.source}_env_{env_index:03d}_episode_{episode_index:05d}"
+        return f"{self.scene_id_prefix}_env_{env_index:03d}_episode_{episode_index:05d}"
 
     def process_tensordict_batch(
         self,
@@ -376,4 +429,5 @@ __all__ = [
     "TrainingLogRecord",
     "TrainingRolloutLogger",
     "done_type_code_to_string",
+    "extract_cre_env_metadata",
 ]

@@ -32,7 +32,10 @@ if TRAINING_ROOT not in sys.path:
     sys.path.insert(0, TRAINING_ROOT)
 
 from runtime_logging.logger import aggregate_log_directory, create_run_logger
-from runtime_logging.training_log_adapter import TrainingRolloutLogger
+from runtime_logging.training_log_adapter import (
+    TrainingRolloutLogger,
+    extract_cre_env_metadata,
+)
 
 @hydra.main(config_path=FILE_PATH, config_name="eval", version_base=None)
 def main(cfg):
@@ -146,6 +149,12 @@ def main(cfg):
         if isinstance(k, tuple) and k[0]=="stats"
     ]
     episode_stats = EpisodeStats(episode_stats_keys)
+    cre_env_metadata = extract_cre_env_metadata(
+        env,
+        fallback_scenario_type="legacy_navigation_env",
+        fallback_scene_cfg_name="legacy_eval_env",
+        fallback_scene_id_prefix="legacy_eval_scene",
+    )
 
     cre_run_logger = create_run_logger(
         source="eval",
@@ -157,8 +166,9 @@ def main(cfg):
         num_envs=cfg.env.num_envs,
         dt=cfg.sim.dt * cfg.sim.substeps,
         source="eval",
-        scenario_type="legacy_navigation_env",
-        scene_cfg_name="legacy_eval_env",
+        scenario_type=cre_env_metadata["scenario_type"],
+        scene_cfg_name=cre_env_metadata["scene_cfg_name"],
+        scene_id_prefix=cre_env_metadata["scene_id_prefix"],
         seed=cfg.seed,
     )
 

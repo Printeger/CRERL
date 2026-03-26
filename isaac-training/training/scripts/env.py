@@ -33,6 +33,27 @@ import omni.isaac.orbit.utils.math as math_utils
 from omni.isaac.orbit.assets import RigidObject, RigidObjectCfg
 import time
 
+
+DONE_TYPE_LABELS = {
+    0: "running",
+    1: "success",
+    2: "collision",
+    3: "out_of_bounds",
+    4: "truncated",
+}
+
+
+def _cfg_section_get(section, key: str, default):
+    if section is None:
+        return default
+    try:
+        if key in section:
+            return section[key]
+    except Exception:
+        pass
+    return getattr(section, key, default)
+
+
 class NavigationEnv(IsaacEnv):
     """
     导航环境类
@@ -89,6 +110,8 @@ class NavigationEnv(IsaacEnv):
         # 2. 调用 _design_scene() 创建场景
         # 3. 调用 _set_specs() 定义空间规范
         super().__init__(cfg, cfg.headless)
+        self.done_type_labels = dict(DONE_TYPE_LABELS)
+        self.cre_runtime_metadata = self._build_cre_runtime_metadata(cfg)
         
         # ============================================
         # 第 3 步：初始化无人机
@@ -142,6 +165,29 @@ class NavigationEnv(IsaacEnv):
             
             # 前一步的速度（用于计算平滑性奖励）
             self.prev_drone_vel_w = torch.zeros(self.num_envs, 1 , 3)     
+
+    def _build_cre_runtime_metadata(self, cfg):
+        scene_logging = getattr(cfg, "scene_logging", None)
+        scenario_type = str(_cfg_section_get(scene_logging, "scenario_type", "legacy_navigation_env"))
+        scene_cfg_name = str(_cfg_section_get(scene_logging, "scene_cfg_name", "legacy_env"))
+        scene_id_prefix = str(_cfg_section_get(scene_logging, "scene_id_prefix", f"{scenario_type}_scene"))
+        return {
+            "scene_id": scene_id_prefix,
+            "scene_id_prefix": scene_id_prefix,
+            "scenario_type": scenario_type,
+            "scene_cfg_name": scene_cfg_name,
+            "done_type_labels": dict(self.done_type_labels),
+        }
+
+    def get_cre_runtime_metadata(self):
+        return dict(self.cre_runtime_metadata)
+
+    def done_type_code_to_label(self, code):
+        if isinstance(code, torch.Tensor):
+            if code.numel() == 0:
+                return "unknown"
+            code = code.reshape(-1)[0].item()
+        return self.done_type_labels.get(int(code), "unknown")
 
 
     def _design_scene(self):

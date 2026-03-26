@@ -41,7 +41,10 @@ if TRAINING_ROOT not in sys.path:
     sys.path.insert(0, TRAINING_ROOT)
 
 from runtime_logging.logger import aggregate_log_directory, create_run_logger
-from runtime_logging.training_log_adapter import TrainingRolloutLogger
+from runtime_logging.training_log_adapter import (
+    TrainingRolloutLogger,
+    extract_cre_env_metadata,
+)
 
 @hydra.main(config_path=FILE_PATH, config_name="train", version_base=None)
 def main(cfg):
@@ -158,6 +161,12 @@ def main(cfg):
         if isinstance(k, tuple) and k[0]=="stats"
     ]
     episode_stats = EpisodeStats(episode_stats_keys)
+    cre_env_metadata = extract_cre_env_metadata(
+        env,
+        fallback_scenario_type="legacy_navigation_env",
+        fallback_scene_cfg_name="legacy_train_env",
+        fallback_scene_id_prefix="legacy_train_scene",
+    )
 
     # ============================================
     # 第 7.5 步：创建 CRE 运行日志器
@@ -172,8 +181,9 @@ def main(cfg):
         num_envs=cfg.env.num_envs,
         dt=cfg.sim.dt * cfg.sim.substeps,
         source="train",
-        scenario_type="legacy_navigation_env",
-        scene_cfg_name="legacy_train_env",
+        scenario_type=cre_env_metadata["scenario_type"],
+        scene_cfg_name=cre_env_metadata["scene_cfg_name"],
+        scene_id_prefix=cre_env_metadata["scene_id_prefix"],
         seed=cfg.seed,
     )
     cre_eval_run_logger = create_run_logger(
@@ -186,8 +196,9 @@ def main(cfg):
         num_envs=cfg.env.num_envs,
         dt=cfg.sim.dt * cfg.sim.substeps,
         source="train_eval",
-        scenario_type="legacy_navigation_env",
-        scene_cfg_name="legacy_eval_env",
+        scenario_type=cre_env_metadata["scenario_type"],
+        scene_cfg_name=cre_env_metadata["scene_cfg_name"],
+        scene_id_prefix=cre_env_metadata["scene_id_prefix"],
         seed=cfg.seed,
     )
 

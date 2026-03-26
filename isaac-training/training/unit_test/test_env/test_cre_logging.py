@@ -4,10 +4,12 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 ENVS_PATH = ROOT / "envs"
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 if str(ENVS_PATH) not in sys.path:
     sys.path.insert(0, str(ENVS_PATH))
 
-from cre_logging import FlightEpisodeLogger, _default_logs_dir, aggregate_log_directory
+from cre_logging import FlightEpisodeLogger, SCHEMA_VERSION, _default_logs_dir, aggregate_log_directory
 
 
 def test_default_logs_dir_points_to_training_logs():
@@ -22,12 +24,14 @@ def test_episode_logger_writes_complete_artifacts_and_schema(tmp_path):
         base_dir=tmp_path,
         near_violation_distance=0.5,
         use_timestamp=False,
+        source="test_flight",
     )
     logger.reset(
         episode_index=0,
         seed=7,
         scene_id="scene_alpha",
         scenario_type="open",
+        scene_cfg_name="scene_cfg_nominal.yaml",
         scene_tags={"scene_id": "scene_alpha", "family": "open"},
     )
     logger.log_step(
@@ -45,6 +49,7 @@ def test_episode_logger_writes_complete_artifacts_and_schema(tmp_path):
         min_obstacle_distance=0.45,
         out_of_bounds_flag=False,
         done_type="running",
+        scene_cfg_name="scene_cfg_nominal.yaml",
     )
     logger.log_step(
         step_idx=1,
@@ -61,6 +66,7 @@ def test_episode_logger_writes_complete_artifacts_and_schema(tmp_path):
         min_obstacle_distance=0.6,
         out_of_bounds_flag=False,
         done_type="success",
+        scene_cfg_name="scene_cfg_nominal.yaml",
     )
     episode_summary = logger.finalize_episode(done_type="success")
 
@@ -73,6 +79,12 @@ def test_episode_logger_writes_complete_artifacts_and_schema(tmp_path):
     assert episode_summary["scene_id"] == "scene_alpha"
     assert episode_summary["scenario_type"] == "open"
     assert episode_summary["done_type"] == "success"
+    assert episode_summary["source"] == "test_flight"
+    assert episode_summary["scene_cfg_name"] == "scene_cfg_nominal.yaml"
+
+    manifest = json.loads((run_dir / "manifest.json").read_text(encoding="utf-8"))
+    assert manifest["source"] == "test_flight"
+    assert manifest["schema_version"] == SCHEMA_VERSION
 
     step_record = json.loads((run_dir / "steps.jsonl").read_text(encoding="utf-8").splitlines()[0])
     required_fields = {
@@ -89,6 +101,8 @@ def test_episode_logger_writes_complete_artifacts_and_schema(tmp_path):
         "near_violation_flag",
         "out_of_bounds_flag",
         "done_type",
+        "source",
+        "scene_cfg_name",
     }
     assert required_fields.issubset(step_record.keys())
 

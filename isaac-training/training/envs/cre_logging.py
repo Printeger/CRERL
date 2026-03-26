@@ -12,6 +12,8 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
 
 
+SCHEMA_VERSION = "cre_runtime_log.v1"
+
 def _default_logs_dir() -> Path:
     return Path(__file__).resolve().parents[1] / "logs"
 
@@ -107,6 +109,8 @@ class StepLog:
     near_violation_flag: bool
     out_of_bounds_flag: bool
     done_type: str
+    source: str = "unknown"
+    scene_cfg_name: Optional[str] = None
     target_position: Optional[Tuple[float, float, float]] = None
     scene_tags: Dict[str, Any] = field(default_factory=dict)
 
@@ -131,6 +135,8 @@ class EpisodeLog:
     near_violation_ratio: float
     final_goal_distance: Optional[float]
     done_type: str
+    source: str = "unknown"
+    scene_cfg_name: Optional[str] = None
     scene_tags: Dict[str, Any] = field(default_factory=dict)
 
 
@@ -144,6 +150,8 @@ class FlightEpisodeLogger:
         base_dir: Optional[str | Path] = None,
         near_violation_distance: float = 0.5,
         use_timestamp: bool = True,
+        source: str = "unknown",
+        schema_version: str = SCHEMA_VERSION,
     ):
         self.base_dir = Path(base_dir) if base_dir is not None else _default_logs_dir()
         self.base_dir.mkdir(parents=True, exist_ok=True)
@@ -157,6 +165,8 @@ class FlightEpisodeLogger:
         self.summary_path = self.run_dir / "summary.json"
         self.manifest_path = self.run_dir / "manifest.json"
         self.near_violation_distance = float(near_violation_distance)
+        self.source = str(source)
+        self.schema_version = str(schema_version)
         self.completed_episodes: List[Dict[str, Any]] = []
         self._finalized = False
         self._last_episode_summary: Optional[Dict[str, Any]] = None
@@ -169,6 +179,8 @@ class FlightEpisodeLogger:
             "base_dir": str(self.base_dir),
             "run_dir": str(self.run_dir),
             "near_violation_distance": self.near_violation_distance,
+            "schema_version": self.schema_version,
+            "source": self.source,
             "created_at": datetime.now().isoformat(timespec="seconds"),
         }
         self.manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
@@ -180,17 +192,21 @@ class FlightEpisodeLogger:
         seed: Optional[int] = None,
         scene_id: Optional[str] = None,
         scenario_type: Optional[str] = None,
+        scene_cfg_name: Optional[str] = None,
         scene_tags: Optional[Dict[str, Any]] = None,
     ) -> None:
         self.episode_index = episode_index
         self.seed = seed
         self.scene_id = scene_id or ""
         self.scenario_type = scenario_type or ""
+        self.scene_cfg_name = scene_cfg_name
         self.scene_tags = dict(scene_tags or {})
         if not self.scene_id:
             self.scene_id = str(self.scene_tags.get("scene_id", ""))
         if not self.scenario_type:
             self.scenario_type = str(self.scene_tags.get("family", ""))
+        if self.scene_cfg_name is None:
+            self.scene_cfg_name = self.scene_tags.get("scene_cfg_name")
         self.steps: List[StepLog] = []
         self._trajectory_length = 0.0
         self._last_position: Optional[Tuple[float, float, float]] = None
@@ -218,6 +234,7 @@ class FlightEpisodeLogger:
         done_type: str = "running",
         scene_id: Optional[str] = None,
         scenario_type: Optional[str] = None,
+        scene_cfg_name: Optional[str] = None,
         target_position: Optional[Sequence[float]] = None,
         scene_tags: Optional[Dict[str, Any]] = None,
         reached_goal: Optional[bool] = None,
@@ -236,9 +253,12 @@ class FlightEpisodeLogger:
 
         scene_id_value = scene_id or self.scene_id or str(self.scene_tags.get("scene_id", ""))
         scenario_value = scenario_type or self.scenario_type or str(self.scene_tags.get("family", ""))
+        scene_cfg_value = scene_cfg_name or self.scene_cfg_name or str(self.scene_tags.get("scene_cfg_name", "")) or None
         merged_tags = dict(self.scene_tags)
         if scene_tags:
             merged_tags.update(scene_tags)
+        if scene_cfg_value is not None:
+            merged_tags.setdefault("scene_cfg_name", scene_cfg_value)
         if near_violation_flag is None:
             near_violation_flag = (
                 min_obstacle_distance is not None and
@@ -266,10 +286,72 @@ class FlightEpisodeLogger:
                 near_violation_flag=bool(near_violation_flag),
                 out_of_bounds_flag=bool(out_of_bounds_flag),
                 done_type=str(done_type),
+                source=self.source,
+                scene_cfg_name=scene_cfg_value,
                 target_position=target,
                 scene_tags=merged_tags,
             )
         )
+
+    def write_episode(
+        self,
+        *,
+        episode_index: int,
+        steps: Sequence[StepLog],
+        seed: Optional[int] = None,
+        scene_id: Optional[str] = None,
+        scenario_type: Optional[str] = None,
+        scene_cfg_name: Optional[str] = None,
+        scene_tags: Optional[Dict[str, Any]] = None,
+        done_type: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        if not steps:
+            return {}
+
+        previous_state = (
+            self.episode_index,
+            self.seed,
+            self.scene_id,
+            self.scenario_type,
+            self.scene_cfg_name,
+            dict(self.scene_tags),
+            list(self.steps),
+            self._trajectory_length,
+            self._last_position,
+            self._finalized,
+            self._last_episode_summary,
+        )
+        try:
+            self.episode_index = episode_index
+            self.seed = seed
+            self.scene_id = scene_id or steps[-1].scene_id
+            self.scenario_type = scenario_type or steps[-1].scenario_type
+            self.scene_cfg_name = scene_cfg_name or steps[-1].scene_cfg_name
+            self.scene_tags = dict(scene_tags or getattr(steps[-1], "scene_tags", {}) or {})
+            self.steps = list(steps)
+            self._trajectory_length = 0.0
+            self._last_position = None
+            for step in self.steps:
+                if self._last_position is not None:
+                    self._trajectory_length += math.dist(self._last_position, step.position)
+                self._last_position = step.position
+            self._finalized = False
+            self._last_episode_summary = None
+            return self.finalize_episode(done_type=done_type)
+        finally:
+            (
+                self.episode_index,
+                self.seed,
+                self.scene_id,
+                self.scenario_type,
+                self.scene_cfg_name,
+                self.scene_tags,
+                self.steps,
+                self._trajectory_length,
+                self._last_position,
+                self._finalized,
+                self._last_episode_summary,
+            ) = previous_state
 
     def _resolve_done_type(self, requested_done_type: Optional[str]) -> str:
         alias_map = {
@@ -330,6 +412,8 @@ class FlightEpisodeLogger:
             near_violation_ratio=near_violation_steps / len(self.steps) if self.steps else 0.0,
             final_goal_distance=goal_distances[-1] if goal_distances else None,
             done_type=resolved_done_type,
+            source=self.source,
+            scene_cfg_name=last_step.scene_cfg_name or self.scene_cfg_name,
             scene_tags=dict(self.scene_tags),
         )
         return asdict(episode_log)
@@ -377,5 +461,6 @@ class FlightEpisodeLogger:
         summary["run_id"] = self.run_id
         summary["run_dir"] = str(self.run_dir)
         summary["near_violation_distance"] = self.near_violation_distance
+        summary["schema_version"] = self.schema_version
+        summary["source"] = self.source
         self.summary_path.write_text(json.dumps(summary, indent=2, ensure_ascii=False), encoding="utf-8")
-

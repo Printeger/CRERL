@@ -69,7 +69,7 @@ TRAINING_ROOT = os.path.dirname(SCRIPT_DIR)
 SCRIPTS_PATH = os.path.join(TRAINING_ROOT, "scripts")
 ENVS_PATH = os.path.join(TRAINING_ROOT, "envs")
 MODULE_PATH = os.path.join(TRAINING_ROOT, "envs", "env_gen.py")
-LOGGER_MODULE_PATH = os.path.join(TRAINING_ROOT, "envs", "cre_logging.py")
+LOGGER_MODULE_PATH = os.path.join(TRAINING_ROOT, "runtime_logging", "logger.py")
 CFG_PATH = os.path.join(TRAINING_ROOT, "cfg")
 LOG_DIR = os.path.join(TRAINING_ROOT, "logs")
 
@@ -182,7 +182,7 @@ def main(cfg: DictConfig):
 
     # Import the generator module
     generator_module = _load_local_module("env_gen", MODULE_PATH)
-    logging_module = _load_local_module("cre_logging", LOGGER_MODULE_PATH)
+    logging_module = _load_local_module("runtime_logging_logger", LOGGER_MODULE_PATH)
 
     UniversalArenaGenerator = generator_module.UniversalArenaGenerator
     ArenaSpawner = generator_module.ArenaSpawner
@@ -190,7 +190,7 @@ def main(cfg: DictConfig):
     ArenaConfig = generator_module.ArenaConfig
     CREScenarioFamily = generator_module.CREScenarioFamily
     FAMILY_TO_SCENE_CFG = generator_module.FAMILY_TO_SCENE_CFG
-    FlightEpisodeLogger = logging_module.FlightEpisodeLogger
+    create_run_logger = logging_module.create_run_logger
 
     print("[INFO] Dependencies loaded successfully")
 
@@ -378,7 +378,8 @@ def main(cfg: DictConfig):
     current_seed = 42
     regeneration_index = 0
     episode_index = 0
-    episode_logger = FlightEpisodeLogger(
+    episode_logger = create_run_logger(
+        source="test_flight",
         run_name="test_flight",
         base_dir=LOG_DIR,
         near_violation_distance=0.5,
@@ -742,6 +743,7 @@ def main(cfg: DictConfig):
             seed=current_seed,
             scene_id=get_scene_id(),
             scenario_type=get_scenario_type(),
+            scene_cfg_name=get_scene_cfg_name(),
             scene_tags=get_scene_tags(),
         )
         sim_time = 0.0
@@ -1175,11 +1177,12 @@ def main(cfg: DictConfig):
                 target_position=(float(target_pos[0]), float(target_pos[1]), float(target_pos[2])),
                 goal_distance=goal_distance,
                 reward_total=0.0,
-                reward_components={},
+                reward_components={"manual_control": 0.0},
                 collision_flag=collision_proxy,
                 min_obstacle_distance=min_dist,
                 out_of_bounds_flag=out_of_bounds_flag,
                 done_type=step_done_type,
+                scene_cfg_name=get_scene_cfg_name(),
                 reached_goal=reached_goal,
                 scene_tags=get_scene_tags(),
             )

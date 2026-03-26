@@ -10,6 +10,7 @@
 
 import argparse
 import os
+import sys
 import hydra
 import datetime
 import wandb
@@ -26,6 +27,12 @@ from torchrl.envs.utils import ExplorationType
 
 
 FILE_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "cfg")
+TRAINING_ROOT = os.path.dirname(os.path.dirname(__file__))
+if TRAINING_ROOT not in sys.path:
+    sys.path.insert(0, TRAINING_ROOT)
+
+from runtime_logging.logger import aggregate_log_directory, create_run_logger
+from runtime_logging.training_log_adapter import TrainingRolloutLogger
 
 @hydra.main(config_path=FILE_PATH, config_name="eval", version_base=None)
 def main(cfg):
@@ -140,6 +147,21 @@ def main(cfg):
     ]
     episode_stats = EpisodeStats(episode_stats_keys)
 
+    cre_run_logger = create_run_logger(
+        source="eval",
+        run_name="eval_rollout",
+        near_violation_distance=0.5,
+    )
+    cre_log_adapter = TrainingRolloutLogger(
+        cre_run_logger,
+        num_envs=cfg.env.num_envs,
+        dt=cfg.sim.dt * cfg.sim.substeps,
+        source="eval",
+        scenario_type="legacy_navigation_env",
+        scene_cfg_name="legacy_eval_env",
+        seed=cfg.seed,
+    )
+
     # ============================================
     # 第 8 步：创建数据收集器
     # ============================================
@@ -191,7 +213,8 @@ def main(cfg):
             policy=policy,
             seed=cfg.seed, 
             cfg=cfg,
-            exploration_type=ExplorationType.MEAN  # 使用平均动作（确定性）
+            exploration_type=ExplorationType.MEAN,  # 使用平均动作（确定性）
+            cre_log_adapter=cre_log_adapter,
         )
         
         # 恢复训练模式（虽然不训练，但保持一致性）
@@ -215,6 +238,9 @@ def main(cfg):
     # 第 10 步：清理和关闭
     # ============================================
     # 评估结束，关闭日志和仿真器
+    cre_log_adapter.flush_open_episodes(done_type="manual_exit")
+    cre_summary = aggregate_log_directory(cre_run_logger.run_dir)
+    run.log({f"cre/{k}": v for k, v in cre_summary.items() if isinstance(v, (int, float))})
     wandb.finish()
     sim_app.close()
 

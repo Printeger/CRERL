@@ -16,6 +16,7 @@
 
 import argparse
 import os
+import sys
 import hydra              # 配置管理框架
 import datetime
 import wandb              # 实验跟踪工具
@@ -35,6 +36,12 @@ from torchrl.envs.utils import ExplorationType
 # 配置文件路径（train.yaml 等）
 # ============================================
 FILE_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "cfg")
+TRAINING_ROOT = os.path.dirname(os.path.dirname(__file__))
+if TRAINING_ROOT not in sys.path:
+    sys.path.insert(0, TRAINING_ROOT)
+
+from runtime_logging.logger import aggregate_log_directory, create_run_logger
+from runtime_logging.training_log_adapter import TrainingRolloutLogger
 
 @hydra.main(config_path=FILE_PATH, config_name="train", version_base=None)
 def main(cfg):
@@ -153,6 +160,38 @@ def main(cfg):
     episode_stats = EpisodeStats(episode_stats_keys)
 
     # ============================================
+    # 第 7.5 步：创建 CRE 运行日志器
+    # ============================================
+    cre_run_logger = create_run_logger(
+        source="train",
+        run_name="train_rollout",
+        near_violation_distance=0.5,
+    )
+    cre_log_adapter = TrainingRolloutLogger(
+        cre_run_logger,
+        num_envs=cfg.env.num_envs,
+        dt=cfg.sim.dt * cfg.sim.substeps,
+        source="train",
+        scenario_type="legacy_navigation_env",
+        scene_cfg_name="legacy_train_env",
+        seed=cfg.seed,
+    )
+    cre_eval_run_logger = create_run_logger(
+        source="train_eval",
+        run_name="train_eval_rollout",
+        near_violation_distance=0.5,
+    )
+    cre_eval_log_adapter = TrainingRolloutLogger(
+        cre_eval_run_logger,
+        num_envs=cfg.env.num_envs,
+        dt=cfg.sim.dt * cfg.sim.substeps,
+        source="train_eval",
+        scenario_type="legacy_navigation_env",
+        scene_cfg_name="legacy_eval_env",
+        seed=cfg.seed,
+    )
+
+    # ============================================
     # 第 8 步：创建强化学习数据收集器
     # ============================================
     # SyncDataCollector 负责：
@@ -176,6 +215,7 @@ def main(cfg):
     #   1. 与环境交互收集 frames_per_batch 帧数据
     #   2. 返回一个 TensorDict，包含 (state, action, reward, next_state)
     for i, data in enumerate(collector):
+        cre_log_adapter.process_batch(data)
         # data 的结构：
         # {
         #   "agents": {
@@ -226,7 +266,8 @@ def main(cfg):
                 policy=policy,
                 seed=cfg.seed, 
                 cfg=cfg,
-                exploration_type=ExplorationType.MEAN  # 确定性动作
+                exploration_type=ExplorationType.MEAN,  # 确定性动作
+                cre_log_adapter=cre_eval_log_adapter,
             )
             
             # 恢复原来的渲染设置
@@ -251,6 +292,13 @@ def main(cfg):
     ckpt_path = os.path.join(run.dir, "checkpoint_final.pt")
     torch.save(policy.state_dict(), ckpt_path)
     print(f"[NavRL]: Training complete! Final model saved to {ckpt_path}")
+
+    cre_log_adapter.flush_open_episodes(done_type="manual_exit")
+    cre_summary = aggregate_log_directory(cre_run_logger.run_dir)
+    run.log({f"cre/{k}": v for k, v in cre_summary.items() if isinstance(v, (int, float))})
+    cre_eval_log_adapter.flush_open_episodes(done_type="manual_exit")
+    cre_eval_summary = aggregate_log_directory(cre_eval_run_logger.run_dir)
+    run.log({f"cre_eval/{k}": v for k, v in cre_eval_summary.items() if isinstance(v, (int, float))})
     
     # 关闭 WandB 和仿真器
     wandb.finish()

@@ -363,7 +363,8 @@ def evaluate(
     policy,
     cfg,
     seed: int=0, 
-    exploration_type: ExplorationType=ExplorationType.MEAN
+    exploration_type: ExplorationType=ExplorationType.MEAN,
+    cre_log_adapter=None,
 ):
     """
     评估函数：测试训练好的策略
@@ -412,6 +413,10 @@ def evaluate(
     # 恢复原始渲染设置
     env.enable_render(not cfg.headless)
     env.reset()
+
+    if cre_log_adapter is not None:
+        cre_log_adapter.process_batch(trajs)
+        cre_log_adapter.flush_open_episodes(done_type="truncated")
     
     # ============================================
     # 提取每个环境的第一个 episode 的统计信息
@@ -550,4 +555,3 @@ def construct_input(start, end):
     for n in range(start, end):
         input.append(f"{n}")
     return "(" + "|".join(input) + ")"
-

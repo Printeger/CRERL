@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any, Dict, List, Sequence
 
+from envs.env_gen import SUPPORTED_RULE_TEMPLATE_TYPES, SUPPORTED_SCENE_FAMILY_BACKEND
 from .spec_ir import SpecIR
 
 SUPPORTED_EXECUTION_MODES = {"manual", "train", "eval", "baseline"}
@@ -38,6 +40,10 @@ def _reward_spec_path(spec_ir: SpecIR) -> str:
 
 def _policy_spec_path(spec_ir: SpecIR) -> str:
     return _source_path(spec_ir, "policy_spec")
+
+
+def _scene_backend_path() -> str:
+    return str(Path(__file__).resolve().parents[1] / "envs" / "env_gen.py")
 
 
 def _scene_cfg_paths(spec_ir: SpecIR) -> List[str]:
@@ -594,6 +600,63 @@ def check_scene_family_structure(spec_ir: SpecIR) -> StaticCheckResult:
 
 def check_execution_mode_alignment(spec_ir: SpecIR) -> StaticCheckResult:
     issues: List[Dict[str, Any]] = []
+    runtime_expectations = spec_ir.policy_spec.runtime_expectations
+    supported_execution_modes = set(
+        runtime_expectations.get("supported_execution_modes", sorted(SUPPORTED_EXECUTION_MODES))
+    )
+    rollout_required_artifacts = set(
+        runtime_expectations.get("rollout_required_artifacts", ())
+    )
+    static_audit_namespace = str(
+        runtime_expectations.get(
+            "static_audit_namespace",
+            spec_ir.runtime_schema.report_namespaces.get("static_audit", "analysis/static"),
+        )
+    )
+    static_audit_required_artifacts = set(
+        runtime_expectations.get("static_audit_required_artifacts", ())
+    )
+
+    unknown_supported_modes = sorted(supported_execution_modes - SUPPORTED_EXECUTION_MODES)
+    if unknown_supported_modes:
+        issues.append(
+            {
+                "kind": "unknown_supported_execution_modes",
+                "unknown_modes": unknown_supported_modes,
+            }
+        )
+
+    for mode in sorted(supported_execution_modes & SUPPORTED_EXECUTION_MODES):
+        artifacts = set(spec_ir.runtime_schema.execution_mode_artifacts.get(mode, ()))
+        missing_artifacts = sorted(rollout_required_artifacts - artifacts)
+        if missing_artifacts:
+            issues.append(
+                {
+                    "kind": "missing_execution_mode_artifacts",
+                    "mode": mode,
+                    "missing_artifacts": missing_artifacts,
+                }
+            )
+
+    actual_static_namespace = spec_ir.runtime_schema.report_namespaces.get("static_audit", "")
+    if static_audit_namespace != actual_static_namespace:
+        issues.append(
+            {
+                "kind": "static_audit_namespace_mismatch",
+                "expected_namespace": static_audit_namespace,
+                "actual_namespace": actual_static_namespace,
+            }
+        )
+
+    actual_static_artifacts = set(spec_ir.runtime_schema.report_mode_artifacts.get("static_audit", ()))
+    missing_static_artifacts = sorted(static_audit_required_artifacts - actual_static_artifacts)
+    if missing_static_artifacts:
+        issues.append(
+            {
+                "kind": "missing_static_audit_report_artifacts",
+                "missing_artifacts": missing_static_artifacts,
+            }
+        )
 
     for component_key, component in spec_ir.reward_spec.components.items():
         if not component.enabled:
@@ -607,7 +670,7 @@ def check_execution_mode_alignment(spec_ir: SpecIR) -> StaticCheckResult:
                 }
             )
             continue
-        unknown_modes = sorted(modes - SUPPORTED_EXECUTION_MODES)
+        unknown_modes = sorted(modes - supported_execution_modes)
         if unknown_modes:
             issues.append(
                 {
@@ -627,7 +690,7 @@ def check_execution_mode_alignment(spec_ir: SpecIR) -> StaticCheckResult:
                 )
             continue
 
-        missing_rollout_modes = sorted(ROLLOUT_EXECUTION_MODES - modes)
+        missing_rollout_modes = sorted((ROLLOUT_EXECUTION_MODES & supported_execution_modes) - modes)
         if missing_rollout_modes:
             issues.append(
                 {
@@ -669,6 +732,87 @@ def check_execution_mode_alignment(spec_ir: SpecIR) -> StaticCheckResult:
     )
 
 
+def check_scene_backend_capability(spec_ir: SpecIR) -> StaticCheckResult:
+    issues: List[Dict[str, Any]] = []
+
+    for family_name, family in spec_ir.environment_families.items():
+        if family_name not in SUPPORTED_SCENE_FAMILY_BACKEND:
+            issues.append(
+                {
+                    "family": family_name,
+                    "kind": "unsupported_scene_family_backend",
+                }
+            )
+
+        candidate_types = list(family.templates.get("candidate_types", []))
+        unsupported_candidates = sorted(
+            template_name
+            for template_name in candidate_types
+            if template_name not in SUPPORTED_RULE_TEMPLATE_TYPES
+        )
+        if unsupported_candidates:
+            issues.append(
+                {
+                    "family": family_name,
+                    "kind": "unsupported_template_candidates",
+                    "template_types": unsupported_candidates,
+                }
+            )
+
+        dynamic_cfg = family.dynamic_obstacles
+        dynamic_enabled = bool(dynamic_cfg.get("enabled")) and int(dynamic_cfg.get("max_dynamic_count", 0) or 0) > 0
+        if dynamic_enabled:
+            dynamic_budget = family.primitive_budget
+            has_dynamic_budget = any(
+                int((dynamic_budget.get(key) or [0, 0])[1]) > 0
+                for key in ("sphere", "capsule")
+            )
+            has_dynamic_template = "moving_crossing" in candidate_types
+            if not (has_dynamic_budget or has_dynamic_template):
+                issues.append(
+                    {
+                        "family": family_name,
+                        "kind": "dynamic_backend_not_expressible",
+                        "max_dynamic_count": dynamic_cfg.get("max_dynamic_count"),
+                    }
+                )
+
+        if family.validation.get("require_traversable_perforation", False):
+            supports_perforation = (
+                "perforated_barrier" in candidate_types
+                or int((family.primitive_budget.get("perforated_slab") or [0, 0])[1]) > 0
+            )
+            if not supports_perforation:
+                issues.append(
+                    {
+                        "family": family_name,
+                        "kind": "perforation_requirement_not_expressible",
+                    }
+                )
+
+    passed = not issues
+    return StaticCheckResult(
+        check_id="scene_backend_capability",
+        passed=passed,
+        severity="high" if not passed else "info",
+        summary=(
+            "Scene backend capability matches the declared family requirements."
+            if passed
+            else "Some scene family requirements are not expressible by the current scene backend."
+        ),
+        details={
+            "issues": issues,
+            "supported_scene_families": sorted(SUPPORTED_SCENE_FAMILY_BACKEND),
+            "supported_rule_templates": sorted(SUPPORTED_RULE_TEMPLATE_TYPES),
+        },
+        affected_paths=_scene_cfg_paths(spec_ir) + [_scene_backend_path()],
+        recommended_action=(
+            "Align scene-family declarations with the actual env_gen backend "
+            "capabilities, or extend the backend to express the missing cases."
+        ),
+    )
+
+
 def run_static_checks(
     spec_ir: SpecIR,
     check_ids: Sequence[str] | None = None,
@@ -679,6 +823,7 @@ def run_static_checks(
         "reward_proxy_suspicion": check_reward_proxy_suspicion,
         "scene_family_coverage": check_scene_family_coverage,
         "scene_family_structure": check_scene_family_structure,
+        "scene_backend_capability": check_scene_backend_capability,
         "execution_mode_alignment": check_execution_mode_alignment,
         "required_runtime_fields": check_required_runtime_fields,
     }

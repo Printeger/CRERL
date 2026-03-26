@@ -1,0 +1,4 @@
+spec_cfg:
+  policy_spec_v0.yaml:
+    runtime_expectations:
+      static_audit_namespace: "analysis/not_static"

@@ -13,6 +13,7 @@ from envs.cre_logging import STANDARD_REWARD_COMPONENT_KEYS
 from runtime_logging.acceptance import (
     CANONICAL_DONE_TYPES,
     REQUIRED_EPISODE_FIELDS,
+    REQUIRED_RUN_ARTIFACTS,
     REQUIRED_STEP_FIELDS,
 )
 
@@ -169,6 +170,21 @@ DEFAULT_RUNTIME_STATS_FIELDS = (
     "penalty_smooth_total",
     "penalty_height_total",
 )
+DEFAULT_EXECUTION_MODE_ARTIFACTS = {
+    mode: tuple(REQUIRED_RUN_ARTIFACTS)
+    for mode in ("manual", "train", "eval", "baseline")
+}
+DEFAULT_REPORT_MODE_ARTIFACTS = {
+    "static_audit": (
+        "static_report.json",
+        "summary.json",
+        "manifest.json",
+        "namespace_manifest.json",
+    )
+}
+DEFAULT_REPORT_NAMESPACES = {
+    "static_audit": "analysis/static",
+}
 
 
 def _load_yaml_file(path: Path) -> Dict[str, Any]:
@@ -295,6 +311,9 @@ class RuntimeSchemaSpec:
     reward_component_keys: Tuple[str, ...]
     runtime_info_fields: Tuple[str, ...]
     runtime_stats_fields: Tuple[str, ...]
+    execution_mode_artifacts: Dict[str, Tuple[str, ...]]
+    report_mode_artifacts: Dict[str, Tuple[str, ...]]
+    report_namespaces: Dict[str, str]
 
 
 @dataclass
@@ -479,6 +498,9 @@ def build_runtime_schema_spec() -> RuntimeSchemaSpec:
         reward_component_keys=tuple(STANDARD_REWARD_COMPONENT_KEYS),
         runtime_info_fields=tuple(DEFAULT_RUNTIME_INFO_FIELDS),
         runtime_stats_fields=tuple(DEFAULT_RUNTIME_STATS_FIELDS),
+        execution_mode_artifacts=dict(DEFAULT_EXECUTION_MODE_ARTIFACTS),
+        report_mode_artifacts=dict(DEFAULT_REPORT_MODE_ARTIFACTS),
+        report_namespaces=dict(DEFAULT_REPORT_NAMESPACES),
     )
 
 

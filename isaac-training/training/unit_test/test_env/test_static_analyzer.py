@@ -17,6 +17,7 @@ from analyzers.static_checks import (
     check_required_runtime_fields,
     check_reward_constraint_conflicts,
     check_reward_proxy_suspicion,
+    check_scene_backend_capability,
     check_scene_family_coverage,
     check_scene_family_structure,
 )
@@ -77,7 +78,7 @@ def test_run_static_analysis_generates_machine_readable_report(tmp_path):
     assert payload["spec_version"] == "v0"
     assert payload["report_type"] == "static_analyzer_report.v1"
     assert payload["passed"] is True
-    assert payload["num_findings"] == 7
+    assert payload["num_findings"] == 8
 
 
 def test_constraint_runtime_binding_detects_missing_logged_variable():
@@ -224,14 +225,56 @@ def test_execution_mode_alignment_detects_rollout_gap(tmp_path):
     assert "rollout_mode_gap" in issue_kinds
 
 
+def test_execution_mode_alignment_detects_static_report_namespace_mismatch(tmp_path):
+    spec_cfg_dir, env_cfg_dir, detector_cfg_dir = _materialize_fixture_bundle(
+        tmp_path,
+        "report_namespace_misalignment.yaml",
+    )
+    broken = load_spec_ir(
+        spec_cfg_dir=spec_cfg_dir,
+        env_cfg_dir=env_cfg_dir,
+        detector_cfg_dir=detector_cfg_dir,
+    )
+
+    result = check_execution_mode_alignment(broken)
+
+    assert result.passed is False
+    assert result.severity == "high"
+    issue_kinds = {issue["kind"] for issue in result.details["issues"]}
+    assert "static_audit_namespace_mismatch" in issue_kinds
+
+
+def test_scene_backend_capability_detects_unsupported_template_candidate(tmp_path):
+    spec_cfg_dir, env_cfg_dir, detector_cfg_dir = _materialize_fixture_bundle(
+        tmp_path,
+        "scene_backend_capability_gap.yaml",
+    )
+    broken = load_spec_ir(
+        spec_cfg_dir=spec_cfg_dir,
+        env_cfg_dir=env_cfg_dir,
+        detector_cfg_dir=detector_cfg_dir,
+    )
+
+    result = check_scene_backend_capability(broken)
+
+    assert result.passed is False
+    assert result.severity == "high"
+    issue_kinds = {issue["kind"] for issue in result.details["issues"]}
+    assert "unsupported_template_candidates" in issue_kinds
+
+
 def test_run_static_audit_cli_writes_machine_readable_report(tmp_path):
-    report_dir = tmp_path / "cli_bundle"
+    reports_root = tmp_path / "reports_root"
+    report_dir = reports_root / "analysis" / "static" / "cli_bundle"
+    namespace_manifest_path = reports_root / "analysis" / "static" / "namespace_manifest.json"
     output_path = tmp_path / "cli_static_report.json"
     command = [
         sys.executable,
         str(ROOT / "scripts" / "run_static_audit.py"),
-        "--report-dir",
-        str(report_dir),
+        "--reports-root",
+        str(reports_root),
+        "--bundle-name",
+        "cli_bundle",
         "--output",
         str(output_path),
     ]
@@ -247,9 +290,11 @@ def test_run_static_audit_cli_writes_machine_readable_report(tmp_path):
     assert (report_dir / "static_report.json").exists()
     assert (report_dir / "summary.json").exists()
     assert (report_dir / "manifest.json").exists()
+    assert namespace_manifest_path.exists()
     stdout_payload = json.loads(result.stdout)
     file_payload = json.loads(output_path.read_text(encoding="utf-8"))
     assert stdout_payload["passed"] is True
-    assert stdout_payload["num_findings"] == 7
+    assert stdout_payload["num_findings"] == 8
     assert stdout_payload["report_dir"] == str(report_dir)
+    assert stdout_payload["namespace_manifest_path"] == str(namespace_manifest_path)
     assert file_payload["report_type"] == "static_analyzer_report.v1"

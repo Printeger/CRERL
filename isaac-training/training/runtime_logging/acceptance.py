@@ -70,6 +70,14 @@ SUMMARY_METRIC_KEYS = {
     "near_violation_ratio",
 }
 
+REQUIRED_RUN_ARTIFACTS = (
+    "manifest.json",
+    "steps.jsonl",
+    "episodes.jsonl",
+    "summary.json",
+    "acceptance.json",
+)
+
 
 def _json_load(path: Path) -> Dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
@@ -223,13 +231,8 @@ def compare_summary_against_episodes(run_dir: str | Path) -> Tuple[List[str], Di
 
 
 def _validate_artifact_completeness(run_dir: Path) -> List[str]:
-    required_paths = [
-        run_dir / "manifest.json",
-        run_dir / "steps.jsonl",
-        run_dir / "episodes.jsonl",
-        run_dir / "summary.json",
-        run_dir / "episodes",
-    ]
+    required_paths = [run_dir / artifact_name for artifact_name in REQUIRED_RUN_ARTIFACTS]
+    required_paths.append(run_dir / "episodes")
     errors = [f"missing artifact: {path.name}" for path in required_paths if not path.exists()]
     if not _episode_artifact_paths(run_dir):
         errors.append("missing episode artifacts under episodes/")

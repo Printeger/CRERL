@@ -27,3 +27,20 @@ runtime_expectations:
   scene_family_backend_required: true
   cre_runtime_metadata_required: true
   done_type_labels_required: true
+  supported_execution_modes:
+    - "manual"
+    - "train"
+    - "eval"
+    - "baseline"
+  rollout_required_artifacts:
+    - "manifest.json"
+    - "steps.jsonl"
+    - "episodes.jsonl"
+    - "summary.json"
+    - "acceptance.json"
+  static_audit_namespace: "analysis/static"
+  static_audit_required_artifacts:
+    - "static_report.json"
+    - "summary.json"
+    - "manifest.json"
+    - "namespace_manifest.json"

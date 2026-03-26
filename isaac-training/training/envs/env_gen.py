@@ -209,6 +209,31 @@ FAMILY_TO_SCENE_CFG = {
     SceneMode.BOUNDARY_CRITICAL: "scene_cfg_boundary_critical.yaml",
     SceneMode.SHIFTED: "scene_cfg_shifted.yaml",
 }
+SUPPORTED_SCENE_FAMILY_BACKEND = {
+    SceneMode.NOMINAL.value,
+    SceneMode.BOUNDARY_CRITICAL.value,
+    SceneMode.SHIFTED.value,
+}
+SUPPORTED_TEMPLATE_TYPES = {
+    "bottleneck",
+    "pillar_field",
+    "box_field",
+    "clutter_cluster",
+    "slab_field",
+    "perforated_field",
+    "low_clearance_passage",
+    "perforated_barrier",
+    "dynamic_field",
+    "moving_crossing",
+}
+SUPPORTED_RULE_TEMPLATE_TYPES = {
+    "bottleneck",
+    "clutter_cluster",
+    "perforated_barrier",
+    "low_clearance_passage",
+    "pillar_field",
+    "moving_crossing",
+}
 
 
 @dataclass

@@ -46,9 +46,19 @@ def parse_args() -> argparse.Namespace:
         help="Optional comma-separated subset of static checks to run.",
     )
     parser.add_argument(
+        "--reports-root",
+        default=str(_training_root() / "reports"),
+        help="Root reports directory used for namespaced static audit artifacts.",
+    )
+    parser.add_argument(
+        "--bundle-name",
+        default="static_audit_latest",
+        help="Bundle name under the static audit namespace.",
+    )
+    parser.add_argument(
         "--report-dir",
-        default=str(_training_root() / "reports" / "static_audits" / "static_audit_latest"),
-        help="Bundle directory for standard static audit artifacts.",
+        default="",
+        help="Optional explicit bundle directory override.",
     )
     parser.add_argument(
         "--output",
@@ -72,7 +82,9 @@ def main() -> int:
         detector_cfg_dir=Path(args.detector_cfg_dir),
         scene_families=scene_families,
         check_ids=checks or None,
-        report_dir=Path(args.report_dir),
+        reports_root=Path(args.reports_root),
+        bundle_name=args.bundle_name,
+        report_dir=Path(args.report_dir) if args.report_dir else None,
         output_path=Path(args.output) if args.output else None,
     )
     print(
@@ -83,6 +95,7 @@ def main() -> int:
                 "static_report_path": str(bundle_paths["static_report_path"]),
                 "summary_path": str(bundle_paths["summary_path"]),
                 "manifest_path": str(bundle_paths["manifest_path"]),
+                "namespace_manifest_path": str(bundle_paths.get("namespace_manifest_path", "")),
                 "passed": report.passed,
                 "max_severity": report.max_severity,
                 "num_findings": report.num_findings,

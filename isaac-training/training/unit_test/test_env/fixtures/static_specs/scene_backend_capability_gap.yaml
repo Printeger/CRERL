@@ -1,0 +1,6 @@
+env_cfg:
+  scene_cfg_shifted.yaml:
+    templates:
+      candidate_types:
+        - "clutter_cluster"
+        - "ghost_template"

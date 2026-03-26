@@ -50,22 +50,22 @@ This keeps the workflow inside the current repo and avoids touching files outsid
 ## Latest Staged Change Summary
 
 <!-- TRACEABILITY:BEGIN -->
-_Updated: `2026-03-26T19:06:46`_
+_Updated: `2026-03-26T20:43:46`_
 
 - Scope: `/home/mint/rl_dev/CRERL`
 - Branch: `main`
 - Source: `staged diff`
-- Impacted phases: `Phase 1, Phase 3, Phase 4, Phase 7, Workflow`
-- Diff stat: 10 files changed, 868 insertions(+), 41 deletions(-)
+- Impacted phases: `Phase 0, Phase 1, Phase 4, Phase 7, Workflow`
+- Diff stat: 10 files changed, 1568 insertions(+), 20 deletions(-)
 
 ### Changed Files
-- `M` [doc/dev_log/p3_dev_status.md](doc/dev_log/p3_dev_status.md) [Project Docs]
-- `A` [isaac-training/training/cfg/baseline.yaml](isaac-training/training/cfg/baseline.yaml) [Training Config]
-- `M` [isaac-training/training/execution/__init__.py](isaac-training/training/execution/__init__.py) [Execution / Baselines]
-- `M` [isaac-training/training/execution/baseline_policies.py](isaac-training/training/execution/baseline_policies.py) [Execution / Baselines]
-- `A` [isaac-training/training/execution/baseline_runner.py](isaac-training/training/execution/baseline_runner.py) [Execution / Baselines]
-- `A` [isaac-training/training/scripts/run_baseline.py](isaac-training/training/scripts/run_baseline.py) [Training Pipeline]
-- `A` [isaac-training/training/unit_test/test_env/test_baseline_policies.py](isaac-training/training/unit_test/test_env/test_baseline_policies.py) [Training Tests]
-- `A` [isaac-training/training/unit_test/test_env/test_baseline_runner.py](isaac-training/training/unit_test/test_env/test_baseline_runner.py) [Training Tests]
+- `A` [doc/dev_log/phase_4.md](doc/dev_log/phase_4.md) [Project Docs]
+- `A` [doc/roadmap/phase4.md](doc/roadmap/phase4.md) [Spec / Roadmap]
+- `M` [isaac-training/training/analyzers/__init__.py](isaac-training/training/analyzers/__init__.py) [Analyzers]
+- `M` [isaac-training/training/analyzers/spec_ir.py](isaac-training/training/analyzers/spec_ir.py) [Analyzers]
+- `A` [isaac-training/training/cfg/spec_cfg/constraint_spec_v0.yaml](isaac-training/training/cfg/spec_cfg/constraint_spec_v0.yaml) [Specification Config]
+- `A` [isaac-training/training/cfg/spec_cfg/policy_spec_v0.yaml](isaac-training/training/cfg/spec_cfg/policy_spec_v0.yaml) [Specification Config]
+- `A` [isaac-training/training/cfg/spec_cfg/reward_spec_v0.yaml](isaac-training/training/cfg/spec_cfg/reward_spec_v0.yaml) [Specification Config]
+- `A` [isaac-training/training/unit_test/test_env/test_spec_ir.py](isaac-training/training/unit_test/test_env/test_spec_ir.py) [Training Tests]
 - `M` [tools/update_traceability.py](tools/update_traceability.py) [Developer Workflow]
 <!-- TRACEABILITY:END -->

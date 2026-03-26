@@ -1,0 +1,29 @@
+spec_version: "v0"
+
+policy_type: "velocity_command_uav"
+action_type: "continuous"
+action_dimensions: 3
+action_bounds: [-2.0, 2.0]
+command_frame: "goal_aligned_velocity"
+yaw_control: false
+
+observations:
+  lidar: true
+  goal_relative_state: true
+  dynamic_obstacle_features: true
+  angular_velocity: false
+  attitude_features: false
+  previous_action: false
+  partial_observability: true
+
+control:
+  simulator: "Isaac Sim / PhysX"
+  control_frequency_hz: 62.5
+  dynamic_model: "dynamic multirotor"
+  actuation_delay_modeled: true
+  sensor_delay_modeled: false
+
+runtime_expectations:
+  scene_family_backend_required: true
+  cre_runtime_metadata_required: true
+  done_type_labels_required: true

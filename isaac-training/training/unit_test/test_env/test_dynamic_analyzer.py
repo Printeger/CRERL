@@ -341,7 +341,11 @@ def test_dynamic_report_promotes_group_and_failure_summaries(tmp_path):
     assert report.static_context["namespace_contract"] == {}
     assert report.evidence_objects
     assert report.semantic_inputs["semantic_input_type"] == "dynamic_semantic_input.v1"
+    assert report.semantic_inputs["semantic_contract_type"] == "phase6_dynamic_semantic_contract.v1"
     assert report.semantic_inputs["failure_hotspots"]
+    assert report.semantic_inputs["attribution_candidates"]
+    assert report.semantic_inputs["cross_validation_contract"]["contract_type"] == "phase6_cross_validation_contract.v1"
+    assert "C-R" in report.semantic_inputs["cross_validation_contract"]["claim_to_witness_map"]
 
 
 def test_run_dynamic_audit_cli_writes_machine_readable_bundle(tmp_path):
@@ -443,6 +447,8 @@ def test_run_dynamic_audit_cli_writes_machine_readable_bundle(tmp_path):
     semantic_payload = json.loads((report_dir / "semantic_inputs.json").read_text(encoding="utf-8"))
     assert evidence_payload
     assert semantic_payload["semantic_input_type"] == "dynamic_semantic_input.v1"
+    assert semantic_payload["semantic_contract_type"] == "phase6_dynamic_semantic_contract.v1"
+    assert semantic_payload["cross_validation_contract"]["contract_type"] == "phase6_cross_validation_contract.v1"
 
     loaded = load_accepted_run_directory(nominal_run)
     assert loaded["acceptance"]["passed"] is True

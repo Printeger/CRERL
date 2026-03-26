@@ -25,6 +25,7 @@ class DynamicEvidenceObject:
     scene_cfg_names: List[str] = field(default_factory=list)
     evidence_refs: List[str] = field(default_factory=list)
     semantic_tags: List[str] = field(default_factory=list)
+    attribution_hints: List[str] = field(default_factory=list)
     metrics: Dict[str, Any] = field(default_factory=dict)
     payload: Dict[str, Any] = field(default_factory=dict)
 
@@ -50,6 +51,28 @@ def _witness_metric_map(witness_payload: Mapping[str, Any]) -> Dict[str, float]:
             continue
         metric_map[metric_id] = float(metric.get("value", 0.0) or 0.0)
     return metric_map
+
+
+def _derive_attribution_hints(
+    *,
+    witness_id: str = "",
+    grouping_key: str = "",
+    scenario_types: Sequence[str] = (),
+    sources: Sequence[str] = (),
+) -> List[str]:
+    hints: List[str] = []
+    witness_id = str(witness_id)
+    if witness_id == "W_CR":
+        hints.extend(["C-R", "reward-constraint-coupling"])
+    elif witness_id == "W_EC":
+        hints.extend(["E-C", "critical-state-undercoverage"])
+    elif witness_id == "W_ER":
+        hints.extend(["E-R", "shift-fragility"])
+    if grouping_key == "scenario_type" and "shifted" in {str(item) for item in scenario_types}:
+        hints.append("shifted-family-hotspot")
+    if grouping_key == "source" and any(str(item).startswith("baseline_") for item in sources):
+        hints.append("baseline-conditioned")
+    return sorted(set(hints))
 
 
 def _build_witness_evidence_objects(report_payload: Mapping[str, Any]) -> List[DynamicEvidenceObject]:
@@ -79,6 +102,7 @@ def _build_witness_evidence_objects(report_payload: Mapping[str, Any]) -> List[D
                     if item not in (None, "")
                 ],
                 semantic_tags=[witness_id.lower(), "dynamic_witness"],
+                attribution_hints=_derive_attribution_hints(witness_id=witness_id),
                 metrics=_witness_metric_map(witness),
                 payload=details,
             )
@@ -128,6 +152,11 @@ def _collect_failure_entries(
                         grouping_key,
                         str(group_name),
                     ],
+                    attribution_hints=_derive_attribution_hints(
+                        grouping_key=grouping_key,
+                        scenario_types=_as_list(summary.get("scenario_types")),
+                        sources=_as_list(summary.get("sources")),
+                    ),
                     metrics={
                         "failure_pressure": failure_pressure,
                         "success_rate": float(summary.get("success_rate", 0.0) or 0.0),
@@ -191,6 +220,7 @@ def build_semantic_diagnosis_inputs(
 
     return {
         "semantic_input_type": "dynamic_semantic_input.v1",
+        "semantic_contract_type": "phase6_dynamic_semantic_contract.v1",
         "spec_version": str(report_payload.get("spec_version", "")),
         "primary_run_ids": list(report_payload.get("primary_run_ids", []) or []),
         "comparison_run_ids": list(report_payload.get("comparison_run_ids", []) or []),
@@ -210,11 +240,80 @@ def build_semantic_diagnosis_inputs(
                 "summary": item.get("summary", ""),
                 "metrics": dict(item.get("metrics", {})),
                 "evidence_refs": list(item.get("evidence_refs", []) or []),
+                "attribution_hints": list(item.get("attribution_hints", []) or []),
             }
             for item in witness_objects
         ],
+        "attribution_candidates": [
+            {
+                "candidate_id": item.get("evidence_id", ""),
+                "evidence_type": item.get("evidence_type", ""),
+                "scope": item.get("scope", ""),
+                "severity": item.get("severity", "info"),
+                "score": float(item.get("score", 0.0) or 0.0),
+                "summary": item.get("summary", ""),
+                "attribution_hints": list(item.get("attribution_hints", []) or []),
+                "evidence_refs": list(item.get("evidence_refs", []) or []),
+            }
+            for item in sorted(
+                evidence_objects,
+                key=lambda item: float(item.get("score", 0.0) or 0.0),
+                reverse=True,
+            )[:max_failure_objects]
+        ],
         "failure_hotspots": failure_objects[:max_failure_objects],
         "static_context": dict(report_payload.get("static_context") or {}),
+        "prompt_sections": {
+            "spec_context": {
+                "declared_families": declared_families,
+                "constraint_ids": constraint_ids,
+                "reward_components": reward_components,
+            },
+            "runtime_summary": {
+                "report_summary": {
+                    "passed": bool(report_payload.get("passed", False)),
+                    "max_severity": str(report_payload.get("max_severity", "info")),
+                    "num_findings": int(report_payload.get("num_findings", 0) or 0),
+                },
+                "primary_run_ids": list(report_payload.get("primary_run_ids", []) or []),
+                "comparison_run_ids": list(report_payload.get("comparison_run_ids", []) or []),
+            },
+            "witness_summary": [
+                {
+                    "witness_id": item.get("witness_id", ""),
+                    "severity": item.get("severity", "info"),
+                    "score": float(item.get("score", 0.0) or 0.0),
+                    "summary": item.get("summary", ""),
+                }
+                for item in witness_objects
+            ],
+            "failure_hotspots": failure_objects[:max_failure_objects],
+        },
+        "cross_validation_contract": {
+            "contract_type": "phase6_cross_validation_contract.v1",
+            "required_supported_claim_types": [
+                "C-R",
+                "E-C",
+                "E-R",
+            ],
+            "required_evidence_fields": [
+                "evidence_refs",
+                "severity",
+                "score",
+                "summary",
+                "attribution_hints",
+            ],
+            "claim_to_witness_map": {
+                "C-R": ["W_CR"],
+                "E-C": ["W_EC"],
+                "E-R": ["W_ER"],
+            },
+            "validation_rules": [
+                "Every semantic claim must cite at least one witness or failure-hotspot evidence object.",
+                "Semantic attribution must be rejected when no supporting evidence_refs are present.",
+                "Claims about shifted degradation should prefer evidence carrying shifted-family-hotspot or W_ER hints.",
+            ],
+        },
         "prompt_seeds": [
             "Which dynamic witness provides the strongest evidence of inconsistency, and why?",
             "Which source-conditioned or family-conditioned hotspot should be explained first?",

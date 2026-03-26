@@ -109,3 +109,18 @@ isaac-training/training/scripts/outputs/
 isaac-training/third_party/warp/_build/
 
 isaac-training/outputs/
+
+# Runtime artifacts under training/
+isaac-training/training/logs/
+isaac-training/training/unit_test/logs/
+isaac-training/training/unit_test/outputs/
+isaac-training/training/checkpoints/*
+!isaac-training/training/checkpoints/.gitkeep
+isaac-training/training/artifacts/*
+!isaac-training/training/artifacts/.gitkeep
+
+# Crash dumps / local debug leftovers
+core
+core.*
+*.core
+*.stackdump

@@ -287,6 +287,63 @@ def test_dynamic_analysis_loads_static_bundle_context(tmp_path):
     assert loaded_context["bundle_name"] == "static_context_bundle"
 
 
+def test_dynamic_report_promotes_group_and_failure_summaries(tmp_path):
+    nominal_run = _create_run(
+        tmp_path,
+        run_name="summary_nominal_run",
+        source="baseline_greedy",
+        episodes=[
+            {
+                "scene_id": "scene_summary_nominal",
+                "scenario_type": "nominal",
+                "scene_cfg_name": "scene_cfg_nominal.yaml",
+                "distances": [1.1, 0.95, 0.88],
+                "rewards": [0.8, 0.7, 0.6],
+                "done_type": "success",
+            }
+        ],
+    )
+    shifted_run = _create_run(
+        tmp_path,
+        run_name="summary_shifted_run",
+        source="baseline_greedy",
+        episodes=[
+            {
+                "scene_id": "scene_summary_shifted",
+                "scenario_type": "shifted",
+                "scene_cfg_name": "scene_cfg_shifted.yaml",
+                "distances": [0.62, 0.48, 0.35],
+                "rewards": [0.5, 0.4, 0.2],
+                "done_type": "collision",
+                "collision": True,
+                "dynamic_tags": {
+                    "dynamic_obstacles_enabled": True,
+                    "dynamic_obstacle_count": 1,
+                },
+            }
+        ],
+    )
+
+    report = run_dynamic_analysis(
+        run_dirs=[nominal_run],
+        compare_run_dirs=[shifted_run],
+    )
+
+    assert "primary" in report.group_summaries
+    assert "comparison" in report.group_summaries
+    assert "by_source" in report.group_summaries["primary"]
+    assert "baseline_greedy" in report.group_summaries["primary"]["by_source"]
+    assert "primary" in report.failure_summaries
+    assert "comparison" in report.failure_summaries
+    assert "by_scenario_type" in report.failure_summaries["comparison"]
+    assert "shifted" in report.failure_summaries["comparison"]["by_scenario_type"]
+    assert (
+        report.failure_summaries["comparison"]["by_scenario_type"]["shifted"]["failure_pressure"] > 0.0
+    )
+    assert report.static_context["bundle_name"] == ""
+    assert report.static_context["namespace_contract"] == {}
+
+
 def test_run_dynamic_audit_cli_writes_machine_readable_bundle(tmp_path):
     nominal_run = _create_run(
         tmp_path,

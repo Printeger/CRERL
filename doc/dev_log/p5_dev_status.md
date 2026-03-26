@@ -4,115 +4,118 @@ Updated: 2026-03-26
 
 ## 1. This Iteration Goal
 
-This iteration continues Phase 5 by turning the first dynamic-analysis batch
-into something that can operate on real accepted CRE evidence:
+This iteration continues Phase 5 by moving the dynamic analyzer beyond the
+first engineering-only batch and making it more useful for later diagnosis:
 
-- connect the dynamic analyzer to real accepted run directories, not only synthetic runs
-- enrich comparison grouping
+- strengthen witness definitions beyond the first-pass kernels
+- connect the analyzer to real accepted run directories, not only synthetic runs
+- promote family-conditioned / source-conditioned summaries into first-class
+  report sections
 - integrate static bundle context more tightly
-- validate the analyzer on real accepted baseline / eval / train run directories
+- add a real nominal-vs-shifted matched run pair
 
 This is the bridge from:
 
-- "we have accepted rollout logs and a static analyzer"
+- "we can run a first dynamic analyzer"
 
 to:
 
-- "we can compute the first rollout-based CRE witness metrics."
+- "we can produce stable dynamic CRE evidence for later attribution."
 
 ## 2. Implemented Results
 
-### 2.1 Dynamic Metric Kernels Implemented
+### 2.1 Dynamic Witness Kernels Were Strengthened
 
-`isaac-training/training/analyzers/dynamic_metrics.py` is no longer a stub.
+`isaac-training/training/analyzers/dynamic_metrics.py` now computes stronger
+engineering witnesses instead of only the first-pass coarse signals.
 
-It now computes the first engineering versions of:
+Changes in this iteration:
 
-- `W_CR`: reward-violation coupling
-- `W_EC`: critical-state coverage
-- `W_ER`: transfer fragility under shift
+- `W_CR` now incorporates:
+  - proximity pressure
+  - proximity-reward alignment
+  - high-return hazardous-episode ratio
+- `W_EC` now incorporates:
+  - family-conditioned failure pressure
+  - family-level critical-state summaries
+- `W_ER` now incorporates:
+  - source-pair shift
+  - family-shift gap
+  - family-conditioned comparison summaries
 
-The implementation is deterministic and pure Python. It works directly from
-accepted run-directory payloads and current detector/spec thresholds.
+These additions make the witness values more informative for later
+specification- and report-level diagnosis.
 
-### 2.2 Dynamic Analyzer Orchestration Added
+### 2.2 Dynamic Analyzer Supports Real Accepted-Run Discovery
 
-A new module was added:
-
-- `isaac-training/training/analyzers/dynamic_analyzer.py`
-
-It now provides:
-
-- `run_dynamic_analysis(...)`
-- `run_dynamic_analysis_bundle(...)`
-- namespaced dynamic bundle writing under:
-  - `analysis/dynamic/<bundle_name>/`
-
-The report format is machine-readable and mirrors the style already used by the
-static analyzer.
-
-### 2.3 Runtime Log Loading Helpers Expanded Further
-
-`isaac-training/training/runtime_logging/episode_writer.py` is no longer only a
-thin writer wrapper.
-
-It now also provides deterministic helpers to load:
-
-- a run directory
-- an accepted run directory
-- multiple accepted run directories
-- accepted run discovery from `training/logs` using filters such as:
-  - `source`
-  - `scenario_type`
-  - `scene_cfg_name`
-
-This gives the dynamic analyzer one stable place to read runtime evidence from.
-
-### 2.4 Comparison Grouping Added
-
-`isaac-training/training/analyzers/dynamic_analyzer.py` now computes structured
-group summaries for both primary and comparison run sets.
-
-It now exposes grouping over:
+`isaac-training/training/runtime_logging/episode_writer.py` now supports
+discovery of accepted run directories from `training/logs` by:
 
 - `source`
 - `scenario_type`
 - `scene_cfg_name`
 
-This means dynamic reports no longer only contain global witness values. They
-also include grouped runtime summaries that are directly usable by later
-reporting and diagnosis stages.
+`isaac-training/training/analyzers/dynamic_analyzer.py` can now resolve both:
 
-### 2.5 Static Bundle Context Is Now Loaded Into Dynamic Reports
+- explicit `run_dirs`
+- discovered accepted run directories from `logs_root`
 
-The dynamic analyzer can now resolve and load static audit context from:
+This means the analyzer can operate directly on real rollout artifacts.
+
+### 2.3 Grouped Runtime Summaries Are Still Present
+
+The dynamic analyzer continues to compute grouped summaries over:
+
+- `source`
+- `scenario_type`
+- `scene_cfg_name`
+
+These summaries are still useful for report aggregation and comparison views.
+
+### 2.4 Failure Summaries Are Now First-Class Report Sections
+
+The dynamic report now exposes these top-level fields directly:
+
+- `group_summaries`
+- `failure_summaries`
+- `static_context`
+
+instead of leaving everything inside `metadata`.
+
+The new `failure_summaries` promote family-conditioned and
+source-conditioned runtime evidence into report-root structure, which is
+easier for later semantic or LLM-facing diagnosis stages to consume.
+
+### 2.5 Static Bundle Context Is Tied More Closely To Dynamic Reports
+
+The dynamic analyzer can now resolve static audit context from:
 
 - an explicit `static_bundle_dir`
-- or a `reports_root + static_bundle_name`
+- or `reports_root + static_bundle_name`
 
-The dynamic report metadata now records:
+The report root now carries this context in a stable way through:
+
+- `static_context`
+
+This contains:
 
 - static bundle name
-- static bundle paths
 - static spec version
 - static pass/fail status
 - namespace manifest
 - report namespace contract
 
-This is the first real bridge between:
+This tightens the bridge between:
 
 - `analysis/static`
-
-and:
-
 - `analysis/dynamic`
 
-### 2.6 Dynamic CLI Entrypoint Expanded
+### 2.6 Dynamic CLI Works With Real Accepted Runs
 
-`isaac-training/training/scripts/run_dynamic_audit.py` now supports both:
+`isaac-training/training/scripts/run_dynamic_audit.py` now supports:
 
 - explicit `--run-dir / --compare-run-dir`
-- accepted-run discovery from:
+- real accepted-run discovery from:
   - `--logs-root`
   - `--source`
   - `--compare-source`
@@ -121,39 +124,54 @@ and:
   - `--scene-cfg-name`
   - `--compare-scene-cfg-name`
 
-This makes the CLI usable against real run directories already stored under
-`training/logs`.
+This makes the CLI usable both for synthetic smoke tests and real repository
+artifacts under `training/logs`.
 
-### 2.7 Dynamic Analyzer Tests Expanded
+### 2.7 Dynamic Analyzer Tests Were Expanded
 
-A new test file was added:
+`isaac-training/training/unit_test/test_env/test_dynamic_analyzer.py` now
+validates:
 
-- `isaac-training/training/unit_test/test_env/test_dynamic_analyzer.py`
+- reward-violation coupling on unsafe reward-rich trajectories
+- critical-state undercoverage
+- transfer fragility under nominal-vs-shifted contrast
+- accepted-run discovery by source / family / scene config
+- static bundle context loading
+- report-root group/failure summaries
+- CLI namespaced dynamic bundle writing
 
-These tests now create synthetic accepted run directories and validate:
+### 2.8 Real Accepted Baseline / Eval / Train Runs Were Analyzed
 
-- reward-violation coupling rises on unsafe/high-reward trajectories
-- critical-state undercoverage is detected
-- nominal-vs-shifted transfer fragility is detected
-- accepted-run discovery works by source / family / scene config
-- static bundle context is loaded into dynamic metadata
-- the dynamic CLI writes a proper namespaced bundle
-- the CLI discovery path works without explicit `--run-dir`
-
-### 2.8 Real Accepted Run Validation Added
-
-This iteration also validated the dynamic analyzer on real accepted run
-directories already present in the repository:
-
-- real baseline runs
-- real evaluation runs
-- real training runs
-
-Those validations were executed against:
+This iteration continued to validate the analyzer against real accepted run
+directories already present in:
 
 - `isaac-training/training/logs/`
 
-using the dynamic CLI with accepted-run discovery filters.
+Real accepted analyses were executed for:
+
+- baseline runs
+- evaluation runs
+- training runs
+
+### 2.9 A Real Nominal-vs-Shifted Matched Pair Was Added
+
+A real `shifted` run was generated through the actual baseline execution path:
+
+- `baseline_greedy`
+- `scene_family_backend.family=shifted`
+
+and then re-accepted through the shared run-level acceptance check.
+
+That run now forms a real matched pair with the existing accepted
+`baseline_greedy` nominal run:
+
+- nominal:
+  - `baseline_greedy_rollout_20260326_190209`
+- shifted:
+  - `baseline_greedy_rollout_20260326_223636`
+
+This pair was then analyzed through the shared dynamic CLI and namespaced
+report bundle flow.
 
 ## 3. Main Files Added or Changed
 
@@ -205,13 +223,15 @@ pytest -q isaac-training/training/unit_test/test_env/test_dynamic_analyzer.py
 Expected result:
 
 - tests pass without Isaac Sim
-- the dynamic analyzer distinguishes the intended synthetic contrasts
-- accepted-run discovery and static-context loading work
-- the CLI bundle generation path works
+- stronger witness signals remain stable
+- accepted-run discovery works
+- report-root group/failure summaries are emitted
+- static-context loading works
+- CLI namespaced bundle generation works
 
 ### 4.3 Synthetic Dynamic CLI Smoke Test
 
-Run a small synthetic accepted-run pair through:
+Run:
 
 ```bash
 python3 isaac-training/training/scripts/run_dynamic_audit.py \
@@ -229,7 +249,7 @@ Expected result:
 - stdout returns a machine-readable summary
 - the synthetic contrast produces non-trivial `W_EC` / `W_ER` scores
 
-### 4.4 Real Accepted-Run Validation
+### 4.4 Real Accepted Baseline / Eval / Train Validation
 
 Generate one real static bundle first:
 
@@ -291,6 +311,61 @@ python3 isaac-training/training/scripts/run_dynamic_audit.py \
   --output /tmp/crerl_phase5_real_reports/dynamic_baseline_compare_copy.json
 ```
 
+### 4.5 Real Nominal-vs-Shifted Matched-Pair Validation
+
+Generate one real shifted run:
+
+```bash
+cd /home/mint/rl_dev/CRERL/isaac-training
+conda run -n NavRL python training/scripts/run_baseline.py \
+  baseline.name=greedy \
+  baseline.num_episodes=1 \
+  scene_family_backend.family=shifted \
+  headless=True
+```
+
+Re-run acceptance on that new shifted run:
+
+```bash
+cd /home/mint/rl_dev/CRERL/isaac-training/training
+python3 - <<'PY'
+from runtime_logging.logger import run_acceptance_check
+from pathlib import Path
+run_dir = Path('/home/mint/rl_dev/CRERL/isaac-training/training/logs/baseline_greedy_rollout_20260326_223636')
+print(run_acceptance_check(run_dir, write_report=True))
+PY
+```
+
+Then analyze the real matched pair:
+
+```bash
+cd /home/mint/rl_dev/CRERL
+python3 isaac-training/training/scripts/run_static_audit.py \
+  --reports-root /tmp/crerl_phase5_round2_reports \
+  --bundle-name static_audit_phase5_round2 \
+  --output /tmp/crerl_phase5_round2_reports/static_report_copy.json
+
+python3 isaac-training/training/scripts/run_dynamic_audit.py \
+  --logs-root isaac-training/training/logs \
+  --source baseline_greedy \
+  --scenario-type nominal \
+  --compare-source baseline_greedy \
+  --compare-scenario-type shifted \
+  --reports-root /tmp/crerl_phase5_round2_reports \
+  --bundle-name dynamic_baseline_greedy_nominal_vs_shifted \
+  --static-bundle-name static_audit_phase5_round2 \
+  --output /tmp/crerl_phase5_round2_reports/dynamic_baseline_greedy_nominal_vs_shifted_copy.json
+```
+
+Expected result:
+
+- the real matched pair is discovered successfully
+- the emitted report includes first-class:
+  - `group_summaries`
+  - `failure_summaries`
+  - `static_context`
+- `W_ER` becomes non-zero under the real nominal-vs-shifted contrast
+
 ## 5. Validation Results
 
 Validation run on 2026-03-26:
@@ -311,7 +386,7 @@ pytest -q isaac-training/training/unit_test/test_env/test_dynamic_analyzer.py
 
 Result:
 
-- `6 passed`
+- `7 passed`
 
 ### 5.3 Synthetic Dynamic CLI Smoke Test
 
@@ -395,28 +470,54 @@ Observed result:
     - `W_EC = 0.5833333333333334`
     - `W_ER = 0.043113627047455125`
 
+### 5.8 Real Nominal-vs-Shifted Matched-Pair Validation
+
+Observed result:
+
+- a real shifted accepted run was generated:
+  - `baseline_greedy_rollout_20260326_223636`
+- it was paired with the real nominal accepted run:
+  - `baseline_greedy_rollout_20260326_190209`
+- the emitted report now contains first-class:
+  - `group_summaries`
+  - `failure_summaries`
+  - `static_context`
+- stdout summary reported:
+  - `passed = true`
+  - `max_severity = warning`
+  - `num_findings = 3`
+  - witness scores:
+    - `W_CR = 0.0`
+    - `W_EC = 0.46666666666666673`
+    - `W_ER = 0.14285714285714285`
+
 ## 6. Current Conclusion
 
-Phase 5 now has a usable second batch:
+Phase 5 now has a usable stronger second batch:
 
 - dynamic witness kernels exist
+- witness definitions are stronger than the first engineering-only kernels
 - dynamic reports can be emitted
 - dynamic bundles can be written under the shared namespace contract
 - accepted-run discovery is supported
 - comparison grouping exists
+- family-conditioned and source-conditioned failure summaries are first-class
+  report sections
 - static bundle context is integrated into dynamic reports
 - pure-Python synthetic validation exists
 - real accepted baseline / eval / train runs have all been analyzed successfully
+- a real nominal-vs-shifted matched pair now exists and has been analyzed
 
 ## 7. Next Step
 
 The next best move is to continue Phase 5 by:
 
-- improving the witness definitions from "engineering kernels" toward
-  stronger CRE-specific evidence
-- adding family-conditioned and source-conditioned failure summaries directly as
-  first-class report sections
-- adding more real matched run pairs, especially nominal-vs-shifted accepted runs
+- adding more real matched run pairs beyond the first `baseline_greedy`
+  nominal-vs-shifted pair
+- turning the current grouped failure summaries into more stable dynamic evidence
+  objects for later semantic diagnosis
+- refining witness calibration against real failure cases instead of only
+  rule-based engineering thresholds
 - preparing the first bridge from dynamic findings into the later semantic / LLM
   diagnosis layer
 

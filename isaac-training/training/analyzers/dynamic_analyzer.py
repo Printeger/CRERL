@@ -52,6 +52,9 @@ class DynamicAnalyzerReport:
     num_findings: int
     witnesses: List[Dict[str, Any]] = field(default_factory=list)
     findings: List[DynamicFindingRecord] = field(default_factory=list)
+    group_summaries: Dict[str, Any] = field(default_factory=dict)
+    failure_summaries: Dict[str, Any] = field(default_factory=dict)
+    static_context: Dict[str, Any] = field(default_factory=dict)
     metadata: Dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -102,6 +105,9 @@ def build_dynamic_report(
     primary_run_ids: Iterable[str],
     comparison_run_ids: Iterable[str],
     witness_results: Sequence[DynamicWitnessResult],
+    group_summaries: Optional[Mapping[str, Any]] = None,
+    failure_summaries: Optional[Mapping[str, Any]] = None,
+    static_context: Optional[Mapping[str, Any]] = None,
     metadata: Optional[Mapping[str, Any]] = None,
 ) -> DynamicAnalyzerReport:
     findings = [
@@ -121,6 +127,9 @@ def build_dynamic_report(
         num_findings=len(findings),
         witnesses=[result.to_dict() for result in witness_results],
         findings=findings,
+        group_summaries=dict(group_summaries or {}),
+        failure_summaries=dict(failure_summaries or {}),
+        static_context=dict(static_context or {}),
         metadata=dict(metadata or {}),
     )
 
@@ -216,6 +225,38 @@ def build_group_summaries(
             for group_name, group_payloads in sorted(grouped.items())
         }
     return group_summaries
+
+
+def _failure_pressure(summary: Mapping[str, Any]) -> float:
+    min_distance = summary.get("min_distance")
+    min_distance_gap = 0.0
+    if min_distance is not None:
+        min_distance_gap = max(0.0, 1.0 - float(min_distance))
+    pressure = (
+        max(0.0, 1.0 - float(summary.get("success_rate", 0.0) or 0.0))
+        + float(summary.get("collision_rate", 0.0) or 0.0)
+        + float(summary.get("near_violation_ratio", 0.0) or 0.0)
+        + min_distance_gap
+    ) / 4.0
+    return max(0.0, min(1.0, pressure))
+
+
+def build_failure_summaries(
+    run_payloads: Sequence[Mapping[str, Any]],
+    *,
+    grouping_keys: Sequence[str] = GROUPING_KEYS,
+) -> Dict[str, Dict[str, Any]]:
+    failure_summaries: Dict[str, Dict[str, Any]] = {}
+    for grouping_name, grouped in build_group_summaries(
+        run_payloads,
+        grouping_keys=grouping_keys,
+    ).items():
+        failure_summaries[grouping_name] = {}
+        for group_name, summary in grouped.items():
+            enriched_summary = dict(summary)
+            enriched_summary["failure_pressure"] = _failure_pressure(summary)
+            failure_summaries[grouping_name][group_name] = enriched_summary
+    return failure_summaries
 
 
 def load_static_bundle_context(
@@ -381,11 +422,26 @@ def run_dynamic_analysis(
         detector_thresholds=effective_spec_ir.detector_thresholds,
         witness_weights=effective_spec_ir.witness_weights,
     )
+    primary_group_summaries = build_group_summaries(primary_runs)
+    comparison_group_summaries = build_group_summaries(comparison_runs)
+    group_summaries = {
+        "primary": primary_group_summaries,
+        "comparison": comparison_group_summaries,
+        "grouping_keys": list(GROUPING_KEYS),
+    }
+    failure_summaries = {
+        "primary": build_failure_summaries(primary_runs),
+        "comparison": build_failure_summaries(comparison_runs),
+        "grouping_keys": list(GROUPING_KEYS),
+    }
     report = build_dynamic_report(
         spec_version=effective_spec_ir.spec_version,
         primary_run_ids=[item["run_id"] for item in primary_runs],
         comparison_run_ids=[item["run_id"] for item in comparison_runs],
         witness_results=witness_results,
+        group_summaries=group_summaries,
+        failure_summaries=failure_summaries,
+        static_context=static_context,
         metadata={
             "detector_type": "dynamic",
             "source_paths": dict(effective_spec_ir.source_paths),
@@ -398,8 +454,10 @@ def run_dynamic_analysis(
             ),
             "primary_run_dirs": [str(item["run_dir"]) for item in primary_runs],
             "comparison_run_dirs": [str(item["run_dir"]) for item in comparison_runs],
-            "primary_group_summaries": build_group_summaries(primary_runs),
-            "comparison_group_summaries": build_group_summaries(comparison_runs),
+            "primary_group_summaries": primary_group_summaries,
+            "comparison_group_summaries": comparison_group_summaries,
+            "primary_failure_summaries": failure_summaries["primary"],
+            "comparison_failure_summaries": failure_summaries["comparison"],
             "grouping_keys": list(GROUPING_KEYS),
             "static_bundle_dir": str(static_bundle_dir) if static_bundle_dir else "",
             "static_context": static_context,
@@ -560,6 +618,7 @@ __all__ = [
     "DYNAMIC_ANALYSIS_NAMESPACE",
     "DynamicAnalyzerReport",
     "DynamicFindingRecord",
+    "build_failure_summaries",
     "build_group_summaries",
     "build_dynamic_report",
     "load_static_bundle_context",

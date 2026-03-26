@@ -36,6 +36,12 @@ def _weighted_average(weighted_values: Sequence[tuple[float, float]]) -> float:
     return _clamp01(weighted_sum / total_weight)
 
 
+def _score_from_threshold(value: float, low: float, high: float) -> float:
+    if high <= low:
+        return _clamp01(float(value))
+    return _clamp01((float(value) - float(low)) / (float(high) - float(low)))
+
+
 def _pearson(xs: Sequence[float], ys: Sequence[float]) -> float:
     if len(xs) != len(ys) or len(xs) < 2:
         return 0.0
@@ -84,6 +90,45 @@ def _collect_scene_families(run_payloads: Sequence[Mapping[str, Any]]) -> List[s
         if scenario_type not in (None, ""):
             families.append(str(scenario_type))
     return sorted(set(families))
+
+
+def _group_episodes_by_family(run_payloads: Sequence[Mapping[str, Any]]) -> Dict[str, List[Mapping[str, Any]]]:
+    grouped: Dict[str, List[Mapping[str, Any]]] = {}
+    for episode in _flatten_episodes(run_payloads):
+        family = str(episode.get("scenario_type", "unknown"))
+        grouped.setdefault(family, []).append(episode)
+    return grouped
+
+
+def _family_summary(episodes: Sequence[Mapping[str, Any]]) -> Dict[str, float]:
+    if not episodes:
+        return {
+            "episode_count": 0.0,
+            "success_rate": 0.0,
+            "collision_rate": 0.0,
+            "near_violation_ratio": 0.0,
+            "min_distance": 0.0,
+            "average_return": 0.0,
+        }
+    min_distances = [
+        float(item["min_obstacle_distance"])
+        for item in episodes
+        if item.get("min_obstacle_distance") is not None
+    ]
+    return {
+        "episode_count": float(len(episodes)),
+        "success_rate": sum(bool(item.get("success_flag")) for item in episodes) / len(episodes),
+        "collision_rate": sum(bool(item.get("collision_flag")) for item in episodes) / len(episodes),
+        "near_violation_ratio": _mean([
+            float(item.get("near_violation_ratio", 0.0) or 0.0)
+            for item in episodes
+        ]),
+        "min_distance": min(min_distances) if min_distances else 0.0,
+        "average_return": _mean([
+            float(item.get("return_total", 0.0) or 0.0)
+            for item in episodes
+        ]),
+    }
 
 
 def _resolve_expected_scene_families(spec_ir: Any) -> List[str]:
@@ -230,6 +275,35 @@ def compute_reward_violation_coupling(
     reward_concentration_ratio = _clamp01(
         near_positive_reward_total / max(positive_reward_total, 1e-6)
     )
+    mean_reward = _mean([
+        float(step.get("reward_total", 0.0) or 0.0) for step in steps
+    ])
+    proximity_pressure = _mean([
+        _clamp01(
+            max(0.0, near_violation_distance - float(step["min_obstacle_distance"]))
+            / max(near_violation_distance, 1e-6)
+        )
+        for step in steps
+        if step.get("min_obstacle_distance") is not None
+    ])
+    proximity_reward_alignment = _mean([
+        _clamp01(
+            max(0.0, float(step.get("reward_total", 0.0) or 0.0))
+            / max(abs(mean_reward), 1.0)
+        ) * _clamp01(
+            max(0.0, near_violation_distance - float(step["min_obstacle_distance"]))
+            / max(near_violation_distance, 1e-6)
+        )
+        for step in steps
+        if step.get("min_obstacle_distance") is not None
+    ])
+    high_return_hazard_ratio = _clamp01(
+        sum(
+            1
+            for episode in hazardous_episodes
+            if float(episode.get("return_total", 0.0) or 0.0) >= overall_mean_return
+        ) / max(len(hazardous_episodes), 1)
+    ) if hazardous_episodes else 0.0
 
     score = _weighted_average(
         (
@@ -238,6 +312,8 @@ def compute_reward_violation_coupling(
             (float(weights.get("constraint_reward", 1.0)), negative_clearance_reward_corr),
             (float(weights.get("near_violation", 0.5)), near_violation_step_ratio),
             (float(weights.get("collision", 2.0)), hazardous_terminal_return_ratio),
+            (float(weights.get("constraint_reward", 1.0)), proximity_reward_alignment),
+            (float(weights.get("collision", 2.0)), high_return_hazard_ratio),
         )
     )
     severity = _severity_from_score(score)
@@ -269,12 +345,16 @@ def compute_reward_violation_coupling(
                     "overall_mean_return": overall_mean_return,
                 },
             ),
+            DynamicMetricResult("proximity_pressure", proximity_pressure),
+            DynamicMetricResult("proximity_reward_alignment", proximity_reward_alignment),
+            DynamicMetricResult("high_return_hazard_ratio", high_return_hazard_ratio),
         ],
         details={
             "primary_run_ids": _run_ids(run_payloads),
             "step_count": len(steps),
             "episode_count": len(episodes),
             "near_violation_distance": near_violation_distance,
+            "mean_reward": mean_reward,
         },
     )
 
@@ -330,6 +410,15 @@ def compute_critical_state_coverage(
     ]
     near_violation_step_ratio = _clamp01(len(near_violation_steps) / max(len(steps), 1))
     critical_exposure_ratio = _clamp01(near_violation_step_ratio / 0.05)
+    family_episodes = _group_episodes_by_family(run_payloads)
+    family_failure_summary = {
+        family_name: _family_summary(family_eps)
+        for family_name, family_eps in sorted(family_episodes.items())
+    }
+    family_failure_pressure = _mean([
+        _clamp01(summary["collision_rate"] + summary["near_violation_ratio"])
+        for summary in family_failure_summary.values()
+    ])
 
     observed_dynamic_families = sorted({
         str(episode.get("scenario_type"))
@@ -352,7 +441,7 @@ def compute_critical_state_coverage(
             (1.0, dynamic_hazard_coverage_ratio),
         )
     )
-    score = _clamp01(1.0 - coverage_quality)
+    score = _clamp01((1.0 - coverage_quality) * 0.8 + family_failure_pressure * 0.2)
     severity = _severity_from_score(score)
 
     return DynamicWitnessResult(
@@ -369,6 +458,7 @@ def compute_critical_state_coverage(
             DynamicMetricResult("critical_band_coverage_ratio", critical_band_coverage_ratio),
             DynamicMetricResult("critical_exposure_ratio", critical_exposure_ratio),
             DynamicMetricResult("dynamic_hazard_coverage_ratio", dynamic_hazard_coverage_ratio),
+            DynamicMetricResult("family_failure_pressure", family_failure_pressure),
         ],
         details={
             "primary_run_ids": _run_ids(run_payloads),
@@ -379,6 +469,7 @@ def compute_critical_state_coverage(
             "visited_bands": visited_bands,
             "step_count": len(steps),
             "episode_count": len(episodes),
+            "family_failure_summary": family_failure_summary,
         },
     )
 
@@ -447,6 +538,22 @@ def compute_transfer_fragility(
         min_distance_gap = 0.0
         average_return_gap = 0.0
 
+    baseline_family_summary = {
+        family_name: _family_summary(family_eps)
+        for family_name, family_eps in sorted(_group_episodes_by_family(baseline_runs).items())
+    }
+    comparison_family_summary = {
+        family_name: _family_summary(family_eps)
+        for family_name, family_eps in sorted(_group_episodes_by_family(compare_runs).items())
+    }
+    baseline_families = set(baseline_family_summary.keys())
+    comparison_families = set(comparison_family_summary.keys())
+    family_shift_gap = _clamp01(1.0 if compare_runs and baseline_families != comparison_families else 0.0)
+
+    source_pair_shift = _clamp01(
+        max(0.0, collision_gap + near_violation_gap + min_distance_gap + average_return_gap) / 4.0
+    ) if compare_runs else 0.0
+
     score = _weighted_average(
         (
             (float(weights.get("environment_reward", 1.0)), success_gap),
@@ -454,6 +561,8 @@ def compute_transfer_fragility(
             (float(weights.get("environment_constraint", 1.0)), near_violation_gap),
             (float(weights.get("environment_constraint", 1.0)), min_distance_gap),
             (float(weights.get("environment_reward", 1.0)), average_return_gap),
+            (float(weights.get("environment_reward", 1.0)), source_pair_shift),
+            (float(weights.get("environment_reward", 1.0)), family_shift_gap),
         )
     )
     severity = _severity_from_score(score)
@@ -477,6 +586,8 @@ def compute_transfer_fragility(
             DynamicMetricResult("near_violation_ratio_gap", near_violation_gap),
             DynamicMetricResult("min_distance_gap", min_distance_gap),
             DynamicMetricResult("average_return_gap", average_return_gap),
+            DynamicMetricResult("source_pair_shift", source_pair_shift),
+            DynamicMetricResult("family_shift_gap", family_shift_gap),
         ],
         details={
             "primary_run_ids": _run_ids(baseline_runs),
@@ -496,6 +607,10 @@ def compute_transfer_fragility(
                 "average_return": shifted_return,
                 "min_distance": shifted_min_distance,
             },
+            "baseline_families": sorted(baseline_families),
+            "comparison_families": sorted(comparison_families),
+            "baseline_family_summary": baseline_family_summary,
+            "comparison_family_summary": comparison_family_summary,
         },
     )
 

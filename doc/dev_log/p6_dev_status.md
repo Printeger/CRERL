@@ -4,133 +4,118 @@ Updated: 2026-03-26
 
 ## 1. This Iteration Goal
 
-This iteration continues Phase 6 by implementing the next two foundational
-pieces from [phase6.md](../roadmap/phase6.md):
+This iteration continues Phase 6 by implementing the next two files from
+[phase6.md](../roadmap/phase6.md):
 
-- `semantic_crosscheck.py`
-- `semantic_provider.py`
+- `semantic_analyzer.py`
+- `run_semantic_audit.py`
 
-The purpose of this step is to move from:
+The goal of this step is to move from:
 
-- "Phase 6 has a claim schema and deterministic semantic-analysis input"
+- "Phase 6 can build semantic inputs, generate mock claims, and cross-check them"
 
 to:
 
-- "Phase 6 can deterministically generate semantic claims with a mock provider
-  and cross-validate them against machine evidence."
+- "Phase 6 can package that workflow into a namespaced semantic analysis bundle
+  under `analysis/semantic/<bundle_name>/`."
 
 ## 2. Implemented Results
 
-### 2.0 Repo-Local Workflow Rule Was Corrected
-
-The repo-local standing instruction layer was corrected so the dev-log naming
-rule now means:
-
-- `p{N}_dev_status.md`
-
-where `{N}` is the actual affected roadmap phase number.
-
-It no longer means a literal file named:
-
-- `px_dev_status.md`
-
-The mistakenly created `doc/dev_log/px_dev_status.md` file was removed, and the
-repo-local rule in `AGENTS.md` now explicitly says to attach workflow/meta
-changes to the nearest affected numbered phase instead.
-
-### 2.1 Semantic Cross-Check Layer Added
+### 2.1 Semantic Analyzer Added
 
 A new file was added:
 
-- `isaac-training/training/analyzers/semantic_crosscheck.py`
+- `isaac-training/training/analyzers/semantic_analyzer.py`
 
-It implements the first deterministic semantic cross-validation layer:
+It now provides the first higher-level semantic analyzer layer for Phase 6:
 
-- `check_claim_type_alignment(...)`
-- `check_claim_evidence_support(...)`
-- `check_claim_witness_alignment(...)`
-- `check_claim_scope_alignment(...)`
-- `validate_semantic_claims(...)`
+- `run_semantic_analysis(...)`
+- `build_semantic_report(...)`
+- `write_semantic_report(...)`
+- `build_semantic_summary_markdown(...)`
+- `write_semantic_analysis_bundle(...)`
+- `run_semantic_analysis_bundle(...)`
 
-This layer now enforces the evidence-first rule from the Phase 6 plan:
+This analyzer now performs the full deterministic Phase 6 flow:
 
-- unsupported claim types are rejected
-- claims without known evidence refs are rejected
-- claims with weak witness alignment are downgraded
-- scope alignment is checked against families, sources, and scene config names
+1. read `SpecIR`
+2. read a static audit bundle
+3. read a dynamic analysis bundle
+4. build a semantic input
+5. generate claims with the provider
+6. cross-check claims against machine evidence
+7. write a machine-readable semantic report bundle
 
-### 2.2 Mock Semantic Provider Added
+### 2.2 Namespaced Semantic Bundle Contract Added
 
-A new file was added:
+The shared report contract now includes a semantic mode:
 
-- `isaac-training/training/analyzers/semantic_provider.py`
+- `semantic_analysis`
+- namespace: `analysis/semantic`
 
-It defines:
+The expected semantic bundle artifacts are now:
 
-- `SemanticProvider`
-- `MockSemanticProvider`
-- `generate_mock_claims(...)`
+- `semantic_report.json`
+- `semantic_claims.json`
+- `semantic_input.json`
+- `semantic_summary.md`
+- `summary.json`
+- `manifest.json`
+- `namespace_manifest.json`
 
-The mock provider is deterministic and provider-agnostic. It uses the existing
-Phase-5 dynamic semantic handoff to generate claims from:
+This keeps Phase 6 aligned with the existing Phase 4 static bundle and Phase 5
+dynamic bundle layout.
 
-- witness summaries
-- failure hotspots
-- evidence objects
-- cross-validation contract metadata
+### 2.3 Semantic CLI Entrypoint Added
 
-This gives the semantic layer a testable claim-generation path before any real
-LLM backend is introduced.
+A new script was added:
 
-### 2.3 Mock Provider and Cross-Check Now Work Together
+- `isaac-training/training/scripts/run_semantic_audit.py`
 
-The Phase 6 stack can now perform the first full semantic mini-loop:
+It can now run the Phase 6 semantic analyzer directly from:
 
-1. build a semantic analysis input from real bundles
-2. generate candidate semantic claims with the mock provider
-3. cross-check those claims against machine evidence
-4. classify them into:
-   - `supported`
-   - `weak`
-   - `rejected`
+- one static audit bundle
+- one dynamic analysis bundle
 
-This is the first end-to-end semantic pipeline fragment in the repository.
+and write a namespaced semantic bundle under:
 
-### 2.4 Analyzer Exports Were Extended Again
+- `analysis/semantic/<bundle_name>/`
+
+The current supported provider mode is:
+
+- `mock`
+
+This is intentional for this stage; it keeps semantic analysis deterministic
+while the evidence-grounding contract stabilizes.
+
+### 2.4 Semantic Analyzer Exports Were Extended
 
 `isaac-training/training/analyzers/__init__.py` now exports:
 
-- semantic cross-check helpers
-- mock provider interface
-- mock provider generation helper
+- semantic analyzer report types
+- semantic analyzer bundle helpers
+- semantic analyzer namespace constants
 
-This keeps the next Phase-6 files (`semantic_analyzer.py`, CLI, tests) from
-having to reach into module internals.
+This keeps the next Phase 6 steps from needing to import private module paths.
 
-### 2.5 Real Bundle Semantic Smoke Test Now Works
+### 2.5 Policy Runtime Expectations Were Extended
 
-This iteration also verified the new semantic layer on top of real bundles:
+`isaac-training/training/cfg/spec_cfg/policy_spec_v0.yaml` now includes the
+semantic-analysis namespace and required artifact list.
 
-- static bundle:
-  - `static_audit_phase5_round2`
-- dynamic bundle:
-  - `dynamic_eval_nominal_vs_shifted`
-
-The real-bundle semantic smoke test now confirms:
-
-- semantic input loading works
-- mock provider emits claims
-- cross-check returns at least one supported real claim
-- the strongest supported claim is `E-R`, which is consistent with the
-  `nominal vs shifted` evaluation contrast
+That keeps the machine-readable policy/runtime expectations aligned with the new
+semantic bundle layer instead of leaving semantic outputs as an implicit side
+channel.
 
 ## 3. Main Files Added or Changed
 
 Code files:
 
-- `isaac-training/training/analyzers/semantic_crosscheck.py`
-- `isaac-training/training/analyzers/semantic_provider.py`
+- `isaac-training/training/analyzers/report_contract.py`
+- `isaac-training/training/analyzers/semantic_analyzer.py`
 - `isaac-training/training/analyzers/__init__.py`
+- `isaac-training/training/scripts/run_semantic_audit.py`
+- `isaac-training/training/cfg/spec_cfg/policy_spec_v0.yaml`
 - `isaac-training/training/unit_test/test_env/test_semantic_analyzer.py`
 
 Documentation/state files:
@@ -146,9 +131,14 @@ Run:
 
 ```bash
 python3 -m py_compile \
+  isaac-training/training/analyzers/report_contract.py \
+  isaac-training/training/analyzers/semantic_claims.py \
+  isaac-training/training/analyzers/semantic_inputs.py \
   isaac-training/training/analyzers/semantic_crosscheck.py \
   isaac-training/training/analyzers/semantic_provider.py \
+  isaac-training/training/analyzers/semantic_analyzer.py \
   isaac-training/training/analyzers/__init__.py \
+  isaac-training/training/scripts/run_semantic_audit.py \
   isaac-training/training/unit_test/test_env/test_semantic_analyzer.py
 ```
 
@@ -166,52 +156,35 @@ pytest -q isaac-training/training/unit_test/test_env/test_semantic_analyzer.py
 
 Expected result:
 
-- semantic claim schema tests still pass
-- mock provider tests pass
-- semantic cross-check tests pass
+- semantic input tests still pass
+- semantic claim and cross-check tests still pass
+- semantic analyzer bundle-writing tests pass
 - no Isaac Sim dependency is required
 
-### 4.3 Real Bundle Semantic Smoke Test
+### 4.3 Real Bundle Semantic CLI Smoke Test
 
-Run from repo root:
+Run:
 
 ```bash
-python3 - <<'PY'
-import sys
-from pathlib import Path
-
-root = Path('/home/mint/rl_dev/CRERL/isaac-training/training')
-if str(root) not in sys.path:
-    sys.path.insert(0, str(root))
-
-from analyzers.semantic_inputs import build_semantic_analysis_input
-from analyzers.semantic_provider import MockSemanticProvider
-from analyzers.semantic_crosscheck import validate_semantic_claims
-
-semantic_input = build_semantic_analysis_input(
-    static_bundle_dir='/tmp/crerl_phase5_round2_reports/analysis/static/static_audit_phase5_round2',
-    dynamic_bundle_dir='/tmp/crerl_phase5_round4_reports/analysis/dynamic/dynamic_eval_nominal_vs_shifted',
-)
-claims = MockSemanticProvider().generate_claims(semantic_input)
-claim_set = validate_semantic_claims(claims, semantic_input=semantic_input)
-
-print({
-    'generated_claims': len(claims),
-    'supported_claims': len(claim_set.supported_claims),
-    'weak_claims': len(claim_set.weak_claims),
-    'rejected_claims': len(claim_set.rejected_claims),
-    'top_claim_type': claim_set.supported_claims[0].claim_type if claim_set.supported_claims else '',
-    'top_claim_status': claim_set.supported_claims[0].status if claim_set.supported_claims else '',
-    'semantic_contract_type': claim_set.metadata.get('semantic_contract_type', ''),
-})
-PY
+python3 isaac-training/training/scripts/run_semantic_audit.py \
+  --static-bundle-dir /tmp/crerl_phase5_round2_reports/analysis/static/static_audit_phase5_round2 \
+  --dynamic-bundle-dir /tmp/crerl_phase5_round4_reports/analysis/dynamic/dynamic_eval_nominal_vs_shifted \
+  --reports-root /tmp/crerl_phase6_reports \
+  --bundle-name semantic_eval_nominal_vs_shifted \
+  --output /tmp/crerl_phase6_reports/semantic_report_copy.json
 ```
 
 Expected result:
 
-- claims are generated from real bundle context
-- at least one supported claim is returned
-- the result still stays grounded in the Phase-5 semantic contract
+- a new semantic bundle is written under:
+  - `/tmp/crerl_phase6_reports/analysis/semantic/semantic_eval_nominal_vs_shifted/`
+- the CLI prints:
+  - `passed`
+  - `max_severity`
+  - `supported_claims`
+  - `weak_claims`
+  - `rejected_claims`
+  - `most_likely_claim_type`
 
 ## 5. Validation Results
 
@@ -233,47 +206,43 @@ pytest -q isaac-training/training/unit_test/test_env/test_semantic_analyzer.py
 
 Result:
 
-- `7 passed`
+- `10 passed`
 
-### 5.3 Real Bundle Semantic Smoke Test
+### 5.3 Real Bundle Semantic CLI Smoke Test
 
 Observed result:
 
-- semantic input successfully built from:
-  - `static_audit_phase5_round2`
-  - `dynamic_eval_nominal_vs_shifted`
-- mock provider generated:
-  - `2` claims
-- cross-check classified them as:
+- semantic bundle successfully written to:
+  - `/tmp/crerl_phase6_reports/analysis/semantic/semantic_eval_nominal_vs_shifted/`
+- generated semantic result:
+  - `passed = true`
+  - `max_severity = warning`
+  - `num_findings = 2`
   - `supported_claims = 1`
   - `weak_claims = 1`
   - `rejected_claims = 0`
-- strongest supported claim:
-  - `claim_type = E-R`
-  - `status = supported`
-- semantic contract remained:
-  - `semantic_contract_type = phase6_dynamic_semantic_contract.v1`
+  - `most_likely_claim_type = E-R`
 
 ## 6. Current Conclusion
 
-Phase 6 now has a usable deterministic semantic core:
+Phase 6 now has a usable namespaced semantic bundle pipeline.
 
-- a structured claim schema
-- a deterministic semantic input builder
-- a mock semantic provider
-- a semantic cross-check layer
+The semantic layer can now:
 
-This is enough to begin wiring the first actual semantic analyzer without
-guessing either input format or claim-validation logic.
+- consume existing static + dynamic bundles
+- build a deterministic semantic input
+- generate and cross-check semantic claims
+- write a stable machine-readable semantic bundle
+- emit a concise human-readable semantic summary
 
 ## 7. Next Step
 
-The next best move is to continue Phase 6 by implementing:
+The next Phase 6 step should be:
 
-- `semantic_analyzer.py`
-- `run_semantic_audit.py`
+- implement the higher-level semantic report merge path
+- define the claim-consumer / cross-check interface that Phase 7 repair logic
+  will read
+- optionally add a real provider adapter behind the same provider interface
 
-That will make it possible to:
-
-- turn the mock semantic mini-loop into a namespaced semantic report bundle
-- validate bundle writing before integrating a real LLM backend
+Before any real LLM backend is introduced, the semantic bundle contract should
+remain deterministic and evidence-first.

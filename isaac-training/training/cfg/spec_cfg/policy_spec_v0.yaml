@@ -52,3 +52,12 @@ runtime_expectations:
     - "summary.json"
     - "manifest.json"
     - "namespace_manifest.json"
+  semantic_analysis_namespace: "analysis/semantic"
+  semantic_analysis_required_artifacts:
+    - "semantic_report.json"
+    - "semantic_claims.json"
+    - "semantic_input.json"
+    - "semantic_summary.md"
+    - "summary.json"
+    - "manifest.json"
+    - "namespace_manifest.json"

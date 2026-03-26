@@ -1,4 +1,4 @@
-"""Shared report namespace contract for static and dynamic analyzers."""
+"""Shared report namespace contract for static, dynamic, and semantic analyzers."""
 
 from __future__ import annotations
 
@@ -9,10 +9,12 @@ from typing import Dict, Mapping, Sequence
 
 STATIC_AUDIT_MODE = "static_audit"
 DYNAMIC_ANALYSIS_MODE = "dynamic_analysis"
+SEMANTIC_ANALYSIS_MODE = "semantic_analysis"
 
 DEFAULT_REPORT_NAMESPACES = {
     STATIC_AUDIT_MODE: "analysis/static",
     DYNAMIC_ANALYSIS_MODE: "analysis/dynamic",
+    SEMANTIC_ANALYSIS_MODE: "analysis/semantic",
 }
 
 DEFAULT_REPORT_MODE_ARTIFACTS = {
@@ -26,6 +28,15 @@ DEFAULT_REPORT_MODE_ARTIFACTS = {
         "dynamic_report.json",
         "dynamic_evidence.json",
         "semantic_inputs.json",
+        "summary.json",
+        "manifest.json",
+        "namespace_manifest.json",
+    ),
+    SEMANTIC_ANALYSIS_MODE: (
+        "semantic_report.json",
+        "semantic_claims.json",
+        "semantic_input.json",
+        "semantic_summary.md",
         "summary.json",
         "manifest.json",
         "namespace_manifest.json",
@@ -65,7 +76,12 @@ def write_namespace_manifest(
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
         "bundle_dir": str(bundle_paths["report_dir"]),
         "bundle_relative_dir": bundle_name,
-        "report_path": str(bundle_paths.get("static_report_path") or bundle_paths.get("dynamic_report_path") or ""),
+        "report_path": str(
+            bundle_paths.get("static_report_path")
+            or bundle_paths.get("dynamic_report_path")
+            or bundle_paths.get("semantic_report_path")
+            or ""
+        ),
         "summary_path": str(bundle_paths.get("summary_path", "")),
         "manifest_path": str(bundle_paths.get("manifest_path", "")),
         **dict(report_summary),

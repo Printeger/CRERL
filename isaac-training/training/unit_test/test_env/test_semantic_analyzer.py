@@ -11,6 +11,12 @@ from analyzers.semantic_claims import (
     SemanticClaimSet,
     normalize_claim_type,
 )
+from analyzers.semantic_analyzer import (
+    SEMANTIC_ANALYSIS_NAMESPACE,
+    build_semantic_summary_markdown,
+    run_semantic_analysis,
+    run_semantic_analysis_bundle,
+)
 from analyzers.semantic_crosscheck import validate_semantic_claims
 from analyzers.semantic_inputs import (
     build_semantic_analysis_input,
@@ -366,3 +372,73 @@ def test_semantic_crosscheck_rejects_unsupported_overclaim(tmp_path):
     assert claim_set.rejected_claims[0].claim_type == "C-R"
     assert claim_set.cross_checks[0].passed is False
     assert claim_set.cross_checks[0].support_status == "rejected"
+
+
+def test_run_semantic_analysis_builds_supported_er_report(tmp_path):
+    static_dir = _make_static_bundle(tmp_path)
+    dynamic_dir = _make_dynamic_bundle(tmp_path)
+
+    report = run_semantic_analysis(
+        static_bundle_dir=static_dir,
+        dynamic_bundle_dir=dynamic_dir,
+    )
+
+    assert report.report_type == "semantic_analyzer_report.v1"
+    assert report.spec_version == "v0"
+    assert report.static_bundle_name == "static_fixture"
+    assert report.dynamic_bundle_name == "dynamic_fixture"
+    assert report.passed is True
+    assert report.supported_claims
+    assert report.supported_claims[0]["claim_type"] == "E-R"
+    assert report.semantic_input["input_type"] == "semantic_analysis_input.v1"
+    assert report.metadata["provider_mode"] == "mock"
+
+
+def test_write_semantic_bundle_outputs_namespaced_artifacts(tmp_path):
+    static_dir = _make_static_bundle(tmp_path)
+    dynamic_dir = _make_dynamic_bundle(tmp_path)
+    reports_root = tmp_path / "reports"
+
+    report, bundle_paths = run_semantic_analysis_bundle(
+        static_bundle_dir=static_dir,
+        dynamic_bundle_dir=dynamic_dir,
+        reports_root=reports_root,
+        bundle_name="semantic_fixture",
+    )
+
+    report_dir = reports_root / "analysis" / "semantic" / "semantic_fixture"
+    assert bundle_paths["report_dir"] == report_dir
+    assert report_dir.exists()
+    assert (report_dir / "semantic_report.json").exists()
+    assert (report_dir / "semantic_claims.json").exists()
+    assert (report_dir / "semantic_input.json").exists()
+    assert (report_dir / "semantic_summary.md").exists()
+    assert (report_dir / "summary.json").exists()
+    assert (report_dir / "manifest.json").exists()
+    assert (reports_root / "analysis" / "semantic" / "namespace_manifest.json").exists()
+    assert (reports_root / "analysis" / "report_namespace_contract.json").exists()
+
+    manifest = json.loads((report_dir / "manifest.json").read_text(encoding="utf-8"))
+    assert manifest["namespace"] == SEMANTIC_ANALYSIS_NAMESPACE
+    assert manifest["bundle_type"] == "semantic_analysis_bundle.v1"
+
+    summary = json.loads((report_dir / "summary.json").read_text(encoding="utf-8"))
+    assert summary["supported_claims"] >= 1
+    assert summary["rejected_claims"] == len(report.rejected_claims)
+
+    markdown = (report_dir / "semantic_summary.md").read_text(encoding="utf-8")
+    assert "# Semantic Diagnosis Summary" in markdown
+    assert "`E-R`" in markdown
+
+
+def test_semantic_summary_markdown_contains_top_claim(tmp_path):
+    static_dir = _make_static_bundle(tmp_path)
+    dynamic_dir = _make_dynamic_bundle(tmp_path)
+    report = run_semantic_analysis(
+        static_bundle_dir=static_dir,
+        dynamic_bundle_dir=dynamic_dir,
+    )
+
+    markdown = build_semantic_summary_markdown(report)
+    assert "## Top Diagnosis" in markdown
+    assert report.human_summary["most_likely_claim_type"] in markdown

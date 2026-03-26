@@ -33,7 +33,27 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--provider-mode",
         default="mock",
-        help="Semantic provider mode. Only 'mock' is supported in this phase.",
+        help="Semantic provider mode, for example mock or azure_gateway.",
+    )
+    parser.add_argument(
+        "--api-key-env-var",
+        default="COMP_OPENAI_API_KEY",
+        help="Environment variable used when provider-mode requires an API key.",
+    )
+    parser.add_argument(
+        "--gateway-base-url",
+        default="https://comp.azure-api.net/azure",
+        help="Base gateway URL for azure_gateway provider mode.",
+    )
+    parser.add_argument(
+        "--deployment-name",
+        default="gpt4o",
+        help="Deployment name for azure_gateway provider mode.",
+    )
+    parser.add_argument(
+        "--api-version",
+        default="2024-02-01",
+        help="API version for azure_gateway provider mode.",
     )
     parser.add_argument(
         "--spec-cfg-dir",
@@ -80,19 +100,27 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> int:
     args = parse_args()
-    if args.provider_mode.strip().lower() != "mock":
-        raise SystemExit("Only --provider-mode mock is supported in Phase 6.")
 
     _ensure_training_root_on_path()
 
     from analyzers.semantic_analyzer import run_semantic_analysis_bundle
-    from analyzers.semantic_provider import MockSemanticProvider
+    from analyzers.semantic_provider import build_semantic_provider
 
     scene_families = [item.strip() for item in args.scene_families.split(",") if item.strip()]
+    provider = build_semantic_provider(
+        args.provider_mode,
+        config={
+            "provider_mode": args.provider_mode,
+            "api_key_env_var": args.api_key_env_var,
+            "base_url": args.gateway_base_url,
+            "deployment_name": args.deployment_name,
+            "api_version": args.api_version,
+        },
+    )
     report, bundle_paths = run_semantic_analysis_bundle(
         static_bundle_dir=Path(args.static_bundle_dir),
         dynamic_bundle_dir=Path(args.dynamic_bundle_dir),
-        provider=MockSemanticProvider(),
+        provider=provider,
         spec_cfg_dir=Path(args.spec_cfg_dir),
         env_cfg_dir=Path(args.env_cfg_dir),
         detector_cfg_dir=Path(args.detector_cfg_dir),
@@ -111,10 +139,13 @@ def main() -> int:
                 "semantic_claims_path": str(bundle_paths["semantic_claims_path"]),
                 "semantic_input_path": str(bundle_paths["semantic_input_path"]),
                 "semantic_summary_path": str(bundle_paths["semantic_summary_path"]),
+                "semantic_merge_input_path": str(bundle_paths["semantic_merge_input_path"]),
+                "claim_consumer_path": str(bundle_paths["claim_consumer_path"]),
                 "summary_path": str(bundle_paths["summary_path"]),
                 "manifest_path": str(bundle_paths["manifest_path"]),
                 "namespace_manifest_path": str(bundle_paths.get("namespace_manifest_path", "")),
                 "namespace_contract_path": str(bundle_paths.get("namespace_contract_path", "")),
+                "provider_mode": args.provider_mode,
                 "passed": report.passed,
                 "max_severity": report.max_severity,
                 "num_findings": report.num_findings,

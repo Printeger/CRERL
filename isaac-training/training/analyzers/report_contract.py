@@ -37,6 +37,8 @@ DEFAULT_REPORT_MODE_ARTIFACTS = {
         "semantic_claims.json",
         "semantic_input.json",
         "semantic_summary.md",
+        "semantic_merge_input.json",
+        "claim_consumer.json",
         "summary.json",
         "manifest.json",
         "namespace_manifest.json",

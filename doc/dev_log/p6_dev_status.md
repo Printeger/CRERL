@@ -1,118 +1,128 @@
 # Phase 6 Development Status
 
-Updated: 2026-03-26
+Updated: 2026-03-27
 
 ## 1. This Iteration Goal
 
-This iteration continues Phase 6 by implementing the next two files from
-[phase6.md](../roadmap/phase6.md):
+This iteration continues Phase 6 beyond the first semantic bundle writer.
 
-- `semantic_analyzer.py`
-- `run_semantic_audit.py`
+The goal of this step is to add three things while keeping the current
+evidence-first contract unchanged:
 
-The goal of this step is to move from:
-
-- "Phase 6 can build semantic inputs, generate mock claims, and cross-check them"
-
-to:
-
-- "Phase 6 can package that workflow into a namespaced semantic analysis bundle
-  under `analysis/semantic/<bundle_name>/`."
+- a higher-level semantic report merge interface
+- a stable claim-consumer interface for Phase 7 reporting and Phase 8 repair
+- a real-provider-ready semantic adapter path, using
+  `doc/COMP OpenAI Access Guide v3.11.pdf` as the local integration reference,
+  but keeping API-key access optional and externalized
 
 ## 2. Implemented Results
 
-### 2.1 Semantic Analyzer Added
+### 2.1 Phase-7 Claim Consumer Interface Added
 
 A new file was added:
 
-- `isaac-training/training/analyzers/semantic_analyzer.py`
+- `isaac-training/training/analyzers/semantic_merge.py`
 
-It now provides the first higher-level semantic analyzer layer for Phase 6:
+It now defines a downstream-consumable semantic substrate:
 
-- `run_semantic_analysis(...)`
-- `build_semantic_report(...)`
-- `write_semantic_report(...)`
-- `build_semantic_summary_markdown(...)`
-- `write_semantic_analysis_bundle(...)`
-- `run_semantic_analysis_bundle(...)`
+- `Phase7ClaimRecord`
+- `Phase7ClaimConsumerBundle`
+- `SemanticReportMergeInput`
+- `build_phase7_claim_consumer(...)`
+- `build_semantic_report_merge_input(...)`
 
-This analyzer now performs the full deterministic Phase 6 flow:
+This means Phase 7 and Phase 8 no longer need to scrape ad hoc fields directly
+from `semantic_report.json`. They can instead consume:
 
-1. read `SpecIR`
-2. read a static audit bundle
-3. read a dynamic analysis bundle
-4. build a semantic input
-5. generate claims with the provider
-6. cross-check claims against machine evidence
-7. write a machine-readable semantic report bundle
+- `claim_consumer.json`
+- `semantic_merge_input.json`
 
-### 2.2 Namespaced Semantic Bundle Contract Added
+with a stable contract.
 
-The shared report contract now includes a semantic mode:
+### 2.2 Semantic Bundle Now Exports Merge and Consumer Artifacts
 
-- `semantic_analysis`
-- namespace: `analysis/semantic`
-
-The expected semantic bundle artifacts are now:
+`isaac-training/training/analyzers/semantic_analyzer.py` was extended so that a
+semantic bundle now writes:
 
 - `semantic_report.json`
 - `semantic_claims.json`
 - `semantic_input.json`
 - `semantic_summary.md`
+- `semantic_merge_input.json`
+- `claim_consumer.json`
 - `summary.json`
 - `manifest.json`
-- `namespace_manifest.json`
 
-This keeps Phase 6 aligned with the existing Phase 4 static bundle and Phase 5
-dynamic bundle layout.
+This keeps the Phase 6 semantic output aligned with the later Phase 7 report
+generator and Phase 8 repair engine.
 
-### 2.3 Semantic CLI Entrypoint Added
+### 2.3 Real Provider Interface Is Now Reserved Without Breaking Determinism
 
-A new script was added:
+`isaac-training/training/analyzers/semantic_provider.py` was extended with:
 
-- `isaac-training/training/scripts/run_semantic_audit.py`
+- `SemanticProviderConfig`
+- `AzureGatewayProviderConfig`
+- `AzureGatewaySemanticProvider`
+- `build_provider_messages(...)`
+- `build_semantic_provider(...)`
 
-It can now run the Phase 6 semantic analyzer directly from:
+The integration shape follows the local guide in:
 
-- one static audit bundle
-- one dynamic analysis bundle
+- `doc/COMP OpenAI Access Guide v3.11.pdf`
 
-and write a namespaced semantic bundle under:
+Specifically, the reserved real-provider path uses the same Azure-style gateway
+pattern described there:
 
-- `analysis/semantic/<bundle_name>/`
+- `AzureOpenAI`
+- gateway base URL
+- deployment name
+- API version
+- API key passed externally
 
-The current supported provider mode is:
+The current implementation is intentionally conservative:
 
-- `mock`
+- `mock` remains the default provider mode
+- the real provider path is optional
+- API key must come from config or env var
+- evidence-first input construction remains mandatory
+- the provider still only generates claims
+- cross-check still decides whether claims become supported / weak / rejected
 
-This is intentional for this stage; it keeps semantic analysis deterministic
-while the evidence-grounding contract stabilizes.
+### 2.4 LLM Analyzer Placeholder Was Upgraded
 
-### 2.4 Semantic Analyzer Exports Were Extended
+`isaac-training/training/analyzers/llm_analyzer.py` is no longer a dead
+placeholder.
 
-`isaac-training/training/analyzers/__init__.py` now exports:
+It is now a compatibility entrypoint that delegates to the Phase 6 semantic
+analyzer with a named provider mode.
 
-- semantic analyzer report types
-- semantic analyzer bundle helpers
-- semantic analyzer namespace constants
+This keeps the naming bridge for later LLM integration while still preserving
+the current semantic pipeline architecture.
 
-This keeps the next Phase 6 steps from needing to import private module paths.
+### 2.5 Report Contract and Policy Runtime Expectations Were Extended
 
-### 2.5 Policy Runtime Expectations Were Extended
+The semantic report contract was updated again so the semantic namespace now
+expects the two new downstream artifacts:
 
-`isaac-training/training/cfg/spec_cfg/policy_spec_v0.yaml` now includes the
-semantic-analysis namespace and required artifact list.
+- `semantic_merge_input.json`
+- `claim_consumer.json`
 
-That keeps the machine-readable policy/runtime expectations aligned with the new
-semantic bundle layer instead of leaving semantic outputs as an implicit side
-channel.
+This was updated in:
+
+- `isaac-training/training/analyzers/report_contract.py`
+- `isaac-training/training/cfg/spec_cfg/policy_spec_v0.yaml`
+
+That makes the Phase 7 consumer contract machine-readable instead of implicit.
 
 ## 3. Main Files Added or Changed
 
 Code files:
 
-- `isaac-training/training/analyzers/report_contract.py`
+- `isaac-training/training/analyzers/semantic_merge.py`
+- `isaac-training/training/analyzers/semantic_provider.py`
 - `isaac-training/training/analyzers/semantic_analyzer.py`
+- `isaac-training/training/analyzers/llm_analyzer.py`
+- `isaac-training/training/analyzers/report_contract.py`
 - `isaac-training/training/analyzers/__init__.py`
 - `isaac-training/training/scripts/run_semantic_audit.py`
 - `isaac-training/training/cfg/spec_cfg/policy_spec_v0.yaml`
@@ -136,7 +146,9 @@ python3 -m py_compile \
   isaac-training/training/analyzers/semantic_inputs.py \
   isaac-training/training/analyzers/semantic_crosscheck.py \
   isaac-training/training/analyzers/semantic_provider.py \
+  isaac-training/training/analyzers/semantic_merge.py \
   isaac-training/training/analyzers/semantic_analyzer.py \
+  isaac-training/training/analyzers/llm_analyzer.py \
   isaac-training/training/analyzers/__init__.py \
   isaac-training/training/scripts/run_semantic_audit.py \
   isaac-training/training/unit_test/test_env/test_semantic_analyzer.py
@@ -156,9 +168,9 @@ pytest -q isaac-training/training/unit_test/test_env/test_semantic_analyzer.py
 
 Expected result:
 
-- semantic input tests still pass
-- semantic claim and cross-check tests still pass
-- semantic analyzer bundle-writing tests pass
+- existing semantic tests still pass
+- merge/consumer tests pass
+- provider-selection tests pass
 - no Isaac Sim dependency is required
 
 ### 4.3 Real Bundle Semantic CLI Smoke Test
@@ -169,26 +181,59 @@ Run:
 python3 isaac-training/training/scripts/run_semantic_audit.py \
   --static-bundle-dir /tmp/crerl_phase5_round2_reports/analysis/static/static_audit_phase5_round2 \
   --dynamic-bundle-dir /tmp/crerl_phase5_round4_reports/analysis/dynamic/dynamic_eval_nominal_vs_shifted \
-  --reports-root /tmp/crerl_phase6_reports \
-  --bundle-name semantic_eval_nominal_vs_shifted \
-  --output /tmp/crerl_phase6_reports/semantic_report_copy.json
+  --reports-root /tmp/crerl_phase6_reports_round2 \
+  --bundle-name semantic_eval_nominal_vs_shifted_round2 \
+  --provider-mode mock \
+  --output /tmp/crerl_phase6_reports_round2/semantic_report_copy.json
 ```
 
 Expected result:
 
-- a new semantic bundle is written under:
-  - `/tmp/crerl_phase6_reports/analysis/semantic/semantic_eval_nominal_vs_shifted/`
-- the CLI prints:
-  - `passed`
-  - `max_severity`
-  - `supported_claims`
-  - `weak_claims`
-  - `rejected_claims`
-  - `most_likely_claim_type`
+- semantic bundle is written successfully
+- bundle includes:
+  - `semantic_merge_input.json`
+  - `claim_consumer.json`
+- CLI prints `provider_mode = mock`
+
+### 4.4 Real Provider Reservation Smoke Test
+
+Run:
+
+```bash
+python3 - <<'PY'
+import sys
+from pathlib import Path
+root = Path('/home/mint/rl_dev/CRERL/isaac-training/training')
+if str(root) not in sys.path:
+    sys.path.insert(0, str(root))
+
+from analyzers.semantic_provider import build_semantic_provider
+
+mock = build_semantic_provider('mock', config={'max_claims': 2, 'api_key_env_var': 'IGNORED'})
+print({'mock_type': type(mock).__name__, 'mock_max_claims': getattr(mock, 'max_claims', None)})
+
+gateway = build_semantic_provider(
+    'azure_gateway',
+    config={'deployment_name': 'gpt4o', 'api_key_env_var': 'THIS_ENV_SHOULD_NOT_EXIST_FOR_TEST'},
+)
+print({'gateway_type': type(gateway).__name__, 'deployment_name': gateway.config.deployment_name})
+
+try:
+    gateway._resolve_api_key()
+except RuntimeError as exc:
+    print({'gateway_key_resolution': 'failed_as_expected', 'message_contains_missing_key': 'Missing API key' in str(exc)})
+PY
+```
+
+Expected result:
+
+- `mock` provider still works
+- `azure_gateway` provider can be instantiated
+- missing API key produces an explicit failure instead of a silent fallback
 
 ## 5. Validation Results
 
-Validation run on 2026-03-26:
+Validation run on 2026-03-27:
 
 ### 5.1 `py_compile`
 
@@ -206,43 +251,64 @@ pytest -q isaac-training/training/unit_test/test_env/test_semantic_analyzer.py
 
 Result:
 
-- `10 passed`
+- `16 passed`
 
 ### 5.3 Real Bundle Semantic CLI Smoke Test
 
 Observed result:
 
 - semantic bundle successfully written to:
-  - `/tmp/crerl_phase6_reports/analysis/semantic/semantic_eval_nominal_vs_shifted/`
-- generated semantic result:
+  - `/tmp/crerl_phase6_reports_round2/analysis/semantic/semantic_eval_nominal_vs_shifted_round2/`
+- CLI output confirmed:
   - `passed = true`
-  - `max_severity = warning`
-  - `num_findings = 2`
+  - `provider_mode = mock`
   - `supported_claims = 1`
   - `weak_claims = 1`
   - `rejected_claims = 0`
   - `most_likely_claim_type = E-R`
+- new downstream artifacts were present:
+  - `semantic_merge_input.json`
+  - `claim_consumer.json`
+
+### 5.4 Real Provider Reservation Smoke Test
+
+Observed result:
+
+- `mock_type = MockSemanticProvider`
+- `mock_max_claims = 2`
+- `gateway_type = AzureGatewaySemanticProvider`
+- `deployment_name = gpt4o`
+- missing key failed explicitly as expected
+
+Note:
+
+- the host environment currently does not have the `openai` Python package
+  installed, so an actual gateway call was not attempted
+- this is acceptable for this iteration because the requirement was to reserve
+  the API-key interface and keep the current evidence-first contract unchanged
 
 ## 6. Current Conclusion
 
-Phase 6 now has a usable namespaced semantic bundle pipeline.
+Phase 6 now has:
 
-The semantic layer can now:
+- a deterministic semantic bundle pipeline
+- a higher-level semantic merge input for Phase 7
+- a stable claim-consumer contract for downstream report/repair logic
+- a real-provider-ready semantic adapter path that still keeps evidence-first
+  machine cross-checking in control
 
-- consume existing static + dynamic bundles
-- build a deterministic semantic input
-- generate and cross-check semantic claims
-- write a stable machine-readable semantic bundle
-- emit a concise human-readable semantic summary
+This is enough to start wiring Phase 7 report generation without coupling it to
+provider details.
 
 ## 7. Next Step
 
-The next Phase 6 step should be:
+The next step should be:
 
-- implement the higher-level semantic report merge path
-- define the claim-consumer / cross-check interface that Phase 7 repair logic
-  will read
-- optionally add a real provider adapter behind the same provider interface
-
-Before any real LLM backend is introduced, the semantic bundle contract should
-remain deterministic and evidence-first.
+- build the Phase 7 unified report generator on top of:
+  - `static_report.json`
+  - `dynamic_report.json`
+  - `semantic_report.json`
+  - `semantic_merge_input.json`
+  - `claim_consumer.json`
+- define severity ranking and merged root-cause ordering
+- keep the provider path optional until the merged report layer is stable

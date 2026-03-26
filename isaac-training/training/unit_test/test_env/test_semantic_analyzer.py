@@ -15,7 +15,12 @@ from analyzers.semantic_analyzer import (
     SEMANTIC_ANALYSIS_NAMESPACE,
     build_semantic_summary_markdown,
     run_semantic_analysis,
+    run_semantic_analysis_with_provider_mode,
     run_semantic_analysis_bundle,
+)
+from analyzers.semantic_merge import (
+    build_phase7_claim_consumer,
+    build_semantic_report_merge_input,
 )
 from analyzers.semantic_crosscheck import validate_semantic_claims
 from analyzers.semantic_inputs import (
@@ -24,6 +29,11 @@ from analyzers.semantic_inputs import (
     load_static_bundle,
 )
 from analyzers.semantic_provider import MockSemanticProvider
+from analyzers.semantic_provider import (
+    AzureGatewaySemanticProvider,
+    build_provider_messages,
+    build_semantic_provider,
+)
 from analyzers.spec_ir import load_spec_ir
 
 
@@ -442,3 +452,105 @@ def test_semantic_summary_markdown_contains_top_claim(tmp_path):
     markdown = build_semantic_summary_markdown(report)
     assert "## Top Diagnosis" in markdown
     assert report.human_summary["most_likely_claim_type"] in markdown
+
+
+def test_semantic_merge_and_claim_consumer_are_phase7_ready(tmp_path):
+    static_dir = _make_static_bundle(tmp_path)
+    dynamic_dir = _make_dynamic_bundle(tmp_path)
+    report, _ = run_semantic_analysis_bundle(
+        static_bundle_dir=static_dir,
+        dynamic_bundle_dir=dynamic_dir,
+        reports_root=tmp_path / "reports",
+        bundle_name="semantic_fixture",
+    )
+
+    consumer = build_phase7_claim_consumer(report.to_dict(), semantic_bundle_name="semantic_fixture")
+    merge_input = build_semantic_report_merge_input(
+        report.to_dict(),
+        semantic_bundle_name="semantic_fixture",
+        claim_consumer_bundle=consumer.to_dict(),
+    )
+
+    assert consumer.consumer_type == "phase7_claim_consumer.v1"
+    assert consumer.primary_claim_type == "E-R"
+    assert consumer.repair_ready_claims
+    assert consumer.repair_ready_claims[0].supporting_evidence_ids
+    assert merge_input.merge_input_type == "phase7_semantic_report_merge_input.v1"
+    assert merge_input.consumer_contract["claim_consumer_type"] == "phase7_claim_consumer.v1"
+    assert merge_input.top_claim["claim_type"] == "E-R"
+
+
+def test_semantic_bundle_writes_merge_and_consumer_artifacts(tmp_path):
+    static_dir = _make_static_bundle(tmp_path)
+    dynamic_dir = _make_dynamic_bundle(tmp_path)
+    report_dir = tmp_path / "reports" / "analysis" / "semantic" / "semantic_fixture"
+
+    _, bundle_paths = run_semantic_analysis_bundle(
+        static_bundle_dir=static_dir,
+        dynamic_bundle_dir=dynamic_dir,
+        report_dir=report_dir,
+        bundle_name="semantic_fixture",
+    )
+
+    assert bundle_paths["semantic_merge_input_path"].exists()
+    assert bundle_paths["claim_consumer_path"].exists()
+
+    consumer_payload = json.loads(bundle_paths["claim_consumer_path"].read_text(encoding="utf-8"))
+    merge_payload = json.loads(bundle_paths["semantic_merge_input_path"].read_text(encoding="utf-8"))
+    assert consumer_payload["consumer_type"] == "phase7_claim_consumer.v1"
+    assert merge_payload["merge_input_type"] == "phase7_semantic_report_merge_input.v1"
+
+
+def test_build_provider_messages_is_evidence_first(tmp_path):
+    static_dir = _make_static_bundle(tmp_path)
+    dynamic_dir = _make_dynamic_bundle(tmp_path)
+    semantic_input = build_semantic_analysis_input(
+        static_bundle_dir=static_dir,
+        dynamic_bundle_dir=dynamic_dir,
+    )
+
+    messages = build_provider_messages(semantic_input)
+    assert len(messages) == 2
+    assert "evidence-first" in messages[0]["content"]
+    assert "cross_validation_requirements" in messages[1]["content"]
+
+
+def test_build_semantic_provider_supports_mock_and_gateway_modes():
+    mock_provider = build_semantic_provider("mock", config={"max_claims": 2})
+    assert isinstance(mock_provider, MockSemanticProvider)
+    assert mock_provider.max_claims == 2
+
+    gateway_provider = build_semantic_provider(
+        "azure_gateway",
+        config={"deployment_name": "gpt4o", "api_key_env_var": "TEST_COMP_OPENAI_API_KEY"},
+    )
+    assert isinstance(gateway_provider, AzureGatewaySemanticProvider)
+    assert gateway_provider.config.deployment_name == "gpt4o"
+    assert gateway_provider.config.api_key_env_var == "TEST_COMP_OPENAI_API_KEY"
+
+
+def test_gateway_provider_requires_api_key():
+    provider = AzureGatewaySemanticProvider()
+    provider.config.api_key = ""
+    provider.config.api_key_env_var = "THIS_ENV_SHOULD_NOT_EXIST_FOR_TEST"
+    try:
+        provider._resolve_api_key()
+    except RuntimeError as exc:
+        assert "Missing API key" in str(exc)
+    else:
+        raise AssertionError("Expected provider to require an API key.")
+
+
+def test_run_semantic_analysis_with_provider_mode_uses_mock_by_default(tmp_path):
+    static_dir = _make_static_bundle(tmp_path)
+    dynamic_dir = _make_dynamic_bundle(tmp_path)
+
+    report = run_semantic_analysis_with_provider_mode(
+        static_bundle_dir=static_dir,
+        dynamic_bundle_dir=dynamic_dir,
+        provider_mode="mock",
+        provider_config={"max_claims": 2},
+    )
+
+    assert report.metadata["provider_mode"] == "mock"
+    assert report.supported_claims

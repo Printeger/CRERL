@@ -14,6 +14,12 @@ from analyzers.report_contract import (
     write_namespace_manifest,
     write_report_namespace_contract,
 )
+from analyzers.semantic_merge import (
+    build_phase7_claim_consumer,
+    build_semantic_report_merge_input,
+    write_phase7_claim_consumer,
+    write_semantic_report_merge_input,
+)
 from analyzers.semantic_claims import (
     SemanticClaim,
     SemanticClaimSet,
@@ -21,7 +27,11 @@ from analyzers.semantic_claims import (
 )
 from analyzers.semantic_crosscheck import validate_semantic_claims
 from analyzers.semantic_inputs import build_semantic_analysis_input
-from analyzers.semantic_provider import MockSemanticProvider, SemanticProvider
+from analyzers.semantic_provider import (
+    MockSemanticProvider,
+    SemanticProvider,
+    build_semantic_provider,
+)
 from analyzers.spec_ir import SpecIR, load_spec_ir
 
 
@@ -285,8 +295,20 @@ def write_semantic_analysis_bundle(
     semantic_claims_path = report_path / "semantic_claims.json"
     semantic_input_path = report_path / "semantic_input.json"
     semantic_summary_path = report_path / "semantic_summary.md"
+    semantic_merge_input_path = report_path / "semantic_merge_input.json"
+    claim_consumer_path = report_path / "claim_consumer.json"
     summary_path = report_path / "summary.json"
     manifest_path = report_path / "manifest.json"
+
+    claim_consumer_bundle = build_phase7_claim_consumer(
+        report.to_dict(),
+        semantic_bundle_name=bundle_name,
+    )
+    semantic_merge_input = build_semantic_report_merge_input(
+        report.to_dict(),
+        semantic_bundle_name=bundle_name,
+        claim_consumer_bundle=claim_consumer_bundle.to_dict(),
+    )
 
     semantic_claims_path.write_text(
         json.dumps(_claim_set_from_report(report).to_dict(), indent=2, sort_keys=True),
@@ -300,6 +322,14 @@ def write_semantic_analysis_bundle(
         build_semantic_summary_markdown(report),
         encoding="utf-8",
     )
+    write_semantic_report_merge_input(
+        semantic_merge_input.to_dict(),
+        semantic_merge_input_path,
+    )
+    write_phase7_claim_consumer(
+        claim_consumer_bundle.to_dict(),
+        claim_consumer_path,
+    )
 
     summary_payload = {
         "report_type": report.report_type,
@@ -312,6 +342,7 @@ def write_semantic_analysis_bundle(
         "supported_claims": len(report.supported_claims),
         "weak_claims": len(report.weak_claims),
         "rejected_claims": len(report.rejected_claims),
+        "primary_claim_type": str(claim_consumer_bundle.primary_claim_type),
     }
     summary_path.write_text(
         json.dumps(summary_payload, indent=2, sort_keys=True),
@@ -329,6 +360,8 @@ def write_semantic_analysis_bundle(
         "semantic_claims_path": semantic_claims_path.name,
         "semantic_input_path": semantic_input_path.name,
         "semantic_summary_path": semantic_summary_path.name,
+        "semantic_merge_input_path": semantic_merge_input_path.name,
+        "claim_consumer_path": claim_consumer_path.name,
         "summary_path": summary_path.name,
         "passed": bool(report.passed),
         "max_severity": str(report.max_severity),
@@ -343,6 +376,8 @@ def write_semantic_analysis_bundle(
         "semantic_claims_path": semantic_claims_path,
         "semantic_input_path": semantic_input_path,
         "semantic_summary_path": semantic_summary_path,
+        "semantic_merge_input_path": semantic_merge_input_path,
+        "claim_consumer_path": claim_consumer_path,
         "summary_path": summary_path,
         "manifest_path": manifest_path,
     }
@@ -422,12 +457,43 @@ def run_semantic_analysis_bundle(
     return report, bundle_paths
 
 
+def run_semantic_analysis_with_provider_mode(
+    *,
+    static_bundle_dir: str | Path,
+    dynamic_bundle_dir: str | Path,
+    provider_mode: str = "mock",
+    provider_config: Optional[Mapping[str, Any]] = None,
+    spec_ir: Optional[SpecIR] = None,
+    spec_cfg_dir=None,
+    env_cfg_dir=None,
+    detector_cfg_dir=None,
+    scene_families: Sequence[str] | None = None,
+    output_path: str | Path | None = None,
+) -> SemanticAnalyzerReport:
+    provider = build_semantic_provider(
+        provider_mode,
+        config=provider_config,  # type: ignore[arg-type]
+    )
+    return run_semantic_analysis(
+        static_bundle_dir=static_bundle_dir,
+        dynamic_bundle_dir=dynamic_bundle_dir,
+        provider=provider,
+        spec_ir=spec_ir,
+        spec_cfg_dir=spec_cfg_dir,
+        env_cfg_dir=env_cfg_dir,
+        detector_cfg_dir=detector_cfg_dir,
+        scene_families=scene_families,
+        output_path=output_path,
+    )
+
+
 __all__ = [
     "SEMANTIC_ANALYSIS_NAMESPACE",
     "SemanticAnalyzerReport",
     "build_semantic_report",
     "build_semantic_summary_markdown",
     "run_semantic_analysis",
+    "run_semantic_analysis_with_provider_mode",
     "run_semantic_analysis_bundle",
     "write_semantic_analysis_bundle",
     "write_semantic_report",

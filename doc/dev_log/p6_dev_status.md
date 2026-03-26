@@ -21,6 +21,23 @@ to:
 
 ## 2. Implemented Results
 
+### 2.0 Repo-Local Workflow Rule Was Corrected
+
+The repo-local standing instruction layer was corrected so the dev-log naming
+rule now means:
+
+- `p{N}_dev_status.md`
+
+where `{N}` is the actual affected roadmap phase number.
+
+It no longer means a literal file named:
+
+- `px_dev_status.md`
+
+The mistakenly created `doc/dev_log/px_dev_status.md` file was removed, and the
+repo-local rule in `AGENTS.md` now explicitly says to attach workflow/meta
+changes to the nearest affected numbered phase instead.
+
 ### 2.1 Semantic Cross-Check Layer Added
 
 A new file was added:

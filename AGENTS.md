@@ -49,9 +49,11 @@ Preferred method:
 3. read the matching `doc/roadmap/phaseN.md`
 4. implement only the part requested by the user or clearly on the critical path
 
-If a task is not clearly part of a numbered phase, treat it as:
+If a task is not clearly part of a numbered phase:
 
-- `px` = project workflow / repository operations / meta-infrastructure
+- attach it to the nearest affected active roadmap phase
+- record it in that phase's dev log
+- do **not** invent a literal `px` phase
 
 ## 4. Required Close-Out Workflow After Substantive Changes
 
@@ -66,9 +68,10 @@ close-out sequence unless the user explicitly says not to:
 
 Dev-log rule:
 
-- if the work belongs to `Phase N`, update:
-  - `doc/dev_log/pN_dev_status.md`
-- if the work is meta / workflow / repo-infrastructure work, update:
+- always update the corresponding:
+  - `doc/dev_log/p{N}_dev_status.md`
+- here `{N}` means the actual affected roadmap phase number
+- do **not** create a literal file named:
   - `doc/dev_log/px_dev_status.md`
 
 Validation rule:

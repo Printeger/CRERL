@@ -50,15 +50,16 @@ This keeps the workflow inside the current repo and avoids touching files outsid
 ## Latest Staged Change Summary
 
 <!-- TRACEABILITY:BEGIN -->
-_Updated: `2026-03-26T23:40:57`_
+_Updated: `2026-03-26T23:44:10`_
 
 - Scope: `/home/mint/rl_dev/CRERL`
 - Branch: `main`
 - Source: `staged diff`
 - Impacted phases: `unclassified`
-- Diff stat: 2 files changed, 0 insertions(+), 0 deletions(-)
+- Diff stat: 4 files changed, 31 insertions(+), 150 deletions(-)
 
 ### Changed Files
-- `A` [doc/COMP OpenAI Access Guide v3.11.pdf](doc/COMP OpenAI Access Guide v3.11.pdf) [Project Docs]
-- `R100` [doc/dev_log/p4_dev_status.md](doc/dev_log/p4_dev_status.md) [Project Docs]
+- `M` [AGENTS.md](AGENTS.md) [Repo Root]
+- `M` [doc/dev_log/p6_dev_status.md](doc/dev_log/p6_dev_status.md) [Project Docs]
+- `D` [doc/dev_log/px_dev_status.md](doc/dev_log/px_dev_status.md) [Project Docs]
 <!-- TRACEABILITY:END -->

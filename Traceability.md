@@ -50,27 +50,22 @@ This keeps the workflow inside the current repo and avoids touching files outsid
 ## Latest Staged Change Summary
 
 <!-- TRACEABILITY:BEGIN -->
-_Updated: `2026-03-26T21:51:46`_
+_Updated: `2026-03-26T22:12:32`_
 
 - Scope: `/home/mint/rl_dev/CRERL`
 - Branch: `main`
 - Source: `staged diff`
-- Impacted phases: `Phase 1, Phase 4, Phase 7`
-- Diff stat: 15 files changed, 492 insertions(+), 191 deletions(-)
+- Impacted phases: `Phase 0, Phase 2, Phase 3, Phase 4`
+- Diff stat: 10 files changed, 2170 insertions(+), 25 deletions(-)
 
 ### Changed Files
-- `M` [doc/dev_log/phase_4.md](doc/dev_log/phase_4.md) [Project Docs]
+- `A` [doc/dev_log/p5_dev_status.md](doc/dev_log/p5_dev_status.md) [Project Docs]
+- `A` [doc/roadmap/phase5.md](doc/roadmap/phase5.md) [Spec / Roadmap]
 - `M` [isaac-training/training/analyzers/__init__.py](isaac-training/training/analyzers/__init__.py) [Analyzers]
-- `M` [isaac-training/training/analyzers/detector_runner.py](isaac-training/training/analyzers/detector_runner.py) [Analyzers]
-- `A` [isaac-training/training/analyzers/report_contract.py](isaac-training/training/analyzers/report_contract.py) [Analyzers]
-- `M` [isaac-training/training/analyzers/spec_ir.py](isaac-training/training/analyzers/spec_ir.py) [Analyzers]
-- `M` [isaac-training/training/analyzers/static_checks.py](isaac-training/training/analyzers/static_checks.py) [Analyzers]
-- `M` [isaac-training/training/cfg/spec_cfg/policy_spec_v0.yaml](isaac-training/training/cfg/spec_cfg/policy_spec_v0.yaml) [Specification Config]
-- `M` [isaac-training/training/envs/env_gen.py](isaac-training/training/envs/env_gen.py) [Procedural Env / Sensors]
-- `M` [isaac-training/training/scripts/run_static_audit.py](isaac-training/training/scripts/run_static_audit.py) [Training Pipeline]
-- `A` [isaac-training/training/unit_test/test_env/fixtures/static_specs/dynamic_hazard_profile_gap.yaml](isaac-training/training/unit_test/test_env/fixtures/static_specs/dynamic_hazard_profile_gap.yaml) [Training Tests]
-- `M` [isaac-training/training/unit_test/test_env/fixtures/static_specs/report_namespace_misalignment.yaml](isaac-training/training/unit_test/test_env/fixtures/static_specs/report_namespace_misalignment.yaml) [Training Tests]
-- `A` [isaac-training/training/unit_test/test_env/fixtures/static_specs/shifted_distribution_gap.yaml](isaac-training/training/unit_test/test_env/fixtures/static_specs/shifted_distribution_gap.yaml) [Training Tests]
-- `M` [isaac-training/training/unit_test/test_env/test_spec_ir.py](isaac-training/training/unit_test/test_env/test_spec_ir.py) [Training Tests]
-- `M` [isaac-training/training/unit_test/test_env/test_static_analyzer.py](isaac-training/training/unit_test/test_env/test_static_analyzer.py) [Training Tests]
+- `A` [isaac-training/training/analyzers/dynamic_analyzer.py](isaac-training/training/analyzers/dynamic_analyzer.py) [Analyzers]
+- `M` [isaac-training/training/analyzers/dynamic_metrics.py](isaac-training/training/analyzers/dynamic_metrics.py) [Analyzers]
+- `M` [isaac-training/training/runtime_logging/__init__.py](isaac-training/training/runtime_logging/__init__.py) [Runtime Logging]
+- `M` [isaac-training/training/runtime_logging/episode_writer.py](isaac-training/training/runtime_logging/episode_writer.py) [Runtime Logging]
+- `A` [isaac-training/training/scripts/run_dynamic_audit.py](isaac-training/training/scripts/run_dynamic_audit.py) [Training Pipeline]
+- `A` [isaac-training/training/unit_test/test_env/test_dynamic_analyzer.py](isaac-training/training/unit_test/test_env/test_dynamic_analyzer.py) [Training Tests]
 <!-- TRACEABILITY:END -->

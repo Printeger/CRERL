@@ -1,5 +1,23 @@
 """Analyzer package for CRE consistency checks."""
 
+from .dynamic_analyzer import (
+    DYNAMIC_ANALYSIS_NAMESPACE,
+    DynamicAnalyzerReport,
+    DynamicFindingRecord,
+    build_dynamic_report,
+    run_dynamic_analysis,
+    run_dynamic_analysis_bundle,
+    write_dynamic_analysis_bundle,
+    write_dynamic_report,
+)
+from .dynamic_metrics import (
+    DynamicMetricResult,
+    DynamicWitnessResult,
+    compute_critical_state_coverage,
+    compute_dynamic_metrics,
+    compute_reward_violation_coupling,
+    compute_transfer_fragility,
+)
 from .aggregation import FindingRecord, StaticAnalyzerReport, build_static_report, write_static_report
 from .detector_runner import (
     run_detectors,
@@ -45,13 +63,27 @@ from .static_checks import (
 )
 
 __all__ = [
+    "DYNAMIC_ANALYSIS_NAMESPACE",
+    "DynamicAnalyzerReport",
+    "DynamicFindingRecord",
+    "DynamicMetricResult",
+    "DynamicWitnessResult",
     "FindingRecord",
     "StaticAnalyzerReport",
     "build_static_report",
+    "build_dynamic_report",
+    "compute_critical_state_coverage",
+    "compute_dynamic_metrics",
+    "compute_reward_violation_coupling",
+    "compute_transfer_fragility",
     "write_static_report",
+    "write_dynamic_report",
     "run_detectors",
+    "run_dynamic_analysis",
+    "run_dynamic_analysis_bundle",
     "run_static_analysis",
     "run_static_analysis_bundle",
+    "write_dynamic_analysis_bundle",
     "write_static_audit_bundle",
     "STATIC_AUDIT_MODE",
     "DYNAMIC_ANALYSIS_MODE",

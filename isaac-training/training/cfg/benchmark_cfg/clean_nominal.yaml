@@ -1,0 +1,43 @@
+schema_type: "phase11_benchmark_case.v1"
+case_id: "clean_nominal_v1"
+title: "Clean nominal benchmark"
+description: "Baseline clean benchmark case built from the nominal family without injected inconsistency."
+benchmark_class: "clean"
+inconsistency_type: "clean"
+scene_family: "nominal"
+scene_cfg_name: "scene_cfg_nominal.yaml"
+execution_modes:
+  - "baseline"
+  - "eval"
+  - "train"
+analysis_modes:
+  - "static"
+  - "dynamic"
+  - "semantic"
+  - "report"
+  - "repair"
+  - "validation"
+  - "integration"
+spec_refs:
+  constraint_spec: "constraint_spec_v0.yaml"
+  reward_spec: "reward_spec_v0.yaml"
+  policy_spec: "policy_spec_v0.yaml"
+env_refs:
+  scene_cfg: "scene_cfg_nominal.yaml"
+  comparative_scene_cfgs:
+    - "scene_cfg_boundary_critical.yaml"
+    - "scene_cfg_shifted.yaml"
+injection:
+  enabled: false
+  target_component: ""
+  patch_targets: []
+expected_signals:
+  expected_primary_claim_type: ""
+  expected_analyzer_focus:
+    - "static"
+    - "dynamic"
+    - "semantic"
+  expected_validation_targets:
+    - "nominal_vs_shifted_success_gap"
+release:
+  include_in_cre_v1_demo: true

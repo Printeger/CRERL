@@ -4,62 +4,83 @@ Updated: 2026-03-27
 
 ## 1. This Iteration Goal
 
-This iteration starts Phase 11 planning.
+This iteration starts Phase 11 implementation.
 
 The goal of this step is:
 
-- define what Phase 11 should build on top of the completed Phase 10 stack,
-- freeze the first implementation plan for benchmark packaging and release
-  orchestration,
-- and clarify whether a real API key is required to start the phase.
+- freeze the first benchmark case objects under `cfg/benchmark_cfg/`,
+- implement the first machine-readable benchmark suite builder,
+- add a CLI entrypoint for namespaced benchmark packaging,
+- and lock the first regression tests for benchmark-manifest correctness.
 
 ## 2. Result
 
-Phase 11 now has an implementation plan in:
+Phase 11 now has its first executable benchmark-packaging path.
 
-- `doc/roadmap/phase11.md`
+The key result is that:
 
-The plan aligns Phase 11 with:
+- benchmark cases are no longer only a roadmap idea,
+- they now exist as machine-readable suite inputs,
+- and the repository can package them into:
+  - `analysis/benchmark/<bundle>/`
 
-- `doc/roadmap.md`
-- `doc/system_architecture_and _control_flow.md`
-- `doc/CRE_frame_design.pdf`
-- and the completed Phase 10 native integration proof
+This iteration added four concrete capabilities:
 
-The key planning result is:
+1. **machine-readable benchmark case configs**
+   - new benchmark case YAMLs now exist under:
+     - `isaac-training/training/cfg/benchmark_cfg/clean_nominal.yaml`
+     - `isaac-training/training/cfg/benchmark_cfg/injected_cr.yaml`
+     - `isaac-training/training/cfg/benchmark_cfg/injected_ec.yaml`
+     - `isaac-training/training/cfg/benchmark_cfg/injected_er.yaml`
+   - the grouped suite manifest now exists at:
+     - `isaac-training/training/cfg/benchmark_cfg/benchmark_suite_v1.yaml`
 
-- Phase 11 is defined as **benchmark packaging and release orchestration**
-- not as a new analyzer phase
+2. **first benchmark suite compiler**
+   - `pipeline/benchmark_suite.py` now:
+     - loads the suite manifest,
+     - resolves referenced spec/env configs,
+     - checks execution-mode compatibility against the existing runtime contract,
+     - produces:
+       - `benchmark_manifest.json`
+       - `benchmark_cases.json`
+       - `benchmark_matrix.json`
+       - `benchmark_summary.json`
+       - `benchmark_summary.md`
 
-The plan freezes:
+3. **namespaced benchmark packaging CLI**
+   - `scripts/run_benchmark_suite.py` now packages benchmark bundles into:
+     - `analysis/benchmark/<bundle>/`
+   - the benchmark namespace is now part of the shared report contract
+   - `policy_spec_v0.yaml` now records benchmark artifact expectations
 
-1. the benchmark scope:
-   - clean
-   - injected `C-R`
-   - injected `E-C`
-   - injected `E-R`
-
-2. the first output namespaces:
-   - `analysis/benchmark/<bundle>/`
-   - `analysis/release/<bundle>/`
-
-3. the first file-level implementation order:
-   - `cfg/benchmark_cfg/*.yaml`
-   - `pipeline/benchmark_suite.py`
-   - `scripts/run_benchmark_suite.py`
-   - `pipeline/release_bundle.py`
-   - `scripts/run_release_packaging.py`
-   - focused benchmark/release tests
-
-4. the API-key policy:
-   - **no API key is required to start Phase 11**
-   - real provider usage remains optional and must not be the default benchmark
-     path
+4. **first benchmark regression coverage**
+   - `test_benchmark_suite.py` now verifies:
+     - real benchmark cases load correctly,
+     - the namespaced bundle is written,
+     - the CLI smoke path works,
+     - and all four initial cases are Phase-10-native-ready
 
 ## 3. Main Files Added or Changed
 
-- `doc/roadmap/phase11.md`
-- `doc/dev_log/p11_dev_status.md`
+Benchmark configs:
+
+- `isaac-training/training/cfg/benchmark_cfg/clean_nominal.yaml`
+- `isaac-training/training/cfg/benchmark_cfg/injected_cr.yaml`
+- `isaac-training/training/cfg/benchmark_cfg/injected_ec.yaml`
+- `isaac-training/training/cfg/benchmark_cfg/injected_er.yaml`
+- `isaac-training/training/cfg/benchmark_cfg/benchmark_suite_v1.yaml`
+
+Benchmark pipeline / contract:
+
+- `isaac-training/training/pipeline/benchmark_suite.py`
+- `isaac-training/training/pipeline/__init__.py`
+- `isaac-training/training/scripts/run_benchmark_suite.py`
+- `isaac-training/training/analyzers/report_contract.py`
+- `isaac-training/training/cfg/spec_cfg/policy_spec_v0.yaml`
+
+Tests / traceability:
+
+- `isaac-training/training/unit_test/test_env/test_benchmark_suite.py`
 - `Traceability.md`
 
 ## 4. How To Validate
@@ -67,58 +88,56 @@ The plan freezes:
 Recommended focused checks:
 
 ```bash
-python3 - <<'PY'
-from pathlib import Path
-
-phase11 = Path('doc/roadmap/phase11.md').read_text(encoding='utf-8')
-assert '## 1. Purpose' in phase11
-assert '## 4. API-Key Policy for Phase 11' in phase11
-assert '## 8. File-Level Implementation Plan' in phase11
-assert '## 10. Exit Criteria' in phase11
-
-dev = Path('doc/dev_log/p11_dev_status.md').read_text(encoding='utf-8')
-assert '## 1. This Iteration Goal' in dev
-assert '## 2. Result' in dev
-assert '## 5. Validation Results' in dev
-assert '## 6. What Should Be Done Next' in dev
-
-print('phase11 docs check passed')
-PY
+python3 -m py_compile \
+  isaac-training/training/analyzers/report_contract.py \
+  isaac-training/training/pipeline/benchmark_suite.py \
+  isaac-training/training/pipeline/__init__.py \
+  isaac-training/training/scripts/run_benchmark_suite.py \
+  isaac-training/training/unit_test/test_env/test_benchmark_suite.py
 ```
 
 ```bash
-python3 tools/update_traceability.py
+pytest -q isaac-training/training/unit_test/test_env/test_benchmark_suite.py
+```
+
+```bash
+python3 isaac-training/training/scripts/run_benchmark_suite.py \
+  --reports-root /tmp/crerl_phase11_reports \
+  --bundle-name benchmark_phase11_smoke \
+  --output /tmp/crerl_phase11_reports/benchmark_summary_copy.json
 ```
 
 ## 5. Validation Results
 
 Validated in this iteration:
 
-- `phase11.md` was checked to ensure it contains:
-  - `Purpose`
-  - `API-Key Policy for Phase 11`
-  - `File-Level Implementation Plan`
-  - `Exit Criteria`
-- `p11_dev_status.md` was checked to ensure it contains:
-  - `This Iteration Goal`
-  - `Result`
-  - `Validation Results`
-  - `What Should Be Done Next`
-- `Traceability.md` was refreshed so the change is mapped to `Phase 11`
+- `py_compile` passed for:
+  - `report_contract.py`
+  - `benchmark_suite.py`
+  - `pipeline/__init__.py`
+  - `run_benchmark_suite.py`
+  - `test_benchmark_suite.py`
+- focused pytest passed:
+  - `3 passed`
+- benchmark CLI smoke test passed and wrote:
+  - `/tmp/crerl_phase11_reports/analysis/benchmark/benchmark_phase11_smoke/`
+- the benchmark smoke summary is:
+  - `suite_name = cre_v1_minimal_benchmark`
+  - `case_count = 4`
+  - `ready_case_count = 4`
+  - `phase10_native_ready_case_count = 4`
 
-Conclusion:
+This confirms the first Phase 11 batch is complete:
 
-- the repository now has a concrete Phase 11 plan,
-- and the Phase 11 default path does **not** require a live API key.
+- clean / injected benchmark cases are frozen as machine-readable objects,
+- the suite can be compiled into a namespaced benchmark bundle,
+- and the benchmark namespace is now part of the shared evidence contract.
 
 ## 6. What Should Be Done Next
 
 The next Phase 11 step should be:
 
-1. create `cfg/benchmark_cfg/*.yaml` for:
-   - clean
-   - injected `C-R`
-   - injected `E-C`
-   - injected `E-R`
-2. implement `pipeline/benchmark_suite.py`
-3. add `scripts/run_benchmark_suite.py` and the first benchmark regression test
+1. extend the benchmark suite from packaging-only to replay-oriented execution metadata,
+2. implement `pipeline/release_bundle.py`,
+3. add `scripts/run_release_packaging.py`,
+4. and start building the first release-grade clean-vs-injected demo bundle.

@@ -1,0 +1,21 @@
+suite_type: "phase11_benchmark_suite.v1"
+suite_name: "cre_v1_minimal_benchmark"
+suite_version: "v1"
+description: "Minimal Phase 11 benchmark suite covering one clean case and one injected case for each CRE inconsistency type."
+default_execution_modes:
+  - "baseline"
+  - "eval"
+  - "train"
+default_analysis_modes:
+  - "static"
+  - "dynamic"
+  - "semantic"
+  - "report"
+  - "repair"
+  - "validation"
+  - "integration"
+case_files:
+  - "clean_nominal.yaml"
+  - "injected_cr.yaml"
+  - "injected_ec.yaml"
+  - "injected_er.yaml"

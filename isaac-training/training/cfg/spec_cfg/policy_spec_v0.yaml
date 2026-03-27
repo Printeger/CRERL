@@ -140,3 +140,20 @@ runtime_expectations:
   integration_direct_runtime_metadata_binding_required: true
   integration_direct_repair_preview_binding_required: true
   integration_post_repair_evidence_consumer_contract: "phase10_post_repair_evidence_consumer.v2"
+  benchmark_suite_namespace: "analysis/benchmark"
+  benchmark_suite_required_artifacts:
+    - "benchmark_manifest.json"
+    - "benchmark_cases.json"
+    - "benchmark_matrix.json"
+    - "benchmark_summary.json"
+    - "benchmark_summary.md"
+    - "manifest.json"
+    - "namespace_manifest.json"
+  benchmark_supported_case_classes:
+    - "clean"
+    - "injected"
+  benchmark_supported_inconsistency_types:
+    - "clean"
+    - "C-R"
+    - "E-C"
+    - "E-R"

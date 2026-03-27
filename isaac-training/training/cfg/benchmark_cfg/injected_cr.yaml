@@ -1,0 +1,46 @@
+schema_type: "phase11_benchmark_case.v1"
+case_id: "injected_cr_v1"
+title: "Injected C-R inconsistency benchmark"
+description: "Reward/constraint conflict benchmark intended to surface C-R diagnosis and reward-side repair proposals."
+benchmark_class: "injected"
+inconsistency_type: "C-R"
+scene_family: "nominal"
+scene_cfg_name: "scene_cfg_nominal.yaml"
+execution_modes:
+  - "baseline"
+  - "eval"
+  - "train"
+analysis_modes:
+  - "static"
+  - "dynamic"
+  - "semantic"
+  - "report"
+  - "repair"
+  - "validation"
+  - "integration"
+spec_refs:
+  constraint_spec: "constraint_spec_v0.yaml"
+  reward_spec: "reward_spec_v0.yaml"
+  policy_spec: "policy_spec_v0.yaml"
+env_refs:
+  scene_cfg: "scene_cfg_nominal.yaml"
+  comparative_scene_cfgs:
+    - "scene_cfg_shifted.yaml"
+injection:
+  enabled: true
+  target_component: "reward"
+  patch_targets:
+    - "reward_spec_v0.yaml:components.reward_progress.weight"
+    - "reward_spec_v0.yaml:components.reward_safety_static.weight"
+expected_signals:
+  expected_primary_claim_type: "C-R"
+  expected_analyzer_focus:
+    - "static"
+    - "semantic"
+    - "repair"
+  expected_validation_targets:
+    - "W_CR"
+    - "min_distance"
+    - "near_violation_ratio"
+release:
+  include_in_cre_v1_demo: true

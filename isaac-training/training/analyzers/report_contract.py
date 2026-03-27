@@ -14,6 +14,7 @@ REPORT_GENERATION_MODE = "report_generation"
 REPAIR_GENERATION_MODE = "repair_generation"
 VALIDATION_GENERATION_MODE = "validation_generation"
 INTEGRATION_AUDIT_MODE = "integration_audit"
+BENCHMARK_SUITE_MODE = "benchmark_suite"
 
 DEFAULT_REPORT_NAMESPACES = {
     STATIC_AUDIT_MODE: "analysis/static",
@@ -23,6 +24,7 @@ DEFAULT_REPORT_NAMESPACES = {
     REPAIR_GENERATION_MODE: "analysis/repair",
     VALIDATION_GENERATION_MODE: "analysis/validation",
     INTEGRATION_AUDIT_MODE: "analysis/integration",
+    BENCHMARK_SUITE_MODE: "analysis/benchmark",
 }
 
 DEFAULT_REPORT_MODE_ARTIFACTS = {
@@ -96,6 +98,15 @@ DEFAULT_REPORT_MODE_ARTIFACTS = {
         "manifest.json",
         "namespace_manifest.json",
     ),
+    BENCHMARK_SUITE_MODE: (
+        "benchmark_manifest.json",
+        "benchmark_cases.json",
+        "benchmark_matrix.json",
+        "benchmark_summary.json",
+        "benchmark_summary.md",
+        "manifest.json",
+        "namespace_manifest.json",
+    ),
 }
 
 
@@ -138,6 +149,7 @@ def write_namespace_manifest(
             or bundle_paths.get("report_json_path")
             or bundle_paths.get("repair_plan_path")
             or bundle_paths.get("validation_plan_path")
+            or bundle_paths.get("benchmark_manifest_path")
             or ""
         ),
         "summary_path": str(bundle_paths.get("summary_path", "")),

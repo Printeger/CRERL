@@ -11,10 +11,18 @@ METRIC_DIRECTIONS = {
     "W_EC": "lower_better",
     "W_ER": "lower_better",
     "boundary_critical_success_rate": "higher_better",
+    "boundary_critical_collision_rate": "lower_better",
+    "boundary_critical_near_violation_ratio": "lower_better",
+    "boundary_critical_vs_nominal_success_gap": "lower_better",
+    "boundary_critical_vs_nominal_min_distance_gap": "lower_better",
     "collision_rate": "lower_better",
     "critical_family_min_distance": "higher_better",
     "near_violation_ratio": "lower_better",
     "min_distance": "higher_better",
+    "nominal_vs_shifted_collision_gap": "lower_better",
+    "nominal_vs_shifted_min_distance_gap": "lower_better",
+    "nominal_vs_shifted_near_violation_gap": "lower_better",
+    "nominal_vs_shifted_return_gap": "lower_better",
     "nominal_vs_shifted_success_gap": "lower_better",
     "average_return": "higher_better",
     "shifted_min_distance": "higher_better",
@@ -32,8 +40,30 @@ PERFORMANCE_METRICS = ("average_return", "success_rate")
 
 TARGET_METRIC_ALIASES = {
     "boundary_critical_success_rate": "success_rate",
+    "boundary_critical_collision_rate": "collision_rate",
+    "boundary_critical_near_violation_ratio": "near_violation_ratio",
     "critical_family_min_distance": "min_distance",
     "shifted_min_distance": "min_distance",
+}
+
+HIGHER_ORDER_METRICS_BY_CLAIM = {
+    "C-R": (),
+    "E-C": (
+        "boundary_critical_success_rate",
+        "boundary_critical_collision_rate",
+        "boundary_critical_near_violation_ratio",
+        "boundary_critical_vs_nominal_success_gap",
+        "boundary_critical_vs_nominal_min_distance_gap",
+        "critical_family_min_distance",
+    ),
+    "E-R": (
+        "shifted_min_distance",
+        "nominal_vs_shifted_success_gap",
+        "nominal_vs_shifted_min_distance_gap",
+        "nominal_vs_shifted_collision_gap",
+        "nominal_vs_shifted_near_violation_gap",
+        "nominal_vs_shifted_return_gap",
+    ),
 }
 
 
@@ -94,6 +124,23 @@ def _aggregate_by_scenario(run_payloads: Sequence[Mapping[str, Any]]) -> Dict[st
     }
 
 
+def _aggregate_by_source(run_payloads: Sequence[Mapping[str, Any]]) -> Dict[str, Dict[str, float]]:
+    grouped: Dict[str, List[Mapping[str, Any]]] = {}
+    for payload in run_payloads:
+        manifest = dict(payload.get("manifest") or {})
+        source = str(manifest.get("source", "") or "")
+        if not source:
+            episodes = list(payload.get("episodes") or [])
+            source = next((str(item.get("source", "") or "") for item in episodes if item.get("source")), "")
+        if not source:
+            continue
+        grouped.setdefault(source, []).append(payload)
+    return {
+        source: _aggregate_run_summaries(group_payloads)
+        for source, group_payloads in grouped.items()
+    }
+
+
 def _mean_metric_from_scenarios(
     scenario_summaries: Mapping[str, Mapping[str, Any]],
     *,
@@ -125,6 +172,24 @@ def _derive_metric_value(
             metric_name="success_rate",
         )
         return (float(value), "boundary_critical.success_rate") if value is not None else (None, "")
+
+    if metric_name == "boundary_critical_collision_rate":
+        value = _mean_metric_from_scenarios(
+            scenario_summaries,
+            scenario_names=("boundary_critical",),
+            metric_name="collision_rate",
+        )
+        return (float(value), "boundary_critical.collision_rate") if value is not None else (None, "")
+
+    if metric_name == "boundary_critical_near_violation_ratio":
+        value = _mean_metric_from_scenarios(
+            scenario_summaries,
+            scenario_names=("boundary_critical",),
+            metric_name="near_violation_ratio",
+        )
+        return (
+            (float(value), "boundary_critical.near_violation_ratio") if value is not None else (None, "")
+        )
 
     if metric_name == "critical_family_min_distance":
         critical_scenarios = tuple(
@@ -165,6 +230,99 @@ def _derive_metric_value(
             return None, ""
         return abs(float(nominal) - float(shifted)), "abs(nominal.success_rate-shifted.success_rate)"
 
+    if metric_name == "nominal_vs_shifted_min_distance_gap":
+        nominal = _mean_metric_from_scenarios(
+            scenario_summaries,
+            scenario_names=("nominal",),
+            metric_name="min_distance",
+        )
+        shifted = _mean_metric_from_scenarios(
+            scenario_summaries,
+            scenario_names=("shifted",),
+            metric_name="min_distance",
+        )
+        if nominal is None or shifted is None:
+            return None, ""
+        return abs(float(nominal) - float(shifted)), "abs(nominal.min_distance-shifted.min_distance)"
+
+    if metric_name == "nominal_vs_shifted_collision_gap":
+        nominal = _mean_metric_from_scenarios(
+            scenario_summaries,
+            scenario_names=("nominal",),
+            metric_name="collision_rate",
+        )
+        shifted = _mean_metric_from_scenarios(
+            scenario_summaries,
+            scenario_names=("shifted",),
+            metric_name="collision_rate",
+        )
+        if nominal is None or shifted is None:
+            return None, ""
+        return abs(float(nominal) - float(shifted)), "abs(nominal.collision_rate-shifted.collision_rate)"
+
+    if metric_name == "nominal_vs_shifted_near_violation_gap":
+        nominal = _mean_metric_from_scenarios(
+            scenario_summaries,
+            scenario_names=("nominal",),
+            metric_name="near_violation_ratio",
+        )
+        shifted = _mean_metric_from_scenarios(
+            scenario_summaries,
+            scenario_names=("shifted",),
+            metric_name="near_violation_ratio",
+        )
+        if nominal is None or shifted is None:
+            return None, ""
+        return (
+            abs(float(nominal) - float(shifted)),
+            "abs(nominal.near_violation_ratio-shifted.near_violation_ratio)",
+        )
+
+    if metric_name == "nominal_vs_shifted_return_gap":
+        nominal = _mean_metric_from_scenarios(
+            scenario_summaries,
+            scenario_names=("nominal",),
+            metric_name="average_return",
+        )
+        shifted = _mean_metric_from_scenarios(
+            scenario_summaries,
+            scenario_names=("shifted",),
+            metric_name="average_return",
+        )
+        if nominal is None or shifted is None:
+            return None, ""
+        return abs(float(nominal) - float(shifted)), "abs(nominal.average_return-shifted.average_return)"
+
+    if metric_name == "boundary_critical_vs_nominal_success_gap":
+        nominal = _mean_metric_from_scenarios(
+            scenario_summaries,
+            scenario_names=("nominal",),
+            metric_name="success_rate",
+        )
+        boundary = _mean_metric_from_scenarios(
+            scenario_summaries,
+            scenario_names=("boundary_critical",),
+            metric_name="success_rate",
+        )
+        if nominal is None or boundary is None:
+            return None, ""
+        return abs(float(boundary) - float(nominal)), "abs(boundary_critical.success_rate-nominal.success_rate)"
+
+    if metric_name == "boundary_critical_vs_nominal_min_distance_gap":
+        nominal = _mean_metric_from_scenarios(
+            scenario_summaries,
+            scenario_names=("nominal",),
+            metric_name="min_distance",
+        )
+        boundary = _mean_metric_from_scenarios(
+            scenario_summaries,
+            scenario_names=("boundary_critical",),
+            metric_name="min_distance",
+        )
+        if nominal is None or boundary is None:
+            return None, ""
+        return abs(float(boundary) - float(nominal)), "abs(boundary_critical.min_distance-nominal.min_distance)"
+
     if alias_name and alias_name in overall_summary:
         return float(overall_summary[alias_name]), alias_name
     return None, ""
@@ -200,8 +358,11 @@ def compare_validation_runs(
     repaired_summary = _aggregate_run_summaries(repaired_runs)
     original_by_scenario = _aggregate_by_scenario(original_runs)
     repaired_by_scenario = _aggregate_by_scenario(repaired_runs)
+    original_by_source = _aggregate_by_source(original_runs)
+    repaired_by_source = _aggregate_by_source(repaired_runs)
     candidate_metrics = sorted(
         set(validation_targets)
+        | set(HIGHER_ORDER_METRICS_BY_CLAIM.get(primary_claim_type, ()))
         | set(SAFETY_METRICS)
         | set(PERFORMANCE_METRICS)
         | set(original_summary.keys())
@@ -254,6 +415,8 @@ def compare_validation_runs(
         "repaired_summary": repaired_summary,
         "original_by_scenario": original_by_scenario,
         "repaired_by_scenario": repaired_by_scenario,
+        "original_by_source": original_by_source,
+        "repaired_by_source": repaired_by_source,
         "metric_deltas": metric_deltas,
         "missing_metrics": sorted(set(missing_metrics)),
         "blocked_by": blocked_by,
@@ -262,6 +425,7 @@ def compare_validation_runs(
 
 __all__ = [
     "CLAIM_TO_CONSISTENCY_METRICS",
+    "HIGHER_ORDER_METRICS_BY_CLAIM",
     "METRIC_DIRECTIONS",
     "PERFORMANCE_METRICS",
     "SAFETY_METRICS",

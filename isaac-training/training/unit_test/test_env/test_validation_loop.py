@@ -21,6 +21,7 @@ from repair.validation_runner import (
     prepare_validation_runs,
     run_validation_bundle_write,
 )
+from envs.cre_logging import STANDARD_REWARD_COMPONENT_KEYS
 
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
@@ -218,6 +219,90 @@ def _make_accepted_run_dir(
     }
     (run_dir / "episodes.jsonl").write_text(json.dumps(episode_row) + "\n", encoding="utf-8")
     (run_dir / "steps.jsonl").write_text("", encoding="utf-8")
+    (run_dir / "episodes" / "episode_0000.json").write_text(
+        json.dumps({"summary": episode_row}, indent=2, sort_keys=True),
+        encoding="utf-8",
+    )
+    return run_dir
+
+
+def _zero_reward_components():
+    return {key: 0.0 for key in STANDARD_REWARD_COMPONENT_KEYS}
+
+
+def _make_acceptance_valid_run_dir(
+    base_dir: Path,
+    *,
+    name: str,
+    source: str,
+    scenario_type: str,
+    scene_cfg_name: str,
+    min_distance: float,
+    average_return: float,
+    w_er: float = 0.0,
+) -> Path:
+    run_dir = base_dir / name
+    run_dir.mkdir(parents=True, exist_ok=True)
+    (run_dir / "episodes").mkdir(parents=True, exist_ok=True)
+    manifest = {"run_id": name, "source": source}
+    summary = {
+        "episode_count": 1,
+        "success_rate": 1.0,
+        "collision_rate": 0.0,
+        "min_distance": float(min_distance),
+        "average_return": float(average_return),
+        "near_violation_ratio": 0.0,
+        "W_ER": float(w_er),
+    }
+    reward_components = _zero_reward_components()
+    episode_row = {
+        "episode_index": 0,
+        "seed": 0,
+        "scene_id": f"{name}:scene0",
+        "scenario_type": scenario_type,
+        "scene_cfg_name": scene_cfg_name,
+        "num_steps": 1,
+        "trajectory_length": 1.0,
+        "return_total": float(average_return),
+        "reward_components_total": dict(reward_components),
+        "success_flag": True,
+        "collision_flag": False,
+        "out_of_bounds_flag": False,
+        "min_obstacle_distance": float(min_distance),
+        "near_violation_steps": 0,
+        "near_violation_ratio": 0.0,
+        "final_goal_distance": 0.0,
+        "done_type": "success",
+        "source": source,
+    }
+    step_row = {
+        "episode_index": 0,
+        "step_index": 0,
+        "sim_time": 0.0,
+        "scene_id": episode_row["scene_id"],
+        "scenario_type": scenario_type,
+        "scene_cfg_name": scene_cfg_name,
+        "position": [0.0, 0.0, 1.0],
+        "velocity": [0.0, 0.0, 0.0],
+        "yaw_rate": 0.0,
+        "goal_distance": 0.0,
+        "reward_total": float(average_return),
+        "reward_components": dict(reward_components),
+        "collision_flag": False,
+        "min_obstacle_distance": float(min_distance),
+        "near_violation_flag": False,
+        "out_of_bounds_flag": False,
+        "done_type": "success",
+        "source": source,
+    }
+    (run_dir / "manifest.json").write_text(json.dumps(manifest, indent=2, sort_keys=True), encoding="utf-8")
+    (run_dir / "summary.json").write_text(json.dumps(summary, indent=2, sort_keys=True), encoding="utf-8")
+    (run_dir / "acceptance.json").write_text(
+        json.dumps({"passed": True, "max_severity": "info"}, indent=2, sort_keys=True),
+        encoding="utf-8",
+    )
+    (run_dir / "episodes.jsonl").write_text(json.dumps(episode_row) + "\n", encoding="utf-8")
+    (run_dir / "steps.jsonl").write_text(json.dumps(step_row) + "\n", encoding="utf-8")
     (run_dir / "episodes" / "episode_0000.json").write_text(
         json.dumps({"summary": episode_row}, indent=2, sort_keys=True),
         encoding="utf-8",
@@ -426,8 +511,108 @@ def test_compare_validation_runs_derives_nominal_vs_shifted_success_gap(tmp_path
     assert round(gap_payload["original"], 4) == 0.36
     assert round(gap_payload["repaired"], 4) == 0.14
     assert gap_payload["improvement"] > 0.0
+    assert "nominal_vs_shifted_min_distance_gap" in comparison["metric_deltas"]
+    assert "nominal_vs_shifted_collision_gap" in comparison["metric_deltas"]
+    assert "nominal_vs_shifted_near_violation_gap" in comparison["metric_deltas"]
+    assert "nominal_vs_shifted_return_gap" in comparison["metric_deltas"]
+    assert round(comparison["metric_deltas"]["nominal_vs_shifted_min_distance_gap"]["original"], 4) == 0.17
+    assert round(comparison["metric_deltas"]["nominal_vs_shifted_collision_gap"]["original"], 4) == 0.06
+    assert round(comparison["metric_deltas"]["nominal_vs_shifted_near_violation_gap"]["original"], 4) == 0.12
+    assert round(comparison["metric_deltas"]["nominal_vs_shifted_return_gap"]["original"], 4) == 0.35
+    assert round(comparison["original_by_source"]["baseline"]["success_rate"], 4) == 0.64
     assert "nominal" in comparison["original_by_scenario"]
     assert "shifted" in comparison["original_by_scenario"]
+
+
+def test_compare_validation_runs_derives_boundary_critical_high_order_targets(tmp_path):
+    repair_bundle_dir = _make_repair_bundle(
+        tmp_path,
+        claim_type="E-C",
+        summary="Boundary-critical family undercovers critical states near the route corridor.",
+        target_ref=BOUNDARY_CFG,
+    )
+    logs_root = tmp_path / "logs"
+    original_nominal = _make_accepted_run_dir(
+        logs_root,
+        name="eval_nominal_original",
+        source="eval",
+        scenario_type="nominal",
+        scene_cfg_name="scene_cfg_nominal.yaml",
+        metrics={
+            "W_EC": 0.38,
+            "min_distance": 0.70,
+            "collision_rate": 0.05,
+            "near_violation_ratio": 0.11,
+            "average_return": 3.18,
+            "success_rate": 0.80,
+        },
+    )
+    original_boundary = _make_accepted_run_dir(
+        logs_root,
+        name="eval_boundary_original",
+        source="eval",
+        scenario_type="boundary_critical",
+        scene_cfg_name="scene_cfg_boundary_critical.yaml",
+        metrics={
+            "W_EC": 0.51,
+            "min_distance": 0.46,
+            "collision_rate": 0.13,
+            "near_violation_ratio": 0.24,
+            "average_return": 2.62,
+            "success_rate": 0.44,
+        },
+    )
+    repaired_nominal = _make_accepted_run_dir(
+        logs_root,
+        name="eval_nominal_repaired",
+        source="eval",
+        scenario_type="nominal",
+        scene_cfg_name="scene_cfg_nominal.yaml",
+        metrics={
+            "W_EC": 0.28,
+            "min_distance": 0.74,
+            "collision_rate": 0.04,
+            "near_violation_ratio": 0.09,
+            "average_return": 3.22,
+            "success_rate": 0.81,
+        },
+    )
+    repaired_boundary = _make_accepted_run_dir(
+        logs_root,
+        name="eval_boundary_repaired",
+        source="eval",
+        scenario_type="boundary_critical",
+        scene_cfg_name="scene_cfg_boundary_critical.yaml",
+        metrics={
+            "W_EC": 0.21,
+            "min_distance": 0.61,
+            "collision_rate": 0.06,
+            "near_violation_ratio": 0.13,
+            "average_return": 2.86,
+            "success_rate": 0.61,
+        },
+    )
+
+    prepared = prepare_validation_runs(
+        repair_bundle_dir=repair_bundle_dir,
+        logs_root=logs_root,
+        original_run_dirs=[original_nominal, original_boundary],
+        repaired_run_dirs=[repaired_nominal, repaired_boundary],
+    )
+    comparison = compare_validation_runs(
+        primary_claim_type=prepared["validation_input"]["primary_claim_type"],
+        validation_targets=prepared["validation_input"]["validation_targets"],
+        original_runs=prepared["original_runs"],
+        repaired_runs=prepared["repaired_runs"],
+    )
+
+    assert "boundary_critical_success_rate" in comparison["metric_deltas"]
+    assert "boundary_critical_collision_rate" in comparison["metric_deltas"]
+    assert "boundary_critical_near_violation_ratio" in comparison["metric_deltas"]
+    assert "boundary_critical_vs_nominal_success_gap" in comparison["metric_deltas"]
+    assert "boundary_critical_vs_nominal_min_distance_gap" in comparison["metric_deltas"]
+    assert comparison["metric_deltas"]["boundary_critical_vs_nominal_success_gap"]["improvement"] > 0.0
+    assert comparison["metric_deltas"]["boundary_critical_vs_nominal_min_distance_gap"]["improvement"] > 0.0
 
 
 def test_validation_decision_rejects_large_performance_regression(tmp_path):
@@ -590,6 +775,7 @@ def test_build_validation_rerun_tasks_emit_bounded_adapter_metadata(tmp_path):
     assert train_task["bounded_limits"]["max_frame_num"] == 2048
     assert train_task["command_preview"][0] == "python3"
     assert train_task["env_overrides"]["CRE_RUN_USE_TIMESTAMP"] == "0"
+    assert train_task["env_overrides"]["CRE_VALIDATION_SCENE_ID_PREFIX"] == train_task["output_run_name"]
     assert train_task["expected_run_dir"].endswith(train_task["output_run_name"])
 
 
@@ -608,6 +794,41 @@ def test_create_run_logger_honors_bounded_rerun_env_overrides(tmp_path, monkeypa
     assert logger.run_id == "validation_real_eval_00"
     assert logger.run_dir == (tmp_path / "bounded_logs" / "validation_real_eval_00")
     assert logger.run_dir.exists()
+
+
+def test_extract_cre_env_metadata_honors_validation_env_overrides(monkeypatch):
+    import pytest
+
+    try:
+        from runtime_logging.training_log_adapter import extract_cre_env_metadata
+    except ModuleNotFoundError as exc:
+        if "torch" in str(exc):
+            pytest.skip("torch is unavailable in the current Python environment")
+        raise
+
+    class _DummyEnv:
+        def get_cre_runtime_metadata(self):
+            return {
+                "scenario_type": "nominal",
+                "scene_cfg_name": "scene_cfg_nominal.yaml",
+                "scene_id_prefix": "nominal_scene",
+                "done_type_labels": {0: "running", 1: "success"},
+            }
+
+    monkeypatch.setenv("CRE_VALIDATION_SCENARIO_TYPE", "shifted")
+    monkeypatch.setenv("CRE_VALIDATION_SCENE_CFG_NAME", "scene_cfg_shifted.yaml")
+    monkeypatch.setenv("CRE_VALIDATION_SCENE_ID_PREFIX", "validation_shifted_scene")
+
+    metadata = extract_cre_env_metadata(
+        _DummyEnv(),
+        fallback_scenario_type="legacy_navigation_env",
+        fallback_scene_cfg_name="legacy_train_env",
+        fallback_scene_id_prefix="legacy_scene",
+    )
+
+    assert metadata["scenario_type"] == "shifted"
+    assert metadata["scene_cfg_name"] == "scene_cfg_shifted.yaml"
+    assert metadata["scene_id_prefix"] == "validation_shifted_scene"
 
 
 def test_prepare_validation_runs_subprocess_mode_uses_bounded_execution_adapter(tmp_path, monkeypatch):
@@ -635,20 +856,15 @@ def test_prepare_validation_runs_subprocess_mode_uses_bounded_execution_adapter(
     )
 
     def _fake_invoke(command, *, cwd, env, timeout_sec=600):
-        run_dir = _make_accepted_run_dir(
+        run_dir = _make_acceptance_valid_run_dir(
             Path(env["CRE_RUN_LOG_BASE_DIR"]),
             name=env["CRE_RUN_NAME_OVERRIDE"],
             source=env["CRE_VALIDATION_EXECUTION_MODE"],
             scenario_type=env["CRE_VALIDATION_SCENARIO_TYPE"],
             scene_cfg_name=env["CRE_VALIDATION_SCENE_CFG_NAME"],
-            metrics={
-                "W_ER": 0.18,
-                "min_distance": 0.74,
-                "collision_rate": 0.04,
-                "near_violation_ratio": 0.10,
-                "average_return": 2.96,
-                "success_rate": 0.68,
-            },
+            min_distance=0.74,
+            average_return=2.96,
+            w_er=0.18,
         )
         assert run_dir.exists()
 
@@ -677,6 +893,8 @@ def test_prepare_validation_runs_subprocess_mode_uses_bounded_execution_adapter(
     assert result["runner_mode"] == "bounded_subprocess_rerun.v1"
     assert result["status"] == "completed"
     assert result["fallback_used"] is False
+    assert result["acceptance_passed"] is True
+    assert result["detected_via"] == "expected_run_dir"
     assert Path(result["run_dir"]).exists()
     assert result["subprocess_returncode"] == 0
 

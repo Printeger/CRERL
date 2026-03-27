@@ -17,8 +17,10 @@ from analyzers.report_contract import (
 )
 from runtime_logging.episode_writer import (
     discover_accepted_run_directories,
+    load_accepted_run_directory,
     load_run_directories,
 )
+from runtime_logging.acceptance import run_acceptance_check
 
 from repair.rerun_adapters import (
     REPO_ROOT,
@@ -51,6 +53,28 @@ def _invoke_subprocess_command(
         timeout=int(timeout_sec),
         check=False,
     )
+
+
+def _resolve_repaired_run_dir(
+    *,
+    task: Mapping[str, Any],
+    rerun_logs_root: str | Path,
+) -> tuple[Path | None, str]:
+    expected_run_dir = Path(str(task.get("expected_run_dir", ""))) if str(task.get("expected_run_dir", "")) else None
+    if expected_run_dir is not None and expected_run_dir.exists():
+        return expected_run_dir, "expected_run_dir"
+
+    discovered = discover_accepted_run_directories(
+        rerun_logs_root,
+        sources=[str(task.get("source", task.get("execution_mode", "")))],
+        scenario_types=[str(task.get("scenario_type", ""))],
+        scene_cfg_names=[str(task.get("scene_cfg_name", ""))],
+        run_name_contains=str(task.get("output_run_name", "")),
+        require_passed=False,
+    )
+    if discovered:
+        return discovered[-1], "discovered_logs_root"
+    return None, "unresolved"
 
 
 def build_validation_rerun_tasks(
@@ -247,21 +271,45 @@ def bounded_subprocess_rerun_runner(
         cwd=cwd,
         env=subprocess_env,
     )
-    if result.returncode == 0 and expected_run_dir is not None and expected_run_dir.exists():
-        return {
-            "task_id": str(task.get("task_id", "")),
-            "runner_mode": "bounded_subprocess_rerun.v1",
-            "status": "completed",
-            "run_dir": str(expected_run_dir),
-            "run_id": str(task.get("output_run_name", expected_run_dir.name)),
-            "scenario_type": str(task.get("scenario_type", "")),
-            "scene_cfg_name": str(task.get("scene_cfg_name", "")),
-            "source": str(task.get("source", task.get("execution_mode", ""))),
-            "fallback_used": False,
-            "subprocess_returncode": int(result.returncode),
-            "stdout_tail": result.stdout[-1000:],
-            "stderr_tail": result.stderr[-1000:],
-        }
+    resolved_run_dir, detected_via = _resolve_repaired_run_dir(
+        task=task,
+        rerun_logs_root=rerun_logs_root,
+    )
+    if result.returncode == 0 and resolved_run_dir is not None and resolved_run_dir.exists():
+        acceptance = run_acceptance_check(resolved_run_dir, write_report=True)
+        if bool(acceptance.get("passed", False)):
+            accepted_payload = load_accepted_run_directory(resolved_run_dir, require_passed=True)
+            accepted_summary = dict(accepted_payload.get("summary") or {})
+            accepted_manifest = dict(accepted_payload.get("manifest") or {})
+            resolved_scenario_type = infer_run_scene(accepted_payload)[0] or str(task.get("scenario_type", ""))
+            resolved_scene_cfg_name = infer_run_scene(accepted_payload)[1] or str(task.get("scene_cfg_name", ""))
+            resolved_source = str(accepted_manifest.get("source", "")) or str(
+                task.get("source", task.get("execution_mode", ""))
+            )
+            return {
+                "task_id": str(task.get("task_id", "")),
+                "runner_mode": "bounded_subprocess_rerun.v1",
+                "status": "completed",
+                "run_dir": str(resolved_run_dir),
+                "run_id": str(accepted_payload.get("run_id", task.get("output_run_name", resolved_run_dir.name))),
+                "scenario_type": resolved_scenario_type,
+                "scene_cfg_name": resolved_scene_cfg_name,
+                "source": resolved_source,
+                "fallback_used": False,
+                "subprocess_returncode": int(result.returncode),
+                "stdout_tail": result.stdout[-1000:],
+                "stderr_tail": result.stderr[-1000:],
+                "acceptance_passed": True,
+                "detected_via": detected_via,
+                "summary": accepted_summary,
+            }
+
+    if result.returncode == 0 and resolved_run_dir is not None and resolved_run_dir.exists():
+        acceptance = run_acceptance_check(resolved_run_dir, write_report=True)
+        acceptance_errors = list(acceptance.get("errors", []) or [])
+    else:
+        acceptance = {}
+        acceptance_errors = []
 
     if allow_fallback:
         fallback = preview_rerun_runner(
@@ -279,13 +327,16 @@ def bounded_subprocess_rerun_runner(
             "subprocess_returncode": int(result.returncode),
             "stdout_tail": result.stdout[-1000:],
             "stderr_tail": result.stderr[-1000:],
+            "acceptance_passed": bool(acceptance.get("passed", False)),
+            "acceptance_errors": acceptance_errors,
+            "detected_via": detected_via,
         }
 
     return {
         "task_id": str(task.get("task_id", "")),
         "runner_mode": "bounded_subprocess_rerun.v1",
         "status": "failed_subprocess",
-        "run_dir": str(expected_run_dir) if expected_run_dir is not None else "",
+        "run_dir": str(resolved_run_dir) if resolved_run_dir is not None else (str(expected_run_dir) if expected_run_dir is not None else ""),
         "run_id": str(task.get("output_run_name", "")),
         "scenario_type": str(task.get("scenario_type", "")),
         "scene_cfg_name": str(task.get("scene_cfg_name", "")),
@@ -294,6 +345,9 @@ def bounded_subprocess_rerun_runner(
         "subprocess_returncode": int(result.returncode),
         "stdout_tail": result.stdout[-1000:],
         "stderr_tail": result.stderr[-1000:],
+        "acceptance_passed": bool(acceptance.get("passed", False)),
+        "acceptance_errors": acceptance_errors,
+        "detected_via": detected_via,
     }
 
 

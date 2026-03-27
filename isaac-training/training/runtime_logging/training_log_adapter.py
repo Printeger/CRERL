@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass, field
 from typing import Any, Dict, Mapping, Optional, Sequence
 
@@ -17,6 +18,10 @@ DONE_TYPE_CODE_MAP = {
     3: "out_of_bounds",
     4: "truncated",
 }
+
+SCENARIO_TYPE_OVERRIDE_ENV = "CRE_VALIDATION_SCENARIO_TYPE"
+SCENE_CFG_OVERRIDE_ENV = "CRE_VALIDATION_SCENE_CFG_NAME"
+SCENE_ID_PREFIX_OVERRIDE_ENV = "CRE_VALIDATION_SCENE_ID_PREFIX"
 
 
 def done_type_code_to_string(
@@ -103,10 +108,19 @@ def extract_cre_env_metadata(
         if isinstance(extracted, Mapping):
             metadata.update(extracted)
 
-    scenario_type = str(metadata.get("scenario_type") or fallback_scenario_type)
-    scene_cfg_name = str(metadata.get("scene_cfg_name") or fallback_scene_cfg_name)
+    scenario_type = str(
+        os.environ.get(SCENARIO_TYPE_OVERRIDE_ENV)
+        or metadata.get("scenario_type")
+        or fallback_scenario_type
+    )
+    scene_cfg_name = str(
+        os.environ.get(SCENE_CFG_OVERRIDE_ENV)
+        or metadata.get("scene_cfg_name")
+        or fallback_scene_cfg_name
+    )
     scene_id_prefix = str(
-        metadata.get("scene_id_prefix")
+        os.environ.get(SCENE_ID_PREFIX_OVERRIDE_ENV)
+        or metadata.get("scene_id_prefix")
         or metadata.get("scene_id")
         or fallback_scene_id_prefix
         or f"{scenario_type}_scene"

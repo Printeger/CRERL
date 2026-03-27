@@ -22,6 +22,7 @@ RUN_USE_TIMESTAMP_ENV = "CRE_RUN_USE_TIMESTAMP"
 RUN_SCENARIO_TYPE_ENV = "CRE_VALIDATION_SCENARIO_TYPE"
 RUN_SCENE_CFG_ENV = "CRE_VALIDATION_SCENE_CFG_NAME"
 RUN_EXECUTION_MODE_ENV = "CRE_VALIDATION_EXECUTION_MODE"
+RUN_SCENE_ID_PREFIX_ENV = "CRE_VALIDATION_SCENE_ID_PREFIX"
 
 SCENE_CFG_BY_FAMILY = {
     "nominal": "scene_cfg_nominal.yaml",
@@ -241,6 +242,7 @@ def build_bounded_rerun_environment(
         RUN_USE_TIMESTAMP_ENV: "0",
         RUN_SCENARIO_TYPE_ENV: str(scenario_type),
         RUN_SCENE_CFG_ENV: str(scene_cfg_name),
+        RUN_SCENE_ID_PREFIX_ENV: _safe_name(output_run_name),
         RUN_EXECUTION_MODE_ENV: normalize_execution_mode(execution_mode),
     }
     if repaired_logs_root is not None:
@@ -337,6 +339,7 @@ __all__ = [
     "RUN_EXECUTION_MODE_ENV",
     "RUN_NAME_OVERRIDE_ENV",
     "RUN_SCENE_CFG_ENV",
+    "RUN_SCENE_ID_PREFIX_ENV",
     "RUN_SCENARIO_TYPE_ENV",
     "RUN_USE_TIMESTAMP_ENV",
     "SCENE_CFG_BY_FAMILY",

@@ -61,6 +61,7 @@ DEFAULT_REPORT_MODE_ARTIFACTS = {
         "repair_candidates.json",
         "spec_patch.json",
         "spec_patch_preview.json",
+        "validation_context_preview.json",
         "repair_summary.json",
         "repair_summary.md",
         "acceptance.json",

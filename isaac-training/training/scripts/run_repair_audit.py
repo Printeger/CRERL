@@ -92,6 +92,7 @@ def main() -> int:
                 "repair_candidates_path": str(bundle_paths["repair_candidates_path"]),
                 "spec_patch_path": str(bundle_paths["spec_patch_path"]),
                 "spec_patch_preview_path": str(bundle_paths["spec_patch_preview_path"]),
+                "validation_context_preview_path": str(bundle_paths["validation_context_preview_path"]),
                 "repair_summary_path": str(bundle_paths["repair_summary_path"]),
                 "repair_summary_md_path": str(bundle_paths["repair_summary_md_path"]),
                 "acceptance_path": str(bundle_paths["acceptance_path"]),

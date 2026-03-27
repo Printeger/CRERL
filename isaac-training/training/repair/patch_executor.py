@@ -1,8 +1,9 @@
-"""Structured Phase 8 repair bundle writer and patch preview helpers."""
+"""Structured Phase 8 repair bundle writer and Phase 9 preview helpers."""
 
 from __future__ import annotations
 
 import json
+from copy import deepcopy
 from pathlib import Path
 from typing import Any, Dict, Mapping
 
@@ -15,8 +16,107 @@ from analyzers.report_contract import (
 )
 from repair.proposal_schema import RepairBundleSummary, RepairPlan
 
+try:
+    import yaml
+except Exception:  # pragma: no cover - environment fallback
+    class _YamlCompat:
+        @staticmethod
+        def _strip_comment(line: str) -> str:
+            in_quote = False
+            quote_char = ""
+            result = []
+            for ch in line:
+                if ch in {'"', "'"}:
+                    if not in_quote:
+                        in_quote = True
+                        quote_char = ch
+                    elif quote_char == ch:
+                        in_quote = False
+                if ch == "#" and not in_quote:
+                    break
+                result.append(ch)
+            return "".join(result).rstrip()
+
+        @staticmethod
+        def _parse_scalar(value: str):
+            if value.startswith(("'", '"')) and value.endswith(("'", '"')):
+                return value[1:-1]
+            lower = value.lower()
+            if lower == "true":
+                return True
+            if lower == "false":
+                return False
+            if lower in {"null", "none"}:
+                return None
+            try:
+                if "." in value:
+                    return float(value)
+                return int(value)
+            except ValueError:
+                return value
+
+        @classmethod
+        def _parse_block(cls, lines, start_idx, indent):
+            if start_idx >= len(lines):
+                return {}, start_idx
+
+            if lines[start_idx][1].startswith("- "):
+                items = []
+                idx = start_idx
+                while idx < len(lines):
+                    current_indent, current = lines[idx]
+                    if current_indent < indent or current_indent != indent or not current.startswith("- "):
+                        break
+                    value = current[2:].strip()
+                    idx += 1
+                    if value == "":
+                        child, idx = cls._parse_block(lines, idx, indent + 2)
+                        items.append(child)
+                    else:
+                        items.append(cls._parse_scalar(value))
+                return items, idx
+
+            mapping = {}
+            idx = start_idx
+            while idx < len(lines):
+                current_indent, current = lines[idx]
+                if current_indent < indent or current_indent != indent:
+                    break
+                key, sep, raw_value = current.partition(":")
+                if not sep:
+                    raise ValueError(f"Invalid YAML line: {current}")
+                key = key.strip()
+                value = raw_value.strip()
+                idx += 1
+                if value == "":
+                    if idx < len(lines) and lines[idx][0] > current_indent:
+                        child, idx = cls._parse_block(lines, idx, current_indent + 2)
+                        mapping[key] = child
+                    else:
+                        mapping[key] = {}
+                else:
+                    mapping[key] = cls._parse_scalar(value)
+            return mapping, idx
+
+        @classmethod
+        def safe_load(cls, text):
+            lines = []
+            for raw_line in text.splitlines():
+                stripped = cls._strip_comment(raw_line)
+                if not stripped.strip():
+                    continue
+                indent = len(stripped) - len(stripped.lstrip(" "))
+                lines.append((indent, stripped.lstrip(" ")))
+            if not lines:
+                return {}
+            parsed, _ = cls._parse_block(lines, 0, lines[0][0])
+            return parsed
+
+    yaml = _YamlCompat()
+
 
 REPAIR_NAMESPACE = DEFAULT_REPORT_NAMESPACES[REPAIR_GENERATION_MODE]
+REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
 def _build_repair_summary_payload(plan: RepairPlan, acceptance: Mapping[str, Any]) -> Dict[str, Any]:
@@ -110,6 +210,113 @@ def _build_patch_preview_payload(plan: RepairPlan) -> Dict[str, Any]:
     }
 
 
+def _resolve_target_file(target_file: str, *, repo_root: Path | None = None) -> Path:
+    path = Path(target_file)
+    if path.is_absolute():
+        return path
+    root = repo_root or REPO_ROOT
+    return (root / path).resolve()
+
+
+def _load_document(path: Path) -> tuple[Any, str]:
+    suffix = path.suffix.lower()
+    if suffix == ".json":
+        return json.loads(path.read_text(encoding="utf-8")), "json"
+    if suffix in {".yaml", ".yml"} and yaml is not None:
+        return yaml.safe_load(path.read_text(encoding="utf-8")), "yaml"
+    return path.read_text(encoding="utf-8"), "text"
+
+
+def _set_path_value(payload: Any, dotted_path: str, value: Any) -> Any:
+    if not dotted_path:
+        return payload
+    parts = dotted_path.split(".")
+    current = payload
+    for index, part in enumerate(parts[:-1]):
+        next_part = parts[index + 1]
+        if isinstance(current, list):
+            target_index = int(part)
+            while len(current) <= target_index:
+                current.append({} if not next_part.isdigit() else [])
+            if current[target_index] is None:
+                current[target_index] = {} if not next_part.isdigit() else []
+            current = current[target_index]
+            continue
+        if not isinstance(current, dict):
+            raise TypeError(f"Cannot set dotted path '{dotted_path}' on non-container value.")
+        if part not in current or current[part] is None:
+            current[part] = [] if next_part.isdigit() else {}
+        current = current[part]
+
+    leaf = parts[-1]
+    if isinstance(current, list):
+        target_index = int(leaf)
+        while len(current) <= target_index:
+            current.append(None)
+        current[target_index] = value
+    elif isinstance(current, dict):
+        current[leaf] = value
+    else:
+        raise TypeError(f"Cannot set dotted path '{dotted_path}' on non-container value.")
+    return payload
+
+
+def build_validation_context_preview(
+    plan: RepairPlan | Mapping[str, Any],
+    *,
+    validation_request: Mapping[str, Any] | None = None,
+    repo_root: str | Path | None = None,
+) -> Dict[str, Any]:
+    plan_payload = plan.to_dict() if isinstance(plan, RepairPlan) else dict(plan)
+    selected_patch = dict(plan_payload.get("selected_patch") or {})
+    operations = list(selected_patch.get("operations", []) or [])
+    grouped: Dict[str, list[Dict[str, Any]]] = {}
+    for operation in operations:
+        target_file = str(operation.get("target_file", ""))
+        grouped.setdefault(target_file, []).append(dict(operation))
+
+    root = Path(repo_root) if repo_root is not None else REPO_ROOT
+    file_previews = []
+    for target_file, file_operations in grouped.items():
+        resolved_path = _resolve_target_file(target_file, repo_root=root)
+        original_document, document_type = _load_document(resolved_path)
+        patched_document = deepcopy(original_document)
+        preview_operations = []
+        for item in file_operations:
+            _set_path_value(patched_document, str(item.get("target_path", "")), item.get("after"))
+            preview_operations.append(
+                {
+                    **dict(item),
+                    "would_change": item.get("before") != item.get("after"),
+                }
+            )
+        file_previews.append(
+            {
+                "target_file": target_file,
+                "resolved_target_file": str(resolved_path),
+                "document_type": document_type,
+                "operation_count": len(preview_operations),
+                "operations": preview_operations,
+                "original_document": original_document,
+                "patched_document": patched_document,
+            }
+        )
+
+    request_payload = dict(validation_request or {})
+    return {
+        "preview_type": "phase9_validation_context_preview.v1",
+        "preview_mode": "non_destructive_validation_context",
+        "source_mutation_performed": False,
+        "repair_bundle_name": str(request_payload.get("repair_bundle_name", "")),
+        "phase9_entrypoint": str(request_payload.get("phase9_entrypoint", "")),
+        "preferred_execution_modes": list(request_payload.get("preferred_execution_modes", []) or []),
+        "scene_family_scope": list(request_payload.get("scene_family_scope", []) or []),
+        "validation_targets": list(request_payload.get("validation_targets", []) or []),
+        "target_file_count": len(file_previews),
+        "file_previews": file_previews,
+    }
+
+
 def write_repair_bundle(
     plan: RepairPlan,
     acceptance: Mapping[str, Any],
@@ -128,6 +335,7 @@ def write_repair_bundle(
     repair_candidates_path = repair_path / "repair_candidates.json"
     spec_patch_path = repair_path / "spec_patch.json"
     spec_patch_preview_path = repair_path / "spec_patch_preview.json"
+    validation_context_preview_path = repair_path / "validation_context_preview.json"
     repair_summary_path = repair_path / "repair_summary.json"
     repair_summary_md_path = repair_path / "repair_summary.md"
     acceptance_path = repair_path / "acceptance.json"
@@ -146,6 +354,14 @@ def write_repair_bundle(
     )
     spec_patch_preview_path.write_text(
         json.dumps(_build_patch_preview_payload(plan), indent=2, sort_keys=True),
+        encoding="utf-8",
+    )
+    validation_context_preview_path.write_text(
+        json.dumps(
+            build_validation_context_preview(plan, validation_request=validation_request),
+            indent=2,
+            sort_keys=True,
+        ),
         encoding="utf-8",
     )
     repair_summary_payload = _build_repair_summary_payload(plan, acceptance)
@@ -170,6 +386,7 @@ def write_repair_bundle(
         "repair_candidates_path": repair_candidates_path.name,
         "spec_patch_path": spec_patch_path.name,
         "spec_patch_preview_path": spec_patch_preview_path.name,
+        "validation_context_preview_path": validation_context_preview_path.name,
         "repair_summary_path": repair_summary_path.name,
         "repair_summary_md_path": repair_summary_md_path.name,
         "acceptance_path": acceptance_path.name,
@@ -191,6 +408,7 @@ def write_repair_bundle(
         "repair_candidates_path": repair_candidates_path,
         "spec_patch_path": spec_patch_path,
         "spec_patch_preview_path": spec_patch_preview_path,
+        "validation_context_preview_path": validation_context_preview_path,
         "repair_summary_path": repair_summary_path,
         "repair_summary_md_path": repair_summary_md_path,
         "acceptance_path": acceptance_path,
@@ -261,6 +479,7 @@ def run_repair_bundle_write(
 
 __all__ = [
     "REPAIR_NAMESPACE",
+    "build_validation_context_preview",
     "run_repair_bundle_write",
     "write_repair_bundle",
 ]

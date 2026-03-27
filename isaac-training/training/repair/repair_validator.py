@@ -63,6 +63,27 @@ def _stable_unique(values: Sequence[Any]) -> List[str]:
     return items
 
 
+def _infer_execution_modes(source_report_bundle: str) -> List[str]:
+    lowered = str(source_report_bundle).lower()
+    if "baseline" in lowered:
+        return ["baseline"]
+    if "eval" in lowered:
+        return ["eval"]
+    if "train" in lowered:
+        return ["train"]
+    return ["baseline", "eval"]
+
+
+def _infer_scene_family_scope(primary_claim_type: str) -> List[str]:
+    if primary_claim_type == "C-R":
+        return ["nominal", "boundary_critical"]
+    if primary_claim_type == "E-C":
+        return ["boundary_critical"]
+    if primary_claim_type == "E-R":
+        return ["nominal", "shifted"]
+    return ["nominal"]
+
+
 def validate_repair(
     plan: Mapping[str, Any],
     *,
@@ -241,6 +262,9 @@ def build_phase9_validation_request(
         "selected_target_component": str((selected_candidate or {}).get("target_component", "")),
         "selected_target_files": target_files,
         "selected_target_paths": target_paths,
+        "preferred_execution_modes": _infer_execution_modes(str(plan.get("source_report_bundle", ""))),
+        "scene_family_scope": _infer_scene_family_scope(str(plan.get("primary_claim_type", ""))),
+        "comparison_mode": "pre_post_targeted_rerun.v1",
         "validation_targets": list(plan.get("validation_targets", []) or []),
         "expected_metric_direction": list((selected_candidate or {}).get("expected_metric_direction", []) or []),
         "evidence_refs": list((selected_candidate or {}).get("evidence_refs", []) or []),

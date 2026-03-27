@@ -139,6 +139,10 @@ def _max_severity(ranked_findings: Sequence[RankedFinding]) -> str:
 def _build_human_summary_markdown(report: UnifiedReport) -> str:
     root = dict(report.root_cause_summary or {})
     top_finding = (report.ranked_findings or [{}])[0] if report.ranked_findings else {}
+    claim_ordering = list(root.get("claim_type_ordering", []) or [])
+    conflicts = list(root.get("conflicts", []) or [])
+    repair_order = list((report.repair_handoff or {}).get("repair_order", []) or [])
+    selected_claims = list((report.repair_handoff or {}).get("selected_claims", []) or [])
     lines = [
         "# Unified CRE Report Summary",
         "",
@@ -152,6 +156,8 @@ def _build_human_summary_markdown(report: UnifiedReport) -> str:
         f"- Claim type: `{root.get('primary_claim_type', '')}`",
         f"- Summary: {root.get('primary_summary', '')}",
         f"- Support status: `{root.get('primary_support_status', '')}`",
+        f"- Selection mode: `{root.get('selection_mode', '')}`",
+        f"- Why selected: {root.get('selection_reason', '')}",
         "",
         "## Strongest Evidence",
         "",
@@ -160,11 +166,71 @@ def _build_human_summary_markdown(report: UnifiedReport) -> str:
         f"- Confidence: `{top_finding.get('confidence', 0.0)}`",
         f"- Summary: {top_finding.get('summary', '')}",
         "",
-        "## Next Repair Direction",
+        "## Root-Cause Ordering",
         "",
-        f"- Direction: `{(report.repair_handoff.get('primary_repair_direction', '') if report.repair_handoff else '')}`",
-        f"- Impacted components: `{', '.join(report.repair_handoff.get('impacted_components_union', [])) if report.repair_handoff else ''}`",
     ]
+    if claim_ordering:
+        for index, item in enumerate(claim_ordering, start=1):
+            lines.append(
+                f"{index}. `{item.get('claim_type', '')}`"
+                f" score=`{item.get('aggregate_score', 0.0)}`"
+                f" findings=`{item.get('finding_count', 0)}`"
+            )
+    else:
+        lines.append("- No claim ordering available.")
+
+    lines.extend(
+        [
+            "",
+            "## Cross-Source Conflicts",
+            "",
+        ]
+    )
+    if conflicts:
+        for item in conflicts:
+            lines.append(
+                f"- `{item.get('kind', '')}`:"
+                f" `{item.get('left_namespace', '')}` -> `{item.get('left_claim_type', '')}`,"
+                f" `{item.get('right_namespace', '')}` -> `{item.get('right_claim_type', '')}`"
+            )
+    else:
+        lines.append("- No cross-source claim-type conflicts detected.")
+
+    lines.extend(
+        [
+            "",
+            "## Next Repair Direction",
+            "",
+        ]
+    )
+    lines.extend(
+        [
+            f"- Direction: `{(report.repair_handoff.get('primary_repair_direction', '') if report.repair_handoff else '')}`",
+            f"- Impacted components: `{', '.join(report.repair_handoff.get('impacted_components_union', [])) if report.repair_handoff else ''}`",
+            f"- Selected claims: `{len(selected_claims)}`",
+            "",
+            "## Repair Order",
+            "",
+        ]
+    )
+    if repair_order:
+        for item in repair_order:
+            matching = next(
+                (record for record in selected_claims if record.get("handoff_id") == item.get("handoff_id")),
+                {},
+            )
+            lines.append(
+                f"{item.get('order', 0)}. [{item.get('claim_type', '')}]"
+                f" `{item.get('suggested_repair_direction', '')}`"
+                f" from `{item.get('selected_from', '')}`"
+                f" via `{item.get('selection_basis', '')}`"
+            )
+            lines.append(f"   Summary: {matching.get('summary', '')}")
+            lines.append(
+                f"   Evidence refs: {', '.join(matching.get('required_evidence_refs', []) or []) or '(none)'}"
+            )
+    else:
+        lines.append("- No repair ordering available.")
     return "\n".join(lines).strip() + "\n"
 
 

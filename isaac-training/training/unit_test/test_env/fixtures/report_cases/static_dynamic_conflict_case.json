@@ -1,0 +1,191 @@
+{
+  "static": {
+    "manifest.json": {
+      "bundle_name": "static_dynamic_conflict_static",
+      "report_mode": "static_audit"
+    },
+    "static_report.json": {
+      "report_type": "static_analyzer_report.v1",
+      "spec_version": "v0",
+      "passed": false,
+      "max_severity": "warning",
+      "num_findings": 1,
+      "findings": [
+        {
+          "finding_id": "static:sd:1",
+          "check_id": "scene_family_coverage",
+          "severity": "warning",
+          "summary": "Shifted family coverage is weaker than intended.",
+          "passed": false,
+          "details": {},
+          "affected_paths": [
+            "cfg/env_cfg/scene_cfg_shifted.yaml"
+          ],
+          "recommended_action": "Increase shifted-family coverage."
+        }
+      ],
+      "metadata": {},
+      "scene_family_set": [
+        "nominal",
+        "shifted"
+      ]
+    },
+    "summary.json": {
+      "report_type": "static_analyzer_report.v1",
+      "spec_version": "v0",
+      "passed": false,
+      "max_severity": "warning",
+      "num_findings": 1
+    }
+  },
+  "dynamic": {
+    "manifest.json": {
+      "bundle_name": "static_dynamic_conflict_dynamic",
+      "report_mode": "dynamic_analysis"
+    },
+    "dynamic_report.json": {
+      "report_type": "dynamic_analyzer_report.v1",
+      "spec_version": "v0",
+      "passed": false,
+      "max_severity": "high",
+      "num_findings": 1,
+      "primary_run_ids": [
+        "nominal_run_sd_001"
+      ],
+      "comparison_run_ids": [
+        "shifted_run_sd_001"
+      ],
+      "witnesses": [
+        {
+          "witness_id": "W_CR",
+          "severity": "high",
+          "score": 0.88,
+          "summary": "High reward-constraint coupling around safety boundaries.",
+          "metrics": [],
+          "details": {}
+        }
+      ],
+      "findings": [
+        {
+          "finding_id": "dynamic:sd:1",
+          "witness_id": "W_CR",
+          "severity": "high",
+          "summary": "Strong reward-constraint coupling detected.",
+          "score": 0.88,
+          "details": {},
+          "evidence_refs": [
+            "nominal_run_sd_001",
+            "shifted_run_sd_001"
+          ]
+        }
+      ],
+      "group_summaries": {
+        "by_source": {
+          "eval": {
+            "run_count": 1
+          }
+        }
+      },
+      "failure_summaries": {
+        "by_scenario_type": {
+          "shifted": {
+            "failure_pressure": 0.48
+          }
+        }
+      },
+      "static_context": {
+        "bundle_name": "static_dynamic_conflict_static"
+      },
+      "semantic_inputs": {},
+      "metadata": {}
+    },
+    "summary.json": {
+      "report_type": "dynamic_analyzer_report.v1",
+      "passed": false,
+      "max_severity": "high",
+      "num_findings": 1
+    }
+  },
+  "semantic": {
+    "manifest.json": {
+      "bundle_name": "static_dynamic_conflict_semantic",
+      "report_mode": "semantic_analysis"
+    },
+    "semantic_report.json": {
+      "report_type": "semantic_analyzer_report.v1",
+      "spec_version": "v0",
+      "passed": true,
+      "max_severity": "info",
+      "num_findings": 0,
+      "supported_claims": [],
+      "weak_claims": [],
+      "rejected_claims": [],
+      "cross_checks": [],
+      "human_summary": {
+        "most_likely_claim_type": "",
+        "most_likely_claim_summary": "",
+        "next_check_or_repair_direction": ""
+      },
+      "semantic_input": {},
+      "metadata": {},
+      "static_bundle_name": "static_dynamic_conflict_static",
+      "dynamic_bundle_name": "static_dynamic_conflict_dynamic"
+    },
+    "claim_consumer.json": {
+      "consumer_type": "phase7_claim_consumer.v1",
+      "static_bundle_name": "static_dynamic_conflict_static",
+      "dynamic_bundle_name": "static_dynamic_conflict_dynamic",
+      "semantic_bundle_name": "static_dynamic_conflict_semantic",
+      "primary_claim_type": "",
+      "repair_ready_claims": [],
+      "review_claims": [],
+      "rejected_claims": [],
+      "crosscheck_summary": {
+        "total_cross_checks": 0,
+        "supported_count": 0,
+        "weak_count": 0,
+        "rejected_count": 0,
+        "claim_type_breakdown": {}
+      },
+      "metadata": {
+        "consumer_contract_type": "phase7_claim_consumer_contract.v1"
+      }
+    },
+    "semantic_merge_input.json": {
+      "merge_input_type": "phase7_semantic_report_merge_input.v1",
+      "spec_version": "v0",
+      "passed": true,
+      "static_bundle_name": "static_dynamic_conflict_static",
+      "dynamic_bundle_name": "static_dynamic_conflict_dynamic",
+      "semantic_bundle_name": "static_dynamic_conflict_semantic",
+      "top_claim": {},
+      "claim_overview": {
+        "supported_count": 0,
+        "weak_count": 0,
+        "rejected_count": 0,
+        "claim_type_breakdown": {}
+      },
+      "evidence_overview": {
+        "static_finding_count": 1,
+        "dynamic_finding_count": 1,
+        "witness_count": 1,
+        "evidence_object_count": 0,
+        "failure_hotspot_count": 0
+      },
+      "human_summary": {
+        "most_likely_claim_type": "",
+        "most_likely_claim_summary": ""
+      }
+    },
+    "summary.json": {
+      "report_type": "semantic_analyzer_report.v1",
+      "passed": true,
+      "max_severity": "info",
+      "num_findings": 0,
+      "primary_claim_type": "",
+      "supported_claims": 0,
+      "weak_claims": 0,
+      "rejected_claims": 0
+    }
+  }
+}

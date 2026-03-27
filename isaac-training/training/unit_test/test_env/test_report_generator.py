@@ -304,8 +304,10 @@ def test_run_report_generation_builds_repair_handoff(tmp_path):
     assert report.repair_handoff
     assert report.repair_handoff["handoff_type"] == "phase8_repair_handoff.v1"
     assert report.repair_handoff["claim_record_schema"] == "phase7_repair_ready_claim.v1"
-    assert report.repair_handoff["selection_policy"] == "phase7_ranked_claim_selection.v2"
+    assert report.repair_handoff["selection_policy"] == "phase7_ranked_claim_selection.v3"
     assert report.repair_handoff["selected_claims"]
+    assert report.repair_handoff["repair_order"]
+    assert report.repair_handoff["selection_summary"]["selected_claim_count"] >= 1
     first = report.repair_handoff["selected_claims"][0]
     assert first["claim_type"] in {"C-R", "E-C", "E-R"}
     assert first["suggested_repair_direction"] in {"reward", "environment", "constraint", "mixed"}
@@ -382,3 +384,57 @@ def test_root_cause_can_prefer_supported_semantic_claim_over_static_warning(tmp_
     assert report.root_cause_summary["primary_claim_type"] == "E-R"
     assert report.repair_handoff["primary_repair_direction"] == "mixed"
     assert report.repair_handoff["selected_claims"][0]["claim_type"] == "E-R"
+
+
+def test_root_cause_can_surface_static_dynamic_conflict(tmp_path):
+    static_bundle, dynamic_bundle, semantic_bundle = _materialize_report_case(
+        tmp_path,
+        "static_dynamic_conflict_case.json",
+    )
+    report = run_report_generation(
+        static_bundle_dir=static_bundle,
+        dynamic_bundle_dir=dynamic_bundle,
+        semantic_bundle_dir=semantic_bundle,
+    )
+
+    assert report.root_cause_summary["primary_claim_type"] == "C-R"
+    conflict_kinds = {item["kind"] for item in report.root_cause_summary["conflicts"]}
+    assert "static_dynamic_claim_type_conflict" in conflict_kinds
+    assert report.repair_handoff["primary_repair_direction"] == "reward"
+
+
+def test_root_cause_can_surface_dynamic_semantic_conflict(tmp_path):
+    static_bundle, dynamic_bundle, semantic_bundle = _materialize_report_case(
+        tmp_path,
+        "dynamic_semantic_conflict_case.json",
+    )
+    report = run_report_generation(
+        static_bundle_dir=static_bundle,
+        dynamic_bundle_dir=dynamic_bundle,
+        semantic_bundle_dir=semantic_bundle,
+    )
+
+    assert report.root_cause_summary["primary_claim_type"] == "C-R"
+    conflict_kinds = {item["kind"] for item in report.root_cause_summary["conflicts"]}
+    assert "dynamic_semantic_claim_type_conflict" in conflict_kinds
+    assert report.repair_handoff["selected_claims"][0]["claim_type"] == "C-R"
+
+
+def test_report_summary_contains_ordering_conflicts_and_repair_order(tmp_path):
+    static_bundle, dynamic_bundle, semantic_bundle = _materialize_report_case(
+        tmp_path,
+        "dynamic_semantic_conflict_case.json",
+    )
+    _, bundle_paths = run_report_generation_bundle(
+        static_bundle_dir=static_bundle,
+        dynamic_bundle_dir=dynamic_bundle,
+        semantic_bundle_dir=semantic_bundle,
+        reports_root=tmp_path,
+        bundle_name="report_summary_fixture",
+    )
+
+    summary_text = bundle_paths["report_summary_path"].read_text(encoding="utf-8")
+    assert "## Root-Cause Ordering" in summary_text
+    assert "## Cross-Source Conflicts" in summary_text
+    assert "## Repair Order" in summary_text
+    assert "dynamic_semantic_claim_type_conflict" in summary_text

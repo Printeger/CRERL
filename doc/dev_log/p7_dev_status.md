@@ -9,9 +9,10 @@ This iteration continues Phase 7 after the first working report generator.
 The concrete goal of this step is to tighten three things without changing the
 overall evidence-first architecture:
 
-- tighten ranking and root-cause ordering rules
-- stabilize `repair_handoff.json` into a clearer Phase 8-facing contract
-- add synthetic merge fixtures for static-vs-semantic conflict cases
+- tighten ranking and root-cause ordering rules again
+- stabilize `repair_handoff.json` into a clearer and more selective Phase 8-facing contract
+- add more mixed-source conflict fixtures, not just static-vs-semantic
+- improve `report_summary.md` readability and repair ordering
 
 ## 2. Implemented Results
 
@@ -204,6 +205,64 @@ These cases now exercise:
 This gives Phase 7 much better regression protection around root-cause
 selection and repair-handoff derivation.
 
+### 2.11 More Mixed-Source Conflict Fixtures Were Added
+
+This iteration expands the synthetic report-level fixture set beyond
+static-vs-semantic disagreement.
+
+Two additional cases were added under:
+
+- `isaac-training/training/unit_test/test_env/fixtures/report_cases/`
+
+New mixed-source cases:
+
+- `static_dynamic_conflict_case.json`
+- `dynamic_semantic_conflict_case.json`
+
+These new fixtures exercise:
+
+- a `static` warning conflicting with a stronger `dynamic` `C-R` signal
+- a `dynamic` `C-R` machine-evidence signal conflicting with a supported
+  semantic `E-R` diagnosis
+
+This makes Phase 7 more robust when `dynamic` evidence is the strongest source
+of contradiction, not only when the disagreement is between `static` and
+`semantic`.
+
+### 2.12 Repair Handoff Selection Was Tightened Again
+
+`isaac-training/training/analyzers/report_merge.py` was extended so
+`repair_handoff.json` is no longer just a lightly structured list with a
+primary claim tag.
+
+The selection logic now:
+
+- prefers the chosen primary claim type when ordering handoff claims
+- reduces duplicate weak claims when stronger overlapping evidence already exists
+- produces explicit `repair_order`
+- produces `selection_summary`
+- records the new selection policy:
+  - `phase7_ranked_claim_selection.v3`
+
+The handoff bundle still preserves the Phase 8-facing evidence-first contract,
+but is now easier for downstream repair logic to consume deterministically.
+
+### 2.13 `report_summary.md` Was Made More Actionable
+
+The human-readable Phase 7 summary is no longer just a short header plus one
+repair direction line.
+
+It now includes:
+
+- `selection_mode`
+- `selection_reason`
+- ordered claim-type scoring
+- cross-source conflict listing
+- explicit `Repair Order`
+
+This gives engineers and future repair modules a clearer bridge from evidence
+ranking to the next suggested action.
+
 ## 3. Main Files Added or Changed
 
 Code:
@@ -217,6 +276,8 @@ Code:
 - `isaac-training/training/unit_test/test_env/test_report_generator.py`
 - `isaac-training/training/unit_test/test_env/fixtures/report_cases/static_semantic_conflict_case.json`
 - `isaac-training/training/unit_test/test_env/fixtures/report_cases/semantic_supported_over_static_warning_case.json`
+- `isaac-training/training/unit_test/test_env/fixtures/report_cases/static_dynamic_conflict_case.json`
+- `isaac-training/training/unit_test/test_env/fixtures/report_cases/dynamic_semantic_conflict_case.json`
 
 Documentation / state:
 
@@ -266,15 +327,15 @@ python3 isaac-training/training/scripts/run_report_audit.py \
   --static-bundle-dir /tmp/crerl_phase5_round2_reports/analysis/static/static_audit_phase5_round2 \
   --dynamic-bundle-dir /tmp/crerl_phase5_round4_reports/analysis/dynamic/dynamic_eval_nominal_vs_shifted \
   --semantic-bundle-dir /tmp/crerl_phase6_reports_round2/analysis/semantic/semantic_eval_nominal_vs_shifted_round2 \
-  --reports-root /tmp/crerl_phase7_reports \
-  --bundle-name report_eval_nominal_vs_shifted \
-  --output /tmp/crerl_phase7_reports/report_copy.json
+  --reports-root /tmp/crerl_phase7_reports_round3 \
+  --bundle-name report_eval_nominal_vs_shifted_round3 \
+  --output /tmp/crerl_phase7_reports_round3/report_copy.json
 ```
 
 Expected result:
 
 - a report bundle is written under:
-  - `analysis/report/report_eval_nominal_vs_shifted/`
+  - `analysis/report/report_eval_nominal_vs_shifted_round3/`
 - the bundle contains:
   - `report.json`
   - `ranked_findings.json`
@@ -284,6 +345,7 @@ Expected result:
   - `primary_claim_type`
   - `repair_ready_claims`
   - `max_severity`
+  - `report_summary_path`
 
 ## 5. Validation Results
 
@@ -291,7 +353,7 @@ Validated in this iteration:
 
 - `python3 -m py_compile ...` passed
 - `pytest -q test_report_generator.py` passed:
-  - `5 passed`
+  - `8 passed`
 - the real bundle CLI smoke test passed
 
 Observed smoke-test output:
@@ -301,8 +363,10 @@ Observed smoke-test output:
 - `num_ranked_findings = 13`
 - `primary_claim_type = C-R`
 - `repair_ready_claims = 6`
+- `selection_policy = phase7_ranked_claim_selection.v3`
+- `selection_focus_order = [C-R, E-C, E-R]`
 
-The new synthetic fixture expectations also passed:
+The expanded synthetic fixture expectations also passed:
 
 - static blocker vs semantic conflict:
   - `primary_claim_type = C-R`
@@ -310,20 +374,29 @@ The new synthetic fixture expectations also passed:
 - semantic supported vs static warning:
   - `primary_claim_type = E-R`
   - `primary_repair_direction = mixed`
+- static warning vs dynamic `C-R` conflict:
+  - `primary_claim_type = C-R`
+  - `static_dynamic_claim_type_conflict` present
+- dynamic `C-R` vs semantic `E-R` conflict:
+  - `primary_claim_type = C-R`
+  - `dynamic_semantic_claim_type_conflict` present
+
+The real human-readable summary now also confirms:
+
+- `Root-Cause Ordering` section present
+- `Cross-Source Conflicts` section present
+- `Repair Order` section present
 
 This confirms the first Phase 7 report path can already merge real Phase 4-6
-artifacts into one namespaced report bundle.
+artifacts into one namespaced report bundle, and that the report is becoming
+repair-facing rather than just evidence-aggregating.
 
 ## 6. What Should Be Done Next
 
-The next Phase 7 step should focus on report usability and Phase 8 handoff
-quality:
+The next useful step is to close Phase 7 and move into Phase 8 repair
+selection:
 
-- add more mixed-source conflict fixtures beyond static-vs-semantic
-- improve ranked-finding explanations in `report_summary.md`
-- tighten selection of repair-ready claims when multiple namespaces agree on
-  the same claim type
-
-After that, the repo should be ready to begin Phase 8 repair selection on top
-of the unified report bundle rather than on top of three separate analyzer
-outputs.
+- keep the new `repair_handoff.json` as the canonical repair-facing input
+- add claim-selection validation around explicit spec deltas
+- start generating repair candidates from the ordered Phase 7 handoff rather
+  than from raw static/dynamic/semantic bundles

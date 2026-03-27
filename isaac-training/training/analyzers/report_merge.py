@@ -159,7 +159,9 @@ class RepairHandoffBundle:
     selection_policy: str
     impacted_components_union: List[str] = field(default_factory=list)
     selected_claims: List[RepairReadyRecord] = field(default_factory=list)
+    repair_order: List[Dict[str, Any]] = field(default_factory=list)
     required_evidence_contract: Dict[str, Any] = field(default_factory=dict)
+    selection_summary: Dict[str, Any] = field(default_factory=dict)
     metadata: Dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -184,6 +186,34 @@ def _rank_score(
         + 0.05 * min(max(int(evidence_count), 0), 4) / 4.0,
         6,
     )
+
+
+def _pairwise_top_conflicts(top_by_namespace: Mapping[str, Mapping[str, Any]]) -> List[Dict[str, Any]]:
+    conflicts: List[Dict[str, Any]] = []
+    namespace_pairs = (
+        ("analysis/static", "analysis/dynamic", "static_dynamic_claim_type_conflict"),
+        ("analysis/static", "analysis/semantic", "static_semantic_claim_type_conflict"),
+        ("analysis/dynamic", "analysis/semantic", "dynamic_semantic_claim_type_conflict"),
+    )
+    for left_namespace, right_namespace, kind in namespace_pairs:
+        left = top_by_namespace.get(left_namespace)
+        right = top_by_namespace.get(right_namespace)
+        if not left or not right:
+            continue
+        if left.get("claim_type") == right.get("claim_type"):
+            continue
+        conflicts.append(
+            {
+                "kind": kind,
+                "left_namespace": left_namespace,
+                "right_namespace": right_namespace,
+                "left_claim_type": left.get("claim_type", ""),
+                "right_claim_type": right.get("claim_type", ""),
+                "left_support_status": left.get("support_status", ""),
+                "right_support_status": right.get("support_status", ""),
+            }
+        )
+    return conflicts
 
 
 def normalize_static_findings(static_report: Mapping[str, Any]) -> List[RankedFinding]:
@@ -377,17 +407,20 @@ def build_root_cause_summary(ranked_findings: Sequence[RankedFinding]) -> Dict[s
             top_finding,
         )
 
-    conflicts: List[Dict[str, Any]] = []
-    static_top = top_by_namespace.get("analysis/static")
-    semantic_top = top_by_namespace.get("analysis/semantic")
-    if static_top and semantic_top and static_top.get("claim_type") != semantic_top.get("claim_type"):
-        conflicts.append(
-            {
-                "kind": "static_semantic_claim_type_conflict",
-                "static_claim_type": static_top.get("claim_type", ""),
-                "semantic_claim_type": semantic_top.get("claim_type", ""),
-            }
+    claim_type_ordering = [
+        {
+            "claim_type": claim_type,
+            "aggregate_score": claim_type_scores[claim_type],
+            "finding_count": claim_type_breakdown.get(claim_type, 0),
+        }
+        for claim_type in sorted(
+            claim_type_scores,
+            key=lambda key: (claim_type_scores[key], claim_type_breakdown.get(key, 0), key),
+            reverse=True,
         )
+    ]
+
+    conflicts = _pairwise_top_conflicts(top_by_namespace)
 
     selection_reason = ""
     if primary_finding is not None:
@@ -408,6 +441,7 @@ def build_root_cause_summary(ranked_findings: Sequence[RankedFinding]) -> Dict[s
         "claim_type_breakdown": dict(sorted(claim_type_breakdown.items())),
         "source_breakdown": dict(sorted(source_breakdown.items())),
         "claim_type_scores": dict(sorted(claim_type_scores.items())),
+        "claim_type_ordering": claim_type_ordering,
         "top_by_namespace": top_by_namespace,
         "conflicts": conflicts,
         "selection_mode": selection_mode,
@@ -428,6 +462,28 @@ def build_repair_handoff(
         ranked_findings[0].claim_type if ranked_findings else ""
     )
     primary_repair_direction = CLAIM_TYPE_TO_REPAIR_DIRECTION.get(primary_claim_type, "")
+    selected_by_claim_type: Dict[str, List[RepairReadyRecord]] = {}
+
+    def _register(record: RepairReadyRecord) -> None:
+        selected_claims.append(record)
+        selected_by_claim_type.setdefault(record.claim_type, []).append(record)
+
+    def _has_overlapping_selected(
+        claim_type: str,
+        evidence_refs: Sequence[str],
+        *,
+        stronger_only: bool = True,
+    ) -> bool:
+        existing = selected_by_claim_type.get(claim_type, [])
+        if not existing:
+            return False
+        evidence_set = set(_stable_unique(evidence_refs))
+        for record in existing:
+            if stronger_only and SUPPORT_PRIORITY.get(record.support_status, 0.0) < SUPPORT_PRIORITY.get("semantic_supported", 0.75):
+                continue
+            if evidence_set and evidence_set.intersection(record.required_evidence_refs):
+                return True
+        return False
 
     for entry in claim_consumer.get("repair_ready_claims", []) or []:
         source_record_id = str(entry.get("claim_id", ""))
@@ -437,7 +493,7 @@ def build_repair_handoff(
         claim_type = str(entry.get("claim_type", "unknown"))
         impacted_components = list(entry.get("impacted_components", []) or CLAIM_TYPE_TO_COMPONENTS.get(claim_type, ()))
         impacted_components_union.update(impacted_components)
-        selected_claims.append(
+        _register(
             RepairReadyRecord(
                 handoff_id=f"repair_handoff:{source_record_id}",
                 claim_type=claim_type,
@@ -469,8 +525,15 @@ def build_repair_handoff(
             continue
         if finding.claim_type == "unknown":
             continue
+        if finding.support_status == "semantic_weak" and (
+            selected_by_claim_type.get(finding.claim_type)
+            or _has_overlapping_selected(finding.claim_type, finding.evidence_refs, stronger_only=False)
+        ):
+            continue
+        if _has_overlapping_selected(finding.claim_type, finding.evidence_refs):
+            continue
         impacted_components_union.update(finding.impacted_components)
-        selected_claims.append(
+        _register(
             RepairReadyRecord(
                 handoff_id=f"repair_handoff:{finding.source_record_id}",
                 claim_type=finding.claim_type,
@@ -488,16 +551,41 @@ def build_repair_handoff(
             )
         )
         seen_source_records.add(finding.source_record_id)
-        if len(selected_claims) >= 6:
-            break
+    selected_claims = sorted(
+        selected_claims,
+        key=lambda item: (
+            1 if item.claim_type == primary_claim_type else 0,
+            SUPPORT_PRIORITY.get(item.support_status, 0.0),
+            _severity_rank(item.severity),
+            item.confidence,
+            -item.selected_from_rank if item.selected_from_rank > 0 else -9999,
+            item.handoff_id,
+        ),
+        reverse=True,
+    )[:6]
+    selection_focus_order = _stable_unique(
+        [primary_claim_type, *[item.claim_type for item in selected_claims if item.claim_type != primary_claim_type]]
+    )
+    repair_order = [
+        {
+            "order": index,
+            "handoff_id": item.handoff_id,
+            "claim_type": item.claim_type,
+            "selected_from": item.selected_from,
+            "suggested_repair_direction": item.suggested_repair_direction,
+            "selection_basis": item.selection_basis,
+        }
+        for index, item in enumerate(selected_claims, start=1)
+    ]
     return RepairHandoffBundle(
         handoff_type="phase8_repair_handoff.v1",
         primary_claim_type=primary_claim_type,
         primary_repair_direction=primary_repair_direction,
         claim_record_schema="phase7_repair_ready_claim.v1",
-        selection_policy="phase7_ranked_claim_selection.v2",
+        selection_policy="phase7_ranked_claim_selection.v3",
         impacted_components_union=sorted(impacted_components_union),
         selected_claims=selected_claims,
+        repair_order=repair_order,
         required_evidence_contract={
             "required_claim_fields": [
                 "claim_type",
@@ -512,6 +600,11 @@ def build_repair_handoff(
                 "semantic_supported",
                 "semantic_weak",
             ],
+        },
+        selection_summary={
+            "primary_claim_type": primary_claim_type,
+            "selection_focus_order": selection_focus_order,
+            "selected_claim_count": len(selected_claims),
         },
         metadata={
             "phase8_ready": True,

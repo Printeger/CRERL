@@ -50,21 +50,19 @@ This keeps the workflow inside the current repo and avoids touching files outsid
 ## Latest Staged Change Summary
 
 <!-- TRACEABILITY:BEGIN -->
-_Updated: `2026-03-27T10:58:43`_
+_Updated: `2026-03-27T11:18:25`_
 
 - Scope: `/home/mint/rl_dev/CRERL`
 - Branch: `main`
 - Source: `staged diff`
-- Impacted phases: `Phase 4, Phase 7`
-- Diff stat: 9 files changed, 897 insertions(+), 60 deletions(-)
+- Impacted phases: `Phase 7`
+- Diff stat: 7 files changed, 771 insertions(+), 46 deletions(-)
 
 ### Changed Files
 - `M` [doc/dev_log/p7_dev_status.md](doc/dev_log/p7_dev_status.md) [Project Docs]
-- `M` [isaac-training/training/analyzers/__init__.py](isaac-training/training/analyzers/__init__.py) [Analyzers]
 - `M` [isaac-training/training/analyzers/report_generator.py](isaac-training/training/analyzers/report_generator.py) [Analyzers]
 - `M` [isaac-training/training/analyzers/report_merge.py](isaac-training/training/analyzers/report_merge.py) [Analyzers]
-- `M` [isaac-training/training/scripts/run_report_audit.py](isaac-training/training/scripts/run_report_audit.py) [Training Pipeline]
-- `A` [isaac-training/training/unit_test/test_env/fixtures/report_cases/semantic_supported_over_static_warning_case.json](isaac-training/training/unit_test/test_env/fixtures/report_cases/semantic_supported_over_static_warning_case.json) [Training Tests]
-- `A` [isaac-training/training/unit_test/test_env/fixtures/report_cases/static_semantic_conflict_case.json](isaac-training/training/unit_test/test_env/fixtures/report_cases/static_semantic_conflict_case.json) [Training Tests]
+- `A` [isaac-training/training/unit_test/test_env/fixtures/report_cases/dynamic_semantic_conflict_case.json](isaac-training/training/unit_test/test_env/fixtures/report_cases/dynamic_semantic_conflict_case.json) [Training Tests]
+- `A` [isaac-training/training/unit_test/test_env/fixtures/report_cases/static_dynamic_conflict_case.json](isaac-training/training/unit_test/test_env/fixtures/report_cases/static_dynamic_conflict_case.json) [Training Tests]
 - `M` [isaac-training/training/unit_test/test_env/test_report_generator.py](isaac-training/training/unit_test/test_env/test_report_generator.py) [Training Tests]
 <!-- TRACEABILITY:END -->

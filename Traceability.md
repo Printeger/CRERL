@@ -50,19 +50,16 @@ This keeps the workflow inside the current repo and avoids touching files outsid
 ## Latest Staged Change Summary
 
 <!-- TRACEABILITY:BEGIN -->
-_Updated: `2026-03-27T17:42:00`_
+_Updated: `2026-03-27T17:51:58`_
 
 - Scope: `/home/mint/rl_dev/CRERL`
 - Branch: `main`
 - Source: `staged diff`
-- Impacted phases: `Phase 11, Phase 4, Phase 7`
-- Diff stat: 6 files changed, 398 insertions(+), 98 deletions(-)
+- Impacted phases: `Phase 0, Phase 11`
+- Diff stat: 4 files changed, 219 insertions(+), 124 deletions(-)
 
 ### Changed Files
 - `M` [doc/dev_log/p11_dev_status.md](doc/dev_log/p11_dev_status.md) [Project Docs]
-- `M` [isaac-training/training/analyzers/report_contract.py](isaac-training/training/analyzers/report_contract.py) [Analyzers]
-- `M` [isaac-training/training/cfg/spec_cfg/policy_spec_v0.yaml](isaac-training/training/cfg/spec_cfg/policy_spec_v0.yaml) [Specification Config]
-- `M` [isaac-training/training/pipeline/release_bundle.py](isaac-training/training/pipeline/release_bundle.py) [isaac-training]
-- `M` [isaac-training/training/scripts/run_release_packaging.py](isaac-training/training/scripts/run_release_packaging.py) [Training Pipeline]
-- `M` [isaac-training/training/unit_test/test_env/test_release_bundle.py](isaac-training/training/unit_test/test_env/test_release_bundle.py) [Training Tests]
+- `M` [doc/roadmap.md](doc/roadmap.md) [Project Docs]
+- `A` [doc/roadmap_closeout.md](doc/roadmap_closeout.md) [Project Docs]
 <!-- TRACEABILITY:END -->

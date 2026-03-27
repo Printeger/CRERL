@@ -325,25 +325,55 @@ If we optimize for momentum, the next concrete implementation order should be:
 ## Current project status under this roadmap
 
 ### Already available
-- spec drafts for environment and primitives
-- mainline scene backend in `env_gen.py`
-- nominal scene-family config
-- flight-test visualization harness
-- CRE runtime logger
-- baseline RL stack
-- unit tests for environment/logging substrate
-
-### Partially available
-- training-side CRE logging integration
-- family-based environment integration into RL training
-
-### Not yet available
+- versioned spec/config substrate for:
+  - `C`
+  - `R`
+  - `E`
+  - logs
+  - reports
+- authoritative scene-family backend with:
+  - `nominal`
+  - `boundary_critical`
+  - `shifted`
+- unified CRE runtime logging across:
+  - manual flight
+  - baseline
+  - eval
+  - train
+- non-RL baseline execution modes
 - static analyzer
 - dynamic analyzer
-- LLM analyzer
-- unified inconsistency report generator
+- semantic analyzer with evidence-first contract and optional provider path
+- unified report generator
 - repair engine
-- repair validation loop
+- repair-validation loop
+- native Phase 10 integration proof for:
+  - `baseline`
+  - `eval`
+  - `train`
+- Phase 11 benchmark bundle and release bundle packaging
+- benchmark/release close-out evidence showing:
+  - clean and injected benchmark cases are frozen
+  - release path supports clean-vs-injected end-to-end demo packaging
+  - default release flow does not require a live API key
+
+### Partially available
+- optional real-provider semantic demo path
+- publishable paper / technical report polish
+- release hardening beyond the current `CRE-v1` evidence-first packaging scope
+
+### Not part of the current roadmap baseline
+- mandatory cloud/provider dependency
+- deployment hardware integration as a required release path
+- brand-new witness paradigms beyond the current `C-R / E-C / E-R` stack
+
+### Formal status
+- `Phase 0` through `Phase 11` are now considered complete against the current roadmap definition
+- the roadmap is therefore complete as written
+- any next step should be treated as:
+  - roadmap extension
+  - release hardening
+  - or post-`CRE-v1` iteration planning
 
 ## One-sentence project rule
 

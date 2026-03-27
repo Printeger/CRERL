@@ -1,0 +1,512 @@
+<!DOCTYPE html><html><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;"><meta http-equiv="x-dns-prefetch-control" content="off"><script src="https://puc.poecdn.net/authenticated_preview_page/standard.3ef2c256959faf5a756d.js"></script>
+    <meta charset="utf-8">
+    <title>Poe</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+  <script src="https://puc.poecdn.net/authenticated_preview_page/disableWebRTC.9710cebe07429a9e8e06.js"></script><meta name="x-poe-allow-downloads" content="true"><meta name="x-poe-datastore-behavior" content="disabled"><script src="https://puc.poecdn.net/authenticated_preview_page/tw.b9024aecac666455e183.js"></script><script src="https://puc.poecdn.net/authenticated_preview_page/deps.faccd16000d314dc16d5.js"></script><script src="https://puc.poecdn.net/authenticated_preview_page/exports.b0f0f482cdeb5302b0b9.js"></script><script src="https://puc.poecdn.net/authenticated_preview_page/renderer.75c73ae6b4235f62945a.js"></script><script>Object.defineProperty(exports, "__esModule", {value: true}); function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }var _react = require('react'); var _react2 = _interopRequireDefault(_react);
+var _framermotion = require('framer-motion');
+var _lucidereact = require('lucide-react');
+
+const PAL = {
+  blue:    { b:'border-blue-400',    h:'bg-blue-500',    g:'bg-blue-50',    t:'text-blue-700'    },
+  purple:  { b:'border-purple-500',  h:'bg-purple-600',  g:'bg-purple-50',  t:'text-purple-700'  },
+  amber:   { b:'border-amber-400',   h:'bg-amber-500',   g:'bg-amber-50',   t:'text-amber-700'   },
+  green:   { b:'border-green-400',   h:'bg-green-600',   g:'bg-green-50',   t:'text-green-700'   },
+  red:     { b:'border-red-400',     h:'bg-red-500',     g:'bg-red-50',     t:'text-red-700'     },
+  orange:  { b:'border-orange-400',  h:'bg-orange-500',  g:'bg-orange-50',  t:'text-orange-700'  },
+  emerald: { b:'border-emerald-400', h:'bg-emerald-600', g:'bg-emerald-50', t:'text-emerald-700' },
+  rose:    { b:'border-rose-400',    h:'bg-rose-500',    g:'bg-rose-50',    t:'text-rose-700'    },
+  yellow:  { b:'border-yellow-400',  h:'bg-yellow-500',  g:'bg-yellow-50',  t:'text-yellow-700'  },
+};
+const pal = k => PAL[k] || PAL.blue;
+
+const phaseCls = {
+  blue:'bg-blue-100 text-blue-800 border-blue-300', purple:'bg-purple-100 text-purple-800 border-purple-300',
+  amber:'bg-amber-100 text-amber-800 border-amber-300', green:'bg-green-100 text-green-800 border-green-300',
+  red:'bg-red-100 text-red-800 border-red-300', orange:'bg-orange-100 text-orange-800 border-orange-300',
+  emerald:'bg-emerald-100 text-emerald-800 border-emerald-300', rose:'bg-rose-100 text-rose-800 border-rose-300',
+};
+
+const Arr = ({ label, dashed }) => (
+  _react2.default.createElement('div', { className: "flex flex-col items-center my-0.5"   ,}
+    , label && _react2.default.createElement('span', { className: "text-xs text-gray-400 bg-white border border-gray-200 rounded px-2 py-0.5 mb-0.5"        ,}, label)
+    , _react2.default.createElement('div', { className: `w-px h-5 ${dashed ? 'border-l-2 border-dashed border-gray-300' : 'bg-gray-400'}`,} )
+    , _react2.default.createElement('span', { className: "text-gray-400 text-xs leading-none"  ,}, "▼")
+  )
+);
+
+const Phase = ({ n, label, color = 'blue' }) => (
+  _react2.default.createElement('div', { className: `px-4 py-1 rounded-full border font-bold text-xs tracking-wide mt-5 mb-2 ${phaseCls[color] || phaseCls.blue}`,}
+    , n, " " , label
+  )
+);
+
+function FNode({ icon, title, sub, color = 'blue', items = [], badge }) {
+  const [open, setOpen] = _react.useState.call(void 0, false);
+  const c = pal(color);
+  return (
+    _react2.default.createElement(_framermotion.motion.div, { initial: { opacity: 0, y: 6 }, animate: { opacity: 1, y: 0 },
+      className: `w-80 max-w-full rounded-xl border-2 ${c.b} shadow overflow-hidden`,}
+      , _react2.default.createElement('button', { onClick: () => setOpen(v => !v),
+        className: `w-full ${c.h} px-3 py-2.5 flex items-center justify-between gap-2 text-left`,}
+        , _react2.default.createElement('div', { className: "flex items-center gap-2 min-w-0"   ,}
+          , _react2.default.createElement('span', { className: "text-base shrink-0" ,}, icon)
+          , _react2.default.createElement('div', { className: "min-w-0",}
+            , _react2.default.createElement('div', { className: "flex items-center gap-1.5"  ,}
+              , _react2.default.createElement('p', { className: "text-white font-bold text-xs"  ,}, title)
+              , badge && _react2.default.createElement('span', { className: "bg-yellow-300 text-yellow-900 text-xs font-bold px-1.5 rounded-full"     ,}, "★NEW")
+            )
+            , sub && _react2.default.createElement('p', { className: "text-white opacity-70 text-xs"  ,}, sub)
+          )
+        )
+        , items.length > 1 && _react2.default.createElement('span', { className: "text-white opacity-60 shrink-0"  ,}, open ? _react2.default.createElement(_lucidereact.ChevronUp, { size: 13,} ) : _react2.default.createElement(_lucidereact.ChevronDown, { size: 13,} ))
+      )
+      , _react2.default.createElement('div', { className: `${c.g} px-3`,}
+        , items[0] && (
+          _react2.default.createElement('div', { className: "pt-2 pb-1 flex gap-1.5"   ,}
+            , _react2.default.createElement('span', { className: "text-gray-300 text-xs mt-0.5 shrink-0"   ,}, "▸")
+            , _react2.default.createElement('p', { className: "text-xs text-gray-600 leading-relaxed"  ,}, items[0])
+          )
+        )
+        , _react2.default.createElement(_framermotion.AnimatePresence, { initial: false,}
+          , open && items.length > 1 && (
+            _react2.default.createElement(_framermotion.motion.div, { key: "rest", initial: { height: 0, opacity: 0 }, animate: { height: 'auto', opacity: 1 },
+              exit: { height: 0, opacity: 0 }, transition: { duration: 0.2 }, className: "overflow-hidden",}
+              , items.slice(1).map((d, i) => (
+                _react2.default.createElement('div', { key: i, className: "pb-1.5 flex gap-1.5"  ,}
+                  , _react2.default.createElement('span', { className: "text-gray-300 text-xs mt-0.5 shrink-0"   ,}, "▸")
+                  , _react2.default.createElement('p', { className: "text-xs text-gray-600 leading-relaxed"  ,}, d)
+                )
+              ))
+            )
+          )
+        )
+        , !open && items.length > 1 && _react2.default.createElement('p', { className: "text-xs text-gray-400 pb-2 italic"   ,}, "+", items.length - 1, " more details, click to expand…" )
+        , open && _react2.default.createElement('div', { className: "pb-1",} )
+      )
+    )
+  );
+}
+
+const IRBlock = () => (
+  _react2.default.createElement('div', { className: "w-80 max-w-full rounded-xl border-2 border-purple-400 bg-purple-50 overflow-hidden"      ,}
+    , _react2.default.createElement('div', { className: "bg-purple-600 px-3 py-2"  ,}
+      , _react2.default.createElement('p', { className: "text-white font-bold text-xs"  ,}, "📐 Intermediate Representation (IR)"   )
+      , _react2.default.createElement('p', { className: "text-white opacity-70 text-xs"  ,}, "Unified intermediate representation for the three components, supporting cross-component analysis and coordinated repair")
+    )
+    , _react2.default.createElement('div', { className: "p-2 grid grid-cols-3 gap-1.5"   ,}
+      , [
+        { icon: '📏', label: 'IR_Constraint', sub: 'Formal constraint set {cᵢ}', color: 'orange' },
+        { icon: '🎯', label: 'IR_Reward', sub: 'R(s,a,s′) function', color: 'rose', badge: true },
+        { icon: '🌐', label: 'IR_Env', sub: 'Geometry + sensor parameters', color: 'blue' },
+      ].map((it, i) => {
+        const c = pal(it.color);
+        return (
+          _react2.default.createElement('div', { key: i, className: `${c.g} border ${c.b} rounded-lg p-2 text-center relative`,}
+            , it.badge && _react2.default.createElement('span', { className: "absolute top-0.5 right-0.5 bg-yellow-400 text-yellow-900 text-xs font-bold px-1 rounded-full leading-none py-0.5"          ,}, "★")
+            , _react2.default.createElement('p', { className: "text-lg mb-0.5" ,}, it.icon)
+            , _react2.default.createElement('p', { className: `text-xs font-bold ${c.t} leading-tight`,}, it.label)
+            , _react2.default.createElement('p', { className: "text-xs text-gray-400 mt-0.5 leading-tight"   ,}, it.sub)
+          )
+        );
+      })
+    )
+    , _react2.default.createElement('p', { className: "text-xs text-gray-500 text-center pb-2"   ,}, "The three IRs flow in parallel into the three analyzers"  )
+  )
+);
+
+const AZ_DATA = [
+  { key: 's', icon: '⚙️', title: 'Static Analyzer', color: 'blue', sub: 'Formal static analysis · no simulation required',
+    items: ['Constraint satisfiability (UNSAT detection): use linear programming to verify whether the constraint set has a feasible solution', 'Mathematical structure analysis of the reward function: check convexity, boundedness, and Lipschitz continuity', 'Environmental geometric topology check: flood-fill connectivity and reachability verification', 'Identify hard conflicts: constraints cannot be satisfied simultaneously, or the reward function has unbounded extrema', 'Output: static report + severity grading (Critical / Warning / Info)'] },
+  { key: 'd', icon: '🔄', title: 'Dynamic Analyzer', color: 'amber', sub: 'Runtime trajectories & metric tracking',
+    items: ['Replay historical RL training trajectories to detect systematic reward-hacking patterns', 'Compute γ_EC: spatiotemporal overlap rate between moments of constraint violation and geometrically complex regions (target > 0.8)', 'Compute δ_ER: KL divergence between simulated and real-world LiDAR point clouds (target < 0.15)', 'Compute κ_CR: Spearman correlation between constraint-violation frequency and scene complexity (|κ| < 0.3)', 'Analyze long-range correlations between reward signals and constraint activations (reward-constraint alignment)'] },
+  { key: 'l', icon: '🤖', title: 'LLM Analyzer', color: 'purple', sub: 'Semantic consistency reasoning',
+    items: ['Read the three IRs: IR_Constraint + IR_Reward + IR_Environment', 'Infer whether the reward intent is aligned with the constraint semantics (reward misspecification detection)', 'Identify hidden conflicts where the reward function indirectly incentivizes violations', 'Generate natural-language explanations of inconsistencies and locate the root-cause component (C/R/E)', 'Output multiple candidate repair plans + priority ranking for the Repair Engine'] },
+];
+
+function AnalyzerPanel() {
+  const [sel, setSel] = _react.useState.call(void 0, null);
+  return (
+    _react2.default.createElement('div', { className: "w-80 max-w-full" ,}
+      , _react2.default.createElement('div', { className: "grid grid-cols-3 gap-1.5 mb-2"   ,}
+        , AZ_DATA.map(a => {
+          const c = pal(a.color), active = sel === a.key;
+          return (
+            _react2.default.createElement('button', { key: a.key, onClick: () => setSel(active ? null : a.key),
+              className: `rounded-xl border-2 p-2 text-center transition-all ${active ? `${c.b} ${c.g}` : 'border-gray-200 bg-white hover:bg-gray-50'}`,}
+              , _react2.default.createElement('p', { className: "text-xl",}, a.icon)
+              , _react2.default.createElement('p', { className: `text-xs font-bold leading-tight ${active ? c.t : 'text-gray-600'}`,}, a.title.split(' ')[0])
+              , _react2.default.createElement('p', { className: `text-xs ${active ? c.t : 'text-gray-400'}`,}, a.title.split(' ')[1] || '')
+            )
+          );
+        })
+      )
+      , _react2.default.createElement(_framermotion.AnimatePresence, { mode: "wait",}
+        , sel && (() => {
+          const a = AZ_DATA.find(x => x.key === sel), c = pal(a.color);
+          return (
+            _react2.default.createElement(_framermotion.motion.div, { key: sel, initial: { opacity: 0, height: 0 }, animate: { opacity: 1, height: 'auto' },
+              exit: { opacity: 0, height: 0 }, transition: { duration: 0.18 },
+              className: `rounded-xl border-2 ${c.b} ${c.g} p-3 overflow-hidden`,}
+              , _react2.default.createElement('p', { className: `text-xs font-bold mb-2 ${c.t}`,}, a.title, " — "  , a.sub)
+              , _react2.default.createElement('ul', { className: "space-y-1",}
+                , a.items.map((d, i) => (
+                  _react2.default.createElement('li', { key: i, className: "flex gap-1.5" ,}
+                    , _react2.default.createElement('span', { className: "text-gray-300 text-xs mt-0.5 shrink-0"   ,}, "▸")
+                    , _react2.default.createElement('p', { className: "text-xs text-gray-600 leading-relaxed"  ,}, d)
+                  )
+                ))
+              )
+            )
+          );
+        })()
+      )
+      , !sel && _react2.default.createElement('p', { className: "text-xs text-gray-400 text-center italic py-1"    ,}, "← Click an analyzer to view details" )
+    )
+  );
+}
+
+const RP_DATA = [
+  { key: 'C', icon: '📏', label: 'Constraint Refinement', color: 'orange',
+    items: ['Relax/tighten constraint thresholds (wall distance 0.5 m → 0.4 m)', 'Reorder constraint priorities to resolve soft-constraint conflicts', 'Remove redundant / merge overlapping constraints', 'SMT Solver automatically verifies satisfiability of the repaired constraint set'] },
+  { key: 'R', icon: '🎯', label: 'Reward Reshaping ★', color: 'rose', badge: true,
+    items: ['LLM generates candidate reward-function code (executable Python functions)', 'Potential-based method preserves policy invariance: R′ = R + γΦ(s′) − Φ(s)', 'Adjust term weights: exploration coverage / collision penalty / constraint-violation penalty', 'Inject constraint-aware penalty terms: increase the penalty-density gradient near constraint boundaries', 'Automatic validation: boundedness · continuity · no reward-hacking patterns'] },
+  { key: 'E', icon: '🌐', label: 'Environment Augmentation', color: 'blue',
+    items: ['LLM regenerates scene geometry (corridor width / obstacle density / door positions)', 'Adjust obstacle density to shift the γ_EC target range', 'Adjust LiDAR noise level σ to calibrate δ_ER within threshold', 'Add a domain-randomization layer to broaden the training distribution'] },
+  { key: 'H', icon: '⚡', label: 'Hybrid Repair', color: 'purple',
+    items: ['Triggered when single-module repair introduces new inconsistencies (e.g., tightening constraints causes reward mismatch)', 'Jointly modify C + R: update reward penalty weights when constraint thresholds change', 'Jointly modify R + E: adapt reward functions to changes in environment geometry', 'DAG checking: prevent cyclic repair chains such as E→C→R→E'] },
+];
+
+function RepairPanel() {
+  const [sel, setSel] = _react.useState.call(void 0, null);
+  return (
+    _react2.default.createElement('div', { className: "w-80 max-w-full rounded-xl border-2 border-red-300 bg-red-50 overflow-hidden"      ,}
+      , _react2.default.createElement('div', { className: "bg-red-500 px-3 py-2.5"  ,}
+        , _react2.default.createElement('p', { className: "text-white font-bold text-xs"  ,}, "🔧 Repair Engine — Repair Engine"    )
+        , _react2.default.createElement('p', { className: "text-white opacity-70 text-xs"  ,}, "Priority queue · dependency-graph analysis · DAG cycle detection"     )
+      )
+      , _react2.default.createElement('div', { className: "p-2.5 space-y-2" ,}
+        , _react2.default.createElement('div', { className: "grid grid-cols-2 gap-1.5"  ,}
+          , RP_DATA.map(r => {
+            const c = pal(r.color), active = sel === r.key;
+            return (
+              _react2.default.createElement('button', { key: r.key, onClick: () => setSel(active ? null : r.key),
+                className: `rounded-lg border-2 p-2 text-left transition-all relative ${active ? `${c.b} ${c.g}` : 'border-gray-200 bg-white hover:bg-gray-50'}`,}
+                , r.badge && _react2.default.createElement('span', { className: "absolute top-1 right-1 bg-yellow-400 text-yellow-900 text-xs font-bold px-1 rounded-full"        ,}, "★")
+                , _react2.default.createElement('p', { className: "text-lg mb-0.5" ,}, r.icon)
+                , _react2.default.createElement('p', { className: `text-xs font-bold leading-tight ${active ? c.t : 'text-gray-700'}`,}, r.label)
+              )
+            );
+          })
+        )
+        , _react2.default.createElement(_framermotion.AnimatePresence, { mode: "wait",}
+          , sel && (() => {
+            const r = RP_DATA.find(x => x.key === sel), c = pal(r.color);
+            return (
+              _react2.default.createElement(_framermotion.motion.div, { key: sel, initial: { opacity: 0, height: 0 }, animate: { opacity: 1, height: 'auto' },
+                exit: { opacity: 0, height: 0 }, transition: { duration: 0.18 },
+                className: `rounded-lg border-2 ${c.b} ${c.g} p-2.5 overflow-hidden`,}
+                , r.badge && _react2.default.createElement('p', { className: "text-xs font-bold text-yellow-700 mb-1.5"   ,}, "★ LLM-driven reward reshaping (core new feature)"  )
+                , _react2.default.createElement('ul', { className: "space-y-1",}
+                  , r.items.map((d, i) => (
+                    _react2.default.createElement('li', { key: i, className: "flex gap-1.5" ,}
+                      , _react2.default.createElement('span', { className: "text-gray-300 text-xs mt-0.5 shrink-0"   ,}, "▸")
+                      , _react2.default.createElement('p', { className: "text-xs text-gray-600 leading-relaxed"  ,}, d)
+                    )
+                  ))
+                )
+              )
+            );
+          })()
+        )
+        , !sel && _react2.default.createElement('p', { className: "text-xs text-gray-400 text-center italic"   ,}, "← Click a module to view details" )
+      )
+    )
+  );
+}
+
+const Branch = () => (
+  _react2.default.createElement('div', { className: "grid grid-cols-2 gap-2 w-80 max-w-full my-1"     ,}
+    , _react2.default.createElement('div', { className: "bg-green-50 border-2 border-green-300 rounded-xl p-2.5"    ,}
+      , _react2.default.createElement('p', { className: "text-xs font-bold text-green-700 mb-0.5"   ,}, "✅ Validation passed" )
+      , _react2.default.createElement('p', { className: "text-xs text-green-600 leading-tight"  ,}, "Ψ_CRE improves and exceeds threshold θ; accept (C′, R′, E′) and proceed to RL training"     )
+    )
+    , _react2.default.createElement('div', { className: "bg-amber-50 border-2 border-amber-300 rounded-xl p-2.5"    ,}
+      , _react2.default.createElement('p', { className: "text-xs font-bold text-amber-700 mb-0.5"   ,}, "↺ Repair again" )
+      , _react2.default.createElement('p', { className: "text-xs text-amber-600 leading-tight"  ,}, "Generate alternative plans and return to the Repair Engine (up to K iterations)"    )
+    )
+  )
+);
+
+function Flowchart() {
+  return (
+    _react2.default.createElement('div', { className: "flex flex-col items-center pb-10 pt-2"    ,}
+      , _react2.default.createElement(Phase, { n: "①", label: "Input & specification parsing"  , color: "blue",} )
+      , _react2.default.createElement(FNode, { icon: "💬", title: "User Input" , sub: "Natural language + initial specification"  , color: "blue", items: [
+        'Natural-language scene description (e.g., "GPS-denied indoor exploration task in a three-bedroom apartment")',
+        'Initial constraint list: geometric constraints / dynamic constraints / exploration-coverage constraints',
+        'Initial reward-function draft (optional; can be auto-generated by the LLM from a semantic description)',
+        'Simulation-environment configuration: sensor models, LiDAR noise level, and indoor geometric dimensions',
+      ],} )
+      , _react2.default.createElement(Arr, null )
+      , _react2.default.createElement(FNode, { icon: "📋", title: "Specification Interface" , sub: "Specification interface layer", color: "blue", items: [
+        'Constraint DSL Parser: text constraints → formal logical expression set {cᵢ}',
+        'Reward Function Analyzer: parse the mathematical structure of the reward function (convexity / boundedness / monotonicity)',
+        'Environment Configuration Loader: load scene geometry and sensor-parameter configurations',
+      ],} )
+
+      , _react2.default.createElement(Arr, { label: "Parsing complete; generate the three IRs" ,} )
+      , _react2.default.createElement(Phase, { n: "②", label: "Intermediate Representation Layer (IR)" , color: "purple",} )
+      , _react2.default.createElement(IRBlock, null )
+
+      , _react2.default.createElement(Arr, { label: "The three IRs flow in parallel into the analyzers"  ,} )
+      , _react2.default.createElement(Phase, { n: "③", label: "Three parallel analyzers", color: "amber",} )
+      , _react2.default.createElement(AnalyzerPanel, null )
+
+      , _react2.default.createElement(Arr, { label: "Aggregate outputs from the three analyzers",} )
+      , _react2.default.createElement(Phase, { n: "④", label: "Inconsistency Detection Engine", color: "red",} )
+      , _react2.default.createElement(FNode, { icon: "🔍", title: "Inconsistency Detection Engine"  , sub: "Detection · scoring · root-cause attribution"    , color: "red", items: [
+        'Aggregate outputs from the Static, Dynamic, and LLM branches and eliminate redundant/conflicting findings',
+        'Compute a confidence score for each inconsistency (Confidence Score ∈ [0,1])',
+        'Root Cause Attribution: locate the specific source of each issue within C / R / E',
+        'Generate a structured report: inconsistency type / severity level / impact propagation-chain analysis',
+        'Compute the overall consistency score Ψ_CRE = f(γ_EC, δ_ER, κ_CR)',
+      ],} )
+
+      , _react2.default.createElement(Arr, null )
+      , _react2.default.createElement('div', { className: "w-80 max-w-full flex gap-2 mb-0.5"    ,}
+        , _react2.default.createElement('div', { className: "flex-1 bg-white rounded-xl border-2 border-gray-300 p-2.5"     ,}
+          , _react2.default.createElement('p', { className: "text-xs font-bold text-gray-700 mb-1"   ,}, "📋 Inconsistency Report"  )
+          , _react2.default.createElement('p', { className: "text-xs text-gray-500 leading-tight"  ,}, "Inconsistency type / severity / deviations of the three metrics / list of candidate repair plans"      )
+        )
+        , _react2.default.createElement('div', { className: "w-20 bg-yellow-50 rounded-xl border-2 border-yellow-300 p-2 flex flex-col items-center justify-center"         ,}
+          , _react2.default.createElement('p', { className: "text-base",}, "👤")
+          , _react2.default.createElement('p', { className: "text-xs font-bold text-yellow-700 text-center leading-tight"    ,}, "Human-in-Loop")
+          , _react2.default.createElement('p', { className: "text-xs text-yellow-500 text-center"  ,}, "(optional)")
+        )
+      )
+
+      , _react2.default.createElement(Arr, { label: "Enter the repair workflow",} )
+      , _react2.default.createElement(Phase, { n: "⑤", label: "Repair Engine (★ extended core)" , color: "rose",} )
+      , _react2.default.createElement(RepairPanel, null )
+
+      , _react2.default.createElement(Arr, { label: "Apply repairs to obtain (C′, R′, E′)"   ,} )
+      , _react2.default.createElement(Phase, { n: "⑥", label: "Validation loop", color: "green",} )
+      , _react2.default.createElement(FNode, { icon: "✅", title: "Validation Loop" , sub: "Repair-effectiveness validation", color: "green", items: [
+        'Step 1: apply the repaired triplet (C′, R′, E′) to the simulation environment',
+        'Step 2: quickly rerun the detection engine and recompute γ_EC / δ_ER / κ_CR',
+        'Step 3: compare the change in consistency score ΔΨ_CRE before and after repair',
+        'Step 4: if ΔΨ > 0 and Ψ_CRE > Ψ_min, accept the repair result',
+        'Step 5: otherwise generate alternative plans and return to the Repair Engine (up to K iterations)',
+      ],} )
+      , _react2.default.createElement(Branch, null )
+
+      , _react2.default.createElement(Arr, { label: "✅ Accept repair result" ,} )
+      , _react2.default.createElement(Phase, { n: "⑦", label: "Safe RL training + continuous monitoring"    , color: "emerald",} )
+      , _react2.default.createElement(FNode, { icon: "🚀", title: "Final Safe RL Training"   , sub: "RL training with integrated (C′, R′, E′)"      , color: "emerald", items: [
+        'Load the repaired triplet (C′, R′, E′) into the Gazebo / AirSim simulator',
+        'Run PPO / SAC safe reinforcement learning using the reshaped reward function R′',
+        'Monitor drifts in γ_EC / δ_ER / κ_CR in real time during training',
+        'Trigger lightweight online reward adjustment when metrics deviate from thresholds',
+        'Deploy to the real robot: NVIDIA Orin NX + FAST-LIO2 SLAM in GPS-denied indoor mode',
+      ],} )
+      , _react2.default.createElement(Arr, { dashed: true,} )
+      , _react2.default.createElement('div', { className: "w-80 max-w-full bg-gray-100 border-2 border-dashed border-gray-400 rounded-xl p-3"       ,}
+        , _react2.default.createElement('p', { className: "text-xs font-bold text-gray-700 mb-1"   ,}, "🔄 Continuous closed-loop feedback (synchronous updates of E + R)"    )
+        , _react2.default.createElement('p', { className: "text-xs text-gray-500 leading-relaxed"  ,}, "Real-world data → update the δ_ER noise model + evaluate R′ transfer alignment (ρ_RR) → LLM reevaluates IR_Reward + IR_Env → trigger a new round of repair iteration"               )
+      )
+    )
+  );
+}
+
+const CNODES = {
+  llm:  { icon: '🤖', label: 'LLM core driver', color: 'purple',
+    detail: ['Analyze semantic consistency across the three IRs and discover cross-component conflicts', 'Generate candidate reward-function code (executable Python functions)', 'Generate candidate scene-geometry parameters (structured JSON)', 'Output repair priority ranking and multiple candidate plans'] },
+  E:    { icon: '🌐', label: 'E simulated environment', color: 'blue',
+    detail: ['Render scenes using Gazebo/AirSim geometric primitives', 'LiDAR noise σ = 0.02 m / IMU random-walk drift', 'Parallel RL training platform across multiple scenes', 'The LLM can adjust geometric parameters, obstacle density, and noise levels'] },
+  Rw:   { icon: '🎯', label: '★ R reward function', color: 'rose',
+    detail: ['The LLM automatically generates the initial reward function from semantic descriptions', 'Potential-based reshaping preserves policy invariance: R′ = R + γΦ(s′) − Φ(s)', 'Constraint-aware penalty terms: increase the penalty-density gradient near boundaries', 'Automatic validation of boundedness / continuity / absence of hacking patterns'] },
+  C:    { icon: '📏', label: 'C constraint system', color: 'orange',
+    detail: ['Geometric constraint: wall distance ≥ 0.5 m', 'Dynamic constraint: linear velocity ≤ 1.5 m/s', 'Exploration constraint: area coverage ≥ 80%', 'The LLM can refine constraint thresholds and priority ordering'] },
+  Real: { icon: '🏢', label: 'R real world', color: 'emerald',
+    detail: ['GPS-denied indoor exploration scenario', 'FAST-LIO2 real-time SLAM localization', 'NVIDIA Orin NX edge-computing deployment', 'Real-world LiDAR point-cloud feedback updates the δ_ER noise model'] },
+  IDE:  { icon: '🔍', label: 'Detection Engine (IDE)', color: 'red',
+    detail: ['Aggregate outputs from the three analyzers and remove redundant findings', 'Compute the overall consistency score Ψ_CRE', 'Confidence scoring + root-cause attribution to C/R/E', 'Generate a structured report → feed it back to the LLM to trigger repair'] },
+};
+
+const METS = [
+  { label: 'γ_EC', target: '> 0.8',   color: 'blue',    note: 'E ↔ C environment-constraint consistency' },
+  { label: 'δ_ER', target: '< 0.15',  color: 'green',   note: 'E ↔ R_real simulation-to-reality gap' },
+  { label: 'κ_CR', target: '|κ|<0.3', color: 'red',     note: 'C ↔ R_real constraint-reality conflict' },
+  { label: '★ ρ_RR', target: '> 0.7', color: 'rose',    note: 'R_reward ↔ R_real reward-transfer alignment (new)' },
+];
+
+function ConceptMap() {
+  const [active, setActive] = _react.useState.call(void 0, null);
+  const tog = k => setActive(a => a === k ? null : k);
+
+  return (
+    _react2.default.createElement('div', { className: "max-w-sm mx-auto pb-10 pt-2"   ,}
+      , _react2.default.createElement('div', { className: "text-center mb-4" ,}
+        , _react2.default.createElement('h2', { className: "text-sm font-bold text-gray-700"  ,}, "CRE + Reward four-component architecture map"   )
+        , _react2.default.createElement('p', { className: "text-xs text-gray-400 mt-0.5"  ,}, "Click each node to view details · ★ = new LLM-based reward-reshaping dimension"     )
+      )
+
+      , _react2.default.createElement('div', { className: "flex justify-center mb-2"  ,}
+        , _react2.default.createElement('button', { onClick: () => tog('llm'),
+          className: `rounded-2xl border-2 ${pal('purple').b} ${active === 'llm' ? pal('purple').g : 'bg-white'} p-3 shadow-md flex items-center gap-2 transition-all`,}
+          , _react2.default.createElement('span', { className: "text-2xl",}, "🤖")
+          , _react2.default.createElement('div', { className: "text-left",}
+            , _react2.default.createElement('p', { className: `text-sm font-bold ${pal('purple').t}`,}, "LLM core driver" )
+            , _react2.default.createElement('p', { className: "text-xs text-purple-400" ,}, "Analyze · repair C + ★R + E"       )
+          )
+        )
+      )
+
+      , _react2.default.createElement('div', { className: "grid grid-cols-3 gap-1 text-center mb-2"    ,}
+        , _react2.default.createElement('div', { className: "flex flex-col items-center"  ,}
+          , _react2.default.createElement('div', { className: "w-px h-4 bg-blue-400"  ,} ), _react2.default.createElement('span', { className: "text-blue-400 text-xs" ,}, "▼")
+          , _react2.default.createElement('span', { className: "text-xs text-blue-600 bg-blue-50 border border-blue-200 rounded px-1 mt-0.5 text-center leading-tight"         ,}, "Generate / repair scenes")
+        )
+        , _react2.default.createElement('div', { className: "flex flex-col items-center"  ,}
+          , _react2.default.createElement('div', { className: "w-px h-4 bg-rose-400"  ,} ), _react2.default.createElement('span', { className: "text-rose-400 text-xs" ,}, "▼")
+          , _react2.default.createElement('span', { className: "text-xs text-rose-700 font-bold bg-rose-50 border border-rose-300 rounded px-1 mt-0.5 text-center leading-tight"          ,}, "★ Generate / reshape rewards" )
+        )
+        , _react2.default.createElement('div', { className: "flex flex-col items-center"  ,}
+          , _react2.default.createElement('div', { className: "w-px h-4 bg-orange-400"  ,} ), _react2.default.createElement('span', { className: "text-orange-400 text-xs" ,}, "▼")
+          , _react2.default.createElement('span', { className: "text-xs text-orange-600 bg-orange-50 border border-orange-200 rounded px-1 mt-0.5 text-center leading-tight"         ,}, "Refine constraints")
+        )
+      )
+
+      , _react2.default.createElement('div', { className: "grid grid-cols-3 gap-2 mb-2"   ,}
+        , ['E', 'Rw', 'C'].map(k => {
+          const n = CNODES[k], c = pal(n.color);
+          return (
+            _react2.default.createElement('button', { key: k, onClick: () => tog(k),
+              className: `rounded-xl border-2 ${c.b} ${active === k ? c.g : 'bg-white'} p-2 text-center shadow transition-all`,}
+              , _react2.default.createElement('p', { className: "text-xl mb-0.5" ,}, n.icon)
+              , _react2.default.createElement('p', { className: `text-xs font-bold ${c.t} leading-tight`,}, n.label)
+            )
+          );
+        })
+      )
+
+      , _react2.default.createElement('div', { className: "grid grid-cols-2 gap-1.5 mb-2"   ,}
+        , METS.map((m, i) => {
+          const c = pal(m.color);
+          return (
+            _react2.default.createElement('div', { key: i, className: `${c.g} border ${c.b} rounded-lg p-2`,}
+              , _react2.default.createElement('div', { className: "flex items-center justify-between mb-0.5"   ,}
+                , _react2.default.createElement('p', { className: `text-xs font-bold ${c.t}`,}, m.label)
+                , _react2.default.createElement('p', { className: `text-xs ${c.t} opacity-70`,}, m.target)
+              )
+              , _react2.default.createElement('p', { className: "text-xs text-gray-500 leading-tight"  ,}, m.note)
+            )
+          );
+        })
+      )
+
+      , _react2.default.createElement('div', { className: "flex justify-center mb-1"  ,}
+        , _react2.default.createElement('button', { onClick: () => tog('Real'),
+          className: `rounded-xl border-2 ${pal('emerald').b} ${active === 'Real' ? pal('emerald').g : 'bg-white'} p-2.5 shadow flex items-center gap-2 transition-all`,}
+          , _react2.default.createElement('span', { className: "text-xl",}, "🏢")
+          , _react2.default.createElement('div', { className: "text-left",}
+            , _react2.default.createElement('p', { className: `text-sm font-bold ${pal('emerald').t}`,}, "R real world" )
+            , _react2.default.createElement('p', { className: "text-xs text-emerald-500" ,}, "GPS-denied · FAST-LIO2 · Orin NX"      )
+          )
+        )
+      )
+
+      , _react2.default.createElement('div', { className: "flex justify-center my-1"  ,}
+        , _react2.default.createElement('div', { className: "flex flex-col items-center"  ,}
+          , _react2.default.createElement('div', { className: "w-px h-3 bg-gray-400"  ,} )
+          , _react2.default.createElement('span', { className: "text-xs text-gray-400 bg-white border border-gray-200 rounded px-2 py-0.5 my-0.5"        ,}, "Real-world feedback data")
+          , _react2.default.createElement('div', { className: "w-px h-3 bg-gray-400"  ,} )
+          , _react2.default.createElement('span', { className: "text-gray-400 text-xs leading-none"  ,}, "▼")
+        )
+      )
+
+      , _react2.default.createElement('div', { className: "flex justify-center mb-1"  ,}
+        , _react2.default.createElement('button', { onClick: () => tog('IDE'),
+          className: `rounded-xl border-2 ${pal('red').b} ${active === 'IDE' ? pal('red').g : 'bg-white'} p-2.5 shadow flex items-center gap-2 transition-all`,}
+          , _react2.default.createElement('span', { className: "text-xl",}, "🔍")
+          , _react2.default.createElement('div', { className: "text-left",}
+            , _react2.default.createElement('p', { className: `text-sm font-bold ${pal('red').t}`,}, "Inconsistency Detection Engine"  )
+            , _react2.default.createElement('p', { className: "text-xs text-red-400" ,}, "Aggregate · score · attribute → feed back to the LLM"       )
+          )
+        )
+      )
+
+      , _react2.default.createElement('div', { className: "flex justify-center mb-3"  ,}
+        , _react2.default.createElement('div', { className: "flex flex-col items-center"  ,}
+          , _react2.default.createElement('span', { className: "text-purple-400 text-xs leading-none"  ,}, "↑")
+          , _react2.default.createElement('div', { className: "w-px h-3 bg-purple-400"  ,} )
+          , _react2.default.createElement('span', { className: "text-xs text-purple-600 bg-purple-50 border border-purple-200 rounded px-2 py-0.5 my-0.5 font-bold"         ,}, "Inconsistency report → LLM repairs C + ★R + E"        )
+          , _react2.default.createElement('div', { className: "w-px h-3 bg-purple-400"  ,} )
+        )
+      )
+
+      , _react2.default.createElement(_framermotion.AnimatePresence, { mode: "wait",}
+        , active && CNODES[active] && (
+          _react2.default.createElement(_framermotion.motion.div, { key: active, initial: { opacity: 0, height: 0 }, animate: { opacity: 1, height: 'auto' },
+            exit: { opacity: 0, height: 0 }, transition: { duration: 0.18 },
+            className: `rounded-xl border-2 ${pal(CNODES[active].color).b} ${pal(CNODES[active].color).g} p-3 overflow-hidden mb-2`,}
+            , _react2.default.createElement('p', { className: `text-xs font-bold mb-2 ${pal(CNODES[active].color).t}`,}, CNODES[active].icon, " " , CNODES[active].label)
+            , _react2.default.createElement('ul', { className: "space-y-1",}
+              , CNODES[active].detail.map((d, i) => (
+                _react2.default.createElement('li', { key: i, className: "flex gap-1.5" ,}
+                  , _react2.default.createElement('span', { className: "text-gray-300 text-xs mt-0.5 shrink-0"   ,}, "▸")
+                  , _react2.default.createElement('p', { className: "text-xs text-gray-600 leading-relaxed"  ,}, d)
+                )
+              ))
+            )
+          )
+        )
+      )
+
+      , _react2.default.createElement('div', { className: "bg-white rounded-xl border border-gray-200 p-3"    ,}
+        , _react2.default.createElement('p', { className: "text-xs font-bold text-gray-600 mb-2"   ,}, "📌 Architecture extension comparison" )
+        , _react2.default.createElement('div', { className: "space-y-2",}
+          , _react2.default.createElement('div', { className: "flex gap-2" ,}
+            , _react2.default.createElement('span', { className: "shrink-0 text-xs bg-gray-100 text-gray-600 rounded px-1.5 py-0.5 font-mono"       ,}, "Old")
+            , _react2.default.createElement('p', { className: "text-xs text-gray-500" ,}, "LLM only repairs E (scene geometry); three metrics: γ_EC / δ_ER / κ_CR"       )
+          )
+          , _react2.default.createElement('div', { className: "flex gap-2" ,}
+            , _react2.default.createElement('span', { className: "shrink-0 text-xs bg-yellow-100 text-yellow-700 rounded px-1.5 py-0.5 font-mono"       ,}, "New★")
+            , _react2.default.createElement('p', { className: "text-xs text-gray-700" ,}, "LLM simultaneously repairs "  , _react2.default.createElement('span', { className: "font-bold text-rose-600" ,}, "R_reward"), " + E + C; the Repair Engine supports coordinated three-component repair; a fourth metric is added "       , _react2.default.createElement('span', { className: "font-bold text-rose-600" ,}, "ρ_RR"), "(reward-transfer alignment)")
+          )
+        )
+      )
+    )
+  );
+}
+
+ function App() {
+  const [tab, setTab] = _react.useState.call(void 0, 'flow');
+  return (
+    _react2.default.createElement('div', { className: "font-sans bg-gray-50 min-h-screen"  ,}
+      , _react2.default.createElement('div', { className: "bg-white border-b border-gray-200 shadow-sm px-4 py-3 sticky top-0 z-20"        ,}
+        , _react2.default.createElement('h1', { className: "text-sm font-bold text-center text-gray-800 mb-2"    ,}, "CRE Consistency Framework · Extended Version (LLM Reward Reshaping)"     )
+        , _react2.default.createElement('div', { className: "flex justify-center gap-2"  ,}
+          , [{ key: 'flow', label: '📊 System flowchart' }, { key: 'concept', label: '🗺️ Concept architecture map' }].map(t => (
+            _react2.default.createElement('button', { key: t.key, onClick: () => setTab(t.key),
+              className: `px-4 py-1.5 rounded-full text-sm font-semibold transition-all ${tab === t.key ? 'bg-blue-600 text-white shadow' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`,}
+              , t.label
+            )
+          ))
+        )
+      )
+      , _react2.default.createElement('div', { className: "p-4 max-w-lg mx-auto"  ,}
+        , _react2.default.createElement(_framermotion.AnimatePresence, { mode: "wait",}
+          , _react2.default.createElement(_framermotion.motion.div, { key: tab, initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 }, transition: { duration: 0.15 },}
+            , tab === 'flow' ? _react2.default.createElement(Flowchart, null ) : _react2.default.createElement(ConceptMap, null )
+          )
+        )
+      )
+    )
+  );
+} exports.default = App;
+</script></head>
+  <body>
+  
+
+<div id="preview-app"></div></body></html>

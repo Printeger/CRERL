@@ -55,13 +55,24 @@ def main() -> int:
     from analyzers.report_contract import DEFAULT_REPORT_MODE_ARTIFACTS, DEFAULT_REPORT_NAMESPACES
     from repair.acceptance import accept_repair
     from repair.patch_executor import run_repair_bundle_write
+    from repair.repair_validator import build_phase9_validation_request, validate_repair
     from repair.rule_based_repair import propose_rule_based_repairs
 
     plan = propose_rule_based_repairs(report_bundle_dir=Path(args.report_bundle_dir))
     acceptance = accept_repair(plan.to_dict())
+    repair_validation = validate_repair(plan.to_dict(), acceptance=acceptance)
+    validation_request = build_phase9_validation_request(
+        plan.to_dict(),
+        repair_validation=repair_validation,
+        acceptance=acceptance,
+        bundle_name=args.bundle_name,
+        repair_namespace=DEFAULT_REPORT_NAMESPACES["repair_generation"],
+    )
     bundle_paths = run_repair_bundle_write(
         plan,
         acceptance,
+        repair_validation=repair_validation,
+        validation_request=validation_request,
         reports_root=Path(args.reports_root),
         bundle_name=args.bundle_name,
         repair_dir=Path(args.repair_dir) if args.repair_dir else None,
@@ -80,14 +91,18 @@ def main() -> int:
                 "repair_plan_path": str(bundle_paths["repair_plan_path"]),
                 "repair_candidates_path": str(bundle_paths["repair_candidates_path"]),
                 "spec_patch_path": str(bundle_paths["spec_patch_path"]),
+                "spec_patch_preview_path": str(bundle_paths["spec_patch_preview_path"]),
                 "repair_summary_path": str(bundle_paths["repair_summary_path"]),
                 "repair_summary_md_path": str(bundle_paths["repair_summary_md_path"]),
                 "acceptance_path": str(bundle_paths["acceptance_path"]),
+                "repair_validation_path": str(bundle_paths["repair_validation_path"]),
+                "validation_request_path": str(bundle_paths["validation_request_path"]),
                 "manifest_path": str(bundle_paths["manifest_path"]),
                 "namespace_manifest_path": str(bundle_paths.get("namespace_manifest_path", "")),
                 "namespace_contract_path": str(bundle_paths.get("namespace_contract_path", "")),
                 "passed": bool(acceptance.get("passed", False)),
                 "max_severity": str(acceptance.get("max_severity", "info")),
+                "phase9_ready": bool(repair_validation.get("phase9_ready", False)),
                 "primary_claim_type": plan.primary_claim_type,
                 "selected_candidate_id": plan.selected_candidate_id,
                 "candidate_count": len(plan.candidates),

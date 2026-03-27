@@ -9,6 +9,7 @@ from repair.proposal_schema import (
     SpecPatch,
     SpecPatchOperation,
 )
+from repair.repair_validator import build_phase9_validation_request, validate_repair
 from repair.rule_based_repair import (
     build_repair_candidates,
     load_phase7_repair_inputs,
@@ -24,9 +25,11 @@ __all__ = [
     "REPAIR_NAMESPACE",
     "SUPPORTED_OPERATOR_TYPES",
     "accept_repair",
+    "build_phase9_validation_request",
     "build_repair_candidates",
     "load_phase7_repair_inputs",
     "propose_rule_based_repairs",
     "run_repair_bundle_write",
+    "validate_repair",
     "write_repair_bundle",
 ]

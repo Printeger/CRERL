@@ -9,6 +9,7 @@ if str(ROOT) not in sys.path:
 
 from repair.acceptance import accept_repair
 from repair.patch_executor import run_repair_bundle_write
+from repair.repair_validator import build_phase9_validation_request, validate_repair
 from repair.rule_based_repair import propose_rule_based_repairs
 
 
@@ -198,25 +199,72 @@ def test_repair_acceptance_and_bundle_writer(tmp_path):
     )
     plan = propose_rule_based_repairs(report_bundle_dir=bundle)
     acceptance = accept_repair(plan.to_dict())
+    repair_validation = validate_repair(plan.to_dict(), acceptance=acceptance)
+    validation_request = build_phase9_validation_request(
+        plan.to_dict(),
+        repair_validation=repair_validation,
+        acceptance=acceptance,
+        bundle_name="repair_fixture",
+    )
     bundle_paths = run_repair_bundle_write(
         plan,
         acceptance,
+        repair_validation=repair_validation,
+        validation_request=validation_request,
         reports_root=tmp_path,
         bundle_name="repair_fixture",
     )
 
     assert acceptance["passed"] is True
+    assert repair_validation["passed"] is True
+    assert repair_validation["phase9_ready"] is True
     assert bundle_paths["repair_plan_path"].exists()
     assert bundle_paths["repair_candidates_path"].exists()
     assert bundle_paths["spec_patch_path"].exists()
+    assert bundle_paths["spec_patch_preview_path"].exists()
     assert bundle_paths["repair_summary_path"].exists()
     assert bundle_paths["repair_summary_md_path"].exists()
     assert bundle_paths["acceptance_path"].exists()
+    assert bundle_paths["repair_validation_path"].exists()
+    assert bundle_paths["validation_request_path"].exists()
     assert bundle_paths["namespace_contract_path"].exists()
 
     summary_payload = json.loads(bundle_paths["repair_summary_path"].read_text(encoding="utf-8"))
     assert summary_payload["bundle_type"] == "repair_generation_bundle.v1"
     assert summary_payload["primary_claim_type"] == "C-R"
+    validation_payload = json.loads(bundle_paths["repair_validation_path"].read_text(encoding="utf-8"))
+    assert validation_payload["validation_type"] == "phase8_repair_validator.v1"
+    request_payload = json.loads(bundle_paths["validation_request_path"].read_text(encoding="utf-8"))
+    assert request_payload["request_type"] == "phase9_validation_request.v1"
+    assert request_payload["phase9_ready"] is True
+
+
+def test_repair_validator_builds_phase9_request(tmp_path):
+    bundle = _make_report_bundle(
+        tmp_path,
+        claim_type="E-C",
+        summary="Boundary-critical family undercovers critical states near the route corridor.",
+        target_ref=BOUNDARY_CFG,
+    )
+    plan = propose_rule_based_repairs(report_bundle_dir=bundle)
+    acceptance = accept_repair(plan.to_dict())
+    repair_validation = validate_repair(plan.to_dict(), acceptance=acceptance)
+    request = build_phase9_validation_request(
+        plan.to_dict(),
+        repair_validation=repair_validation,
+        acceptance=acceptance,
+        bundle_name="repair_validation_fixture",
+    )
+
+    assert repair_validation["passed"] is True
+    assert repair_validation["phase9_ready"] is True
+    assert request["request_type"] == "phase9_validation_request.v1"
+    assert request["repair_bundle_name"] == "repair_validation_fixture"
+    assert request["primary_claim_type"] == "E-C"
+    assert request["phase9_ready"] is True
+    assert "W_EC" in request["validation_targets"]
+    assert request["selected_target_files"]
+    assert request["selected_target_paths"]
 
 
 def test_run_repair_audit_cli_smoke(tmp_path):
@@ -249,8 +297,12 @@ def test_run_repair_audit_cli_smoke(tmp_path):
 
     payload = json.loads(result.stdout)
     assert payload["passed"] is True
+    assert payload["phase9_ready"] is True
     assert payload["primary_claim_type"] == "E-R"
     assert payload["candidate_count"] >= 1
     assert Path(payload["repair_plan_path"]).exists()
+    assert Path(payload["spec_patch_preview_path"]).exists()
     assert Path(payload["acceptance_path"]).exists()
+    assert Path(payload["repair_validation_path"]).exists()
+    assert Path(payload["validation_request_path"]).exists()
     assert output_path.exists()

@@ -84,11 +84,39 @@ def _build_human_summary_markdown(plan: RepairPlan, acceptance: Mapping[str, Any
     return "\n".join(lines).strip() + "\n"
 
 
+def _build_patch_preview_payload(plan: RepairPlan) -> Dict[str, Any]:
+    selected_patch = plan.selected_patch.to_dict() if plan.selected_patch is not None else {}
+    operations = list(selected_patch.get("operations", []) or [])
+    files_touched = sorted({str(item.get("target_file", "")) for item in operations if item.get("target_file")})
+    return {
+        "preview_type": "phase8_spec_patch_preview.v1",
+        "preview_mode": "non_destructive",
+        "source_mutation_performed": False,
+        "selected_candidate_id": plan.selected_candidate_id,
+        "primary_claim_type": plan.primary_claim_type,
+        "patch_id": str(selected_patch.get("patch_id", "")),
+        "patch_type": str(selected_patch.get("patch_type", "")),
+        "target_component": str(selected_patch.get("target_component", "")),
+        "target_file": str(selected_patch.get("target_file", "")),
+        "files_touched": files_touched,
+        "operation_count": len(operations),
+        "operations": [
+            {
+                **dict(item),
+                "would_change": item.get("before") != item.get("after"),
+            }
+            for item in operations
+        ],
+    }
+
+
 def write_repair_bundle(
     plan: RepairPlan,
     acceptance: Mapping[str, Any],
     repair_dir: str | Path,
     *,
+    repair_validation: Mapping[str, Any] | None = None,
+    validation_request: Mapping[str, Any] | None = None,
     namespace_root: str | Path | None = None,
     bundle_name: str = "repair_latest",
     namespace: str = REPAIR_NAMESPACE,
@@ -99,9 +127,12 @@ def write_repair_bundle(
     repair_plan_path = repair_path / "repair_plan.json"
     repair_candidates_path = repair_path / "repair_candidates.json"
     spec_patch_path = repair_path / "spec_patch.json"
+    spec_patch_preview_path = repair_path / "spec_patch_preview.json"
     repair_summary_path = repair_path / "repair_summary.json"
     repair_summary_md_path = repair_path / "repair_summary.md"
     acceptance_path = repair_path / "acceptance.json"
+    repair_validation_path = repair_path / "repair_validation.json"
+    validation_request_path = repair_path / "validation_request.json"
     manifest_path = repair_path / "manifest.json"
 
     repair_plan_path.write_text(json.dumps(plan.to_dict(), indent=2, sort_keys=True), encoding="utf-8")
@@ -113,10 +144,22 @@ def write_repair_bundle(
         json.dumps(plan.selected_patch.to_dict() if plan.selected_patch is not None else {}, indent=2, sort_keys=True),
         encoding="utf-8",
     )
+    spec_patch_preview_path.write_text(
+        json.dumps(_build_patch_preview_payload(plan), indent=2, sort_keys=True),
+        encoding="utf-8",
+    )
     repair_summary_payload = _build_repair_summary_payload(plan, acceptance)
     repair_summary_path.write_text(json.dumps(repair_summary_payload, indent=2, sort_keys=True), encoding="utf-8")
     repair_summary_md_path.write_text(_build_human_summary_markdown(plan, acceptance), encoding="utf-8")
     acceptance_path.write_text(json.dumps(dict(acceptance), indent=2, sort_keys=True), encoding="utf-8")
+    repair_validation_path.write_text(
+        json.dumps(dict(repair_validation or {}), indent=2, sort_keys=True),
+        encoding="utf-8",
+    )
+    validation_request_path.write_text(
+        json.dumps(dict(validation_request or {}), indent=2, sort_keys=True),
+        encoding="utf-8",
+    )
 
     manifest_payload = {
         "bundle_type": "repair_generation_bundle.v1",
@@ -126,13 +169,17 @@ def write_repair_bundle(
         "repair_plan_path": repair_plan_path.name,
         "repair_candidates_path": repair_candidates_path.name,
         "spec_patch_path": spec_patch_path.name,
+        "spec_patch_preview_path": spec_patch_preview_path.name,
         "repair_summary_path": repair_summary_path.name,
         "repair_summary_md_path": repair_summary_md_path.name,
         "acceptance_path": acceptance_path.name,
+        "repair_validation_path": repair_validation_path.name,
+        "validation_request_path": validation_request_path.name,
         "selected_candidate_id": plan.selected_candidate_id,
         "primary_claim_type": plan.primary_claim_type,
         "passed": bool(acceptance.get("passed", False)),
         "max_severity": str(acceptance.get("max_severity", "info")),
+        "phase9_ready": bool((repair_validation or {}).get("phase9_ready", False)),
         "metadata": dict(plan.metadata),
     }
     manifest_path.write_text(json.dumps(manifest_payload, indent=2, sort_keys=True), encoding="utf-8")
@@ -143,9 +190,12 @@ def write_repair_bundle(
         "repair_plan_path": repair_plan_path,
         "repair_candidates_path": repair_candidates_path,
         "spec_patch_path": spec_patch_path,
+        "spec_patch_preview_path": spec_patch_preview_path,
         "repair_summary_path": repair_summary_path,
         "repair_summary_md_path": repair_summary_md_path,
         "acceptance_path": acceptance_path,
+        "repair_validation_path": repair_validation_path,
+        "validation_request_path": validation_request_path,
         "manifest_path": manifest_path,
         "summary_path": repair_summary_path,
     }
@@ -161,6 +211,7 @@ def write_repair_bundle(
                 "max_severity": str(acceptance.get("max_severity", "info")),
                 "primary_claim_type": plan.primary_claim_type,
                 "selected_candidate_id": plan.selected_candidate_id,
+                "phase9_ready": bool((repair_validation or {}).get("phase9_ready", False)),
             },
         )
     return bundle_paths
@@ -170,6 +221,8 @@ def run_repair_bundle_write(
     plan: RepairPlan,
     acceptance: Mapping[str, Any],
     *,
+    repair_validation: Mapping[str, Any] | None = None,
+    validation_request: Mapping[str, Any] | None = None,
     reports_root: str | Path | None = None,
     bundle_name: str = "repair_latest",
     repair_dir: str | Path | None = None,
@@ -191,6 +244,8 @@ def run_repair_bundle_write(
         plan,
         acceptance,
         repair_dir,
+        repair_validation=repair_validation,
+        validation_request=validation_request,
         namespace_root=namespace_root,
         bundle_name=str(bundle_name),
         namespace=namespace,

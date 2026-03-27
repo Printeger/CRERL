@@ -10,6 +10,7 @@ from typing import Any, Dict, List, Mapping, Sequence
 
 TRAINING_ROOT = Path(__file__).resolve().parents[1]
 REPO_ROOT = TRAINING_ROOT.parents[1]
+WANDB_ROOT = REPO_ROOT / "isaac-training" / "wandb"
 SCRIPT_BY_MODE = {
     "baseline": TRAINING_ROOT / "scripts" / "run_baseline.py",
     "eval": TRAINING_ROOT / "scripts" / "eval.py",
@@ -42,6 +43,8 @@ class BoundedRerunAdapterSpec:
     extra_overrides: List[str] = field(default_factory=list)
     supports_real_execution: bool = True
     fallback_runner_mode: str = "preview_targeted_rerun.v1"
+    preferred_rerun_mode: str = "subprocess"
+    allow_preview_fallback: bool = True
 
 
 ADAPTER_SPECS: Dict[str, BoundedRerunAdapterSpec] = {
@@ -56,6 +59,8 @@ ADAPTER_SPECS: Dict[str, BoundedRerunAdapterSpec] = {
             "baseline.num_episodes=1",
             "baseline.seeds=[0]",
         ],
+        preferred_rerun_mode="subprocess",
+        allow_preview_fallback=False,
     ),
     "eval": BoundedRerunAdapterSpec(
         execution_mode="eval",
@@ -68,6 +73,8 @@ ADAPTER_SPECS: Dict[str, BoundedRerunAdapterSpec] = {
             "headless=True",
             "wandb.mode=offline",
         ],
+        preferred_rerun_mode="subprocess",
+        allow_preview_fallback=False,
     ),
     "train": BoundedRerunAdapterSpec(
         execution_mode="train",
@@ -79,10 +86,12 @@ ADAPTER_SPECS: Dict[str, BoundedRerunAdapterSpec] = {
         extra_overrides=[
             "headless=True",
             "wandb.mode=offline",
-            "skip_periodic_eval=True",
+            "+skip_periodic_eval=True",
             "save_interval=999999",
             "eval_interval=999999",
         ],
+        preferred_rerun_mode="subprocess",
+        allow_preview_fallback=True,
     ),
 }
 
@@ -131,12 +140,32 @@ def get_adapter_spec(execution_mode: str) -> BoundedRerunAdapterSpec:
     return ADAPTER_SPECS.get(normalized, ADAPTER_SPECS["baseline"])
 
 
+def _baseline_name_from_source(source: str) -> str:
+    normalized = str(source or "").strip().lower()
+    if normalized.startswith("baseline_"):
+        candidate = normalized.split("baseline_", 1)[1]
+        if candidate in {"random", "greedy", "conservative"}:
+            return candidate
+    return "random"
+
+
+def _resolve_default_eval_checkpoint() -> str:
+    candidates = sorted(
+        WANDB_ROOT.glob("offline-run-*/files/checkpoint_final.pt"),
+        key=lambda path: path.stat().st_mtime,
+    )
+    if candidates:
+        return str(candidates[-1].resolve())
+    return ""
+
+
 def build_hydra_overrides(
     *,
     execution_mode: str,
     scenario_type: str,
     validation_input: Mapping[str, Any],
     output_run_name: str,
+    source: str = "",
 ) -> List[str]:
     spec = get_adapter_spec(execution_mode)
     overrides = [
@@ -147,6 +176,12 @@ def build_hydra_overrides(
         f"scene_logging.scene_id_prefix={_safe_name(output_run_name)}",
         "env.num_envs=1",
     ]
+    if spec.execution_mode == "baseline":
+        overrides.append(f"baseline.name={_baseline_name_from_source(source)}")
+    if spec.execution_mode == "eval":
+        checkpoint_path = _resolve_default_eval_checkpoint()
+        if checkpoint_path:
+            overrides.append(f"+checkpoint_path={checkpoint_path}")
     if spec.max_frame_num is not None:
         overrides.append(f"max_frame_num={int(spec.max_frame_num)}")
     if spec.max_episode_length is not None:
@@ -184,6 +219,7 @@ def build_bounded_rerun_task(
             scenario_type=scenario_type,
             validation_input=validation_input,
             output_run_name=output_run_name,
+            source=source,
         ),
     ]
     return {
@@ -194,6 +230,8 @@ def build_bounded_rerun_task(
         "adapter_type": spec.adapter_type,
         "supports_real_execution": bool(spec.supports_real_execution),
         "fallback_runner_mode": spec.fallback_runner_mode,
+        "preferred_rerun_mode": spec.preferred_rerun_mode,
+        "allow_preview_fallback": bool(spec.allow_preview_fallback),
         "script_path": spec.script_path,
         "source": source,
         "scenario_type": scenario_type,
@@ -217,6 +255,7 @@ def build_bounded_rerun_task(
             scenario_type=scenario_type,
             validation_input=validation_input,
             output_run_name=output_run_name,
+            source=source,
         ),
         "command_preview": command_preview,
         "env_overrides": build_bounded_rerun_environment(

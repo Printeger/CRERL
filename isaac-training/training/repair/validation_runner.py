@@ -60,9 +60,13 @@ def _resolve_repaired_run_dir(
     task: Mapping[str, Any],
     rerun_logs_root: str | Path,
 ) -> tuple[Path | None, str]:
+    rerun_logs_root = Path(rerun_logs_root)
     expected_run_dir = Path(str(task.get("expected_run_dir", ""))) if str(task.get("expected_run_dir", "")) else None
     if expected_run_dir is not None and expected_run_dir.exists():
         return expected_run_dir, "expected_run_dir"
+
+    if not rerun_logs_root.exists():
+        return None, "unresolved"
 
     discovered = discover_accepted_run_directories(
         rerun_logs_root,
@@ -354,16 +358,25 @@ def bounded_subprocess_rerun_runner(
 def _resolve_rerun_runner(
     rerun_mode: str,
     rerun_runner: Callable[..., Mapping[str, Any]] | None = None,
+    *,
+    task: Mapping[str, Any] | None = None,
 ) -> Callable[..., Mapping[str, Any]]:
     if rerun_runner is not None:
         return rerun_runner
     normalized = str(rerun_mode or "preview").lower()
+    if normalized == "auto" and task is not None:
+        task_preferred_mode = str(task.get("preferred_rerun_mode", "") or "").lower()
+        if task_preferred_mode:
+            normalized = task_preferred_mode
+        allow_fallback = bool(task.get("allow_preview_fallback", True))
+    else:
+        allow_fallback = normalized == "auto"
     if normalized == "preview":
         return preview_rerun_runner
     if normalized == "subprocess":
         return lambda task, **kwargs: bounded_subprocess_rerun_runner(
             task,
-            allow_fallback=False,
+            allow_fallback=allow_fallback,
             **kwargs,
         )
     if normalized == "auto":
@@ -385,13 +398,12 @@ def trigger_targeted_reruns(
     rerun_runner: Callable[..., Mapping[str, Any]] | None = None,
 ) -> Dict[str, Any]:
     """Execute targeted rerun tasks and return repaired run references."""
-
-    runner = _resolve_rerun_runner(rerun_mode, rerun_runner)
     original_by_dir = {str(item.get("run_dir", "")): item for item in original_runs}
     task_results: list[Dict[str, Any]] = []
     repaired_run_dirs: list[str] = []
 
     for task in rerun_tasks:
+        runner = _resolve_rerun_runner(rerun_mode, rerun_runner, task=task)
         original_payload = original_by_dir.get(str(task.get("original_run_dir", "")))
         result = dict(
             runner(
@@ -404,7 +416,7 @@ def trigger_targeted_reruns(
         )
         task_results.append(result)
         run_dir = str(result.get("run_dir", "") or "")
-        if run_dir:
+        if run_dir and str(result.get("status", "")) in {"completed", "completed_with_preview_fallback"}:
             repaired_run_dirs.append(str(Path(run_dir)))
 
     return {

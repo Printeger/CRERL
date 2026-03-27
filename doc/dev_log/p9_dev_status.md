@@ -5,20 +5,25 @@ Updated: 2026-03-27
 ## 1. This Iteration Goal
 
 This iteration continues the Phase 9 close-out by pushing the bounded rerun path
-closer to real repaired execution validation.
+closer to real bounded execution and by running a real close-out validation
+round over baseline / eval / train.
 
 The goal of this step is:
 
-- make bounded subprocess reruns resolve real accepted run directories instead
-  of treating directory existence as success,
-- ensure rerun-triggered metadata stays aligned with the requested
-  `scenario_type / scene_cfg_name / scene_id_prefix`,
-- and broaden Phase 9 comparison beyond the first success-gap metric.
+- make at least `baseline` and `eval` run through a more stable real bounded
+  subprocess path,
+- bind rerun execution more tightly to the original execution source and
+  checkpoint/runtime context,
+- integrate higher-order family-gap targets into the Phase 9 decision rule,
+- and confirm that `analysis/validation/<bundle>/` plus
+  `post_repair_evidence.json` can be produced for real baseline / eval / train
+  close-out runs.
 
 ## 2. Result
 
-Phase 9 now has a stronger repaired-execution validation path and richer
-comparison targets.
+Phase 9 now has a stronger repaired-execution validation path, richer
+comparison targets, and a first real close-out validation round over
+`baseline / eval / train`.
 
 This implementation batch added or upgraded:
 
@@ -42,9 +47,10 @@ to:
 - a selectable `preview / auto / subprocess` rerun driver path,
 - bounded subprocess task execution that resolves and acceptance-checks repaired
   run directories,
-- runtime metadata overrides that keep repaired logs aligned with validation
-  intent,
+- runtime metadata and baseline-policy binding that keep repaired logs aligned
+  with validation intent,
 - richer higher-order comparison metrics,
+- a claim-aware decision rule that consumes high-order family-gap evidence,
 - a machine-readable validation decision,
 - and `post_repair_evidence.json` with a stable consumer contract for Phase 10.
 
@@ -64,6 +70,8 @@ Each adapter now declares:
 - `bounded_limits`
 - `supports_real_execution`
 - `fallback_runner_mode`
+- `preferred_rerun_mode`
+- `allow_preview_fallback`
 
 This makes the current rerun path much closer to the future real execution
 adapter interface, while still keeping the current execution bounded and
@@ -94,7 +102,7 @@ In `auto` mode, the runner first attempts bounded subprocess execution and only
 falls back to preview if the subprocess path fails to materialize a repaired
 accepted run.
 
-### 2.3 Runtime Logging and Training Metadata Now Honor Validation Overrides
+### 2.3 Runtime Logging, Training Metadata, and Baseline Binding Now Honor Validation Overrides
 
 `runtime_logging/logger.py` now honors rerun-side environment overrides for:
 
@@ -109,13 +117,22 @@ overrides for:
 - `scene_cfg_name`
 - `scene_id_prefix`
 
+`rerun_adapters.py` now also binds baseline reruns back to the original
+baseline source by explicitly emitting:
+
+- `baseline.name=random`
+- `baseline.name=greedy`
+- `baseline.name=conservative`
+
+depending on the original accepted run source.
+
 This matters because bounded subprocess reruns need repaired evidence to stay
 both:
 
 - in deterministic validation-owned run directories,
 - and semantically aligned with the intended rerun family/config.
 
-### 2.4 `comparison.py` Now Computes Richer High-Order Targets
+### 2.4 `comparison.py` and `decision.py` Now Consume Richer High-Order Targets
 
 Phase 9 comparison is no longer limited to:
 
@@ -138,6 +155,20 @@ It also emits:
 - `repaired_by_source`
 
 This gives Phase 9 a stronger basis for family-conditioned repair validation.
+
+`decision.py` now also consumes claim-specific high-order metrics for:
+
+- `E-C`
+- `E-R`
+
+so acceptance is no longer decided only from:
+
+- generic consistency witness
+- generic safety average
+- generic performance floor
+
+When these higher-order family-gap metrics are present, they now participate
+directly in the accept / reject decision.
 
 ### 2.5 `post_repair_evidence.json` Still Carries the Strong Consumer Contract
 
@@ -177,27 +208,36 @@ handoff substrate.
 - `validation_supported_bounded_rerun_adapters`
 - `validation_default_rerun_mode`
 - `validation_preview_fallback_allowed`
+- `validation_real_execution_preferred_modes`
+- `validation_preview_fallback_modes`
 - `validation_subprocess_rerun_acceptance_required`
+- `validation_claim_specific_decision_required_for`
 - `validation_high_order_targets`
 
 That gives later static checks and downstream phases a canonical place to read
 the expected validation-side contract instead of inferring it from code shape.
 
-### 2.7 Focused Phase 9 Tests Now Lock the Adapter, Metadata, and Comparison Path
+### 2.7 Focused Tests and Real Close-Out Runs Now Lock the Phase 9 Path
 
 `test_validation_loop.py` was extended to verify:
 
 - baseline / eval / train rerun tasks all emit stable bounded adapter metadata,
 - the rerun task previews contain mode-specific Hydra override sets,
+- baseline reruns inherit the correct `baseline.name=*` override from the
+  original source,
 - logger creation honors rerun-side environment overrides,
 - training metadata extraction honors validation-side scene overrides,
 - the subprocess rerun path can materialize and acceptance-check repaired
   accepted runs through a bounded fake runner,
 - the new high-order comparison targets are derived correctly,
+- the decision rule rejects `E-R` repairs when the higher-order
+  `nominal_vs_shifted_*` gap gets worse,
 - the triggered rerun path still writes a complete validation bundle,
 - and `post_repair_evidence.json` exposes the new Phase 10 consumer contract.
 
-This means the current Phase 9 close-out is regression-locked by focused tests.
+This means the current Phase 9 close-out is regression-locked by focused tests
+and has been smoke-tested over real `baseline / eval / train` validation
+bundles.
 
 ## 3. Main Files Added or Changed
 
@@ -313,11 +353,14 @@ Validated in this iteration:
 
 - `python3 -m py_compile ...` passed
 - `pytest -q ...` passed:
-  - `20 passed, 1 skipped`
+  - `23 passed, 1 skipped`
 - focused adapter, comparison, and consumer-contract checks passed:
   - baseline tasks emit `phase9_bounded_baseline_rerun_adapter.v1`
   - eval tasks emit `phase9_bounded_eval_rerun_adapter.v1`
   - train tasks emit `phase9_bounded_train_rerun_adapter.v1`
+  - baseline tasks now emit the correct `baseline.name=*` hydra override
+  - `E-R` repairs can now be rejected by worsened
+    `nominal_vs_shifted_success_gap`
   - bounded subprocess reruns can complete without fallback once a repaired run
     passes acceptance
   - logger environment overrides place repaired runs under deterministic
@@ -326,6 +369,19 @@ Validated in this iteration:
   - richer `nominal_vs_shifted_*` and `boundary_critical_vs_nominal_*` targets
     are present
   - `post_repair_evidence.json` now exposes `phase10_post_repair_evidence_consumer.v2`
+- real close-out validation bundles were generated for:
+  - `validation_baseline_greedy_closeout`
+  - `validation_eval_closeout`
+  - `validation_train_closeout`
+- close-out run observations:
+  - baseline used `bounded_subprocess_rerun.v1` with `fallback_used = false`
+  - eval used `bounded_subprocess_rerun.v1` with `fallback_used = false`
+  - train still required bounded fallback in this iteration
+  - all three bundles wrote `post_repair_evidence.json`
+  - all three expose `phase10_post_repair_evidence_consumer.v2`
+- the current real close-out decision status is still `inconclusive` for all
+  three because the selected real `C-R` repair bundles do not yet expose
+  direct runtime consistency witness values inside accepted run summaries
 - one metadata override test is skipped under system Python when `torch` is not
   available
 - `Traceability.md` was refreshed for this Phase 9 implementation batch
@@ -333,22 +389,24 @@ Validated in this iteration:
 This confirms that Phase 9 now has:
 
 - a more realistic bounded rerun adapter substrate,
-- a first subprocess-capable rerun path,
+- stable real bounded subprocess paths for `baseline` and `eval`,
+- a bounded fallback path for `train`,
 - acceptance-aware repaired run resolution,
 - richer family-conditioned validation metrics,
+- claim-aware decision logic that uses higher-order family-gap signals,
 - stable mode-aware validation task metadata,
 - and a stronger Phase 10 consumer contract for post-repair evidence.
 
 ## 6. What Should Be Done Next
 
-The next Phase 9 step should be:
+The next step should be:
 
-1. continue replacing the preview runner with progressively more faithful
-   bounded real execution adapters,
-2. broaden high-order target support beyond the current family-gap metrics and
-   integrate them into decision policy where useful,
-3. finalize the Phase 10 validation consumer over the stabilized evidence
-   contract.
+1. decide whether to formally close Phase 9 with the current bounded
+   `baseline / eval` real-execution coverage and `train` fallback,
+2. or do one final tightening pass so `train` also reaches a more stable real
+   bounded rerun path,
+3. then start Phase 10 on top of the now-stable
+   `post_repair_evidence.json` contract.
 
-That will move Phase 9 from a bounded validation substrate toward a true
-post-repair execution validation loop.
+That means Phase 9 is now in close-out territory rather than missing a major
+pipeline block.

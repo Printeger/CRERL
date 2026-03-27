@@ -425,6 +425,96 @@ def test_prepare_validation_runs_and_decision_accepts_improving_repair(tmp_path)
     assert decision["accepted"] is True
 
 
+def test_validation_decision_rejects_er_when_shift_gap_worsens(tmp_path):
+    repair_bundle_dir = _make_repair_bundle(
+        tmp_path,
+        claim_type="E-R",
+        summary="Shifted-family robustness is too weak under distribution shift.",
+        target_ref=SHIFTED_CFG,
+    )
+    logs_root = tmp_path / "logs"
+    original_nominal = _make_accepted_run_dir(
+        logs_root,
+        name="baseline_nominal_original",
+        source="baseline_greedy",
+        scenario_type="nominal",
+        scene_cfg_name="scene_cfg_nominal.yaml",
+        metrics={
+            "W_ER": 0.31,
+            "min_distance": 0.76,
+            "collision_rate": 0.03,
+            "near_violation_ratio": 0.08,
+            "average_return": 3.35,
+            "success_rate": 0.82,
+        },
+    )
+    original_shifted = _make_accepted_run_dir(
+        logs_root,
+        name="baseline_shifted_original",
+        source="baseline_greedy",
+        scenario_type="shifted",
+        scene_cfg_name="scene_cfg_shifted.yaml",
+        metrics={
+            "W_ER": 0.44,
+            "min_distance": 0.58,
+            "collision_rate": 0.08,
+            "near_violation_ratio": 0.18,
+            "average_return": 3.02,
+            "success_rate": 0.64,
+        },
+    )
+    repaired_nominal = _make_accepted_run_dir(
+        logs_root,
+        name="baseline_nominal_repaired",
+        source="baseline_greedy",
+        scenario_type="nominal",
+        scene_cfg_name="scene_cfg_nominal.yaml",
+        metrics={
+            "W_ER": 0.20,
+            "min_distance": 0.88,
+            "collision_rate": 0.01,
+            "near_violation_ratio": 0.04,
+            "average_return": 3.55,
+            "success_rate": 0.96,
+        },
+    )
+    repaired_shifted = _make_accepted_run_dir(
+        logs_root,
+        name="baseline_shifted_repaired",
+        source="baseline_greedy",
+        scenario_type="shifted",
+        scene_cfg_name="scene_cfg_shifted.yaml",
+        metrics={
+            "W_ER": 0.18,
+            "min_distance": 0.60,
+            "collision_rate": 0.07,
+            "near_violation_ratio": 0.18,
+            "average_return": 2.90,
+            "success_rate": 0.45,
+        },
+    )
+
+    prepared = prepare_validation_runs(
+        repair_bundle_dir=repair_bundle_dir,
+        logs_root=logs_root,
+        original_run_dirs=[original_nominal, original_shifted],
+        repaired_run_dirs=[repaired_nominal, repaired_shifted],
+    )
+    comparison = compare_validation_runs(
+        primary_claim_type=prepared["validation_input"]["primary_claim_type"],
+        validation_targets=prepared["validation_input"]["validation_targets"],
+        original_runs=prepared["original_runs"],
+        repaired_runs=prepared["repaired_runs"],
+    )
+    decision = decide_validation(comparison, performance_regression_epsilon=0.05)
+
+    assert comparison["metric_deltas"]["W_ER"]["improvement"] > 0.0
+    assert comparison["metric_deltas"]["nominal_vs_shifted_success_gap"]["improvement"] < 0.0
+    assert decision["metric_deltas"]["claim_specific_improvement"] < 0.0
+    assert decision["decision_status"] == "rejected"
+    assert decision["accepted"] is False
+
+
 def test_compare_validation_runs_derives_nominal_vs_shifted_success_gap(tmp_path):
     repair_bundle_dir = _make_repair_bundle(
         tmp_path,
@@ -614,6 +704,11 @@ def test_compare_validation_runs_derives_boundary_critical_high_order_targets(tm
     assert comparison["metric_deltas"]["boundary_critical_vs_nominal_success_gap"]["improvement"] > 0.0
     assert comparison["metric_deltas"]["boundary_critical_vs_nominal_min_distance_gap"]["improvement"] > 0.0
 
+    decision = decide_validation(comparison, performance_regression_epsilon=0.05)
+    assert decision["decision_status"] == "accepted"
+    assert decision["metric_deltas"]["claim_specific_improvement"] > 0.0
+    assert decision["claim_specific_metrics"]
+
 
 def test_validation_decision_rejects_large_performance_regression(tmp_path):
     repair_bundle_dir = _make_repair_bundle(
@@ -763,20 +858,67 @@ def test_build_validation_rerun_tasks_emit_bounded_adapter_metadata(tmp_path):
     assert baseline_task["supports_real_execution"] is True
     assert baseline_task["script_path"].endswith("run_baseline.py")
     assert "baseline.num_episodes=1" in baseline_task["hydra_overrides"]
+    assert "baseline.name=random" in baseline_task["hydra_overrides"]
+    assert baseline_task["preferred_rerun_mode"] == "subprocess"
+    assert baseline_task["allow_preview_fallback"] is False
 
     assert eval_task["adapter_type"] == "phase9_bounded_eval_rerun_adapter.v1"
     assert eval_task["script_path"].endswith("eval.py")
     assert "wandb.mode=offline" in eval_task["hydra_overrides"]
     assert any(item.startswith("max_frame_num=") for item in eval_task["hydra_overrides"])
+    assert any(item.startswith("+checkpoint_path=") for item in eval_task["hydra_overrides"])
+    assert eval_task["allow_preview_fallback"] is False
 
     assert train_task["adapter_type"] == "phase9_bounded_train_rerun_adapter.v1"
     assert train_task["script_path"].endswith("train.py")
-    assert "skip_periodic_eval=True" in train_task["hydra_overrides"]
+    assert "+skip_periodic_eval=True" in train_task["hydra_overrides"]
     assert train_task["bounded_limits"]["max_frame_num"] == 2048
     assert train_task["command_preview"][0] == "python3"
     assert train_task["env_overrides"]["CRE_RUN_USE_TIMESTAMP"] == "0"
     assert train_task["env_overrides"]["CRE_VALIDATION_SCENE_ID_PREFIX"] == train_task["output_run_name"]
     assert train_task["expected_run_dir"].endswith(train_task["output_run_name"])
+    assert train_task["allow_preview_fallback"] is True
+
+
+def test_build_validation_rerun_tasks_bind_baseline_name_from_original_source(tmp_path):
+    repair_bundle_dir = _make_repair_bundle(
+        tmp_path,
+        claim_type="E-R",
+        summary="Shifted-family robustness is too weak under distribution shift.",
+        target_ref=SHIFTED_CFG,
+    )
+    logs_root = tmp_path / "logs"
+    original_run = _make_accepted_run_dir(
+        logs_root,
+        name="baseline_greedy_nominal_original",
+        source="baseline_greedy",
+        scenario_type="nominal",
+        scene_cfg_name="scene_cfg_nominal.yaml",
+        metrics={
+            "W_ER": 0.33,
+            "min_distance": 0.70,
+            "collision_rate": 0.05,
+            "near_violation_ratio": 0.10,
+            "average_return": 3.0,
+            "success_rate": 0.75,
+        },
+    )
+    loaded = load_validation_request_bundle(repair_bundle_dir, require_phase9_ready=True)
+    original_payload = {
+        "run_dir": str(original_run),
+        "run_id": original_run.name,
+        "manifest": json.loads((original_run / "manifest.json").read_text()),
+        "summary": json.loads((original_run / "summary.json").read_text()),
+        "episodes": [json.loads((original_run / "episodes.jsonl").read_text().splitlines()[0])],
+    }
+    task = build_validation_rerun_tasks(
+        validation_input=loaded,
+        original_runs=[original_payload],
+        repaired_logs_root=tmp_path / "repaired_logs",
+    )[0]
+
+    assert task["source"] == "baseline_greedy"
+    assert "baseline.name=greedy" in task["hydra_overrides"]
 
 
 def test_create_run_logger_honors_bounded_rerun_env_overrides(tmp_path, monkeypatch):
@@ -897,6 +1039,54 @@ def test_prepare_validation_runs_subprocess_mode_uses_bounded_execution_adapter(
     assert result["detected_via"] == "expected_run_dir"
     assert Path(result["run_dir"]).exists()
     assert result["subprocess_returncode"] == 0
+
+
+def test_prepare_validation_runs_auto_mode_keeps_baseline_on_real_subprocess_path(tmp_path, monkeypatch):
+    repair_bundle_dir = _make_repair_bundle(
+        tmp_path,
+        claim_type="E-R",
+        summary="Shifted-family robustness is too weak under distribution shift.",
+        target_ref=SHIFTED_CFG,
+    )
+    logs_root = tmp_path / "logs"
+    original_run = _make_accepted_run_dir(
+        logs_root,
+        name="baseline_greedy_shifted_original",
+        source="baseline_greedy",
+        scenario_type="shifted",
+        scene_cfg_name="scene_cfg_shifted.yaml",
+        metrics={
+            "W_ER": 0.46,
+            "min_distance": 0.52,
+            "collision_rate": 0.12,
+            "near_violation_ratio": 0.25,
+            "average_return": 2.70,
+            "success_rate": 0.42,
+        },
+    )
+
+    def _fake_fail(*args, **kwargs):
+        class _Result:
+            returncode = 1
+            stdout = ""
+            stderr = "failed"
+        return _Result()
+
+    monkeypatch.setattr(validation_runner_module, "_invoke_subprocess_command", _fake_fail)
+
+    prepared = prepare_validation_runs(
+        repair_bundle_dir=repair_bundle_dir,
+        logs_root=logs_root,
+        original_run_dirs=[original_run],
+        trigger_rerun=True,
+        rerun_mode="auto",
+        repaired_logs_root=tmp_path / "repaired_logs",
+    )
+
+    result = prepared["validation_runs"]["triggered_rerun_results"]["task_results"][0]
+    assert result["runner_mode"] == "bounded_subprocess_rerun.v1"
+    assert result["status"] == "failed_subprocess"
+    assert result["fallback_used"] is False
 
 
 def test_post_repair_evidence_contract_exposes_phase10_consumer_requirements(tmp_path):

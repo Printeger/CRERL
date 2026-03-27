@@ -104,7 +104,15 @@ runtime_expectations:
     - "phase9_bounded_train_rerun_adapter.v1"
   validation_default_rerun_mode: "auto"
   validation_preview_fallback_allowed: true
+  validation_real_execution_preferred_modes:
+    - "baseline"
+    - "eval"
+  validation_preview_fallback_modes:
+    - "train"
   validation_subprocess_rerun_acceptance_required: true
+  validation_claim_specific_decision_required_for:
+    - "E-C"
+    - "E-R"
   validation_high_order_targets:
     - "nominal_vs_shifted_success_gap"
     - "nominal_vs_shifted_min_distance_gap"

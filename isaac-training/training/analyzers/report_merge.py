@@ -30,6 +30,14 @@ SOURCE_PRIORITY = {
     "semantic_rejected": 0.1,
 }
 
+SUPPORT_PRIORITY = {
+    "machine_direct": 1.0,
+    "machine_derived": 0.85,
+    "semantic_supported": 0.75,
+    "semantic_weak": 0.35,
+    "semantic_rejected": 0.05,
+}
+
 STATIC_CHECK_TO_CLAIM_TYPE = {
     "constraint_runtime_binding": "C-R",
     "reward_constraint_conflicts": "C-R",
@@ -125,17 +133,39 @@ class RepairReadyRecord:
     handoff_id: str
     claim_type: str
     selected_from: str
+    selected_from_rank: int
     severity: str
     confidence: float
     support_status: str
     summary: str
     impacted_components: List[str] = field(default_factory=list)
     suggested_repair_direction: str = ""
-    evidence_refs: List[str] = field(default_factory=list)
+    required_evidence_refs: List[str] = field(default_factory=list)
     source_record_ids: List[str] = field(default_factory=list)
+    selection_basis: str = ""
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
+
+
+@dataclass
+class RepairHandoffBundle:
+    """Stable Phase 8-facing repair handoff bundle."""
+
+    handoff_type: str
+    primary_claim_type: str
+    primary_repair_direction: str
+    claim_record_schema: str
+    selection_policy: str
+    impacted_components_union: List[str] = field(default_factory=list)
+    selected_claims: List[RepairReadyRecord] = field(default_factory=list)
+    required_evidence_contract: Dict[str, Any] = field(default_factory=dict)
+    metadata: Dict[str, Any] = field(default_factory=dict)
+
+    def to_dict(self) -> Dict[str, Any]:
+        payload = asdict(self)
+        payload["selected_claims"] = [item.to_dict() for item in self.selected_claims]
+        return payload
 
 
 def _rank_score(
@@ -143,11 +173,15 @@ def _rank_score(
     severity: str,
     confidence: float,
     source_key: str,
+    support_status: str,
+    evidence_count: int,
 ) -> float:
     return round(
-        0.55 * _severity_score(severity)
-        + 0.30 * SOURCE_PRIORITY.get(source_key, 0.2)
-        + 0.15 * _normalize_confidence(confidence),
+        0.40 * _severity_score(severity)
+        + 0.20 * SOURCE_PRIORITY.get(source_key, 0.2)
+        + 0.20 * SUPPORT_PRIORITY.get(support_status, 0.2)
+        + 0.15 * _normalize_confidence(confidence)
+        + 0.05 * min(max(int(evidence_count), 0), 4) / 4.0,
         6,
     )
 
@@ -176,6 +210,8 @@ def normalize_static_findings(static_report: Mapping[str, Any]) -> List[RankedFi
                     severity=severity,
                     confidence=confidence,
                     source_key="static",
+                    support_status="machine_direct",
+                    evidence_count=len(_stable_unique(entry.get("affected_paths", []) or [])),
                 ),
                 metadata={
                     "check_id": check_id,
@@ -211,6 +247,8 @@ def normalize_dynamic_findings(dynamic_report: Mapping[str, Any]) -> List[Ranked
                     severity=severity,
                     confidence=confidence,
                     source_key="dynamic",
+                    support_status="machine_derived",
+                    evidence_count=len(_stable_unique(entry.get("evidence_refs", []) or [])),
                 ),
                 metadata={
                     "witness_id": witness_id,
@@ -257,6 +295,8 @@ def normalize_semantic_claims(
                         severity=severity,
                         confidence=confidence,
                         source_key=source_key,
+                        support_status=support_status,
+                        evidence_count=len(_stable_unique(entry.get("supporting_evidence_ids", []) or [])),
                     ),
                     metadata={
                         "affected_families": list(entry.get("affected_families", []) or []),
@@ -289,26 +329,105 @@ def rank_findings(findings: Sequence[RankedFinding]) -> List[RankedFinding]:
 def build_root_cause_summary(ranked_findings: Sequence[RankedFinding]) -> Dict[str, Any]:
     claim_type_breakdown: Dict[str, int] = {}
     source_breakdown: Dict[str, int] = {}
+    claim_type_scores: Dict[str, float] = {}
+    top_by_namespace: Dict[str, Dict[str, Any]] = {}
     for finding in ranked_findings:
         claim_type_breakdown[finding.claim_type] = int(claim_type_breakdown.get(finding.claim_type, 0)) + 1
         source_breakdown[finding.source_namespace] = int(source_breakdown.get(finding.source_namespace, 0)) + 1
+        claim_type_scores[finding.claim_type] = round(
+            float(claim_type_scores.get(finding.claim_type, 0.0))
+            + float(finding.rank_score) * float(SUPPORT_PRIORITY.get(finding.support_status, 0.2)),
+            6,
+        )
+        if finding.source_namespace not in top_by_namespace:
+            top_by_namespace[finding.source_namespace] = {
+                "claim_type": finding.claim_type,
+                "summary": finding.summary,
+                "severity": finding.severity,
+                "support_status": finding.support_status,
+                "rank_score": finding.rank_score,
+            }
 
     top_finding = ranked_findings[0] if ranked_findings else None
+    blocking_static = [
+        finding
+        for finding in ranked_findings
+        if finding.source_namespace == "analysis/static"
+        and finding.support_status == "machine_direct"
+        and _severity_rank(finding.severity) >= _severity_rank("high")
+    ]
+
+    selection_mode = "aggregate_claim_score"
+    if blocking_static:
+        primary_finding = blocking_static[0]
+        primary_claim_type = primary_finding.claim_type
+        selection_mode = "static_blocker_override"
+    else:
+        primary_claim_type = ""
+        if claim_type_scores:
+            primary_claim_type = max(
+                sorted(claim_type_scores),
+                key=lambda key: (claim_type_scores[key], claim_type_breakdown.get(key, 0), key),
+            )
+        if not primary_claim_type and top_finding is not None:
+            primary_claim_type = top_finding.claim_type
+
+        primary_finding = next(
+            (finding for finding in ranked_findings if finding.claim_type == primary_claim_type),
+            top_finding,
+        )
+
+    conflicts: List[Dict[str, Any]] = []
+    static_top = top_by_namespace.get("analysis/static")
+    semantic_top = top_by_namespace.get("analysis/semantic")
+    if static_top and semantic_top and static_top.get("claim_type") != semantic_top.get("claim_type"):
+        conflicts.append(
+            {
+                "kind": "static_semantic_claim_type_conflict",
+                "static_claim_type": static_top.get("claim_type", ""),
+                "semantic_claim_type": semantic_top.get("claim_type", ""),
+            }
+        )
+
+    selection_reason = ""
+    if primary_finding is not None:
+        if selection_mode == "static_blocker_override":
+            selection_reason = (
+                f"Selected `{primary_claim_type}` because a high-severity static blocker "
+                f"takes precedence over weaker cross-namespace alternatives."
+            )
+        else:
+            selection_reason = (
+                f"Selected `{primary_claim_type}` from aggregated cross-namespace score "
+                f"with strongest supporting finding in `{primary_finding.source_namespace}`."
+            )
     return {
-        "primary_claim_type": top_finding.claim_type if top_finding else "",
-        "primary_summary": top_finding.summary if top_finding else "",
-        "primary_support_status": top_finding.support_status if top_finding else "",
+        "primary_claim_type": primary_claim_type,
+        "primary_summary": primary_finding.summary if primary_finding else "",
+        "primary_support_status": primary_finding.support_status if primary_finding else "",
         "claim_type_breakdown": dict(sorted(claim_type_breakdown.items())),
         "source_breakdown": dict(sorted(source_breakdown.items())),
+        "claim_type_scores": dict(sorted(claim_type_scores.items())),
+        "top_by_namespace": top_by_namespace,
+        "conflicts": conflicts,
+        "selection_mode": selection_mode,
+        "selection_reason": selection_reason,
     }
 
 
 def build_repair_handoff(
     ranked_findings: Sequence[RankedFinding],
     claim_consumer: Mapping[str, Any],
-) -> List[RepairReadyRecord]:
-    handoff: List[RepairReadyRecord] = []
+    *,
+    primary_claim_type_override: str = "",
+) -> RepairHandoffBundle:
+    selected_claims: List[RepairReadyRecord] = []
     seen_source_records = set()
+    impacted_components_union = set()
+    primary_claim_type = str(primary_claim_type_override or claim_consumer.get("primary_claim_type", "")) or (
+        ranked_findings[0].claim_type if ranked_findings else ""
+    )
+    primary_repair_direction = CLAIM_TYPE_TO_REPAIR_DIRECTION.get(primary_claim_type, "")
 
     for entry in claim_consumer.get("repair_ready_claims", []) or []:
         source_record_id = str(entry.get("claim_id", ""))
@@ -316,48 +435,89 @@ def build_repair_handoff(
             continue
         seen_source_records.add(source_record_id)
         claim_type = str(entry.get("claim_type", "unknown"))
-        handoff.append(
+        impacted_components = list(entry.get("impacted_components", []) or CLAIM_TYPE_TO_COMPONENTS.get(claim_type, ()))
+        impacted_components_union.update(impacted_components)
+        selected_claims.append(
             RepairReadyRecord(
                 handoff_id=f"repair_handoff:{source_record_id}",
                 claim_type=claim_type,
                 selected_from="analysis/semantic",
+                selected_from_rank=next(
+                    (
+                        index
+                        for index, finding in enumerate(ranked_findings, start=1)
+                        if finding.source_record_id == source_record_id
+                    ),
+                    -1,
+                ),
                 severity=str(entry.get("severity", "warning")),
                 confidence=_normalize_confidence(entry.get("confidence", 0.0), fallback=0.5),
                 support_status=str(entry.get("crosscheck_support_status", "semantic_supported")),
                 summary=str(entry.get("summary", "")),
-                impacted_components=list(entry.get("impacted_components", []) or CLAIM_TYPE_TO_COMPONENTS.get(claim_type, ())),
+                impacted_components=impacted_components,
                 suggested_repair_direction=CLAIM_TYPE_TO_REPAIR_DIRECTION.get(claim_type, ""),
-                evidence_refs=_stable_unique(entry.get("supporting_evidence_ids", []) or []),
+                required_evidence_refs=_stable_unique(entry.get("supporting_evidence_ids", []) or []),
                 source_record_ids=_stable_unique([source_record_id]),
+                selection_basis="semantic_supported_claim_consumer",
             )
         )
 
-    for finding in ranked_findings:
+    for rank, finding in enumerate(ranked_findings, start=1):
         if finding.source_record_id in seen_source_records:
             continue
         if finding.support_status == "semantic_rejected":
             continue
         if finding.claim_type == "unknown":
             continue
-        handoff.append(
+        impacted_components_union.update(finding.impacted_components)
+        selected_claims.append(
             RepairReadyRecord(
                 handoff_id=f"repair_handoff:{finding.source_record_id}",
                 claim_type=finding.claim_type,
                 selected_from=finding.source_namespace,
+                selected_from_rank=rank,
                 severity=finding.severity,
                 confidence=finding.confidence,
                 support_status=finding.support_status,
                 summary=finding.summary,
                 impacted_components=list(finding.impacted_components),
                 suggested_repair_direction=finding.repair_direction,
-                evidence_refs=list(finding.evidence_refs),
+                required_evidence_refs=list(finding.evidence_refs),
                 source_record_ids=[finding.source_record_id],
+                selection_basis="ranked_finding_backfill",
             )
         )
         seen_source_records.add(finding.source_record_id)
-        if len(handoff) >= 6:
+        if len(selected_claims) >= 6:
             break
-    return handoff
+    return RepairHandoffBundle(
+        handoff_type="phase8_repair_handoff.v1",
+        primary_claim_type=primary_claim_type,
+        primary_repair_direction=primary_repair_direction,
+        claim_record_schema="phase7_repair_ready_claim.v1",
+        selection_policy="phase7_ranked_claim_selection.v2",
+        impacted_components_union=sorted(impacted_components_union),
+        selected_claims=selected_claims,
+        required_evidence_contract={
+            "required_claim_fields": [
+                "claim_type",
+                "support_status",
+                "impacted_components",
+                "suggested_repair_direction",
+                "required_evidence_refs",
+            ],
+            "required_support_statuses": [
+                "machine_direct",
+                "machine_derived",
+                "semantic_supported",
+                "semantic_weak",
+            ],
+        },
+        metadata={
+            "phase8_ready": True,
+            "max_selected_claims": 6,
+        },
+    )
 
 
 def build_semantic_claim_summary(semantic_report: Mapping[str, Any]) -> Dict[str, Any]:
@@ -393,6 +553,7 @@ __all__ = [
     "CLAIM_TYPE_TO_COMPONENTS",
     "CLAIM_TYPE_TO_REPAIR_DIRECTION",
     "RankedFinding",
+    "RepairHandoffBundle",
     "RepairReadyRecord",
     "build_repair_handoff",
     "build_root_cause_summary",

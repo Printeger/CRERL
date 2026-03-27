@@ -103,7 +103,7 @@ def main() -> int:
                 "max_severity": report.max_severity,
                 "num_ranked_findings": report.num_ranked_findings,
                 "primary_claim_type": report.root_cause_summary.get("primary_claim_type", ""),
-                "repair_ready_claims": len(report.repair_handoff),
+                "repair_ready_claims": len((report.repair_handoff or {}).get("selected_claims", [])),
             },
             indent=2,
             sort_keys=True,

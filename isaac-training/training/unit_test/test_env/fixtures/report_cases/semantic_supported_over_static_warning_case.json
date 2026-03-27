@@ -1,0 +1,265 @@
+{
+  "dynamic": {
+    "dynamic_report.json": {
+      "comparison_run_ids": [
+        "shifted_run_010"
+      ],
+      "failure_summaries": {
+        "by_scenario_type": {
+          "shifted": {
+            "failure_pressure": 0.66
+          }
+        }
+      },
+      "findings": [
+        {
+          "details": {},
+          "evidence_refs": [
+            "nominal_run_010",
+            "shifted_run_010"
+          ],
+          "finding_id": "dynamic:1",
+          "score": 0.81,
+          "severity": "high",
+          "summary": "Severe shifted degradation detected.",
+          "witness_id": "W_ER"
+        }
+      ],
+      "group_summaries": {
+        "by_source": {
+          "baseline": {
+            "run_count": 1
+          }
+        }
+      },
+      "max_severity": "high",
+      "metadata": {},
+      "num_findings": 1,
+      "passed": false,
+      "primary_run_ids": [
+        "nominal_run_010"
+      ],
+      "report_type": "dynamic_analyzer_report.v1",
+      "semantic_inputs": {},
+      "spec_version": "v0",
+      "static_context": {
+        "bundle_name": "static_warning_fixture"
+      },
+      "witnesses": [
+        {
+          "details": {},
+          "metrics": [],
+          "score": 0.81,
+          "severity": "high",
+          "summary": "Severe shifted degradation detected.",
+          "witness_id": "W_ER"
+        }
+      ]
+    },
+    "manifest.json": {
+      "bundle_name": "dynamic_semantic_dominates_fixture",
+      "report_mode": "dynamic_analysis"
+    },
+    "summary.json": {
+      "max_severity": "high",
+      "num_findings": 1,
+      "passed": false,
+      "report_type": "dynamic_analyzer_report.v1"
+    }
+  },
+  "semantic": {
+    "claim_consumer.json": {
+      "consumer_type": "phase7_claim_consumer.v1",
+      "crosscheck_summary": {
+        "claim_type_breakdown": {
+          "E-R": 1
+        },
+        "rejected_count": 0,
+        "supported_count": 1,
+        "total_cross_checks": 1,
+        "weak_count": 0
+      },
+      "dynamic_bundle_name": "dynamic_semantic_dominates_fixture",
+      "metadata": {
+        "consumer_contract_type": "phase7_claim_consumer_contract.v1"
+      },
+      "primary_claim_type": "E-R",
+      "rejected_claims": [],
+      "repair_ready_claims": [
+        {
+          "affected_families": [
+            "shifted"
+          ],
+          "affected_scene_cfg_names": [
+            "scene_cfg_shifted.yaml"
+          ],
+          "affected_sources": [
+            "baseline"
+          ],
+          "claim_id": "semantic:claim:010",
+          "claim_priority": "primary",
+          "claim_type": "E-R",
+          "confidence": 0.93,
+          "crosscheck_support_status": "supported",
+          "rationale": "Strong shifted robustness mismatch.",
+          "repair_direction_hint": "review shifted-family robustness",
+          "severity": "high",
+          "status": "supported",
+          "summary": "Strong E-R inconsistency under shifted distribution.",
+          "supporting_evidence_ids": [
+            "shifted_run_010"
+          ],
+          "supporting_finding_ids": [
+            "dynamic:1"
+          ],
+          "supporting_witness_ids": [
+            "W_ER"
+          ]
+        }
+      ],
+      "review_claims": [],
+      "semantic_bundle_name": "semantic_dominates_fixture",
+      "static_bundle_name": "static_warning_fixture"
+    },
+    "manifest.json": {
+      "bundle_name": "semantic_dominates_fixture",
+      "report_mode": "semantic_analysis"
+    },
+    "semantic_merge_input.json": {
+      "claim_overview": {
+        "claim_type_breakdown": {
+          "E-R": 1
+        },
+        "rejected_count": 0,
+        "supported_count": 1,
+        "weak_count": 0
+      },
+      "dynamic_bundle_name": "dynamic_semantic_dominates_fixture",
+      "evidence_overview": {
+        "dynamic_finding_count": 1,
+        "evidence_object_count": 0,
+        "failure_hotspot_count": 0,
+        "static_finding_count": 1,
+        "witness_count": 1
+      },
+      "human_summary": {
+        "most_likely_claim_summary": "Strong E-R inconsistency under shifted distribution.",
+        "most_likely_claim_type": "E-R"
+      },
+      "merge_input_type": "phase7_semantic_report_merge_input.v1",
+      "passed": true,
+      "semantic_bundle_name": "semantic_dominates_fixture",
+      "spec_version": "v0",
+      "static_bundle_name": "static_warning_fixture",
+      "top_claim": {
+        "claim_id": "semantic:claim:010",
+        "claim_type": "E-R"
+      }
+    },
+    "semantic_report.json": {
+      "cross_checks": [],
+      "dynamic_bundle_name": "dynamic_semantic_dominates_fixture",
+      "findings": [],
+      "human_summary": {
+        "most_likely_claim_summary": "Strong E-R inconsistency under shifted distribution.",
+        "most_likely_claim_type": "E-R",
+        "next_check_or_repair_direction": "review shifted-family robustness",
+        "strongest_supported_claim_id": "semantic:claim:010",
+        "strongest_uncertainty_claim_id": ""
+      },
+      "max_severity": "high",
+      "metadata": {},
+      "num_findings": 1,
+      "passed": false,
+      "rejected_claims": [],
+      "report_type": "semantic_analyzer_report.v1",
+      "semantic_input": {},
+      "spec_version": "v0",
+      "static_bundle_name": "static_warning_fixture",
+      "supported_claims": [
+        {
+          "affected_families": [
+            "shifted"
+          ],
+          "affected_scene_cfg_names": [
+            "scene_cfg_shifted.yaml"
+          ],
+          "affected_sources": [
+            "baseline"
+          ],
+          "claim_id": "semantic:claim:010",
+          "claim_type": "E-R",
+          "confidence": 0.93,
+          "rationale": "Strong shifted robustness mismatch.",
+          "repair_direction_hint": "review shifted-family robustness",
+          "severity": "high",
+          "status": "supported",
+          "summary": "Strong E-R inconsistency under shifted distribution.",
+          "supporting_evidence_ids": [
+            "shifted_run_010"
+          ],
+          "supporting_finding_ids": [
+            "dynamic:1"
+          ],
+          "supporting_witness_ids": [
+            "W_ER"
+          ]
+        }
+      ],
+      "weak_claims": []
+    },
+    "summary.json": {
+      "max_severity": "high",
+      "num_findings": 1,
+      "passed": false,
+      "primary_claim_type": "E-R",
+      "report_type": "semantic_analyzer_report.v1",
+      "supported_claims": 1,
+      "weak_claims": 0,
+      "rejected_claims": 0
+    }
+  },
+  "static": {
+    "manifest.json": {
+      "bundle_name": "static_warning_fixture",
+      "report_mode": "static_audit"
+    },
+    "static_report.json": {
+      "findings": [
+        {
+          "affected_paths": [
+            "reward.components.reward_progress"
+          ],
+          "check_id": "reward_proxy_suspicion",
+          "details": {},
+          "finding_id": "static:10",
+          "passed": false,
+          "recommended_action": "Review progress shaping.",
+          "severity": "warning",
+          "summary": "Progress shaping may be mildly proxy-like."
+        }
+      ],
+      "max_severity": "warning",
+      "metadata": {},
+      "num_findings": 1,
+      "passed": true,
+      "report_type": "static_analyzer_report.v1",
+      "scene_family_set": [
+        "nominal",
+        "shifted"
+      ],
+      "spec_version": "v0"
+    },
+    "summary.json": {
+      "max_severity": "warning",
+      "num_findings": 1,
+      "passed": true,
+      "report_type": "static_analyzer_report.v1",
+      "scene_family_set": [
+        "nominal",
+        "shifted"
+      ],
+      "spec_version": "v0"
+    }
+  }
+}

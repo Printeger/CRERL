@@ -16,7 +16,7 @@ from analyzers.report_contract import (
 )
 from analyzers.report_merge import (
     RankedFinding,
-    RepairReadyRecord,
+    RepairHandoffBundle,
     build_repair_handoff,
     build_root_cause_summary,
     build_semantic_claim_summary,
@@ -123,7 +123,7 @@ class UnifiedReport:
     root_cause_summary: Dict[str, Any] = field(default_factory=dict)
     witness_summary: Dict[str, Any] = field(default_factory=dict)
     semantic_claim_summary: Dict[str, Any] = field(default_factory=dict)
-    repair_handoff: list[Dict[str, Any]] = field(default_factory=list)
+    repair_handoff: Dict[str, Any] = field(default_factory=dict)
     metadata: Dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -162,8 +162,8 @@ def _build_human_summary_markdown(report: UnifiedReport) -> str:
         "",
         "## Next Repair Direction",
         "",
-        f"- Direction: `{(report.repair_handoff or [{}])[0].get('suggested_repair_direction', '') if report.repair_handoff else ''}`",
-        f"- Impacted components: `{', '.join((report.repair_handoff or [{}])[0].get('impacted_components', [])) if report.repair_handoff else ''}`",
+        f"- Direction: `{(report.repair_handoff.get('primary_repair_direction', '') if report.repair_handoff else '')}`",
+        f"- Impacted components: `{', '.join(report.repair_handoff.get('impacted_components_union', [])) if report.repair_handoff else ''}`",
     ]
     return "\n".join(lines).strip() + "\n"
 
@@ -184,7 +184,12 @@ def build_unified_report(
         *normalize_semantic_claims(semantic_report, claim_consumer),
     ]
     ranked = rank_findings(normalized)
-    handoff = build_repair_handoff(ranked, claim_consumer)
+    root_cause_summary = build_root_cause_summary(ranked)
+    handoff = build_repair_handoff(
+        ranked,
+        claim_consumer,
+        primary_claim_type_override=str(root_cause_summary.get("primary_claim_type", "")),
+    )
 
     blocking = [item for item in ranked if _severity_rank(item.severity) >= _severity_rank("high")]
     return UnifiedReport(
@@ -208,10 +213,10 @@ def build_unified_report(
             },
         },
         ranked_findings=[item.to_dict() for item in ranked],
-        root_cause_summary=build_root_cause_summary(ranked),
+        root_cause_summary=root_cause_summary,
         witness_summary=build_witness_summary(dynamic_report),
         semantic_claim_summary=build_semantic_claim_summary(semantic_report),
-        repair_handoff=[item.to_dict() for item in handoff],
+        repair_handoff=handoff.to_dict(),
         metadata={
             "namespace_contract": dict(bundle_inputs.get("namespace_contract", {}) or {}),
             "source_namespaces": ["analysis/static", "analysis/dynamic", "analysis/semantic"],
@@ -250,7 +255,7 @@ def write_report_bundle(
         encoding="utf-8",
     )
     repair_handoff_path.write_text(
-        json.dumps(report.repair_handoff, indent=2, sort_keys=True),
+        json.dumps(dict(report.repair_handoff), indent=2, sort_keys=True),
         encoding="utf-8",
     )
     report_summary_path.write_text(
@@ -264,7 +269,7 @@ def write_report_bundle(
         "max_severity": str(report.max_severity),
         "num_ranked_findings": int(report.num_ranked_findings),
         "primary_claim_type": str((report.root_cause_summary or {}).get("primary_claim_type", "")),
-        "repair_ready_claims": len(report.repair_handoff),
+        "repair_ready_claims": len((report.repair_handoff or {}).get("selected_claims", [])),
     }
     summary_path.write_text(json.dumps(summary_payload, indent=2, sort_keys=True), encoding="utf-8")
     manifest_payload = {

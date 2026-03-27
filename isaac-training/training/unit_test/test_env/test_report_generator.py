@@ -11,6 +11,8 @@ from analyzers.report_contract import REPORT_GENERATION_MODE
 from analyzers.report_generator import run_report_generation, run_report_generation_bundle
 from analyzers.semantic_analyzer import run_semantic_analysis_bundle
 
+FIXTURE_ROOT = Path(__file__).resolve().parent / "fixtures" / "report_cases"
+
 
 def _write_json(path: Path, payload):
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -248,6 +250,20 @@ def _make_semantic_bundle(tmp_path: Path, static_bundle: Path, dynamic_bundle: P
     return bundle_paths["report_dir"]
 
 
+def _materialize_report_case(tmp_path: Path, fixture_name: str):
+    payload = json.loads((FIXTURE_ROOT / fixture_name).read_text(encoding="utf-8"))
+    static_bundle = tmp_path / "analysis" / "static" / payload["static"]["manifest.json"]["bundle_name"]
+    dynamic_bundle = tmp_path / "analysis" / "dynamic" / payload["dynamic"]["manifest.json"]["bundle_name"]
+    semantic_bundle = tmp_path / "analysis" / "semantic" / payload["semantic"]["manifest.json"]["bundle_name"]
+    for relative_name, value in payload["static"].items():
+        _write_json(static_bundle / relative_name, value)
+    for relative_name, value in payload["dynamic"].items():
+        _write_json(dynamic_bundle / relative_name, value)
+    for relative_name, value in payload["semantic"].items():
+        _write_json(semantic_bundle / relative_name, value)
+    return static_bundle, dynamic_bundle, semantic_bundle
+
+
 def test_run_report_generation_bundle_writes_namespaced_report(tmp_path):
     static_bundle = _make_static_bundle(tmp_path)
     dynamic_bundle = _make_dynamic_bundle(tmp_path)
@@ -286,9 +302,15 @@ def test_run_report_generation_builds_repair_handoff(tmp_path):
     )
 
     assert report.repair_handoff
-    first = report.repair_handoff[0]
+    assert report.repair_handoff["handoff_type"] == "phase8_repair_handoff.v1"
+    assert report.repair_handoff["claim_record_schema"] == "phase7_repair_ready_claim.v1"
+    assert report.repair_handoff["selection_policy"] == "phase7_ranked_claim_selection.v2"
+    assert report.repair_handoff["selected_claims"]
+    first = report.repair_handoff["selected_claims"][0]
     assert first["claim_type"] in {"C-R", "E-C", "E-R"}
     assert first["suggested_repair_direction"] in {"reward", "environment", "constraint", "mixed"}
+    assert "required_evidence_refs" in first
+    assert "selection_basis" in first
 
 
 def test_report_generator_cli_smoke(tmp_path):
@@ -327,3 +349,36 @@ def test_report_generator_cli_smoke(tmp_path):
     assert Path(payload["ranked_findings_path"]).exists()
     assert Path(payload["repair_handoff_path"]).exists()
     assert output_path.exists()
+
+
+def test_root_cause_prefers_static_blocker_over_conflicting_semantic_claim(tmp_path):
+    static_bundle, dynamic_bundle, semantic_bundle = _materialize_report_case(
+        tmp_path,
+        "static_semantic_conflict_case.json",
+    )
+    report = run_report_generation(
+        static_bundle_dir=static_bundle,
+        dynamic_bundle_dir=dynamic_bundle,
+        semantic_bundle_dir=semantic_bundle,
+    )
+
+    assert report.root_cause_summary["primary_claim_type"] == "C-R"
+    conflict_kinds = {item["kind"] for item in report.root_cause_summary["conflicts"]}
+    assert "static_semantic_claim_type_conflict" in conflict_kinds
+    assert report.repair_handoff["primary_repair_direction"] == "reward"
+
+
+def test_root_cause_can_prefer_supported_semantic_claim_over_static_warning(tmp_path):
+    static_bundle, dynamic_bundle, semantic_bundle = _materialize_report_case(
+        tmp_path,
+        "semantic_supported_over_static_warning_case.json",
+    )
+    report = run_report_generation(
+        static_bundle_dir=static_bundle,
+        dynamic_bundle_dir=dynamic_bundle,
+        semantic_bundle_dir=semantic_bundle,
+    )
+
+    assert report.root_cause_summary["primary_claim_type"] == "E-R"
+    assert report.repair_handoff["primary_repair_direction"] == "mixed"
+    assert report.repair_handoff["selected_claims"][0]["claim_type"] == "E-R"

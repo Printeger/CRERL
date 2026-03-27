@@ -89,6 +89,7 @@ from .report_generator import (
 )
 from .report_merge import (
     RankedFinding,
+    RepairHandoffBundle,
     RepairReadyRecord,
     build_repair_handoff,
     build_root_cause_summary,
@@ -164,6 +165,7 @@ __all__ = [
     "Phase7ClaimConsumerBundle",
     "Phase7ClaimRecord",
     "RankedFinding",
+    "RepairHandoffBundle",
     "RepairReadyRecord",
     "REPORT_GENERATION_MODE",
     "REPORT_NAMESPACE",

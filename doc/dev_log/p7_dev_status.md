@@ -4,17 +4,14 @@ Updated: 2026-03-27
 
 ## 1. This Iteration Goal
 
-This iteration starts Phase 7 implementation proper.
+This iteration continues Phase 7 after the first working report generator.
 
-The concrete goal of this step is to land the first working unified report
-generator layer:
+The concrete goal of this step is to tighten three things without changing the
+overall evidence-first architecture:
 
-- `report_merge.py`
-- `report_generator.py`
-- `run_report_audit.py`
-- `test_report_generator.py`
-
-while keeping the current evidence-first pipeline intact.
+- tighten ranking and root-cause ordering rules
+- stabilize `repair_handoff.json` into a clearer Phase 8-facing contract
+- add synthetic merge fixtures for static-vs-semantic conflict cases
 
 ## 2. Implemented Results
 
@@ -141,6 +138,72 @@ The phase detector now recognizes:
 This keeps `Traceability.md` aligned with the actual active phase of this
 implementation step.
 
+### 2.8 Ranking and Root-Cause Ordering Were Tightened
+
+`isaac-training/training/analyzers/report_merge.py` was extended so Phase 7 no
+longer chooses the root cause purely from the highest individual ranked record.
+
+The merge layer now adds:
+
+- support-status-aware ranking
+- evidence-count-aware ranking
+- aggregate claim-type scores
+- explicit `selection_mode`
+- explicit `selection_reason`
+- explicit cross-namespace `conflicts`
+
+Most importantly, it now enforces a `static_blocker_override` path:
+
+- if a high-severity static blocker exists,
+- it can override weaker cross-namespace semantic alternatives
+
+This makes Phase 7 behave more like the roadmap intends:
+
+- static blockers first
+- then cross-source aggregate evidence
+
+### 2.9 `repair_handoff.json` Was Stabilized into a Phase-8-Facing Contract
+
+`repair_handoff.json` is no longer just a flat list of selected claims.
+
+It is now written as a structured bundle:
+
+- `handoff_type = phase8_repair_handoff.v1`
+- `claim_record_schema = phase7_repair_ready_claim.v1`
+- `selection_policy = phase7_ranked_claim_selection.v2`
+- `primary_claim_type`
+- `primary_repair_direction`
+- `impacted_components_union`
+- `selected_claims`
+- `required_evidence_contract`
+
+Each selected claim now carries:
+
+- `selected_from_rank`
+- `required_evidence_refs`
+- `selection_basis`
+
+This gives Phase 8 a clearer and more stable handoff target.
+
+### 2.10 Static-vs-Semantic Conflict Fixtures Were Added
+
+Two synthetic report-level fixture bundles were added under:
+
+- `isaac-training/training/unit_test/test_env/fixtures/report_cases/`
+
+New cases:
+
+- `static_semantic_conflict_case.json`
+- `semantic_supported_over_static_warning_case.json`
+
+These cases now exercise:
+
+- a static blocker overriding a conflicting semantic supported claim
+- a strong semantic supported claim overriding a weaker static warning
+
+This gives Phase 7 much better regression protection around root-cause
+selection and repair-handoff derivation.
+
 ## 3. Main Files Added or Changed
 
 Code:
@@ -152,6 +215,8 @@ Code:
 - `isaac-training/training/scripts/run_report_audit.py`
 - `isaac-training/training/cfg/spec_cfg/policy_spec_v0.yaml`
 - `isaac-training/training/unit_test/test_env/test_report_generator.py`
+- `isaac-training/training/unit_test/test_env/fixtures/report_cases/static_semantic_conflict_case.json`
+- `isaac-training/training/unit_test/test_env/fixtures/report_cases/semantic_supported_over_static_warning_case.json`
 
 Documentation / state:
 
@@ -184,14 +249,13 @@ Run:
 
 ```bash
 pytest -q \
-  isaac-training/training/unit_test/test_env/test_report_generator.py \
-  isaac-training/training/unit_test/test_env/test_semantic_analyzer.py
+  isaac-training/training/unit_test/test_env/test_report_generator.py
 ```
 
 Expected result:
 
 - the new Phase 7 report tests pass
-- the existing Phase 6 semantic tests still pass
+- the conflict-fixture root-cause tests pass
 
 ### 4.3 Real Bundle CLI Smoke Test
 
@@ -226,8 +290,8 @@ Expected result:
 Validated in this iteration:
 
 - `python3 -m py_compile ...` passed
-- `pytest -q test_report_generator.py test_semantic_analyzer.py` passed:
-  - `19 passed`
+- `pytest -q test_report_generator.py` passed:
+  - `5 passed`
 - the real bundle CLI smoke test passed
 
 Observed smoke-test output:
@@ -238,19 +302,28 @@ Observed smoke-test output:
 - `primary_claim_type = C-R`
 - `repair_ready_claims = 6`
 
+The new synthetic fixture expectations also passed:
+
+- static blocker vs semantic conflict:
+  - `primary_claim_type = C-R`
+  - `selection_mode = static_blocker_override`
+- semantic supported vs static warning:
+  - `primary_claim_type = E-R`
+  - `primary_repair_direction = mixed`
+
 This confirms the first Phase 7 report path can already merge real Phase 4-6
 artifacts into one namespaced report bundle.
 
 ## 6. What Should Be Done Next
 
-The next Phase 7 step should tighten the first implementation rather than
-broadening scope immediately:
+The next Phase 7 step should focus on report usability and Phase 8 handoff
+quality:
 
-- refine ranking and source-priority rules
-- improve root-cause ordering stability
-- refine `repair_handoff.json` so Phase 8 can consume it with fewer heuristics
-- add more synthetic merge fixtures that stress conflicting static vs semantic
-  evidence
+- add more mixed-source conflict fixtures beyond static-vs-semantic
+- improve ranked-finding explanations in `report_summary.md`
+- tighten selection of repair-ready claims when multiple namespaces agree on
+  the same claim type
 
-After that, the repo will be ready to start Phase 8 repair selection on top of
-the unified report bundle rather than on top of three separate analyzer outputs.
+After that, the repo should be ready to begin Phase 8 repair selection on top
+of the unified report bundle rather than on top of three separate analyzer
+outputs.

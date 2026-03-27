@@ -18,6 +18,7 @@ from analyzers.report_contract import (
 )
 from analyzers.spec_ir import load_policy_spec
 from envs.runtime.scene_family_bridge import build_scene_family_runtime_profile
+from runtime_logging.episode_writer import load_accepted_run_directory
 
 try:
     import yaml
@@ -313,6 +314,7 @@ def _build_summary_markdown(
     repair_preview_path: str,
     execution_matrix: Sequence[Mapping[str, Any]],
     acceptance: Mapping[str, Any],
+    native_execution_consumer: Mapping[str, Any],
 ) -> str:
     lines = [
         "# Phase 10 Integration Summary",
@@ -346,6 +348,17 @@ def _build_summary_markdown(
             lines.append(f"- `{mode}` still requires validation-only adapter glue.")
     else:
         lines.append("- No validation-only adapter glue is required for the current integration scope.")
+    lines.extend(["", "## Native Execution Proof", ""])
+    native_ready_modes = list(native_execution_consumer.get("native_ready_modes", []) or [])
+    comparison_proven_modes = list(native_execution_consumer.get("comparison_proven_modes", []) or [])
+    if native_ready_modes:
+        lines.append(f"- Native accepted-run bindings confirmed for: `{', '.join(native_ready_modes)}`")
+    else:
+        lines.append("- No native accepted-run binding evidence has been attached yet.")
+    if comparison_proven_modes:
+        lines.append(f"- Native original-vs-repaired comparisons confirmed for: `{', '.join(comparison_proven_modes)}`")
+    else:
+        lines.append("- No native original-vs-repaired comparison bundles have been attached yet.")
     return "\n".join(lines).strip() + "\n"
 
 
@@ -358,11 +371,125 @@ class IntegrationAudit:
     integration_plan: Dict[str, Any] = field(default_factory=dict)
     execution_matrix: Dict[str, Any] = field(default_factory=dict)
     run_binding: Dict[str, Any] = field(default_factory=dict)
+    native_execution_consumer: Dict[str, Any] = field(default_factory=dict)
     integration_acceptance: Dict[str, Any] = field(default_factory=dict)
     integration_summary: Dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
+
+
+def _load_dynamic_comparison_bundle(bundle_dir: str | Path) -> Dict[str, Any]:
+    bundle_path = Path(bundle_dir)
+    report_path = bundle_path / "dynamic_report.json"
+    manifest_path = bundle_path / "manifest.json"
+    summary_path = bundle_path / "summary.json"
+    if not report_path.exists():
+        raise FileNotFoundError(f"Missing dynamic_report.json under dynamic bundle: {bundle_dir}")
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8")) if manifest_path.exists() else {}
+    summary = json.loads(summary_path.read_text(encoding="utf-8")) if summary_path.exists() else {}
+    witness_scores = {
+        str(item.get("witness_id", "")): float(item.get("score", 0.0))
+        for item in list(report.get("witnesses", []) or [])
+    }
+    return {
+        "bundle_dir": str(bundle_path),
+        "bundle_name": bundle_path.name,
+        "report": report,
+        "manifest": manifest,
+        "summary": summary,
+        "witness_scores": witness_scores,
+    }
+
+
+def _build_native_execution_consumer(
+    *,
+    scene_family: str,
+    repair_preview_path: str,
+    execution_modes: Sequence[str],
+    native_run_dirs: Sequence[str | Path] = (),
+    comparison_bundle_dirs: Sequence[str | Path] = (),
+    policy_runtime_expectations: Mapping[str, Any],
+) -> Dict[str, Any]:
+    native_runs = []
+    runs_by_mode: Dict[str, Dict[str, Any]] = {}
+    runs_by_id: Dict[str, Dict[str, Any]] = {}
+
+    for run_dir in native_run_dirs:
+        payload = load_accepted_run_directory(run_dir, require_passed=True)
+        manifest = dict(payload.get("manifest") or {})
+        summary = dict(payload.get("summary") or {})
+        run_metadata = dict(manifest.get("run_metadata") or summary.get("run_metadata") or {})
+        execution_mode = str(run_metadata.get("execution_mode", "")) or str(manifest.get("source", ""))
+        entry = {
+            "run_id": str(payload.get("run_id", "")),
+            "run_dir": str(payload.get("run_dir", "")),
+            "source": str(manifest.get("source", "")),
+            "execution_mode": str(execution_mode),
+            "scenario_type": str(run_metadata.get("scenario_type", "")),
+            "scene_cfg_name": str(run_metadata.get("scene_cfg_name", "")),
+            "acceptance_passed": bool((payload.get("acceptance") or {}).get("passed", False)),
+            "run_metadata_type": str(run_metadata.get("run_metadata_type", "")),
+            "native_repair_preview_consumption": bool(run_metadata.get("native_repair_preview_consumption", False)),
+            "integration_binding_type": str(run_metadata.get("integration_binding_type", "")),
+            "repair_preview_bound": bool(dict(run_metadata.get("repair_preview_binding") or {}).get("preview_bound", False)),
+            "effective_scene_binding": dict(run_metadata.get("effective_scene_binding") or {}),
+            "effective_spec_binding": dict(run_metadata.get("effective_spec_binding") or {}),
+        }
+        native_runs.append(entry)
+        runs_by_mode[str(entry["execution_mode"])] = entry
+        runs_by_id[str(entry["run_id"])] = entry
+
+    comparison_bundles = []
+    comparison_proven_modes = set()
+    for bundle_dir in comparison_bundle_dirs:
+        loaded = _load_dynamic_comparison_bundle(bundle_dir)
+        report = loaded["report"]
+        primary_run_ids = [str(item) for item in list(report.get("primary_run_ids", []) or [])]
+        comparison_run_ids = [str(item) for item in list(report.get("comparison_run_ids", []) or [])]
+        bundle_entry = {
+            "bundle_dir": loaded["bundle_dir"],
+            "bundle_name": loaded["bundle_name"],
+            "passed": bool(report.get("passed", False)),
+            "max_severity": str(report.get("max_severity", "info")),
+            "primary_run_ids": primary_run_ids,
+            "comparison_run_ids": comparison_run_ids,
+            "witness_scores": dict(loaded["witness_scores"]),
+        }
+        comparison_bundles.append(bundle_entry)
+        for run_id in primary_run_ids + comparison_run_ids:
+            execution_mode = str((runs_by_id.get(run_id) or {}).get("execution_mode", ""))
+            if execution_mode:
+                comparison_proven_modes.add(execution_mode)
+
+    native_ready_modes = sorted(
+        mode
+        for mode, entry in runs_by_mode.items()
+        if entry.get("acceptance_passed")
+        and entry.get("run_metadata_type") == "phase10_native_execution_run_metadata.v1"
+        and entry.get("integration_binding_type") == "phase10_env_runtime_binding.v1"
+        and bool(dict(entry.get("effective_scene_binding") or {}).get("binding_type"))
+        and bool(dict(entry.get("effective_spec_binding") or {}).get("binding_type"))
+    )
+
+    return {
+        "consumer_type": "phase10_native_execution_consumer.v1",
+        "scene_family": str(scene_family),
+        "repair_preview_path": str(repair_preview_path),
+        "expected_execution_modes": [str(item) for item in execution_modes],
+        "post_repair_consumer_contract": str(
+            policy_runtime_expectations.get(
+                "integration_post_repair_evidence_consumer_contract",
+                "phase10_post_repair_evidence_consumer.v2",
+            )
+        ),
+        "native_runs": native_runs,
+        "native_runs_by_mode": runs_by_mode,
+        "native_ready_modes": native_ready_modes,
+        "comparison_bundles": comparison_bundles,
+        "comparison_proven_modes": sorted(comparison_proven_modes),
+    }
 
 
 def build_integration_audit(
@@ -372,6 +499,8 @@ def build_integration_audit(
     execution_modes: Sequence[str] = ("baseline", "eval", "train"),
     mode_configs: Optional[Mapping[str, Path]] = None,
     spec_cfg_dir: Optional[Path] = None,
+    native_run_dirs: Sequence[str | Path] = (),
+    comparison_bundle_dirs: Sequence[str | Path] = (),
 ) -> IntegrationAudit:
     policy_spec = load_policy_spec(spec_cfg_dir)
     runtime_expectations = dict(policy_spec.runtime_expectations or {})
@@ -447,6 +576,57 @@ def build_integration_audit(
         "repair_preview_path": str(repair_preview_path),
         "bindings_by_mode": bindings_by_mode,
     }
+    native_execution_consumer = _build_native_execution_consumer(
+        scene_family=scene_family,
+        repair_preview_path=repair_preview_path,
+        execution_modes=execution_modes,
+        native_run_dirs=native_run_dirs,
+        comparison_bundle_dirs=comparison_bundle_dirs,
+        policy_runtime_expectations=runtime_expectations,
+    )
+
+    native_runs_by_mode = dict(native_execution_consumer.get("native_runs_by_mode") or {})
+    if native_runs_by_mode:
+        checks = list(acceptance.get("checks", []) or [])
+
+        checks.append(
+            {
+                "check_id": "native_accepted_run_bindings",
+                "passed": all(str(mode) in set(native_execution_consumer.get("native_ready_modes", []) or []) for mode in execution_modes),
+                "severity": "high",
+                "summary": "Native accepted runs expose direct effective scene/spec bindings for all targeted execution modes.",
+                "details": {"native_ready_modes": list(native_execution_consumer.get("native_ready_modes", []) or [])},
+            }
+        )
+        comparison_bundles = list(native_execution_consumer.get("comparison_bundles", []) or [])
+        if comparison_bundles:
+            checks.append(
+                {
+                    "check_id": "native_original_repaired_comparisons",
+                    "passed": all(bool(item.get("passed", False)) for item in comparison_bundles),
+                    "severity": "high",
+                    "summary": "Native original-vs-repaired comparison bundles passed for the supplied execution modes.",
+                    "details": {
+                        "comparison_proven_modes": list(native_execution_consumer.get("comparison_proven_modes", []) or []),
+                        "comparison_bundle_count": len(comparison_bundles),
+                    },
+                }
+            )
+        failing_high = [item for item in checks if not item["passed"] and item["severity"] == "high"]
+        failing_any = [item for item in checks if not item["passed"]]
+        severity_order = {"info": 0, "medium": 1, "high": 2, "critical": 3}
+        acceptance = {
+            **acceptance,
+            "checks": checks,
+            "passed": not failing_high,
+            "failed_check_count": len(failing_any),
+            "num_checks": len(checks),
+            "max_severity": (
+                max(failing_any, key=lambda item: severity_order.get(str(item["severity"]), 0))["severity"]
+                if failing_any
+                else "info"
+            ),
+        }
     summary = {
         "integration_type": "phase10_integration_summary.v1",
         "passed": bool(acceptance.get("passed", False)),
@@ -463,6 +643,8 @@ def build_integration_audit(
             if bool(item.get("comparison_ready_direct", False))
         ],
         "validation_only_glue_modes": list(acceptance.get("validation_only_glue_modes", []) or []),
+        "native_ready_modes": list(native_execution_consumer.get("native_ready_modes", []) or []),
+        "comparison_proven_modes": list(native_execution_consumer.get("comparison_proven_modes", []) or []),
     }
     return IntegrationAudit(
         integration_type="phase10_integration_audit.v1",
@@ -472,6 +654,7 @@ def build_integration_audit(
         integration_plan=plan,
         execution_matrix=execution_matrix_payload,
         run_binding=run_binding,
+        native_execution_consumer=native_execution_consumer,
         integration_acceptance=acceptance,
         integration_summary=summary,
     )
@@ -491,6 +674,7 @@ def write_integration_bundle(
     integration_plan_path = integration_path / "integration_plan.json"
     execution_matrix_path = integration_path / "execution_matrix.json"
     run_binding_path = integration_path / "run_binding.json"
+    native_execution_consumer_path = integration_path / "native_execution_consumer.json"
     integration_acceptance_path = integration_path / "integration_acceptance.json"
     integration_summary_path = integration_path / "integration_summary.json"
     integration_summary_md_path = integration_path / "integration_summary.md"
@@ -508,6 +692,10 @@ def write_integration_bundle(
         json.dumps(audit.run_binding, indent=2, sort_keys=True),
         encoding="utf-8",
     )
+    native_execution_consumer_path.write_text(
+        json.dumps(audit.native_execution_consumer, indent=2, sort_keys=True),
+        encoding="utf-8",
+    )
     integration_acceptance_path.write_text(
         json.dumps(audit.integration_acceptance, indent=2, sort_keys=True),
         encoding="utf-8",
@@ -522,6 +710,7 @@ def write_integration_bundle(
             repair_preview_path=audit.repair_preview_path,
             execution_matrix=list(audit.execution_matrix.get("execution_modes", []) or []),
             acceptance=audit.integration_acceptance,
+            native_execution_consumer=audit.native_execution_consumer,
         ),
         encoding="utf-8",
     )
@@ -533,6 +722,7 @@ def write_integration_bundle(
         "integration_plan_path": integration_plan_path.name,
         "execution_matrix_path": execution_matrix_path.name,
         "run_binding_path": run_binding_path.name,
+        "native_execution_consumer_path": native_execution_consumer_path.name,
         "integration_acceptance_path": integration_acceptance_path.name,
         "integration_summary_path": integration_summary_path.name,
         "integration_summary_md_path": integration_summary_md_path.name,
@@ -547,6 +737,7 @@ def write_integration_bundle(
         "integration_plan_path": integration_plan_path,
         "execution_matrix_path": execution_matrix_path,
         "run_binding_path": run_binding_path,
+        "native_execution_consumer_path": native_execution_consumer_path,
         "integration_acceptance_path": integration_acceptance_path,
         "integration_summary_path": integration_summary_path,
         "integration_summary_md_path": integration_summary_md_path,
@@ -580,12 +771,16 @@ def run_integration_audit_bundle(
     namespaces: Mapping[str, str] | None = None,
     report_mode_artifacts: Mapping[str, Any] | None = None,
     spec_cfg_dir: Optional[Path] = None,
+    native_run_dirs: Sequence[str | Path] = (),
+    comparison_bundle_dirs: Sequence[str | Path] = (),
 ) -> tuple[IntegrationAudit, Dict[str, Path]]:
     audit = build_integration_audit(
         scene_family=scene_family,
         repair_preview_path=repair_preview_path,
         execution_modes=execution_modes,
         spec_cfg_dir=spec_cfg_dir,
+        native_run_dirs=native_run_dirs,
+        comparison_bundle_dirs=comparison_bundle_dirs,
     )
     namespace = str((namespaces or DEFAULT_REPORT_NAMESPACES).get(INTEGRATION_AUDIT_MODE, INTEGRATION_NAMESPACE))
     namespace_root = None

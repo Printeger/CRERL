@@ -60,6 +60,18 @@ def parse_args() -> argparse.Namespace:
         default="",
         help="Optional extra output path for a standalone integration_summary.json copy.",
     )
+    parser.add_argument(
+        "--native-run-dir",
+        action="append",
+        default=[],
+        help="Optional accepted native run directory to attach as Phase 10 execution evidence.",
+    )
+    parser.add_argument(
+        "--comparison-bundle-dir",
+        action="append",
+        default=[],
+        help="Optional dynamic comparison bundle directory to attach as native original-vs-repaired proof.",
+    )
     return parser.parse_args()
 
 
@@ -81,6 +93,8 @@ def main() -> int:
         namespaces=DEFAULT_REPORT_NAMESPACES,
         report_mode_artifacts=DEFAULT_REPORT_MODE_ARTIFACTS,
         spec_cfg_dir=Path(args.spec_cfg_dir),
+        native_run_dirs=[Path(path) for path in args.native_run_dir],
+        comparison_bundle_dirs=[Path(path) for path in args.comparison_bundle_dir],
     )
     if args.output:
         output_path = Path(args.output)
@@ -97,6 +111,7 @@ def main() -> int:
                 "integration_plan_path": str(bundle_paths["integration_plan_path"]),
                 "execution_matrix_path": str(bundle_paths["execution_matrix_path"]),
                 "run_binding_path": str(bundle_paths["run_binding_path"]),
+                "native_execution_consumer_path": str(bundle_paths["native_execution_consumer_path"]),
                 "integration_acceptance_path": str(bundle_paths["integration_acceptance_path"]),
                 "integration_summary_path": str(bundle_paths["integration_summary_path"]),
                 "integration_summary_md_path": str(bundle_paths["integration_summary_md_path"]),
@@ -109,6 +124,8 @@ def main() -> int:
                 "repair_preview_path": audit.repair_preview_path,
                 "comparison_ready_modes": list(audit.integration_summary.get("comparison_ready_modes", []) or []),
                 "validation_only_glue_modes": list(audit.integration_summary.get("validation_only_glue_modes", []) or []),
+                "native_ready_modes": list(audit.integration_summary.get("native_ready_modes", []) or []),
+                "comparison_proven_modes": list(audit.integration_summary.get("comparison_proven_modes", []) or []),
             },
             indent=2,
             sort_keys=True,

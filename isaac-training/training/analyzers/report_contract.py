@@ -89,6 +89,7 @@ DEFAULT_REPORT_MODE_ARTIFACTS = {
         "integration_plan.json",
         "execution_matrix.json",
         "run_binding.json",
+        "native_execution_consumer.json",
         "integration_acceptance.json",
         "integration_summary.json",
         "integration_summary.md",

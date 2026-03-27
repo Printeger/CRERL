@@ -97,3 +97,8 @@ runtime_expectations:
     - "validation_summary.md"
     - "manifest.json"
     - "namespace_manifest.json"
+  validation_post_repair_evidence_consumer_contract: "phase10_post_repair_evidence_consumer.v2"
+  validation_supported_bounded_rerun_adapters:
+    - "phase9_bounded_baseline_rerun_adapter.v1"
+    - "phase9_bounded_eval_rerun_adapter.v1"
+    - "phase9_bounded_train_rerun_adapter.v1"

@@ -4,65 +4,84 @@ Updated: 2026-03-27
 
 ## 1. This Iteration Goal
 
-This iteration advances Phase 9 from the first validation bundle kernel to the
-first rerun-capable validation loop.
+This iteration closes the remaining gap between the first rerun-capable
+validation loop and a more faithful bounded rerun substrate for Phase 10.
 
 The goal of this step is:
 
-- push `validation_runner.py` from "read already-existing repaired runs"
-  toward "trigger targeted reruns",
-- add higher-order comparison targets such as
-  `nominal_vs_shifted_success_gap`,
-- and stabilize a post-repair evidence artifact that Phase 10 can consume
-  directly.
+- replace the ad hoc preview rerun task shape with more realistic bounded
+  baseline / eval / train rerun adapters,
+- make the rerun task metadata stable enough for future real execution
+  integration,
+- and lock down the consumer contract inside `post_repair_evidence.json` so
+  Phase 10 can consume it deterministically.
 
 ## 2. Result
 
-Phase 9 now has a first rerun-capable validation path and the first explicit
-post-repair evidence handoff.
+Phase 9 now has a more realistic bounded rerun adapter layer and a stronger
+Phase-10-facing post-repair evidence contract.
 
-The third implementation batch added or upgraded:
+This implementation batch added or upgraded:
 
+- `isaac-training/training/repair/rerun_adapters.py`
 - `isaac-training/training/repair/comparison.py`
 - `isaac-training/training/repair/validation_runner.py`
+- `isaac-training/training/repair/__init__.py`
 - `isaac-training/training/scripts/run_validation_audit.py`
 - `isaac-training/training/unit_test/test_env/test_validation_loop.py`
-- `isaac-training/training/analyzers/report_contract.py`
 - `isaac-training/training/cfg/spec_cfg/policy_spec_v0.yaml`
 
-The result is a deterministic first path from:
+The result is a deterministic path from:
 
 - a Phase 8 repair bundle with `validation_request.json`
 
 to:
 
-- targeted validation rerun tasks,
-- preview-mode triggered repaired run generation,
+- bounded rerun adapter tasks with mode-specific limits,
+- preview-mode triggered repaired run generation that already mirrors baseline /
+  eval / train execution classes,
 - higher-order comparison metrics,
 - a machine-readable validation decision,
-- and `post_repair_evidence.json` as a Phase 10-ready validation input.
+- and `post_repair_evidence.json` with a stable consumer contract for Phase 10.
 
-### 2.1 `validation_runner.py` Can Now Trigger Targeted Reruns
+### 2.1 `rerun_adapters.py` Defines Bounded Execution-Aware Rerun Tasks
 
-`validation_runner.py` no longer only loads pre-existing repaired runs.
+A new rerun-adapter layer now provides explicit bounded task specs for:
 
-It now supports:
+- `baseline`
+- `eval`
+- `train`
 
-- building deterministic rerun tasks from original accepted runs,
-- normalizing execution mode, scenario family, and scene config scope,
-- emitting command previews for future real execution integration,
-- triggering a bounded preview-mode rerun driver,
-- and recording rerun task results inside `validation_runs.json`.
+Each adapter now declares:
 
-The current bounded rerun path is:
+- `adapter_type`
+- `script_path`
+- `hydra_overrides`
+- `bounded_limits`
+- `supports_real_execution`
+- `fallback_runner_mode`
 
-- `preview_targeted_rerun.v1`
+This makes the current rerun path much closer to the future real execution
+adapter interface, while still keeping the current execution bounded and
+deterministic.
 
-This does not mutate source files and does not pretend to be a full Isaac
-benchmark rerun. It gives Phase 9 a stable post-repair evidence path while
-preserving the future interface for true baseline/eval/train replay.
+### 2.2 `validation_runner.py` Now Uses the Bounded Adapter Contract
 
-### 2.2 `comparison.py` Now Supports Higher-Order Validation Targets
+`validation_runner.py` no longer hand-builds opaque preview tasks.
+
+It now:
+
+- infers execution mode from accepted run evidence,
+- resolves the corresponding bounded rerun adapter,
+- emits mode-specific Hydra override previews,
+- records adapter metadata directly inside `validation_runs.json`,
+- and uses the same adapter-aware logic when synthesizing repaired run
+  summaries.
+
+This is still a preview-mode bounded rerun path, but it is no longer an ad hoc
+driver. It is now a deterministic surrogate for future real reruns.
+
+### 2.3 `comparison.py` Still Preserves Higher-Order Validation Targets
 
 `comparison.py` was extended beyond flat summary metrics.
 
@@ -82,7 +101,7 @@ This makes Phase 9 more aligned with the roadmap's requirement that `E-R`
 repairs should be judged on family-conditioned transfer gaps, not only on
 single scalar witnesses.
 
-### 2.3 Validation Bundles Now Emit Phase 10-Ready Evidence
+### 2.4 `post_repair_evidence.json` Now Carries a Stronger Consumer Contract
 
 The validation namespace now includes:
 
@@ -97,44 +116,47 @@ This artifact contains:
 - by-scenario summaries,
 - metric deltas,
 - validation decision status,
-- and a `phase10_post_repair_evidence.v1` contract marker.
+- `evidence_schema_version = phase10_post_repair_evidence.v2`,
+- and `consumer_contract.contract_type = phase10_post_repair_evidence_consumer.v2`.
 
-This is the first explicit validation artifact designed to feed the next phase
-instead of stopping at a single accept/reject result.
+The consumer contract now explicitly declares:
 
-### 2.4 CLI Validation Now Supports Triggered Reruns
+- required top-level fields,
+- required metric-delta fields,
+- required run-ref fields,
+- required rerun-task fields,
+- required triggered-result fields,
+- and Phase 10 consumer expectations.
 
-`run_validation_audit.py` now supports:
+This makes the post-repair evidence object much more stable as a downstream
+handoff substrate.
 
-- `--trigger-rerun`
-- `--repaired-logs-root`
+### 2.5 Policy-Level Runtime Expectations Now Declare the Validation Contract
 
-That means the CLI can now:
+`policy_spec_v0.yaml` now exposes:
 
-- read a repair bundle,
-- read original accepted runs,
-- trigger preview-mode repaired reruns,
-- compare pre/post evidence,
-- and emit a full namespaced validation bundle
+- `validation_post_repair_evidence_consumer_contract`
+- `validation_supported_bounded_rerun_adapters`
 
-without requiring the caller to hand-author repaired run directories first.
+That gives later static checks and downstream phases a canonical place to read
+the expected validation-side contract instead of inferring it from code shape.
 
-### 2.5 Phase 9 Tests Now Cover the New Loop
+### 2.6 Focused Phase 9 Tests Now Lock the Adapter and Consumer Contract
 
 `test_validation_loop.py` was extended to verify:
 
-- `nominal_vs_shifted_success_gap` is derived correctly,
-- `trigger_rerun=True` creates repaired accepted runs,
-- the CLI trigger path writes a complete validation bundle,
-- and `post_repair_evidence.json` is present.
+- baseline / eval / train rerun tasks all emit stable bounded adapter metadata,
+- the rerun task previews contain mode-specific Hydra override sets,
+- the triggered rerun path still writes a complete validation bundle,
+- and `post_repair_evidence.json` exposes the new Phase 10 consumer contract.
 
-This means the new Phase 9 loop is not only implemented, but regression-locked
-by focused tests.
+This means the current Phase 9 close-out is regression-locked by focused tests.
 
 ## 3. Main Files Added or Changed
 
 Core implementation:
 
+- `isaac-training/training/repair/rerun_adapters.py`
 - `isaac-training/training/repair/comparison.py`
 - `isaac-training/training/repair/validation_runner.py`
 - `isaac-training/training/repair/__init__.py`
@@ -142,7 +164,6 @@ Core implementation:
 
 Contract / config:
 
-- `isaac-training/training/analyzers/report_contract.py`
 - `isaac-training/training/cfg/spec_cfg/policy_spec_v0.yaml`
 
 Tests:
@@ -162,7 +183,7 @@ Run:
 
 ```bash
 python3 -m py_compile \
-  isaac-training/training/analyzers/report_contract.py \
+  isaac-training/training/repair/rerun_adapters.py \
   isaac-training/training/repair/__init__.py \
   isaac-training/training/repair/comparison.py \
   isaac-training/training/repair/validation_runner.py \
@@ -188,27 +209,22 @@ Expected result:
 
 - the existing Phase 8 repair tests still pass
 - the extended Phase 9 validation-loop tests pass
+- bounded adapter metadata tests pass
 
-### 4.3 CLI Triggered-Rerun Smoke Test
+### 4.3 Focused Adapter / Consumer Contract Checks
 
-Run a synthetic repair-bundle + accepted-run smoke test against:
-
-- `isaac-training/training/scripts/run_validation_audit.py`
-
-with:
-
-- two original runs (`nominal`, `shifted`) or a single boundary-critical run,
-- `--trigger-rerun`,
-- and a temporary `--repaired-logs-root`.
+Run the focused Phase 9 tests and inspect:
 
 Expected result:
 
-- `analysis/validation/<bundle>/` is created
-- `validation_plan.json` exists
-- `comparison.json` exists
-- `validation_decision.json` exists
-- `post_repair_evidence.json` exists
-- the triggered rerun path reports `trigger_rerun = true`
+- rerun tasks include:
+  - `adapter_type`
+  - `script_path`
+  - `hydra_overrides`
+  - `bounded_limits`
+- `post_repair_evidence.json` includes:
+  - `evidence_schema_version = phase10_post_repair_evidence.v2`
+  - `consumer_contract.contract_type = phase10_post_repair_evidence_consumer.v2`
 
 ### 4.4 Check Traceability Refresh
 
@@ -226,28 +242,29 @@ Validated in this iteration:
 
 - `python3 -m py_compile ...` passed
 - `pytest -q ...` passed:
-  - `15 passed`
-- real CLI triggered-rerun smoke test passed with:
-  - `accepted = true`
-  - `decision_status = accepted`
-  - `primary_claim_type = E-R`
-  - `original_run_count = 2`
-  - `repaired_run_count = 2`
-  - `trigger_rerun = true`
-  - `post_repair_evidence.json` exists
+  - `17 passed`
+- focused adapter and consumer-contract checks passed:
+  - baseline tasks emit `phase9_bounded_baseline_rerun_adapter.v1`
+  - eval tasks emit `phase9_bounded_eval_rerun_adapter.v1`
+  - train tasks emit `phase9_bounded_train_rerun_adapter.v1`
+  - `post_repair_evidence.json` now exposes `phase10_post_repair_evidence_consumer.v2`
 - `Traceability.md` was refreshed for this Phase 9 implementation batch
 
-This confirms that Phase 9 now has a first rerun-capable validation loop and a
-Phase 10-ready post-repair evidence artifact.
+This confirms that Phase 9 now has:
+
+- a more realistic bounded rerun adapter substrate,
+- stable mode-aware validation task metadata,
+- and a stronger Phase 10 consumer contract for post-repair evidence.
 
 ## 6. What Should Be Done Next
 
 The next Phase 9 step should be:
 
-1. replace or augment the preview rerun driver with true bounded baseline /
-   eval / train execution adapters,
-2. widen high-order target support beyond the first family-gap metrics,
-3. formalize the Phase 10 consumer contract for `post_repair_evidence.json`.
+1. replace the current preview bounded runner with progressively more faithful
+   real execution adapters,
+2. broaden high-order target support beyond the current family-gap metrics,
+3. finalize the Phase 10 validation consumer over the stabilized evidence
+   contract.
 
-That will move Phase 9 from the first rerun-capable validation loop to a more
-faithful repaired-execution validation stage over real post-repair runs.
+That will move Phase 9 from a bounded validation substrate toward a true
+post-repair execution validation loop.

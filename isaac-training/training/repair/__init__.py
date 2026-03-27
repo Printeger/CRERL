@@ -17,6 +17,13 @@ from repair.proposal_schema import (
     SpecPatchOperation,
 )
 from repair.repair_validator import build_phase9_validation_request, validate_repair
+from repair.rerun_adapters import (
+    ADAPTER_SPECS,
+    SCENE_CFG_BY_FAMILY,
+    build_bounded_rerun_task,
+    build_hydra_overrides,
+    get_adapter_spec,
+)
 from repair.validation_request_loader import REQUIRED_REPAIR_BUNDLE_ARTIFACTS, load_validation_request_bundle
 from repair.validation_runner import (
     VALIDATION_NAMESPACE,
@@ -42,14 +49,19 @@ __all__ = [
     "REQUIRED_REPAIR_BUNDLE_ARTIFACTS",
     "REPAIR_NAMESPACE",
     "VALIDATION_NAMESPACE",
+    "ADAPTER_SPECS",
+    "SCENE_CFG_BY_FAMILY",
     "SUPPORTED_OPERATOR_TYPES",
     "accept_repair",
+    "build_bounded_rerun_task",
     "build_phase9_validation_request",
+    "build_hydra_overrides",
     "build_validation_rerun_tasks",
     "build_validation_context_preview",
     "build_repair_candidates",
     "compare_validation_runs",
     "decide_validation",
+    "get_adapter_spec",
     "load_phase7_repair_inputs",
     "load_validation_request_bundle",
     "prepare_validation_runs",

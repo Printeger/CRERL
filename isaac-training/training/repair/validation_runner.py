@@ -18,85 +18,18 @@ from runtime_logging.episode_writer import (
     load_run_directories,
 )
 
+from repair.rerun_adapters import (
+    SCENE_CFG_BY_FAMILY,
+    adjust_summary_for_bounded_rerun,
+    build_bounded_rerun_task,
+    infer_run_scene,
+    infer_run_source,
+    normalize_execution_mode,
+)
 from repair.validation_request_loader import load_validation_request_bundle
 
 
 VALIDATION_NAMESPACE = DEFAULT_REPORT_NAMESPACES[VALIDATION_GENERATION_MODE]
-SCENE_CFG_BY_FAMILY = {
-    "nominal": "scene_cfg_nominal.yaml",
-    "boundary_critical": "scene_cfg_boundary_critical.yaml",
-    "shifted": "scene_cfg_shifted.yaml",
-}
-
-
-def _normalize_execution_mode(source: str) -> str:
-    value = str(source or "").lower()
-    if value.startswith("baseline"):
-        return "baseline"
-    if value.startswith("train_eval") or value.startswith("eval"):
-        return "eval"
-    if value.startswith("train"):
-        return "train"
-    return value or "baseline"
-
-
-def _infer_run_source(run_payload: Mapping[str, Any]) -> str:
-    manifest = dict(run_payload.get("manifest") or {})
-    source = str(manifest.get("source", "") or "")
-    if source:
-        return source
-    episodes = list(run_payload.get("episodes") or [])
-    for episode in episodes:
-        source = str(episode.get("source", "") or "")
-        if source:
-            return source
-    return "baseline"
-
-
-def _infer_run_scene(run_payload: Mapping[str, Any]) -> tuple[str, str]:
-    episodes = list(run_payload.get("episodes") or [])
-    for episode in episodes:
-        scenario_type = str(episode.get("scenario_type", "") or "")
-        scene_cfg_name = str(episode.get("scene_cfg_name", "") or "")
-        if scenario_type or scene_cfg_name:
-            return scenario_type, scene_cfg_name
-    return "", ""
-
-
-def _safe_name(value: str) -> str:
-    return "".join(char if char.isalnum() or char in {"_", "-"} else "_" for char in str(value))
-
-
-def _build_command_preview(task: Mapping[str, Any]) -> list[str]:
-    execution_mode = str(task.get("execution_mode", "baseline"))
-    scenario_type = str(task.get("scenario_type", "nominal"))
-    if execution_mode == "baseline":
-        return [
-            "python3",
-            "isaac-training/training/scripts/run_baseline.py",
-            "headless=True",
-            f"scene_family_backend.family={scenario_type}",
-        ]
-    if execution_mode == "eval":
-        return [
-            "python3",
-            "isaac-training/training/scripts/eval.py",
-            "headless=True",
-            f"scene_family_backend.family={scenario_type}",
-            "wandb.mode=offline",
-            "max_frame_num=128",
-        ]
-    if execution_mode == "train":
-        return [
-            "python3",
-            "isaac-training/training/scripts/train.py",
-            "headless=True",
-            f"scene_family_backend.family={scenario_type}",
-            "wandb.mode=offline",
-            "skip_periodic_eval=True",
-            "max_frame_num=2048",
-        ]
-    return []
 
 
 def build_validation_rerun_tasks(
@@ -108,119 +41,47 @@ def build_validation_rerun_tasks(
     """Build deterministic Phase 9 rerun tasks from original evidence."""
 
     repair_bundle_name = str(validation_input.get("repair_bundle_name", "repair_latest"))
-    preview_path = str((validation_input.get("resolved_paths") or {}).get("validation_context_preview.json", ""))
     tasks: list[Dict[str, Any]] = []
 
     if original_runs:
         for index, run_payload in enumerate(original_runs):
-            source = _infer_run_source(run_payload)
-            execution_mode = _normalize_execution_mode(source)
-            scenario_type, scene_cfg_name = _infer_run_scene(run_payload)
+            source = infer_run_source(run_payload)
+            execution_mode = normalize_execution_mode(source)
+            scenario_type, scene_cfg_name = infer_run_scene(run_payload)
             if not scenario_type:
                 scenario_type = str((validation_input.get("scene_family_scope") or ["nominal"])[0])
             if not scene_cfg_name:
                 scene_cfg_name = SCENE_CFG_BY_FAMILY.get(scenario_type, f"scene_cfg_{scenario_type}.yaml")
-            task_id = f"{execution_mode}:{scenario_type}:{index:02d}"
-            output_run_name = _safe_name(f"{repair_bundle_name}_{execution_mode}_{scenario_type}_{index:02d}")
-            task = {
-                "task_type": "phase9_targeted_rerun_task.v1",
-                "task_id": task_id,
-                "repair_bundle_name": repair_bundle_name,
-                "execution_mode": execution_mode,
-                "source": source,
-                "scenario_type": scenario_type,
-                "scene_cfg_name": scene_cfg_name,
-                "original_run_dir": str(run_payload.get("run_dir", "")),
-                "original_run_id": str(run_payload.get("run_id", "")),
-                "output_run_name": output_run_name,
-                "repaired_logs_root": str(repaired_logs_root) if repaired_logs_root is not None else "",
-                "preview_context_path": preview_path,
-                "command_preview": _build_command_preview(
-                    {
-                        "execution_mode": execution_mode,
-                        "scenario_type": scenario_type,
-                    }
-                ),
-            }
-            tasks.append(task)
+            output_run_name = f"{repair_bundle_name}_{execution_mode}_{scenario_type}_{index:02d}"
+            tasks.append(
+                build_bounded_rerun_task(
+                    validation_input=validation_input,
+                    original_run_payload=run_payload,
+                    execution_mode=execution_mode,
+                    scenario_type=scenario_type,
+                    scene_cfg_name=scene_cfg_name,
+                    output_run_name=output_run_name,
+                    repaired_logs_root=repaired_logs_root,
+                    index=index,
+                )
+            )
         return tasks
 
     for execution_mode in validation_input.get("preferred_execution_modes", []) or ["baseline"]:
         for index, scenario_type in enumerate(validation_input.get("scene_family_scope", []) or ["nominal"]):
-            task_id = f"{execution_mode}:{scenario_type}:{index:02d}"
             tasks.append(
-                {
-                    "task_type": "phase9_targeted_rerun_task.v1",
-                    "task_id": task_id,
-                    "repair_bundle_name": repair_bundle_name,
-                    "execution_mode": str(execution_mode),
-                    "source": str(execution_mode),
-                    "scenario_type": str(scenario_type),
-                    "scene_cfg_name": SCENE_CFG_BY_FAMILY.get(str(scenario_type), f"scene_cfg_{scenario_type}.yaml"),
-                    "original_run_dir": "",
-                    "original_run_id": "",
-                    "output_run_name": _safe_name(f"{repair_bundle_name}_{execution_mode}_{scenario_type}_{index:02d}"),
-                    "repaired_logs_root": str(repaired_logs_root) if repaired_logs_root is not None else "",
-                    "preview_context_path": preview_path,
-                    "command_preview": _build_command_preview(
-                        {
-                            "execution_mode": str(execution_mode),
-                            "scenario_type": str(scenario_type),
-                        }
-                    ),
-                }
+                build_bounded_rerun_task(
+                    validation_input=validation_input,
+                    original_run_payload=None,
+                    execution_mode=str(execution_mode),
+                    scenario_type=str(scenario_type),
+                    scene_cfg_name=SCENE_CFG_BY_FAMILY.get(str(scenario_type), f"scene_cfg_{scenario_type}.yaml"),
+                    output_run_name=f"{repair_bundle_name}_{execution_mode}_{scenario_type}_{index:02d}",
+                    repaired_logs_root=repaired_logs_root,
+                    index=index,
+                )
             )
     return tasks
-
-
-def _adjust_summary_for_preview_rerun(
-    original_summary: Mapping[str, Any],
-    *,
-    primary_claim_type: str,
-    scenario_type: str,
-) -> Dict[str, float]:
-    summary = {
-        key: float(value)
-        for key, value in dict(original_summary or {}).items()
-        if isinstance(value, (int, float))
-    }
-    if not summary:
-        summary = {
-            "W_CR": 0.3,
-            "W_EC": 0.3,
-            "W_ER": 0.3,
-            "collision_rate": 0.1,
-            "near_violation_ratio": 0.2,
-            "min_distance": 0.6,
-            "average_return": 3.0,
-            "success_rate": 0.5,
-            "episode_count": 1.0,
-        }
-
-    if primary_claim_type == "C-R" and "W_CR" in summary:
-        summary["W_CR"] *= 0.7
-    if primary_claim_type == "E-C" and "W_EC" in summary:
-        summary["W_EC"] *= 0.7
-    if primary_claim_type == "E-R" and "W_ER" in summary:
-        summary["W_ER"] *= 0.65
-
-    summary["collision_rate"] = max(0.0, summary.get("collision_rate", 0.0) * 0.65)
-    summary["near_violation_ratio"] = max(0.0, summary.get("near_violation_ratio", 0.0) * 0.7)
-    summary["min_distance"] = max(0.0, summary.get("min_distance", 0.0) * 1.15)
-
-    if primary_claim_type == "E-R":
-        if scenario_type == "shifted":
-            summary["success_rate"] = min(1.0, summary.get("success_rate", 0.0) + 0.08)
-            summary["average_return"] = summary.get("average_return", 0.0) + 0.12
-        elif scenario_type == "nominal":
-            summary["success_rate"] = min(1.0, summary.get("success_rate", 0.0) + 0.02)
-            summary["average_return"] = summary.get("average_return", 0.0) + 0.04
-    else:
-        summary["success_rate"] = min(1.0, summary.get("success_rate", 0.0) + 0.05)
-        summary["average_return"] = summary.get("average_return", 0.0) + 0.03
-
-    summary["episode_count"] = max(1.0, summary.get("episode_count", 1.0))
-    return summary
 
 
 def _write_preview_repaired_run(
@@ -295,9 +156,10 @@ def preview_rerun_runner(
     source = str(task.get("source", task.get("execution_mode", "baseline")))
     scene_cfg_name = str(task.get("scene_cfg_name", SCENE_CFG_BY_FAMILY.get(scenario_type, "")))
     original_summary = dict((original_run_payload or {}).get("summary") or {})
-    adjusted_summary = _adjust_summary_for_preview_rerun(
+    adjusted_summary = adjust_summary_for_bounded_rerun(
         original_summary,
-        primary_claim_type=str(validation_input.get("primary_claim_type", "")),
+        validation_input=validation_input,
+        execution_mode=normalize_execution_mode(str(task.get("execution_mode", source))),
         scenario_type=scenario_type,
     )
     run_dir = _write_preview_repaired_run(
@@ -420,7 +282,7 @@ def prepare_validation_runs(
             discovered_original_runs = [
                 item
                 for item in discovered_original_runs
-                if _normalize_execution_mode(_infer_run_source(item)) in preferred_modes
+                if normalize_execution_mode(infer_run_source(item)) in preferred_modes
             ]
         resolved_original_dirs = [Path(item.get("run_dir", "")) for item in discovered_original_runs]
 
@@ -462,8 +324,8 @@ def prepare_validation_runs(
                 "run_dir": str(item.get("run_dir", "")),
                 "run_id": str(item.get("run_id", "")),
                 "source": str((item.get("manifest") or {}).get("source", "")),
-                "scenario_type": _infer_run_scene(item)[0],
-                "scene_cfg_name": _infer_run_scene(item)[1],
+                "scenario_type": infer_run_scene(item)[0],
+                "scene_cfg_name": infer_run_scene(item)[1],
                 "summary": dict(item.get("summary") or {}),
                 "acceptance": dict(item.get("acceptance") or {}),
             }
@@ -474,8 +336,8 @@ def prepare_validation_runs(
                 "run_dir": str(item.get("run_dir", "")),
                 "run_id": str(item.get("run_id", "")),
                 "source": str((item.get("manifest") or {}).get("source", "")),
-                "scenario_type": _infer_run_scene(item)[0],
-                "scene_cfg_name": _infer_run_scene(item)[1],
+                "scenario_type": infer_run_scene(item)[0],
+                "scene_cfg_name": infer_run_scene(item)[1],
                 "summary": dict(item.get("summary") or {}),
                 "acceptance": dict(item.get("acceptance") or {}),
             }
@@ -525,6 +387,7 @@ def _build_post_repair_evidence(
         "decision_status": str(decision.get("decision_status", "")),
         "accepted": bool(decision.get("accepted", False)),
         "phase10_ready": bool(decision.get("decision_status", "")) in {"accepted", "rejected"},
+        "evidence_schema_version": "phase10_post_repair_evidence.v2",
         "original_run_refs": [
             {
                 "run_dir": str(item.get("run_dir", "")),
@@ -551,6 +414,63 @@ def _build_post_repair_evidence(
         "original_by_scenario": dict(comparison.get("original_by_scenario", {}) or {}),
         "repaired_by_scenario": dict(comparison.get("repaired_by_scenario", {}) or {}),
         "blocked_by": list(decision.get("blocked_by", []) or []),
+        "consumer_contract": {
+            "contract_type": "phase10_post_repair_evidence_consumer.v2",
+            "phase10_entrypoint": "post_repair_validation_consumer.v1",
+            "required_top_level_fields": [
+                "primary_claim_type",
+                "decision_status",
+                "accepted",
+                "metric_deltas",
+                "original_run_refs",
+                "repaired_run_refs",
+                "rerun_tasks",
+                "triggered_rerun_results",
+            ],
+            "required_metric_delta_fields": [
+                "metric_name",
+                "category",
+                "direction",
+                "original",
+                "repaired",
+                "delta_raw",
+                "improvement",
+            ],
+            "required_run_ref_fields": [
+                "run_dir",
+                "run_id",
+                "source",
+                "scenario_type",
+                "scene_cfg_name",
+            ],
+            "required_rerun_task_fields": [
+                "task_id",
+                "execution_mode",
+                "adapter_type",
+                "supports_real_execution",
+                "fallback_runner_mode",
+                "script_path",
+                "hydra_overrides",
+                "command_preview",
+                "bounded_limits",
+            ],
+            "required_triggered_result_fields": [
+                "task_id",
+                "runner_mode",
+                "status",
+                "run_dir",
+                "run_id",
+                "scenario_type",
+                "scene_cfg_name",
+                "source",
+            ],
+            "consumer_expectations": {
+                "post_repair_bundle_is_namespaced": True,
+                "decision_must_be_machine_readable": True,
+                "scenario_conditioned_summaries_required": True,
+                "bounded_rerun_adapter_metadata_required": True,
+            },
+        },
     }
 
 

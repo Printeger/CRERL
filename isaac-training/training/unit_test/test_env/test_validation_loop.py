@@ -14,7 +14,11 @@ from repair.decision import decide_validation
 from repair.repair_validator import build_phase9_validation_request, validate_repair
 from repair.rule_based_repair import propose_rule_based_repairs
 from repair.validation_request_loader import load_validation_request_bundle
-from repair.validation_runner import prepare_validation_runs
+from repair.validation_runner import (
+    build_validation_rerun_tasks,
+    prepare_validation_runs,
+    run_validation_bundle_write,
+)
 
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
@@ -541,6 +545,123 @@ def test_prepare_validation_runs_trigger_rerun_creates_preview_repaired_runs(tmp
     assert all(Path(item["run_dir"]).exists() for item in prepared["validation_runs"]["repaired_runs"])
     assert "nominal_vs_shifted_success_gap" in comparison["metric_deltas"]
     assert comparison["metric_deltas"]["nominal_vs_shifted_success_gap"]["improvement"] > 0.0
+
+
+def test_build_validation_rerun_tasks_emit_bounded_adapter_metadata(tmp_path):
+    repair_bundle_dir = _make_repair_bundle(
+        tmp_path,
+        claim_type="E-R",
+        summary="Shifted-family robustness is too weak under distribution shift.",
+        target_ref=SHIFTED_CFG,
+    )
+    loaded = load_validation_request_bundle(repair_bundle_dir, require_phase9_ready=True)
+
+    baseline_task = build_validation_rerun_tasks(
+        validation_input={**loaded, "preferred_execution_modes": ["baseline"], "scene_family_scope": ["nominal"]},
+        original_runs=[],
+        repaired_logs_root=tmp_path / "repaired_logs",
+    )[0]
+    eval_task = build_validation_rerun_tasks(
+        validation_input={**loaded, "preferred_execution_modes": ["eval"], "scene_family_scope": ["shifted"]},
+        original_runs=[],
+        repaired_logs_root=tmp_path / "repaired_logs",
+    )[0]
+    train_task = build_validation_rerun_tasks(
+        validation_input={**loaded, "preferred_execution_modes": ["train"], "scene_family_scope": ["nominal"]},
+        original_runs=[],
+        repaired_logs_root=tmp_path / "repaired_logs",
+    )[0]
+
+    assert baseline_task["adapter_type"] == "phase9_bounded_baseline_rerun_adapter.v1"
+    assert baseline_task["supports_real_execution"] is True
+    assert baseline_task["script_path"].endswith("run_baseline.py")
+    assert "baseline.num_episodes=1" in baseline_task["hydra_overrides"]
+
+    assert eval_task["adapter_type"] == "phase9_bounded_eval_rerun_adapter.v1"
+    assert eval_task["script_path"].endswith("eval.py")
+    assert "wandb.mode=offline" in eval_task["hydra_overrides"]
+    assert any(item.startswith("max_frame_num=") for item in eval_task["hydra_overrides"])
+
+    assert train_task["adapter_type"] == "phase9_bounded_train_rerun_adapter.v1"
+    assert train_task["script_path"].endswith("train.py")
+    assert "skip_periodic_eval=True" in train_task["hydra_overrides"]
+    assert train_task["bounded_limits"]["max_frame_num"] == 2048
+    assert train_task["command_preview"][0] == "python3"
+
+
+def test_post_repair_evidence_contract_exposes_phase10_consumer_requirements(tmp_path):
+    repair_bundle_dir = _make_repair_bundle(
+        tmp_path,
+        claim_type="E-R",
+        summary="Shifted-family robustness is too weak under distribution shift.",
+        target_ref=SHIFTED_CFG,
+    )
+    logs_root = tmp_path / "logs"
+    original_nominal = _make_accepted_run_dir(
+        logs_root,
+        name="eval_nominal_original",
+        source="eval",
+        scenario_type="nominal",
+        scene_cfg_name="scene_cfg_nominal.yaml",
+        metrics={
+            "W_ER": 0.33,
+            "min_distance": 0.73,
+            "collision_rate": 0.04,
+            "near_violation_ratio": 0.11,
+            "average_return": 3.10,
+            "success_rate": 0.76,
+        },
+    )
+    original_shifted = _make_accepted_run_dir(
+        logs_root,
+        name="eval_shifted_original",
+        source="eval",
+        scenario_type="shifted",
+        scene_cfg_name="scene_cfg_shifted.yaml",
+        metrics={
+            "W_ER": 0.46,
+            "min_distance": 0.54,
+            "collision_rate": 0.09,
+            "near_violation_ratio": 0.22,
+            "average_return": 2.82,
+            "success_rate": 0.44,
+        },
+    )
+
+    prepared = prepare_validation_runs(
+        repair_bundle_dir=repair_bundle_dir,
+        logs_root=logs_root,
+        original_run_dirs=[original_nominal, original_shifted],
+        trigger_rerun=True,
+        repaired_logs_root=tmp_path / "repaired_logs",
+    )
+    comparison = compare_validation_runs(
+        primary_claim_type=prepared["validation_input"]["primary_claim_type"],
+        validation_targets=prepared["validation_input"]["validation_targets"],
+        original_runs=prepared["original_runs"],
+        repaired_runs=prepared["repaired_runs"],
+    )
+    decision = decide_validation(comparison, performance_regression_epsilon=0.05)
+    bundle_paths = run_validation_bundle_write(
+        validation_plan=prepared["validation_plan"],
+        validation_runs=prepared["validation_runs"],
+        comparison=comparison,
+        decision=decision,
+        reports_root=tmp_path,
+        bundle_name="validation_contract_fixture",
+    )
+
+    evidence = json.loads(bundle_paths["post_repair_evidence_path"].read_text(encoding="utf-8"))
+    contract = evidence["consumer_contract"]
+
+    assert evidence["evidence_schema_version"] == "phase10_post_repair_evidence.v2"
+    assert contract["contract_type"] == "phase10_post_repair_evidence_consumer.v2"
+    assert "required_rerun_task_fields" in contract
+    assert "required_triggered_result_fields" in contract
+    assert "adapter_type" in contract["required_rerun_task_fields"]
+    assert "hydra_overrides" in contract["required_rerun_task_fields"]
+    assert "run_dir" in contract["required_triggered_result_fields"]
+    assert contract["consumer_expectations"]["bounded_rerun_adapter_metadata_required"] is True
 
 
 def test_run_validation_audit_cli_smoke(tmp_path):

@@ -50,21 +50,19 @@ This keeps the workflow inside the current repo and avoids touching files outsid
 ## Latest Staged Change Summary
 
 <!-- TRACEABILITY:BEGIN -->
-_Updated: `2026-03-27T13:42:58`_
+_Updated: `2026-03-27T14:07:17`_
 
 - Scope: `/home/mint/rl_dev/CRERL`
 - Branch: `main`
 - Source: `staged diff`
 - Impacted phases: `Phase 4, Phase 7, Phase 9`
-- Diff stat: 9 files changed, 855 insertions(+), 118 deletions(-)
+- Diff stat: 7 files changed, 651 insertions(+), 273 deletions(-)
 
 ### Changed Files
 - `M` [doc/dev_log/p9_dev_status.md](doc/dev_log/p9_dev_status.md) [Project Docs]
-- `M` [isaac-training/training/analyzers/report_contract.py](isaac-training/training/analyzers/report_contract.py) [Analyzers]
 - `M` [isaac-training/training/cfg/spec_cfg/policy_spec_v0.yaml](isaac-training/training/cfg/spec_cfg/policy_spec_v0.yaml) [Specification Config]
 - `M` [isaac-training/training/repair/__init__.py](isaac-training/training/repair/__init__.py) [isaac-training]
-- `M` [isaac-training/training/repair/comparison.py](isaac-training/training/repair/comparison.py) [isaac-training]
+- `A` [isaac-training/training/repair/rerun_adapters.py](isaac-training/training/repair/rerun_adapters.py) [isaac-training]
 - `M` [isaac-training/training/repair/validation_runner.py](isaac-training/training/repair/validation_runner.py) [isaac-training]
-- `M` [isaac-training/training/scripts/run_validation_audit.py](isaac-training/training/scripts/run_validation_audit.py) [Training Pipeline]
 - `M` [isaac-training/training/unit_test/test_env/test_validation_loop.py](isaac-training/training/unit_test/test_env/test_validation_loop.py) [Training Tests]
 <!-- TRACEABILITY:END -->

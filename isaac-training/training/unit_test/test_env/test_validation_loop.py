@@ -11,6 +11,8 @@ from repair.acceptance import accept_repair
 from repair.patch_executor import build_validation_context_preview, run_repair_bundle_write
 from repair.comparison import compare_validation_runs
 from repair.decision import decide_validation
+import repair.validation_runner as validation_runner_module
+from runtime_logging.logger import create_run_logger
 from repair.repair_validator import build_phase9_validation_request, validate_repair
 from repair.rule_based_repair import propose_rule_based_repairs
 from repair.validation_request_loader import load_validation_request_bundle
@@ -587,6 +589,96 @@ def test_build_validation_rerun_tasks_emit_bounded_adapter_metadata(tmp_path):
     assert "skip_periodic_eval=True" in train_task["hydra_overrides"]
     assert train_task["bounded_limits"]["max_frame_num"] == 2048
     assert train_task["command_preview"][0] == "python3"
+    assert train_task["env_overrides"]["CRE_RUN_USE_TIMESTAMP"] == "0"
+    assert train_task["expected_run_dir"].endswith(train_task["output_run_name"])
+
+
+def test_create_run_logger_honors_bounded_rerun_env_overrides(tmp_path, monkeypatch):
+    monkeypatch.setenv("CRE_RUN_NAME_OVERRIDE", "validation_real_eval_00")
+    monkeypatch.setenv("CRE_RUN_LOG_BASE_DIR", str(tmp_path / "bounded_logs"))
+    monkeypatch.setenv("CRE_RUN_USE_TIMESTAMP", "0")
+
+    logger = create_run_logger(
+        source="eval",
+        run_name="eval_rollout",
+        base_dir=tmp_path / "ignored_logs",
+        use_timestamp=True,
+    )
+
+    assert logger.run_id == "validation_real_eval_00"
+    assert logger.run_dir == (tmp_path / "bounded_logs" / "validation_real_eval_00")
+    assert logger.run_dir.exists()
+
+
+def test_prepare_validation_runs_subprocess_mode_uses_bounded_execution_adapter(tmp_path, monkeypatch):
+    repair_bundle_dir = _make_repair_bundle(
+        tmp_path,
+        claim_type="E-R",
+        summary="Shifted-family robustness is too weak under distribution shift.",
+        target_ref=SHIFTED_CFG,
+    )
+    logs_root = tmp_path / "logs"
+    original_run = _make_accepted_run_dir(
+        logs_root,
+        name="baseline_shifted_original",
+        source="baseline",
+        scenario_type="shifted",
+        scene_cfg_name="scene_cfg_shifted.yaml",
+        metrics={
+            "W_ER": 0.46,
+            "min_distance": 0.52,
+            "collision_rate": 0.12,
+            "near_violation_ratio": 0.25,
+            "average_return": 2.70,
+            "success_rate": 0.42,
+        },
+    )
+
+    def _fake_invoke(command, *, cwd, env, timeout_sec=600):
+        run_dir = _make_accepted_run_dir(
+            Path(env["CRE_RUN_LOG_BASE_DIR"]),
+            name=env["CRE_RUN_NAME_OVERRIDE"],
+            source=env["CRE_VALIDATION_EXECUTION_MODE"],
+            scenario_type=env["CRE_VALIDATION_SCENARIO_TYPE"],
+            scene_cfg_name=env["CRE_VALIDATION_SCENE_CFG_NAME"],
+            metrics={
+                "W_ER": 0.18,
+                "min_distance": 0.74,
+                "collision_rate": 0.04,
+                "near_violation_ratio": 0.10,
+                "average_return": 2.96,
+                "success_rate": 0.68,
+            },
+        )
+        assert run_dir.exists()
+
+        class _Result:
+            returncode = 0
+            stdout = "subprocess adapter smoke"
+            stderr = ""
+
+        return _Result()
+
+    monkeypatch.setattr(validation_runner_module, "_invoke_subprocess_command", _fake_invoke)
+
+    prepared = prepare_validation_runs(
+        repair_bundle_dir=repair_bundle_dir,
+        logs_root=logs_root,
+        original_run_dirs=[original_run],
+        trigger_rerun=True,
+        rerun_mode="subprocess",
+        repaired_logs_root=tmp_path / "repaired_logs",
+    )
+
+    task = prepared["validation_runs"]["rerun_tasks"][0]
+    result = prepared["validation_runs"]["triggered_rerun_results"]["task_results"][0]
+    assert prepared["validation_runs"]["requested_rerun_mode"] == "subprocess"
+    assert task["adapter_type"] == "phase9_bounded_baseline_rerun_adapter.v1"
+    assert result["runner_mode"] == "bounded_subprocess_rerun.v1"
+    assert result["status"] == "completed"
+    assert result["fallback_used"] is False
+    assert Path(result["run_dir"]).exists()
+    assert result["subprocess_returncode"] == 0
 
 
 def test_post_repair_evidence_contract_exposes_phase10_consumer_requirements(tmp_path):
@@ -655,6 +747,7 @@ def test_post_repair_evidence_contract_exposes_phase10_consumer_requirements(tmp
     contract = evidence["consumer_contract"]
 
     assert evidence["evidence_schema_version"] == "phase10_post_repair_evidence.v2"
+    assert evidence["requested_rerun_mode"] == "preview"
     assert contract["contract_type"] == "phase10_post_repair_evidence_consumer.v2"
     assert "required_rerun_task_fields" in contract
     assert "required_triggered_result_fields" in contract
@@ -716,6 +809,8 @@ def test_run_validation_audit_cli_smoke(tmp_path):
             "--original-run-dir",
             str(original_run),
             "--trigger-rerun",
+            "--rerun-mode",
+            "preview",
             "--repaired-logs-root",
             str(tmp_path / "repaired_logs"),
             "--reports-root",

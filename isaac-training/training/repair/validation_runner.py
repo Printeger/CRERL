@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import json
+import os
+import subprocess
 from pathlib import Path
 from typing import Any, Callable, Dict, Mapping, Sequence
 
@@ -19,6 +21,7 @@ from runtime_logging.episode_writer import (
 )
 
 from repair.rerun_adapters import (
+    REPO_ROOT,
     SCENE_CFG_BY_FAMILY,
     adjust_summary_for_bounded_rerun,
     build_bounded_rerun_task,
@@ -30,6 +33,24 @@ from repair.validation_request_loader import load_validation_request_bundle
 
 
 VALIDATION_NAMESPACE = DEFAULT_REPORT_NAMESPACES[VALIDATION_GENERATION_MODE]
+
+
+def _invoke_subprocess_command(
+    command: Sequence[str],
+    *,
+    cwd: str | Path,
+    env: Mapping[str, str],
+    timeout_sec: int = 600,
+) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        list(command),
+        cwd=str(cwd),
+        env=dict(env),
+        text=True,
+        capture_output=True,
+        timeout=int(timeout_sec),
+        check=False,
+    )
 
 
 def build_validation_rerun_tasks(
@@ -182,17 +203,136 @@ def preview_rerun_runner(
     }
 
 
+def bounded_subprocess_rerun_runner(
+    task: Mapping[str, Any],
+    *,
+    validation_input: Mapping[str, Any],
+    original_run_payload: Mapping[str, Any] | None,
+    rerun_logs_root: str | Path,
+    allow_fallback: bool = False,
+) -> Dict[str, Any]:
+    """Attempt a bounded real execution subprocess rerun for Phase 9."""
+
+    command = [str(item) for item in list(task.get("command_preview", []) or [])]
+    if not command:
+        if allow_fallback:
+            fallback = preview_rerun_runner(
+                task,
+                validation_input=validation_input,
+                original_run_payload=original_run_payload,
+                rerun_logs_root=rerun_logs_root,
+            )
+            return {
+                **fallback,
+                "runner_mode": "bounded_subprocess_rerun.v1",
+                "fallback_used": True,
+                "fallback_runner_mode": "preview_targeted_rerun.v1",
+                "status": "completed_with_preview_fallback",
+                "subprocess_returncode": None,
+            }
+        return {
+            "task_id": str(task.get("task_id", "")),
+            "runner_mode": "bounded_subprocess_rerun.v1",
+            "status": "failed_no_command",
+            "fallback_used": False,
+        }
+
+    subprocess_env = dict(os.environ)
+    subprocess_env.update({str(k): str(v) for k, v in dict(task.get("env_overrides") or {}).items()})
+    cwd = Path(str(task.get("repo_root", REPO_ROOT)))
+    expected_run_dir = Path(str(task.get("expected_run_dir", ""))) if str(task.get("expected_run_dir", "")) else None
+
+    result = _invoke_subprocess_command(
+        command,
+        cwd=cwd,
+        env=subprocess_env,
+    )
+    if result.returncode == 0 and expected_run_dir is not None and expected_run_dir.exists():
+        return {
+            "task_id": str(task.get("task_id", "")),
+            "runner_mode": "bounded_subprocess_rerun.v1",
+            "status": "completed",
+            "run_dir": str(expected_run_dir),
+            "run_id": str(task.get("output_run_name", expected_run_dir.name)),
+            "scenario_type": str(task.get("scenario_type", "")),
+            "scene_cfg_name": str(task.get("scene_cfg_name", "")),
+            "source": str(task.get("source", task.get("execution_mode", ""))),
+            "fallback_used": False,
+            "subprocess_returncode": int(result.returncode),
+            "stdout_tail": result.stdout[-1000:],
+            "stderr_tail": result.stderr[-1000:],
+        }
+
+    if allow_fallback:
+        fallback = preview_rerun_runner(
+            task,
+            validation_input=validation_input,
+            original_run_payload=original_run_payload,
+            rerun_logs_root=rerun_logs_root,
+        )
+        return {
+            **fallback,
+            "runner_mode": "bounded_subprocess_rerun.v1",
+            "fallback_used": True,
+            "fallback_runner_mode": "preview_targeted_rerun.v1",
+            "status": "completed_with_preview_fallback",
+            "subprocess_returncode": int(result.returncode),
+            "stdout_tail": result.stdout[-1000:],
+            "stderr_tail": result.stderr[-1000:],
+        }
+
+    return {
+        "task_id": str(task.get("task_id", "")),
+        "runner_mode": "bounded_subprocess_rerun.v1",
+        "status": "failed_subprocess",
+        "run_dir": str(expected_run_dir) if expected_run_dir is not None else "",
+        "run_id": str(task.get("output_run_name", "")),
+        "scenario_type": str(task.get("scenario_type", "")),
+        "scene_cfg_name": str(task.get("scene_cfg_name", "")),
+        "source": str(task.get("source", task.get("execution_mode", ""))),
+        "fallback_used": False,
+        "subprocess_returncode": int(result.returncode),
+        "stdout_tail": result.stdout[-1000:],
+        "stderr_tail": result.stderr[-1000:],
+    }
+
+
+def _resolve_rerun_runner(
+    rerun_mode: str,
+    rerun_runner: Callable[..., Mapping[str, Any]] | None = None,
+) -> Callable[..., Mapping[str, Any]]:
+    if rerun_runner is not None:
+        return rerun_runner
+    normalized = str(rerun_mode or "preview").lower()
+    if normalized == "preview":
+        return preview_rerun_runner
+    if normalized == "subprocess":
+        return lambda task, **kwargs: bounded_subprocess_rerun_runner(
+            task,
+            allow_fallback=False,
+            **kwargs,
+        )
+    if normalized == "auto":
+        return lambda task, **kwargs: bounded_subprocess_rerun_runner(
+            task,
+            allow_fallback=True,
+            **kwargs,
+        )
+    raise ValueError(f"Unsupported rerun_mode '{rerun_mode}'.")
+
+
 def trigger_targeted_reruns(
     *,
     validation_input: Mapping[str, Any],
     rerun_tasks: Sequence[Mapping[str, Any]],
     original_runs: Sequence[Mapping[str, Any]],
     rerun_logs_root: str | Path,
+    rerun_mode: str = "preview",
     rerun_runner: Callable[..., Mapping[str, Any]] | None = None,
 ) -> Dict[str, Any]:
     """Execute targeted rerun tasks and return repaired run references."""
 
-    runner = rerun_runner or preview_rerun_runner
+    runner = _resolve_rerun_runner(rerun_mode, rerun_runner)
     original_by_dir = {str(item.get("run_dir", "")): item for item in original_runs}
     task_results: list[Dict[str, Any]] = []
     repaired_run_dirs: list[str] = []
@@ -215,6 +355,7 @@ def trigger_targeted_reruns(
 
     return {
         "rerun_type": "phase9_targeted_rerun_results.v1",
+        "requested_rerun_mode": str(rerun_mode),
         "rerun_logs_root": str(rerun_logs_root),
         "task_results": task_results,
         "repaired_run_dirs": repaired_run_dirs,
@@ -251,6 +392,7 @@ def prepare_validation_runs(
     original_run_dirs: Sequence[str | Path] = (),
     repaired_run_dirs: Sequence[str | Path] = (),
     trigger_rerun: bool = False,
+    rerun_mode: str = "preview",
     rerun_runner: Callable[..., Mapping[str, Any]] | None = None,
     repaired_logs_root: str | Path | None = None,
 ) -> Dict[str, Any]:
@@ -301,6 +443,7 @@ def prepare_validation_runs(
             rerun_tasks=rerun_tasks,
             original_runs=original_runs,
             rerun_logs_root=rerun_root,
+            rerun_mode=rerun_mode,
             rerun_runner=rerun_runner,
         )
         resolved_repaired_dirs = list(triggered_rerun_results.get("repaired_run_dirs", []) or [])
@@ -317,6 +460,7 @@ def prepare_validation_runs(
         "runs_type": "phase9_validation_runs.v1",
         "discovery_used": discovery_used,
         "trigger_rerun": bool(trigger_rerun),
+        "requested_rerun_mode": str(rerun_mode),
         "rerun_tasks": rerun_tasks,
         "triggered_rerun_results": dict(triggered_rerun_results or {}),
         "original_runs": [
@@ -414,6 +558,7 @@ def _build_post_repair_evidence(
         "original_by_scenario": dict(comparison.get("original_by_scenario", {}) or {}),
         "repaired_by_scenario": dict(comparison.get("repaired_by_scenario", {}) or {}),
         "blocked_by": list(decision.get("blocked_by", []) or []),
+        "requested_rerun_mode": str(validation_runs.get("requested_rerun_mode", "")),
         "consumer_contract": {
             "contract_type": "phase10_post_repair_evidence_consumer.v2",
             "phase10_entrypoint": "post_repair_validation_consumer.v1",
@@ -652,6 +797,7 @@ def run_validation_bundle_write(
 __all__ = [
     "VALIDATION_NAMESPACE",
     "build_validation_rerun_tasks",
+    "bounded_subprocess_rerun_runner",
     "prepare_validation_runs",
     "preview_rerun_runner",
     "run_validation_bundle_write",

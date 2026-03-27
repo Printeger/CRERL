@@ -1,5 +1,6 @@
 """Stable logger exports for the CRE runtime pipeline."""
 
+import os
 from pathlib import Path
 from typing import Optional
 
@@ -22,6 +23,13 @@ from runtime_logging.acceptance import (
 )
 
 
+def _env_flag(name: str, default: bool) -> bool:
+    raw = os.environ.get(name)
+    if raw is None:
+        return default
+    return str(raw).strip().lower() not in {"0", "false", "no", "off"}
+
+
 def create_run_logger(
     *,
     source: str,
@@ -31,11 +39,14 @@ def create_run_logger(
     use_timestamp: bool = True,
     schema_version: str = SCHEMA_VERSION,
 ) -> FlightEpisodeLogger:
+    resolved_run_name = os.environ.get("CRE_RUN_NAME_OVERRIDE", run_name)
+    resolved_base_dir = os.environ.get("CRE_RUN_LOG_BASE_DIR")
+    resolved_use_timestamp = _env_flag("CRE_RUN_USE_TIMESTAMP", use_timestamp)
     return FlightEpisodeLogger(
-        run_name=run_name,
-        base_dir=base_dir,
+        run_name=resolved_run_name,
+        base_dir=resolved_base_dir if resolved_base_dir is not None else base_dir,
         near_violation_distance=near_violation_distance,
-        use_timestamp=use_timestamp,
+        use_timestamp=resolved_use_timestamp,
         source=source,
         schema_version=schema_version,
     )

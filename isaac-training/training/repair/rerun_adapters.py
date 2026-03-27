@@ -9,11 +9,19 @@ from typing import Any, Dict, List, Mapping, Sequence
 
 
 TRAINING_ROOT = Path(__file__).resolve().parents[1]
+REPO_ROOT = TRAINING_ROOT.parents[1]
 SCRIPT_BY_MODE = {
     "baseline": TRAINING_ROOT / "scripts" / "run_baseline.py",
     "eval": TRAINING_ROOT / "scripts" / "eval.py",
     "train": TRAINING_ROOT / "scripts" / "train.py",
 }
+
+RUN_NAME_OVERRIDE_ENV = "CRE_RUN_NAME_OVERRIDE"
+RUN_BASE_DIR_ENV = "CRE_RUN_LOG_BASE_DIR"
+RUN_USE_TIMESTAMP_ENV = "CRE_RUN_USE_TIMESTAMP"
+RUN_SCENARIO_TYPE_ENV = "CRE_VALIDATION_SCENARIO_TYPE"
+RUN_SCENE_CFG_ENV = "CRE_VALIDATION_SCENE_CFG_NAME"
+RUN_EXECUTION_MODE_ENV = "CRE_VALIDATION_EXECUTION_MODE"
 
 SCENE_CFG_BY_FAMILY = {
     "nominal": "scene_cfg_nominal.yaml",
@@ -193,12 +201,16 @@ def build_bounded_rerun_task(
         "original_run_id": str((original_run_payload or {}).get("run_id", "")),
         "output_run_name": output_run_name,
         "repaired_logs_root": str(repaired_logs_root) if repaired_logs_root is not None else "",
+        "expected_run_dir": (
+            str(Path(repaired_logs_root) / output_run_name) if repaired_logs_root is not None else ""
+        ),
         "preview_context_path": preview_path,
         "bounded_limits": {
             "max_frame_num": spec.max_frame_num,
             "max_episode_length": spec.max_episode_length,
             "num_envs": spec.num_envs,
         },
+        "repo_root": str(REPO_ROOT),
         "hydra_overrides": build_hydra_overrides(
             execution_mode=execution_mode,
             scenario_type=scenario_type,
@@ -206,7 +218,34 @@ def build_bounded_rerun_task(
             output_run_name=output_run_name,
         ),
         "command_preview": command_preview,
+        "env_overrides": build_bounded_rerun_environment(
+            output_run_name=output_run_name,
+            repaired_logs_root=repaired_logs_root,
+            scenario_type=scenario_type,
+            scene_cfg_name=scene_cfg_name,
+            execution_mode=execution_mode,
+        ),
     }
+
+
+def build_bounded_rerun_environment(
+    *,
+    output_run_name: str,
+    repaired_logs_root: str | Path | None,
+    scenario_type: str,
+    scene_cfg_name: str,
+    execution_mode: str,
+) -> Dict[str, str]:
+    environment = {
+        RUN_NAME_OVERRIDE_ENV: str(output_run_name),
+        RUN_USE_TIMESTAMP_ENV: "0",
+        RUN_SCENARIO_TYPE_ENV: str(scenario_type),
+        RUN_SCENE_CFG_ENV: str(scene_cfg_name),
+        RUN_EXECUTION_MODE_ENV: normalize_execution_mode(execution_mode),
+    }
+    if repaired_logs_root is not None:
+        environment[RUN_BASE_DIR_ENV] = str(Path(repaired_logs_root))
+    return environment
 
 
 def _component_multiplier(component: str, execution_mode: str) -> float:
@@ -293,9 +332,17 @@ def as_payload(spec: BoundedRerunAdapterSpec) -> Dict[str, Any]:
 __all__ = [
     "ADAPTER_SPECS",
     "BoundedRerunAdapterSpec",
+    "REPO_ROOT",
+    "RUN_BASE_DIR_ENV",
+    "RUN_EXECUTION_MODE_ENV",
+    "RUN_NAME_OVERRIDE_ENV",
+    "RUN_SCENE_CFG_ENV",
+    "RUN_SCENARIO_TYPE_ENV",
+    "RUN_USE_TIMESTAMP_ENV",
     "SCENE_CFG_BY_FAMILY",
     "adjust_summary_for_bounded_rerun",
     "as_payload",
+    "build_bounded_rerun_environment",
     "build_bounded_rerun_task",
     "build_hydra_overrides",
     "get_adapter_spec",

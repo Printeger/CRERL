@@ -20,6 +20,7 @@ from repair.repair_validator import build_phase9_validation_request, validate_re
 from repair.rerun_adapters import (
     ADAPTER_SPECS,
     SCENE_CFG_BY_FAMILY,
+    build_bounded_rerun_environment,
     build_bounded_rerun_task,
     build_hydra_overrides,
     get_adapter_spec,
@@ -28,6 +29,7 @@ from repair.validation_request_loader import REQUIRED_REPAIR_BUNDLE_ARTIFACTS, l
 from repair.validation_runner import (
     VALIDATION_NAMESPACE,
     build_validation_rerun_tasks,
+    bounded_subprocess_rerun_runner,
     prepare_validation_runs,
     preview_rerun_runner,
     run_validation_bundle_write,
@@ -53,6 +55,8 @@ __all__ = [
     "SCENE_CFG_BY_FAMILY",
     "SUPPORTED_OPERATOR_TYPES",
     "accept_repair",
+    "bounded_subprocess_rerun_runner",
+    "build_bounded_rerun_environment",
     "build_bounded_rerun_task",
     "build_phase9_validation_request",
     "build_hydra_overrides",

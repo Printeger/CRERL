@@ -44,6 +44,12 @@ def parse_args() -> argparse.Namespace:
         help="Trigger preview-mode targeted reruns when repaired run directories are not provided.",
     )
     parser.add_argument(
+        "--rerun-mode",
+        choices=("preview", "auto", "subprocess"),
+        default="auto",
+        help="Validation rerun driver mode. 'auto' tries bounded subprocess execution and falls back to preview.",
+    )
+    parser.add_argument(
         "--repaired-logs-root",
         default="",
         help="Optional output root for triggered repaired run directories.",
@@ -92,6 +98,7 @@ def main() -> int:
         original_run_dirs=[Path(item) for item in args.original_run_dir],
         repaired_run_dirs=[Path(item) for item in args.repaired_run_dir],
         trigger_rerun=bool(args.trigger_rerun),
+        rerun_mode=str(args.rerun_mode),
         repaired_logs_root=Path(args.repaired_logs_root) if args.repaired_logs_root else None,
     )
     validation_input = prepared["validation_input"]
@@ -147,6 +154,7 @@ def main() -> int:
                 "original_run_count": int(comparison.get("original_run_count", 0) or 0),
                 "repaired_run_count": int(comparison.get("repaired_run_count", 0) or 0),
                 "trigger_rerun": bool(args.trigger_rerun),
+                "requested_rerun_mode": str(args.rerun_mode),
                 "blocked_by": list(decision.get("blocked_by", []) or []),
             },
             indent=2,

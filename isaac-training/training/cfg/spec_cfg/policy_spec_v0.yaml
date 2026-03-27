@@ -102,3 +102,5 @@ runtime_expectations:
     - "phase9_bounded_baseline_rerun_adapter.v1"
     - "phase9_bounded_eval_rerun_adapter.v1"
     - "phase9_bounded_train_rerun_adapter.v1"
+  validation_default_rerun_mode: "auto"
+  validation_preview_fallback_allowed: true

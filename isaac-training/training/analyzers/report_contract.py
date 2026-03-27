@@ -13,6 +13,7 @@ SEMANTIC_ANALYSIS_MODE = "semantic_analysis"
 REPORT_GENERATION_MODE = "report_generation"
 REPAIR_GENERATION_MODE = "repair_generation"
 VALIDATION_GENERATION_MODE = "validation_generation"
+INTEGRATION_AUDIT_MODE = "integration_audit"
 
 DEFAULT_REPORT_NAMESPACES = {
     STATIC_AUDIT_MODE: "analysis/static",
@@ -21,6 +22,7 @@ DEFAULT_REPORT_NAMESPACES = {
     REPORT_GENERATION_MODE: "analysis/report",
     REPAIR_GENERATION_MODE: "analysis/repair",
     VALIDATION_GENERATION_MODE: "analysis/validation",
+    INTEGRATION_AUDIT_MODE: "analysis/integration",
 }
 
 DEFAULT_REPORT_MODE_ARTIFACTS = {
@@ -80,6 +82,16 @@ DEFAULT_REPORT_MODE_ARTIFACTS = {
         "post_repair_evidence.json",
         "validation_summary.json",
         "validation_summary.md",
+        "manifest.json",
+        "namespace_manifest.json",
+    ),
+    INTEGRATION_AUDIT_MODE: (
+        "integration_plan.json",
+        "execution_matrix.json",
+        "run_binding.json",
+        "integration_acceptance.json",
+        "integration_summary.json",
+        "integration_summary.md",
         "manifest.json",
         "namespace_manifest.json",
     ),

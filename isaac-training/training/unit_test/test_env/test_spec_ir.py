@@ -40,7 +40,9 @@ def test_load_spec_ir_builds_structured_v0_bundle():
     assert "manifest.json" in spec_ir.runtime_schema.execution_mode_artifacts["train"]
     assert spec_ir.runtime_schema.report_namespaces["static_audit"] == "analysis/static"
     assert spec_ir.runtime_schema.report_namespaces["dynamic_analysis"] == "analysis/dynamic"
+    assert spec_ir.runtime_schema.report_namespaces["integration_audit"] == "analysis/integration"
     assert "dynamic_report.json" in spec_ir.runtime_schema.report_mode_artifacts["dynamic_analysis"]
+    assert "integration_plan.json" in spec_ir.runtime_schema.report_mode_artifacts["integration_audit"]
 
     assert "near_violation_distance" in spec_ir.detector_thresholds
     assert "constraint_reward" in spec_ir.witness_weights

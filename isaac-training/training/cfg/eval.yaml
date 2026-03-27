@@ -19,6 +19,9 @@ scene_family_backend:
   difficulty: 0.5
   gravity_tilt_enabled: false
 
+repair:
+  validation_context_preview: ""
+
 # Total Training Length
 max_frame_num: 10000 # max frame 
 eval_interval: 1000 # evaluate the policy for every N training steps

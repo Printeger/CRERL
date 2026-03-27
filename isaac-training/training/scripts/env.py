@@ -388,6 +388,7 @@ class NavigationEnv(IsaacEnv):
         self.scene_family_profile = build_scene_family_runtime_profile(
             getattr(cfg, "scene_family_backend", None),
             seed=int(getattr(cfg, "seed", 0)),
+            repair_context=getattr(cfg, "repair", None),
         )
         self.scene_family_reset_counter = 0
         self.runtime_dynamic_obstacle_count = int(getattr(cfg.env_dyn, "num_obstacles", 0))
@@ -458,18 +459,27 @@ class NavigationEnv(IsaacEnv):
             self.prev_drone_vel_w = torch.zeros(self.num_envs, 1 , 3)     
 
     def _build_cre_runtime_metadata(self, cfg):
-        if self.scene_family_profile.get("enabled"):
-            profile = self.scene_family_profile
-            return {
-                "scene_id": profile["scene_id_prefix"],
-                "scene_id_prefix": profile["scene_id_prefix"],
-                "scenario_type": profile["family"],
-                "scene_cfg_name": profile["scene_cfg_name"],
-                "scene_family": profile["family"],
-                "distribution_modes": dict(profile.get("distribution_modes", {})),
-                "validation_rules": dict(profile.get("validation_rules", {})),
-                "done_type_labels": dict(self.done_type_labels),
-            }
+        profile = dict(self.scene_family_profile or {})
+        if profile:
+            repair_preview_binding = dict(profile.get("repair_preview_binding", {}))
+            effective_scene_binding = dict(profile.get("effective_scene_binding", {}))
+            effective_spec_binding = dict(profile.get("effective_spec_binding", {}))
+            if profile.get("enabled"):
+                return {
+                    "scene_id": profile["scene_id_prefix"],
+                    "scene_id_prefix": profile["scene_id_prefix"],
+                    "scenario_type": profile["family"],
+                    "scene_cfg_name": profile["scene_cfg_name"],
+                    "scene_family": profile["family"],
+                    "distribution_modes": dict(profile.get("distribution_modes", {})),
+                    "validation_rules": dict(profile.get("validation_rules", {})),
+                    "repair_preview_binding": repair_preview_binding,
+                    "effective_scene_binding": effective_scene_binding,
+                    "effective_spec_binding": effective_spec_binding,
+                    "native_repair_preview_consumption": bool(repair_preview_binding.get("preview_bound", False)),
+                    "integration_binding_type": "phase10_env_runtime_binding.v1",
+                    "done_type_labels": dict(self.done_type_labels),
+                }
         scene_logging = getattr(cfg, "scene_logging", None)
         scenario_type = str(_cfg_section_get(scene_logging, "scenario_type", "legacy_navigation_env"))
         scene_cfg_name = str(_cfg_section_get(scene_logging, "scene_cfg_name", "legacy_env"))
@@ -479,6 +489,13 @@ class NavigationEnv(IsaacEnv):
             "scene_id_prefix": scene_id_prefix,
             "scenario_type": scenario_type,
             "scene_cfg_name": scene_cfg_name,
+            "repair_preview_binding": dict(profile.get("repair_preview_binding", {})),
+            "effective_scene_binding": dict(profile.get("effective_scene_binding", {})),
+            "effective_spec_binding": dict(profile.get("effective_spec_binding", {})),
+            "native_repair_preview_consumption": bool(
+                dict(profile.get("repair_preview_binding", {})).get("preview_bound", False)
+            ),
+            "integration_binding_type": "phase10_env_runtime_binding.v1",
             "done_type_labels": dict(self.done_type_labels),
         }
 

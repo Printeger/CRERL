@@ -121,3 +121,21 @@ runtime_expectations:
     - "nominal_vs_shifted_return_gap"
     - "boundary_critical_vs_nominal_success_gap"
     - "boundary_critical_vs_nominal_min_distance_gap"
+  integration_audit_namespace: "analysis/integration"
+  integration_audit_required_artifacts:
+    - "integration_plan.json"
+    - "execution_matrix.json"
+    - "run_binding.json"
+    - "integration_acceptance.json"
+    - "integration_summary.json"
+    - "integration_summary.md"
+    - "manifest.json"
+    - "namespace_manifest.json"
+  integration_required_execution_modes:
+    - "baseline"
+    - "eval"
+    - "train"
+  integration_direct_scene_binding_required: true
+  integration_direct_runtime_metadata_binding_required: true
+  integration_direct_repair_preview_binding_required: true
+  integration_post_repair_evidence_consumer_contract: "phase10_post_repair_evidence_consumer.v2"

@@ -50,15 +50,27 @@ This keeps the workflow inside the current repo and avoids touching files outsid
 ## Latest Staged Change Summary
 
 <!-- TRACEABILITY:BEGIN -->
-_Updated: `2026-03-27T16:10:41`_
+_Updated: `2026-03-27T16:26:39`_
 
 - Scope: `/home/mint/rl_dev/CRERL`
 - Branch: `main`
 - Source: `staged diff`
-- Impacted phases: `Phase 10`
-- Diff stat: 3 files changed, 529 insertions(+), 7 deletions(-)
+- Impacted phases: `Phase 1, Phase 10, Phase 3, Phase 4, Phase 7`
+- Diff stat: 15 files changed, 1249 insertions(+), 105 deletions(-)
 
 ### Changed Files
-- `A` [doc/dev_log/p10_dev_status.md](doc/dev_log/p10_dev_status.md) [Project Docs]
-- `A` [doc/roadmap/phase10.md](doc/roadmap/phase10.md) [Spec / Roadmap]
+- `M` [doc/dev_log/p10_dev_status.md](doc/dev_log/p10_dev_status.md) [Project Docs]
+- `M` [isaac-training/training/analyzers/__init__.py](isaac-training/training/analyzers/__init__.py) [Analyzers]
+- `M` [isaac-training/training/analyzers/report_contract.py](isaac-training/training/analyzers/report_contract.py) [Analyzers]
+- `M` [isaac-training/training/cfg/baseline.yaml](isaac-training/training/cfg/baseline.yaml) [Training Config]
+- `M` [isaac-training/training/cfg/eval.yaml](isaac-training/training/cfg/eval.yaml) [Training Config]
+- `M` [isaac-training/training/cfg/spec_cfg/policy_spec_v0.yaml](isaac-training/training/cfg/spec_cfg/policy_spec_v0.yaml) [Specification Config]
+- `M` [isaac-training/training/cfg/train.yaml](isaac-training/training/cfg/train.yaml) [Training Config]
+- `M` [isaac-training/training/envs/runtime/scene_family_bridge.py](isaac-training/training/envs/runtime/scene_family_bridge.py) [Procedural Env / Sensors]
+- `A` [isaac-training/training/pipeline/__init__.py](isaac-training/training/pipeline/__init__.py) [isaac-training]
+- `A` [isaac-training/training/pipeline/integration_bundle.py](isaac-training/training/pipeline/integration_bundle.py) [isaac-training]
+- `M` [isaac-training/training/scripts/env.py](isaac-training/training/scripts/env.py) [Isaac Env Core]
+- `A` [isaac-training/training/scripts/run_integration_audit.py](isaac-training/training/scripts/run_integration_audit.py) [Training Pipeline]
+- `A` [isaac-training/training/unit_test/test_env/test_integration_stack.py](isaac-training/training/unit_test/test_env/test_integration_stack.py) [Training Tests]
+- `M` [isaac-training/training/unit_test/test_env/test_spec_ir.py](isaac-training/training/unit_test/test_env/test_spec_ir.py) [Training Tests]
 <!-- TRACEABILITY:END -->

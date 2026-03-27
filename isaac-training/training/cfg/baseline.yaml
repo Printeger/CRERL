@@ -19,6 +19,9 @@ scene_family_backend:
   difficulty: 0.5
   gravity_tilt_enabled: false
 
+repair:
+  validation_context_preview: ""
+
 env:
   num_envs: 1
   max_episode_length: 50

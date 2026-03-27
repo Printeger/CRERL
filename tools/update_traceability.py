@@ -103,10 +103,14 @@ def detect_phases(paths: Sequence[str]) -> List[str]:
                 phases.add("Phase 6")
             elif name.startswith("dynamic"):
                 phases.add("Phase 5")
+            elif name.startswith("report"):
+                phases.add("Phase 7")
             else:
                 phases.add("Phase 4")
         if path.startswith("isaac-training/training/cfg/spec_cfg/"):
             phases.add("Phase 4")
+            if path.endswith("policy_spec_v0.yaml"):
+                phases.add("Phase 7")
         if (
             path.startswith("isaac-training/training/execution/")
             or "baseline" in path
@@ -117,7 +121,6 @@ def detect_phases(paths: Sequence[str]) -> List[str]:
         if (
             path.startswith("isaac-training/training/scripts/env.py")
             or path.startswith("isaac-training/training/envs/")
-            or path.startswith("isaac-training/training/cfg/")
         ):
             phases.update({"Phase 1", "Phase 4", "Phase 7"})
         if path.endswith("run_static_audit.py"):
@@ -126,6 +129,8 @@ def detect_phases(paths: Sequence[str]) -> List[str]:
             phases.add("Phase 5")
         if path.endswith("run_semantic_audit.py"):
             phases.add("Phase 6")
+        if path.endswith("run_report_audit.py"):
+            phases.add("Phase 7")
         if "command_generator.py" in path:
             phases.update({"Phase 2", "Phase 3"})
         if path.startswith("ros1/") or path.startswith("ros2/"):

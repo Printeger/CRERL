@@ -10,11 +10,13 @@ from typing import Dict, Mapping, Sequence
 STATIC_AUDIT_MODE = "static_audit"
 DYNAMIC_ANALYSIS_MODE = "dynamic_analysis"
 SEMANTIC_ANALYSIS_MODE = "semantic_analysis"
+REPORT_GENERATION_MODE = "report_generation"
 
 DEFAULT_REPORT_NAMESPACES = {
     STATIC_AUDIT_MODE: "analysis/static",
     DYNAMIC_ANALYSIS_MODE: "analysis/dynamic",
     SEMANTIC_ANALYSIS_MODE: "analysis/semantic",
+    REPORT_GENERATION_MODE: "analysis/report",
 }
 
 DEFAULT_REPORT_MODE_ARTIFACTS = {
@@ -39,6 +41,15 @@ DEFAULT_REPORT_MODE_ARTIFACTS = {
         "semantic_summary.md",
         "semantic_merge_input.json",
         "claim_consumer.json",
+        "summary.json",
+        "manifest.json",
+        "namespace_manifest.json",
+    ),
+    REPORT_GENERATION_MODE: (
+        "report.json",
+        "ranked_findings.json",
+        "repair_handoff.json",
+        "report_summary.md",
         "summary.json",
         "manifest.json",
         "namespace_manifest.json",
@@ -82,6 +93,7 @@ def write_namespace_manifest(
             bundle_paths.get("static_report_path")
             or bundle_paths.get("dynamic_report_path")
             or bundle_paths.get("semantic_report_path")
+            or bundle_paths.get("report_json_path")
             or ""
         ),
         "summary_path": str(bundle_paths.get("summary_path", "")),

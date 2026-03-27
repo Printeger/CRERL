@@ -63,3 +63,12 @@ runtime_expectations:
     - "summary.json"
     - "manifest.json"
     - "namespace_manifest.json"
+  report_generation_namespace: "analysis/report"
+  report_generation_required_artifacts:
+    - "report.json"
+    - "ranked_findings.json"
+    - "repair_handoff.json"
+    - "report_summary.md"
+    - "summary.json"
+    - "manifest.json"
+    - "namespace_manifest.json"

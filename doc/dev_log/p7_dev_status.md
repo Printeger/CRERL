@@ -4,143 +4,253 @@ Updated: 2026-03-27
 
 ## 1. This Iteration Goal
 
-This iteration does not start the Phase 7 code implementation yet.
+This iteration starts Phase 7 implementation proper.
 
-Its goal is to prepare a clean transition from Phase 6 to Phase 7 by:
+The concrete goal of this step is to land the first working unified report
+generator layer:
 
-- correcting the `Traceability.md` phase labeling logic,
-- adding the formal Phase 7 roadmap document,
-- creating the matching Phase 7 dev log entry,
-- ensuring future Phase 7 close-out updates will be attributed to the correct
-  roadmap phase.
+- `report_merge.py`
+- `report_generator.py`
+- `run_report_audit.py`
+- `test_report_generator.py`
+
+while keeping the current evidence-first pipeline intact.
 
 ## 2. Implemented Results
 
-### 2.1 Phase 7 Roadmap Document Added
+### 2.1 First Report Merge Kernel Added
 
-A new roadmap file was added:
+A new file was added:
 
-- `doc/roadmap/phase7.md`
+- `isaac-training/training/analyzers/report_merge.py`
 
-It formalizes the next engineering stage as:
+It introduces the first deterministic normalization and ranking layer for
+Phase 7.
 
-- unified report generation over static, dynamic, and semantic evidence
-- severity ranking across analyzer namespaces
-- repair-ready claim handoff for Phase 8
+The merge kernel now:
 
-The file also defines:
+- normalizes static findings into a shared report space
+- normalizes dynamic witness findings into the same report space
+- normalizes semantic claims into that same report space
+- computes deterministic `rank_score`
+- derives:
+  - `root_cause_summary`
+  - `semantic_claim_summary`
+  - `witness_summary`
+  - `repair_handoff`
 
-- required input bundles
-- the new `analysis/report` namespace target
-- the proposed file-level implementation plan
-- validation and exit criteria
+This is the first point in the repository where all three analyzer outputs are
+translated into one common ranking substrate.
 
-### 2.2 Traceability Phase Detection Was Corrected
+### 2.2 First Unified Report Generator Added
 
-The repo-local helper:
+A new file was added:
 
-- `tools/update_traceability.py`
+- `isaac-training/training/analyzers/report_generator.py`
 
-was updated so that it now detects explicit phase ownership from:
+It implements the first `Phase 7` bundle writer under:
 
-- `doc/roadmap/phaseN.md`
-- `doc/dev_log/pN_dev_status.md`
+- `analysis/report/<bundle_name>/`
 
-instead of collapsing those changes into the generic roadmap/document bucket.
+The generator now writes:
 
-This fixes the earlier issue where `Traceability.md` could show a stale or
-misleading impacted-phase summary even when the actual work clearly belonged to
-a later numbered phase.
+- `report.json`
+- `ranked_findings.json`
+- `repair_handoff.json`
+- `report_summary.md`
+- `summary.json`
+- `manifest.json`
+- `namespace_manifest.json`
 
-### 2.3 Phase 7 Dev Log Added
+The report now exposes:
 
-This file was added:
+- input bundle references
+- ranked findings across static / dynamic / semantic namespaces
+- one root-cause summary
+- witness summary
+- semantic claim summary
+- repair-ready claim handoff
 
-- `doc/dev_log/p7_dev_status.md`
+### 2.3 Report Namespace Contract Was Extended
 
-This ensures Phase 7 now follows the repo rule:
+`isaac-training/training/analyzers/report_contract.py` was extended with the
+new Phase 7 namespace:
 
-- use `p{N}_dev_status.md`
-- do not create a literal `px_dev_status.md`
+- `report_generation`
+- `analysis/report`
+
+and the required artifact list for the report bundle.
+
+The namespace manifest writer was also updated so the Phase 7 bundle correctly
+records the main `report.json` path.
+
+### 2.4 Policy Runtime Expectations Were Updated
+
+`isaac-training/training/cfg/spec_cfg/policy_spec_v0.yaml` now includes the
+report namespace expectation:
+
+- `report_generation_namespace: analysis/report`
+- `report_generation_required_artifacts`
+
+This keeps the Phase 7 bundle contract aligned with the existing machine-readable
+policy/runtime expectations.
+
+### 2.5 CLI Entry Point Added
+
+A new script was added:
+
+- `isaac-training/training/scripts/run_report_audit.py`
+
+It provides the first direct CLI entrypoint for Phase 7.
+
+The CLI accepts:
+
+- a static bundle dir
+- a dynamic bundle dir
+- a semantic bundle dir
+
+and emits a namespaced report bundle plus an optional standalone `report.json`
+copy.
+
+### 2.6 Focused Unit Test Added
+
+A new test file was added:
+
+- `isaac-training/training/unit_test/test_env/test_report_generator.py`
+
+The new tests cover:
+
+- bundle generation and namespaced write-out
+- repair-handoff generation
+- CLI smoke execution
+
+This means the first Phase 7 report path is no longer just a design in the
+roadmap; it is now executable and regression-tested.
+
+### 2.7 Traceability Phase Attribution Was Tightened Again
+
+`tools/update_traceability.py` was refined so that Phase 7 report-generation
+files are no longer lumped into broader analyzer/config buckets by default.
+
+The phase detector now recognizes:
+
+- `report_*.py`
+- `run_report_audit.py`
+- the Phase 7-facing update to `policy_spec_v0.yaml`
+
+This keeps `Traceability.md` aligned with the actual active phase of this
+implementation step.
 
 ## 3. Main Files Added or Changed
 
-Code / workflow:
+Code:
 
-- `tools/update_traceability.py`
+- `isaac-training/training/analyzers/report_merge.py`
+- `isaac-training/training/analyzers/report_generator.py`
+- `isaac-training/training/analyzers/report_contract.py`
+- `isaac-training/training/analyzers/__init__.py`
+- `isaac-training/training/scripts/run_report_audit.py`
+- `isaac-training/training/cfg/spec_cfg/policy_spec_v0.yaml`
+- `isaac-training/training/unit_test/test_env/test_report_generator.py`
 
 Documentation / state:
 
-- `doc/roadmap/phase7.md`
 - `doc/dev_log/p7_dev_status.md`
 - `Traceability.md`
 
 ## 4. How To Validate
 
-### 4.1 Refresh Traceability from the Staged Diff
+### 4.1 Syntax Validation
 
 Run:
 
 ```bash
-python3 tools/update_traceability.py
+python3 -m py_compile \
+  isaac-training/training/analyzers/report_contract.py \
+  isaac-training/training/analyzers/report_merge.py \
+  isaac-training/training/analyzers/report_generator.py \
+  isaac-training/training/analyzers/__init__.py \
+  isaac-training/training/scripts/run_report_audit.py \
+  isaac-training/training/unit_test/test_env/test_report_generator.py
 ```
 
 Expected result:
 
-- the auto summary in `Traceability.md` refreshes from the staged diff
-- the impacted phase list includes `Phase 7` when the staged change set is the
-  Phase 7 planning update
+- no syntax error
 
-### 4.2 Spot-Check the New Phase 7 Plan
+### 4.2 Focused Unit Tests
 
-Check:
+Run:
 
-- `doc/roadmap/phase7.md`
-
-Expected result:
-
-- the document defines:
-  - purpose
-  - inputs
-  - outputs
-  - file-level implementation plan
-  - validation plan
-  - exit criteria
-
-### 4.3 Check the New Dev Log Naming
-
-Check:
-
-- `doc/dev_log/p7_dev_status.md`
+```bash
+pytest -q \
+  isaac-training/training/unit_test/test_env/test_report_generator.py \
+  isaac-training/training/unit_test/test_env/test_semantic_analyzer.py
+```
 
 Expected result:
 
-- the Phase 7 planning update is recorded in the correct numbered dev log file
+- the new Phase 7 report tests pass
+- the existing Phase 6 semantic tests still pass
+
+### 4.3 Real Bundle CLI Smoke Test
+
+Run:
+
+```bash
+python3 isaac-training/training/scripts/run_report_audit.py \
+  --static-bundle-dir /tmp/crerl_phase5_round2_reports/analysis/static/static_audit_phase5_round2 \
+  --dynamic-bundle-dir /tmp/crerl_phase5_round4_reports/analysis/dynamic/dynamic_eval_nominal_vs_shifted \
+  --semantic-bundle-dir /tmp/crerl_phase6_reports_round2/analysis/semantic/semantic_eval_nominal_vs_shifted_round2 \
+  --reports-root /tmp/crerl_phase7_reports \
+  --bundle-name report_eval_nominal_vs_shifted \
+  --output /tmp/crerl_phase7_reports/report_copy.json
+```
+
+Expected result:
+
+- a report bundle is written under:
+  - `analysis/report/report_eval_nominal_vs_shifted/`
+- the bundle contains:
+  - `report.json`
+  - `ranked_findings.json`
+  - `repair_handoff.json`
+  - `report_summary.md`
+- CLI returns:
+  - `primary_claim_type`
+  - `repair_ready_claims`
+  - `max_severity`
 
 ## 5. Validation Results
 
 Validated in this iteration:
 
-- `Traceability.md` phase-labeling logic was corrected at the source by updating
-  `tools/update_traceability.py`
-- `doc/roadmap/phase7.md` was added and populated with a concrete Phase 7 plan
-- `doc/dev_log/p7_dev_status.md` was added and matches the repo naming rule
+- `python3 -m py_compile ...` passed
+- `pytest -q test_report_generator.py test_semantic_analyzer.py` passed:
+  - `19 passed`
+- the real bundle CLI smoke test passed
 
-The intended close-out result is:
+Observed smoke-test output:
 
-- `Traceability.md` no longer reports the stale prior phase attribution for this
-  transition
-- Phase 7 is now explicitly documented and ready for implementation
+- `passed = true`
+- `max_severity = warning`
+- `num_ranked_findings = 13`
+- `primary_claim_type = C-R`
+- `repair_ready_claims = 6`
+
+This confirms the first Phase 7 report path can already merge real Phase 4-6
+artifacts into one namespaced report bundle.
 
 ## 6. What Should Be Done Next
 
-The next step is to start Phase 7 implementation proper:
+The next Phase 7 step should tighten the first implementation rather than
+broadening scope immediately:
 
-- add `report_generator.py`
-- add `report_merge.py`
-- extend the report namespace contract to `analysis/report`
-- add `run_report_audit.py`
-- add `test_report_generator.py`
+- refine ranking and source-priority rules
+- improve root-cause ordering stability
+- refine `repair_handoff.json` so Phase 8 can consume it with fewer heuristics
+- add more synthetic merge fixtures that stress conflicting static vs semantic
+  evidence
 
-That will turn the current static/dynamic/semantic analyzer outputs into one
-unified report bundle and one repair-ready handoff for Phase 8.
+After that, the repo will be ready to start Phase 8 repair selection on top of
+the unified report bundle rather than on top of three separate analyzer outputs.

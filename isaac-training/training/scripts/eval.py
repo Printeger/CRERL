@@ -38,6 +38,8 @@ from runtime_logging.logger import (
 )
 from runtime_logging.training_log_adapter import (
     TrainingRolloutLogger,
+    build_cre_run_metadata,
+    build_cre_scene_tags_template,
     extract_cre_env_metadata,
 )
 
@@ -163,11 +165,22 @@ def main(cfg):
         fallback_scene_cfg_name="legacy_eval_env",
         fallback_scene_id_prefix="legacy_eval_scene",
     )
+    cre_eval_run_metadata = build_cre_run_metadata(
+        cre_env_metadata,
+        source="eval",
+        execution_mode="eval",
+    )
+    cre_eval_scene_tags = build_cre_scene_tags_template(
+        cre_env_metadata,
+        source="eval",
+        execution_mode="eval",
+    )
 
     cre_run_logger = create_run_logger(
         source="eval",
         run_name="eval_rollout",
         near_violation_distance=0.5,
+        run_metadata=cre_eval_run_metadata,
     )
     cre_log_adapter = TrainingRolloutLogger(
         cre_run_logger,
@@ -179,6 +192,7 @@ def main(cfg):
         scene_id_prefix=cre_env_metadata["scene_id_prefix"],
         done_type_labels=cre_env_metadata["done_type_labels"],
         seed=cfg.seed,
+        scene_tags_template=cre_eval_scene_tags,
     )
 
     # ============================================

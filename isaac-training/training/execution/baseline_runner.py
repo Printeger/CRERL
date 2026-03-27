@@ -15,6 +15,8 @@ from runtime_logging.logger import (
 )
 from runtime_logging.training_log_adapter import (
     TrainingRolloutLogger,
+    build_cre_run_metadata,
+    build_cre_scene_tags_template,
     extract_cre_env_metadata,
 )
 
@@ -84,10 +86,21 @@ def run_baseline_rollouts(
         policy_cfg=policy_cfg,
     )
     source = f"baseline_{baseline_name}"
+    cre_run_metadata = build_cre_run_metadata(
+        cre_env_metadata,
+        source=source,
+        execution_mode="baseline",
+    )
+    cre_scene_tags = build_cre_scene_tags_template(
+        cre_env_metadata,
+        source=source,
+        execution_mode="baseline",
+    )
     run_logger = create_run_logger(
         source=source,
         run_name=f"baseline_{baseline_name}_rollout",
         near_violation_distance=0.5,
+        run_metadata=cre_run_metadata,
     )
     log_adapter = TrainingRolloutLogger(
         run_logger,
@@ -99,6 +112,7 @@ def run_baseline_rollouts(
         scene_id_prefix=cre_env_metadata["scene_id_prefix"],
         done_type_labels=cre_env_metadata["done_type_labels"],
         seed=int(cfg.seed),
+        scene_tags_template=cre_scene_tags,
     )
 
     rollout_metrics: List[Dict[str, float]] = []

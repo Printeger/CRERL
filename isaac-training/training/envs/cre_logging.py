@@ -9,7 +9,7 @@ import math
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
+from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
 
 
 SCHEMA_VERSION = "cre_runtime_log.v1"
@@ -169,6 +169,7 @@ class FlightEpisodeLogger:
         use_timestamp: bool = True,
         source: str = "unknown",
         schema_version: str = SCHEMA_VERSION,
+        run_metadata: Optional[Mapping[str, Any]] = None,
     ):
         self.base_dir = Path(base_dir) if base_dir is not None else _default_logs_dir()
         self.base_dir.mkdir(parents=True, exist_ok=True)
@@ -184,6 +185,7 @@ class FlightEpisodeLogger:
         self.near_violation_distance = float(near_violation_distance)
         self.source = str(source)
         self.schema_version = str(schema_version)
+        self.run_metadata = dict(run_metadata or {})
         self.completed_episodes: List[Dict[str, Any]] = []
         self._finalized = False
         self._last_episode_summary: Optional[Dict[str, Any]] = None
@@ -198,6 +200,7 @@ class FlightEpisodeLogger:
             "near_violation_distance": self.near_violation_distance,
             "schema_version": self.schema_version,
             "source": self.source,
+            "run_metadata": dict(self.run_metadata),
             "created_at": datetime.now().isoformat(timespec="seconds"),
         }
         self.manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
@@ -477,4 +480,5 @@ class FlightEpisodeLogger:
         summary["near_violation_distance"] = self.near_violation_distance
         summary["schema_version"] = self.schema_version
         summary["source"] = self.source
+        summary["run_metadata"] = dict(self.run_metadata)
         self.summary_path.write_text(json.dumps(summary, indent=2, ensure_ascii=False), encoding="utf-8")

@@ -24,6 +24,12 @@ SCENE_CFG_OVERRIDE_ENV = "CRE_VALIDATION_SCENE_CFG_NAME"
 SCENE_ID_PREFIX_OVERRIDE_ENV = "CRE_VALIDATION_SCENE_ID_PREFIX"
 
 
+def _mapping_dict(value: Any) -> Dict[str, Any]:
+    if isinstance(value, Mapping):
+        return dict(value)
+    return {}
+
+
 def done_type_code_to_string(
     value: Any,
     *,
@@ -128,13 +134,67 @@ def extract_cre_env_metadata(
     done_type_labels = metadata.get("done_type_labels")
     if not isinstance(done_type_labels, Mapping):
         done_type_labels = dict(DONE_TYPE_CODE_MAP)
+    repair_preview_binding = _mapping_dict(metadata.get("repair_preview_binding"))
+    effective_scene_binding = _mapping_dict(metadata.get("effective_scene_binding"))
+    effective_spec_binding = _mapping_dict(metadata.get("effective_spec_binding"))
+    scene_family = str(
+        metadata.get("scene_family")
+        or effective_scene_binding.get("effective_family")
+        or scenario_type
+    )
 
     return {
         "scenario_type": scenario_type,
         "scene_cfg_name": scene_cfg_name,
         "scene_id_prefix": scene_id_prefix,
+        "scene_family": scene_family,
+        "repair_preview_binding": repair_preview_binding,
+        "effective_scene_binding": effective_scene_binding,
+        "effective_spec_binding": effective_spec_binding,
+        "native_repair_preview_consumption": bool(
+            metadata.get("native_repair_preview_consumption", repair_preview_binding.get("preview_bound", False))
+        ),
+        "integration_binding_type": str(metadata.get("integration_binding_type", "")),
         "done_type_labels": dict(done_type_labels),
     }
+
+
+def build_cre_run_metadata(
+    metadata: Mapping[str, Any],
+    *,
+    source: str,
+    execution_mode: str,
+) -> Dict[str, Any]:
+    repair_preview_binding = _mapping_dict(metadata.get("repair_preview_binding"))
+    effective_scene_binding = _mapping_dict(metadata.get("effective_scene_binding"))
+    effective_spec_binding = _mapping_dict(metadata.get("effective_spec_binding"))
+    return {
+        "run_metadata_type": "phase10_native_execution_run_metadata.v1",
+        "source": str(source),
+        "execution_mode": str(execution_mode),
+        "scenario_type": str(metadata.get("scenario_type", "")),
+        "scene_family": str(metadata.get("scene_family", metadata.get("scenario_type", ""))),
+        "scene_cfg_name": str(metadata.get("scene_cfg_name", "")),
+        "scene_id_prefix": str(metadata.get("scene_id_prefix", "")),
+        "native_repair_preview_consumption": bool(metadata.get("native_repair_preview_consumption", False)),
+        "integration_binding_type": str(metadata.get("integration_binding_type", "")),
+        "repair_preview_binding": repair_preview_binding,
+        "effective_scene_binding": effective_scene_binding,
+        "effective_spec_binding": effective_spec_binding,
+    }
+
+
+def build_cre_scene_tags_template(
+    metadata: Mapping[str, Any],
+    *,
+    source: str,
+    execution_mode: str,
+) -> Dict[str, Any]:
+    return build_cre_run_metadata(
+        metadata,
+        source=source,
+        execution_mode=execution_mode,
+    )
 
 
 def _infer_batch_shape(tensor: Optional[torch.Tensor], num_envs: int) -> tuple[int, int]:
@@ -256,6 +316,7 @@ class TrainingRolloutLogger:
         scene_id_prefix: Optional[str] = None,
         done_type_labels: Optional[Mapping[Any, Any]] = None,
         seed: Optional[int] = None,
+        scene_tags_template: Optional[Mapping[str, Any]] = None,
     ) -> None:
         self.run_logger = run_logger
         self.num_envs = int(num_envs)
@@ -270,6 +331,7 @@ class TrainingRolloutLogger:
         )
         self.done_type_labels = dict(done_type_labels or DONE_TYPE_CODE_MAP)
         self.seed = seed
+        self.scene_tags_template = dict(scene_tags_template or {})
         self._next_episode_index = 0
         self._buffers = [self._new_buffer() for _ in range(self.num_envs)]
 
@@ -323,6 +385,15 @@ class TrainingRolloutLogger:
         records: list[TrainingLogRecord] = []
         effective_scenario_type = str(scenario_type or self.scenario_type)
         effective_scene_cfg_name = scene_cfg_name or self.scene_cfg_name
+        base_scene_tags = dict(self.scene_tags_template)
+        base_scene_tags.update(
+            {
+                "source": self.source,
+                "scenario_type": effective_scenario_type,
+                "scene_cfg_name": effective_scene_cfg_name,
+                "scene_id_prefix": self.scene_id_prefix,
+            }
+        )
 
         for time_index in range(time_dim):
             for env_index in range(min(env_dim, self.num_envs)):
@@ -374,9 +445,8 @@ class TrainingRolloutLogger:
                     scene_cfg_name=effective_scene_cfg_name,
                     target_position=None,
                     scene_tags={
+                        **dict(base_scene_tags),
                         "env_index": env_index,
-                        "source": self.source,
-                        "scene_cfg_name": effective_scene_cfg_name,
                     },
                 )
                 buffer.steps.append(step_log)
@@ -438,9 +508,12 @@ class TrainingRolloutLogger:
                 scenario_type=self.scenario_type,
                 scene_cfg_name=self.scene_cfg_name,
                 scene_tags={
+                    **dict(self.scene_tags_template),
                     "env_index": env_index,
                     "source": self.source,
+                    "scenario_type": self.scenario_type,
                     "scene_cfg_name": self.scene_cfg_name,
+                    "scene_id_prefix": self.scene_id_prefix,
                 },
                 done_type=done_type,
             )
@@ -451,6 +524,8 @@ __all__ = [
     "DONE_TYPE_CODE_MAP",
     "TrainingLogRecord",
     "TrainingRolloutLogger",
+    "build_cre_run_metadata",
+    "build_cre_scene_tags_template",
     "done_type_code_to_string",
     "extract_cre_env_metadata",
 ]

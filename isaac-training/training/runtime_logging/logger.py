@@ -2,7 +2,7 @@
 
 import os
 from pathlib import Path
-from typing import Optional
+from typing import Mapping, Optional, Any
 
 from envs.cre_logging import (
     FlightEpisodeLogger,
@@ -38,6 +38,7 @@ def create_run_logger(
     near_violation_distance: float = 0.5,
     use_timestamp: bool = True,
     schema_version: str = SCHEMA_VERSION,
+    run_metadata: Optional[Mapping[str, Any]] = None,
 ) -> FlightEpisodeLogger:
     resolved_run_name = os.environ.get("CRE_RUN_NAME_OVERRIDE", run_name)
     resolved_base_dir = os.environ.get("CRE_RUN_LOG_BASE_DIR")
@@ -49,6 +50,7 @@ def create_run_logger(
         use_timestamp=resolved_use_timestamp,
         source=source,
         schema_version=schema_version,
+        run_metadata=run_metadata,
     )
 
 __all__ = [

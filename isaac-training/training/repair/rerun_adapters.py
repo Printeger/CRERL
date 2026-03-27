@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import shlex
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Mapping, Sequence
@@ -10,6 +11,8 @@ from typing import Any, Dict, List, Mapping, Sequence
 
 TRAINING_ROOT = Path(__file__).resolve().parents[1]
 REPO_ROOT = TRAINING_ROOT.parents[1]
+ISAAC_ROOT = REPO_ROOT.parent
+SETUP_CONDA_ENV_SCRIPT = ISAAC_ROOT / "setup_conda_env.sh"
 WANDB_ROOT = REPO_ROOT / "isaac-training" / "wandb"
 SCRIPT_BY_MODE = {
     "baseline": TRAINING_ROOT / "scripts" / "run_baseline.py",
@@ -196,6 +199,26 @@ def build_hydra_overrides(
     return overrides
 
 
+def build_native_execution_command(
+    *,
+    script_path: str,
+    hydra_overrides: Sequence[str],
+    conda_env_name: str = "NavRL",
+) -> List[str]:
+    script_arg = shlex.quote(str(script_path))
+    override_args = " ".join(shlex.quote(str(item)) for item in hydra_overrides)
+    setup_script_arg = shlex.quote(str(SETUP_CONDA_ENV_SCRIPT))
+    command = (
+        'eval "$(conda shell.bash hook)"'
+        f" && conda activate {shlex.quote(str(conda_env_name))}"
+        f" && source {setup_script_arg}"
+        f" && python {script_arg}"
+    )
+    if override_args:
+        command = f"{command} {override_args}"
+    return ["bash", "-lc", command]
+
+
 def build_bounded_rerun_task(
     *,
     validation_input: Mapping[str, Any],
@@ -211,17 +234,17 @@ def build_bounded_rerun_task(
     spec = get_adapter_spec(execution_mode)
     task_id = f"{execution_mode}:{scenario_type}:{index:02d}"
     preview_path = str((validation_input.get("resolved_paths") or {}).get("validation_context_preview.json", ""))
-    command_preview = [
-        "python3",
-        spec.script_path,
-        *build_hydra_overrides(
-            execution_mode=execution_mode,
-            scenario_type=scenario_type,
-            validation_input=validation_input,
-            output_run_name=output_run_name,
-            source=source,
-        ),
-    ]
+    hydra_overrides = build_hydra_overrides(
+        execution_mode=execution_mode,
+        scenario_type=scenario_type,
+        validation_input=validation_input,
+        output_run_name=output_run_name,
+        source=source,
+    )
+    command_preview = build_native_execution_command(
+        script_path=spec.script_path,
+        hydra_overrides=hydra_overrides,
+    )
     return {
         "task_type": "phase9_targeted_rerun_task.v1",
         "task_id": task_id,
@@ -250,13 +273,7 @@ def build_bounded_rerun_task(
             "num_envs": spec.num_envs,
         },
         "repo_root": str(REPO_ROOT),
-        "hydra_overrides": build_hydra_overrides(
-            execution_mode=execution_mode,
-            scenario_type=scenario_type,
-            validation_input=validation_input,
-            output_run_name=output_run_name,
-            source=source,
-        ),
+        "hydra_overrides": hydra_overrides,
         "command_preview": command_preview,
         "env_overrides": build_bounded_rerun_environment(
             output_run_name=output_run_name,
@@ -387,6 +404,7 @@ __all__ = [
     "build_bounded_rerun_environment",
     "build_bounded_rerun_task",
     "build_hydra_overrides",
+    "build_native_execution_command",
     "get_adapter_spec",
     "infer_run_scene",
     "infer_run_source",

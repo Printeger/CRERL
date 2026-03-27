@@ -13,6 +13,8 @@ if str(ROOT) not in sys.path:
 from runtime_logging.logger import create_run_logger
 from runtime_logging.training_log_adapter import (
     TrainingRolloutLogger,
+    build_cre_run_metadata,
+    build_cre_scene_tags_template,
     done_type_code_to_string,
     extract_cre_env_metadata,
 )
@@ -45,6 +47,17 @@ def test_training_rollout_logger_emits_episode_artifacts(tmp_path):
         scene_cfg_name="legacy_train_env",
         scene_id_prefix="legacy_train_scene",
         seed=11,
+        scene_tags_template={
+            "execution_mode": "train",
+            "effective_scene_binding": {
+                "binding_type": "phase10_effective_scene_binding.v1",
+                "scene_cfg_name": "legacy_train_env",
+            },
+            "effective_spec_binding": {
+                "binding_type": "phase10_effective_spec_binding.v1",
+                "repair_preview_bound": False,
+            },
+        },
     )
 
     drone_state = torch.zeros(1, 2, 1, 13)
@@ -83,8 +96,10 @@ def test_training_rollout_logger_emits_episode_artifacts(tmp_path):
     run_dir = tmp_path / "adapter_run"
     episodes_path = run_dir / "episodes.jsonl"
     steps_path = run_dir / "steps.jsonl"
+    manifest_path = run_dir / "manifest.json"
     assert episodes_path.exists()
     assert steps_path.exists()
+    assert manifest_path.exists()
 
     episodes = [json.loads(line) for line in episodes_path.read_text(encoding="utf-8").splitlines() if line.strip()]
     assert len(episodes) == 2
@@ -98,6 +113,13 @@ def test_training_rollout_logger_emits_episode_artifacts(tmp_path):
     assert all(step["source"] == "train" for step in steps)
     assert all(step["scene_cfg_name"] == "legacy_train_env" for step in steps)
     assert all(set(STANDARD_REWARD_COMPONENT_KEYS).issubset(step["reward_components"].keys()) for step in steps)
+    assert all(step["scene_tags"]["execution_mode"] == "train" for step in steps)
+    assert all(
+        step["scene_tags"]["effective_scene_binding"]["binding_type"] == "phase10_effective_scene_binding.v1"
+        for step in steps
+    )
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    assert manifest["run_metadata"] == {}
 
 
 def test_extract_cre_env_metadata_prefers_env_runtime_metadata():
@@ -107,6 +129,21 @@ def test_extract_cre_env_metadata_prefers_env_runtime_metadata():
                 "scenario_type": "boundary_critical",
                 "scene_cfg_name": "scene_cfg_boundary_critical.yaml",
                 "scene_id_prefix": "boundary_scene",
+                "scene_family": "boundary_critical",
+                "repair_preview_binding": {
+                    "binding_type": "phase10_repair_preview_binding.v1",
+                    "preview_bound": True,
+                },
+                "effective_scene_binding": {
+                    "binding_type": "phase10_effective_scene_binding.v1",
+                    "scene_cfg_name": "scene_cfg_boundary_critical.yaml",
+                },
+                "effective_spec_binding": {
+                    "binding_type": "phase10_effective_spec_binding.v1",
+                    "repair_preview_bound": True,
+                },
+                "native_repair_preview_consumption": True,
+                "integration_binding_type": "phase10_env_runtime_binding.v1",
                 "done_type_labels": {0: "running", 1: "success"},
             }
 
@@ -120,4 +157,51 @@ def test_extract_cre_env_metadata_prefers_env_runtime_metadata():
     assert metadata["scenario_type"] == "boundary_critical"
     assert metadata["scene_cfg_name"] == "scene_cfg_boundary_critical.yaml"
     assert metadata["scene_id_prefix"] == "boundary_scene"
+    assert metadata["scene_family"] == "boundary_critical"
+    assert metadata["repair_preview_binding"]["preview_bound"] is True
+    assert metadata["effective_scene_binding"]["binding_type"] == "phase10_effective_scene_binding.v1"
+    assert metadata["effective_spec_binding"]["repair_preview_bound"] is True
+    assert metadata["native_repair_preview_consumption"] is True
+    assert metadata["integration_binding_type"] == "phase10_env_runtime_binding.v1"
     assert metadata["done_type_labels"][1] == "success"
+
+
+def test_build_cre_run_metadata_and_scene_tags_template():
+    metadata = {
+        "scenario_type": "nominal",
+        "scene_family": "nominal",
+        "scene_cfg_name": "scene_cfg_nominal.yaml",
+        "scene_id_prefix": "nominal_scene",
+        "repair_preview_binding": {
+            "binding_type": "phase10_repair_preview_binding.v1",
+            "preview_bound": True,
+            "preview_path": "/tmp/preview.json",
+        },
+        "effective_scene_binding": {
+            "binding_type": "phase10_effective_scene_binding.v1",
+            "scene_cfg_name": "scene_cfg_nominal.yaml",
+        },
+        "effective_spec_binding": {
+            "binding_type": "phase10_effective_spec_binding.v1",
+            "repair_preview_bound": True,
+        },
+        "native_repair_preview_consumption": True,
+        "integration_binding_type": "phase10_env_runtime_binding.v1",
+    }
+
+    run_metadata = build_cre_run_metadata(
+        metadata,
+        source="eval",
+        execution_mode="eval",
+    )
+    scene_tags = build_cre_scene_tags_template(
+        metadata,
+        source="eval",
+        execution_mode="eval",
+    )
+
+    assert run_metadata["run_metadata_type"] == "phase10_native_execution_run_metadata.v1"
+    assert run_metadata["source"] == "eval"
+    assert run_metadata["execution_mode"] == "eval"
+    assert run_metadata["repair_preview_binding"]["preview_bound"] is True
+    assert scene_tags["effective_spec_binding"]["repair_preview_bound"] is True

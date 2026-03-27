@@ -47,6 +47,8 @@ from runtime_logging.logger import (
 )
 from runtime_logging.training_log_adapter import (
     TrainingRolloutLogger,
+    build_cre_run_metadata,
+    build_cre_scene_tags_template,
     extract_cre_env_metadata,
 )
 
@@ -172,6 +174,16 @@ def main(cfg):
         fallback_scene_cfg_name="legacy_train_env",
         fallback_scene_id_prefix="legacy_train_scene",
     )
+    cre_train_run_metadata = build_cre_run_metadata(
+        cre_env_metadata,
+        source="train",
+        execution_mode="train",
+    )
+    cre_train_scene_tags = build_cre_scene_tags_template(
+        cre_env_metadata,
+        source="train",
+        execution_mode="train",
+    )
 
     # ============================================
     # 第 7.5 步：创建 CRE 运行日志器
@@ -180,6 +192,7 @@ def main(cfg):
         source="train",
         run_name="train_rollout",
         near_violation_distance=0.5,
+        run_metadata=cre_train_run_metadata,
     )
     cre_log_adapter = TrainingRolloutLogger(
         cre_run_logger,
@@ -191,6 +204,7 @@ def main(cfg):
         scene_id_prefix=cre_env_metadata["scene_id_prefix"],
         done_type_labels=cre_env_metadata["done_type_labels"],
         seed=cfg.seed,
+        scene_tags_template=cre_train_scene_tags,
     )
     cre_eval_run_logger = None
     cre_eval_log_adapter = None
@@ -199,6 +213,11 @@ def main(cfg):
             source="train_eval",
             run_name="train_eval_rollout",
             near_violation_distance=0.5,
+            run_metadata=build_cre_run_metadata(
+                cre_env_metadata,
+                source="train_eval",
+                execution_mode="eval",
+            ),
         )
         cre_eval_log_adapter = TrainingRolloutLogger(
             cre_eval_run_logger,
@@ -210,6 +229,11 @@ def main(cfg):
             scene_id_prefix=cre_env_metadata["scene_id_prefix"],
             done_type_labels=cre_env_metadata["done_type_labels"],
             seed=cfg.seed,
+            scene_tags_template=build_cre_scene_tags_template(
+                cre_env_metadata,
+                source="train_eval",
+                execution_mode="eval",
+            ),
         )
 
     # ============================================

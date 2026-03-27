@@ -50,23 +50,16 @@ This keeps the workflow inside the current repo and avoids touching files outsid
 ## Latest Staged Change Summary
 
 <!-- TRACEABILITY:BEGIN -->
-_Updated: `2026-03-27T00:18:12`_
+_Updated: `2026-03-27T10:27:15`_
 
 - Scope: `/home/mint/rl_dev/CRERL`
 - Branch: `main`
 - Source: `staged diff`
-- Impacted phases: `Phase 1, Phase 4, Phase 7`
-- Diff stat: 11 files changed, 953 insertions(+), 117 deletions(-)
+- Impacted phases: `Phase 7`
+- Diff stat: 4 files changed, 574 insertions(+), 17 deletions(-)
 
 ### Changed Files
-- `M` [doc/dev_log/p6_dev_status.md](doc/dev_log/p6_dev_status.md) [Project Docs]
-- `M` [isaac-training/training/analyzers/__init__.py](isaac-training/training/analyzers/__init__.py) [Analyzers]
-- `M` [isaac-training/training/analyzers/llm_analyzer.py](isaac-training/training/analyzers/llm_analyzer.py) [Analyzers]
-- `M` [isaac-training/training/analyzers/report_contract.py](isaac-training/training/analyzers/report_contract.py) [Analyzers]
-- `M` [isaac-training/training/analyzers/semantic_analyzer.py](isaac-training/training/analyzers/semantic_analyzer.py) [Analyzers]
-- `A` [isaac-training/training/analyzers/semantic_merge.py](isaac-training/training/analyzers/semantic_merge.py) [Analyzers]
-- `M` [isaac-training/training/analyzers/semantic_provider.py](isaac-training/training/analyzers/semantic_provider.py) [Analyzers]
-- `M` [isaac-training/training/cfg/spec_cfg/policy_spec_v0.yaml](isaac-training/training/cfg/spec_cfg/policy_spec_v0.yaml) [Specification Config]
-- `M` [isaac-training/training/scripts/run_semantic_audit.py](isaac-training/training/scripts/run_semantic_audit.py) [Training Pipeline]
-- `M` [isaac-training/training/unit_test/test_env/test_semantic_analyzer.py](isaac-training/training/unit_test/test_env/test_semantic_analyzer.py) [Training Tests]
+- `A` [doc/dev_log/p7_dev_status.md](doc/dev_log/p7_dev_status.md) [Project Docs]
+- `A` [doc/roadmap/phase7.md](doc/roadmap/phase7.md) [Spec / Roadmap]
+- `M` [tools/update_traceability.py](tools/update_traceability.py) [Developer Workflow]
 <!-- TRACEABILITY:END -->

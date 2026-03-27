@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -88,10 +89,22 @@ def module_label(path: str) -> str:
 def detect_phases(paths: Sequence[str]) -> List[str]:
     phases = set()
     for path in paths:
-        if path.startswith("doc/roadmap/") or path == TRACEABILITY_FILE:
+        roadmap_match = re.match(r"doc/roadmap/phase(\d+)\.md$", path)
+        dev_log_match = re.match(r"doc/dev_log/p(\d+)_dev_status\.md$", path)
+        if roadmap_match:
+            phases.add(f"Phase {roadmap_match.group(1)}")
+        if dev_log_match:
+            phases.add(f"Phase {dev_log_match.group(1)}")
+        if path in {"doc/roadmap.md", "doc/roadmap/roadmap.md"} or path.startswith("doc/specs/"):
             phases.add("Phase 0")
         if path.startswith("isaac-training/training/analyzers/"):
-            phases.add("Phase 4")
+            name = Path(path).name
+            if name.startswith("semantic") or name == "llm_analyzer.py":
+                phases.add("Phase 6")
+            elif name.startswith("dynamic"):
+                phases.add("Phase 5")
+            else:
+                phases.add("Phase 4")
         if path.startswith("isaac-training/training/cfg/spec_cfg/"):
             phases.add("Phase 4")
         if (
@@ -107,12 +120,16 @@ def detect_phases(paths: Sequence[str]) -> List[str]:
             or path.startswith("isaac-training/training/cfg/")
         ):
             phases.update({"Phase 1", "Phase 4", "Phase 7"})
+        if path.endswith("run_static_audit.py"):
+            phases.add("Phase 4")
+        if path.endswith("run_dynamic_audit.py"):
+            phases.add("Phase 5")
+        if path.endswith("run_semantic_audit.py"):
+            phases.add("Phase 6")
         if "command_generator.py" in path:
             phases.update({"Phase 2", "Phase 3"})
         if path.startswith("ros1/") or path.startswith("ros2/"):
             phases.add("Phase 7")
-        if "Traceability" in path or path.startswith("tools/") or path.startswith(".githooks/"):
-            phases.add("Workflow")
     return sorted(phases)
 
 

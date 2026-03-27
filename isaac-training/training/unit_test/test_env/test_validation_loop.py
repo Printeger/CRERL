@@ -334,6 +334,96 @@ def test_prepare_validation_runs_and_decision_accepts_improving_repair(tmp_path)
     assert decision["accepted"] is True
 
 
+def test_compare_validation_runs_derives_nominal_vs_shifted_success_gap(tmp_path):
+    repair_bundle_dir = _make_repair_bundle(
+        tmp_path,
+        claim_type="E-R",
+        summary="Shifted-family robustness is too weak under distribution shift.",
+        target_ref=SHIFTED_CFG,
+    )
+    logs_root = tmp_path / "logs"
+    original_nominal = _make_accepted_run_dir(
+        logs_root,
+        name="baseline_nominal_original",
+        source="baseline",
+        scenario_type="nominal",
+        scene_cfg_name="scene_cfg_nominal.yaml",
+        metrics={
+            "W_ER": 0.40,
+            "min_distance": 0.72,
+            "collision_rate": 0.04,
+            "near_violation_ratio": 0.10,
+            "average_return": 3.20,
+            "success_rate": 0.82,
+        },
+    )
+    original_shifted = _make_accepted_run_dir(
+        logs_root,
+        name="baseline_shifted_original",
+        source="baseline",
+        scenario_type="shifted",
+        scene_cfg_name="scene_cfg_shifted.yaml",
+        metrics={
+            "W_ER": 0.44,
+            "min_distance": 0.55,
+            "collision_rate": 0.10,
+            "near_violation_ratio": 0.22,
+            "average_return": 2.85,
+            "success_rate": 0.46,
+        },
+    )
+    repaired_nominal = _make_accepted_run_dir(
+        logs_root,
+        name="baseline_nominal_repaired",
+        source="baseline",
+        scenario_type="nominal",
+        scene_cfg_name="scene_cfg_nominal.yaml",
+        metrics={
+            "W_ER": 0.24,
+            "min_distance": 0.78,
+            "collision_rate": 0.03,
+            "near_violation_ratio": 0.08,
+            "average_return": 3.22,
+            "success_rate": 0.84,
+        },
+    )
+    repaired_shifted = _make_accepted_run_dir(
+        logs_root,
+        name="baseline_shifted_repaired",
+        source="baseline",
+        scenario_type="shifted",
+        scene_cfg_name="scene_cfg_shifted.yaml",
+        metrics={
+            "W_ER": 0.20,
+            "min_distance": 0.71,
+            "collision_rate": 0.05,
+            "near_violation_ratio": 0.11,
+            "average_return": 3.00,
+            "success_rate": 0.70,
+        },
+    )
+
+    prepared = prepare_validation_runs(
+        repair_bundle_dir=repair_bundle_dir,
+        logs_root=logs_root,
+        original_run_dirs=[original_nominal, original_shifted],
+        repaired_run_dirs=[repaired_nominal, repaired_shifted],
+    )
+    comparison = compare_validation_runs(
+        primary_claim_type=prepared["validation_input"]["primary_claim_type"],
+        validation_targets=prepared["validation_input"]["validation_targets"],
+        original_runs=prepared["original_runs"],
+        repaired_runs=prepared["repaired_runs"],
+    )
+
+    gap_payload = comparison["metric_deltas"]["nominal_vs_shifted_success_gap"]
+    assert round(gap_payload["original"], 4) == 0.36
+    assert round(gap_payload["repaired"], 4) == 0.14
+    assert gap_payload["improvement"] > 0.0
+    assert "nominal" in comparison["original_by_scenario"]
+    assert "shifted" in comparison["original_by_scenario"]
+
+
 def test_validation_decision_rejects_large_performance_regression(tmp_path):
     repair_bundle_dir = _make_repair_bundle(
         tmp_path,
@@ -392,6 +482,67 @@ def test_validation_decision_rejects_large_performance_regression(tmp_path):
     assert decision["accepted"] is False
 
 
+def test_prepare_validation_runs_trigger_rerun_creates_preview_repaired_runs(tmp_path):
+    repair_bundle_dir = _make_repair_bundle(
+        tmp_path,
+        claim_type="E-R",
+        summary="Shifted-family robustness is too weak under distribution shift.",
+        target_ref=SHIFTED_CFG,
+    )
+    logs_root = tmp_path / "logs"
+    original_nominal = _make_accepted_run_dir(
+        logs_root,
+        name="baseline_nominal_original",
+        source="baseline",
+        scenario_type="nominal",
+        scene_cfg_name="scene_cfg_nominal.yaml",
+        metrics={
+            "W_ER": 0.34,
+            "min_distance": 0.74,
+            "collision_rate": 0.04,
+            "near_violation_ratio": 0.10,
+            "average_return": 3.25,
+            "success_rate": 0.80,
+        },
+    )
+    original_shifted = _make_accepted_run_dir(
+        logs_root,
+        name="baseline_shifted_original",
+        source="baseline",
+        scenario_type="shifted",
+        scene_cfg_name="scene_cfg_shifted.yaml",
+        metrics={
+            "W_ER": 0.46,
+            "min_distance": 0.52,
+            "collision_rate": 0.12,
+            "near_violation_ratio": 0.25,
+            "average_return": 2.70,
+            "success_rate": 0.42,
+        },
+    )
+
+    prepared = prepare_validation_runs(
+        repair_bundle_dir=repair_bundle_dir,
+        logs_root=logs_root,
+        original_run_dirs=[original_nominal, original_shifted],
+        trigger_rerun=True,
+        repaired_logs_root=tmp_path / "repaired_logs",
+    )
+    comparison = compare_validation_runs(
+        primary_claim_type=prepared["validation_input"]["primary_claim_type"],
+        validation_targets=prepared["validation_input"]["validation_targets"],
+        original_runs=prepared["original_runs"],
+        repaired_runs=prepared["repaired_runs"],
+    )
+
+    assert prepared["validation_runs"]["trigger_rerun"] is True
+    assert len(prepared["validation_runs"]["rerun_tasks"]) == 2
+    assert len(prepared["repaired_runs"]) == 2
+    assert all(Path(item["run_dir"]).exists() for item in prepared["validation_runs"]["repaired_runs"])
+    assert "nominal_vs_shifted_success_gap" in comparison["metric_deltas"]
+    assert comparison["metric_deltas"]["nominal_vs_shifted_success_gap"]["improvement"] > 0.0
+
+
 def test_run_validation_audit_cli_smoke(tmp_path):
     repair_bundle_dir = _make_repair_bundle(
         tmp_path,
@@ -443,8 +594,9 @@ def test_run_validation_audit_cli_smoke(tmp_path):
             str(logs_root),
             "--original-run-dir",
             str(original_run),
-            "--repaired-run-dir",
-            str(repaired_run),
+            "--trigger-rerun",
+            "--repaired-logs-root",
+            str(tmp_path / "repaired_logs"),
             "--reports-root",
             str(tmp_path),
             "--bundle-name",
@@ -463,9 +615,11 @@ def test_run_validation_audit_cli_smoke(tmp_path):
     assert payload["primary_claim_type"] == "E-C"
     assert payload["original_run_count"] == 1
     assert payload["repaired_run_count"] == 1
+    assert payload["trigger_rerun"] is True
     assert Path(payload["validation_plan_path"]).exists()
     assert Path(payload["validation_runs_path"]).exists()
     assert Path(payload["comparison_path"]).exists()
     assert Path(payload["validation_decision_path"]).exists()
+    assert Path(payload["post_repair_evidence_path"]).exists()
     assert Path(payload["validation_summary_md_path"]).exists()
     assert output_path.exists()

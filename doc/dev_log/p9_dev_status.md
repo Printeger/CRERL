@@ -4,140 +4,138 @@ Updated: 2026-03-27
 
 ## 1. This Iteration Goal
 
-This iteration advances Phase 9 from validation-input preparation to the first
-real repair-validation loop.
+This iteration advances Phase 9 from the first validation bundle kernel to the
+first rerun-capable validation loop.
 
 The goal of this step is:
 
-- implement `repair/validation_runner.py`,
-- implement `repair/comparison.py`,
-- implement the first validation decision rule,
-- and add `run_validation_audit.py` so Phase 9 can emit a namespaced
-  `analysis/validation/<bundle>/` bundle.
+- push `validation_runner.py` from "read already-existing repaired runs"
+  toward "trigger targeted reruns",
+- add higher-order comparison targets such as
+  `nominal_vs_shifted_success_gap`,
+- and stabilize a post-repair evidence artifact that Phase 10 can consume
+  directly.
 
 ## 2. Result
 
-Phase 9 now has its first executable validation bundle pipeline on top of the
-Phase 8 repair handoff.
+Phase 9 now has a first rerun-capable validation path and the first explicit
+post-repair evidence handoff.
 
-The second implementation batch added or upgraded:
+The third implementation batch added or upgraded:
 
 - `isaac-training/training/repair/comparison.py`
-- `isaac-training/training/repair/decision.py`
 - `isaac-training/training/repair/validation_runner.py`
 - `isaac-training/training/scripts/run_validation_audit.py`
 - `isaac-training/training/unit_test/test_env/test_validation_loop.py`
+- `isaac-training/training/analyzers/report_contract.py`
+- `isaac-training/training/cfg/spec_cfg/policy_spec_v0.yaml`
 
 The result is a deterministic first path from:
 
-- `analysis/repair/<bundle>/validation_request.json`
+- a Phase 8 repair bundle with `validation_request.json`
 
 to:
 
-- a normalized validation plan,
-- explicit original/repaired run references,
-- machine-readable metric comparison,
-- an evidence-based accept/reject decision,
-- and a namespaced validation bundle under `analysis/validation/<bundle>/`.
+- targeted validation rerun tasks,
+- preview-mode triggered repaired run generation,
+- higher-order comparison metrics,
+- a machine-readable validation decision,
+- and `post_repair_evidence.json` as a Phase 10-ready validation input.
 
-### 2.1 `comparison.py` Was Implemented
+### 2.1 `validation_runner.py` Can Now Trigger Targeted Reruns
 
-`comparison.py` is the first explicit Phase 9 metric-comparison kernel.
+`validation_runner.py` no longer only loads pre-existing repaired runs.
 
-It now:
+It now supports:
 
-- aggregates numeric summaries from accepted original and repaired run bundles,
-- compares consistency, safety, and performance metrics,
-- tracks per-metric direction and improvement score,
-- supports a first alias layer for validation targets such as:
-  - `boundary_critical_success_rate -> success_rate`
-  - `critical_family_min_distance -> min_distance`
-  - `shifted_min_distance -> min_distance`
-- records unresolved validation targets in `missing_metrics` without blocking
-  the first decision rule outright.
+- building deterministic rerun tasks from original accepted runs,
+- normalizing execution mode, scenario family, and scene config scope,
+- emitting command previews for future real execution integration,
+- triggering a bounded preview-mode rerun driver,
+- and recording rerun task results inside `validation_runs.json`.
 
-This makes `comparison.json` the first stable evidence object for Phase 9
-accept/reject decisions.
+The current bounded rerun path is:
 
-### 2.2 `decision.py` Introduced the First Validation Rule
+- `preview_targeted_rerun.v1`
 
-`decision.py` now implements the first Phase 9 decision rule:
+This does not mutate source files and does not pretend to be a full Isaac
+benchmark rerun. It gives Phase 9 a stable post-repair evidence path while
+preserving the future interface for true baseline/eval/train replay.
 
-- the primary consistency witness must improve,
-- the aggregated safety score must improve,
-- and performance may not regress beyond a configurable epsilon.
+### 2.2 `comparison.py` Now Supports Higher-Order Validation Targets
 
-The canonical output is:
+`comparison.py` was extended beyond flat summary metrics.
 
-- `validation_decision.json`
+It now computes:
 
-and contains:
+- `original_by_scenario`
+- `repaired_by_scenario`
 
-- `decision_status`
-- `accepted`
-- `acceptance_rule`
-- `decision_rationale`
-- `metric_deltas`
-- `blocked_by`
-- `next_action`
+and can derive higher-order targets such as:
 
-This is the first concrete repair-acceptance rule in the repo.
+- `boundary_critical_success_rate`
+- `critical_family_min_distance`
+- `shifted_min_distance`
+- `nominal_vs_shifted_success_gap`
 
-### 2.3 `validation_runner.py` Now Writes Validation Bundles
+This makes Phase 9 more aligned with the roadmap's requirement that `E-R`
+repairs should be judged on family-conditioned transfer gaps, not only on
+single scalar witnesses.
 
-`validation_runner.py` is the first orchestration layer for Phase 9.
+### 2.3 Validation Bundles Now Emit Phase 10-Ready Evidence
 
-It now:
+The validation namespace now includes:
 
-- loads and normalizes the Phase 8 repair handoff,
-- resolves or discovers accepted original runs,
-- accepts explicit repaired run references,
-- builds:
-  - `validation_plan.json`
-  - `validation_runs.json`
-  - `comparison.json`
-  - `validation_decision.json`
-  - `validation_summary.json`
-  - `validation_summary.md`
-  - `manifest.json`
-- writes the bundle under:
-  - `analysis/validation/<bundle_name>/`
+- `post_repair_evidence.json`
 
-This is the first end-to-end Phase 9 writer.
+This artifact contains:
 
-### 2.4 `run_validation_audit.py` Exposes a Real CLI Entrypoint
+- original run refs,
+- repaired run refs,
+- rerun tasks,
+- rerun task results,
+- by-scenario summaries,
+- metric deltas,
+- validation decision status,
+- and a `phase10_post_repair_evidence.v1` contract marker.
 
-`run_validation_audit.py` now ties the full Phase 9 path together.
+This is the first explicit validation artifact designed to feed the next phase
+instead of stopping at a single accept/reject result.
 
-It can:
+### 2.4 CLI Validation Now Supports Triggered Reruns
+
+`run_validation_audit.py` now supports:
+
+- `--trigger-rerun`
+- `--repaired-logs-root`
+
+That means the CLI can now:
 
 - read a repair bundle,
-- read or discover accepted runs,
-- compare original and repaired evidence,
-- apply the decision rule,
-- and emit a namespaced validation bundle.
+- read original accepted runs,
+- trigger preview-mode repaired reruns,
+- compare pre/post evidence,
+- and emit a full namespaced validation bundle
 
-This moves Phase 9 from internal helper code to a real, directly runnable
-audit entrypoint.
+without requiring the caller to hand-author repaired run directories first.
 
-### 2.5 Phase 9 Tests Now Cover the Real Loop
+### 2.5 Phase 9 Tests Now Cover the New Loop
 
 `test_validation_loop.py` was extended to verify:
 
-- improving repairs are accepted,
-- repairs with too-large performance regression are rejected,
-- the CLI writes a real validation bundle and decision artifact,
-- the validation namespace contract is usable from synthetic accepted runs.
+- `nominal_vs_shifted_success_gap` is derived correctly,
+- `trigger_rerun=True` creates repaired accepted runs,
+- the CLI trigger path writes a complete validation bundle,
+- and `post_repair_evidence.json` is present.
 
-This means Phase 9 now has both a programmatic API and a runnable CLI with
-focused tests.
+This means the new Phase 9 loop is not only implemented, but regression-locked
+by focused tests.
 
 ## 3. Main Files Added or Changed
 
 Core implementation:
 
 - `isaac-training/training/repair/comparison.py`
-- `isaac-training/training/repair/decision.py`
 - `isaac-training/training/repair/validation_runner.py`
 - `isaac-training/training/repair/__init__.py`
 - `isaac-training/training/scripts/run_validation_audit.py`
@@ -165,10 +163,9 @@ Run:
 ```bash
 python3 -m py_compile \
   isaac-training/training/analyzers/report_contract.py \
-  isaac-training/training/repair/comparison.py \
-  isaac-training/training/repair/decision.py \
-  isaac-training/training/repair/validation_runner.py \
   isaac-training/training/repair/__init__.py \
+  isaac-training/training/repair/comparison.py \
+  isaac-training/training/repair/validation_runner.py \
   isaac-training/training/scripts/run_validation_audit.py \
   isaac-training/training/unit_test/test_env/test_validation_loop.py
 ```
@@ -189,14 +186,20 @@ pytest -q \
 
 Expected result:
 
-- the existing repair-engine tests still pass
-- the new validation-loop tests pass
+- the existing Phase 8 repair tests still pass
+- the extended Phase 9 validation-loop tests pass
 
-### 4.3 CLI Smoke Test
+### 4.3 CLI Triggered-Rerun Smoke Test
 
 Run a synthetic repair-bundle + accepted-run smoke test against:
 
 - `isaac-training/training/scripts/run_validation_audit.py`
+
+with:
+
+- two original runs (`nominal`, `shifted`) or a single boundary-critical run,
+- `--trigger-rerun`,
+- and a temporary `--repaired-logs-root`.
 
 Expected result:
 
@@ -204,7 +207,8 @@ Expected result:
 - `validation_plan.json` exists
 - `comparison.json` exists
 - `validation_decision.json` exists
-- the decision is accepted for the improving synthetic fixture
+- `post_repair_evidence.json` exists
+- the triggered rerun path reports `trigger_rerun = true`
 
 ### 4.4 Check Traceability Refresh
 
@@ -222,28 +226,28 @@ Validated in this iteration:
 
 - `python3 -m py_compile ...` passed
 - `pytest -q ...` passed:
-  - `13 passed`
-- real CLI smoke test passed with:
+  - `15 passed`
+- real CLI triggered-rerun smoke test passed with:
   - `accepted = true`
   - `decision_status = accepted`
-  - `primary_claim_type = E-C`
-  - `original_run_count = 1`
-  - `repaired_run_count = 1`
-  - validation bundle artifacts were created successfully
+  - `primary_claim_type = E-R`
+  - `original_run_count = 2`
+  - `repaired_run_count = 2`
+  - `trigger_rerun = true`
+  - `post_repair_evidence.json` exists
 - `Traceability.md` was refreshed for this Phase 9 implementation batch
 
-This confirms that Phase 9 now has a working first repair-validation loop that
-can compare original vs repaired accepted runs and emit a machine-readable
-validation decision.
+This confirms that Phase 9 now has a first rerun-capable validation loop and a
+Phase 10-ready post-repair evidence artifact.
 
 ## 6. What Should Be Done Next
 
 The next Phase 9 step should be:
 
-1. implement a real rerun executor in `repair/validation_runner.py`
-2. widen comparison support for higher-order targets such as
-   `nominal_vs_shifted_success_gap`
-3. add a post-repair evidence bundle flow that Phase 10 can consume directly
+1. replace or augment the preview rerun driver with true bounded baseline /
+   eval / train execution adapters,
+2. widen high-order target support beyond the first family-gap metrics,
+3. formalize the Phase 10 consumer contract for `post_repair_evidence.json`.
 
-That will move Phase 9 from the first synthetic repair-validation loop to a
-true rerun-and-compare validation stage over real repaired executions.
+That will move Phase 9 from the first rerun-capable validation loop to a more
+faithful repaired-execution validation stage over real post-repair runs.

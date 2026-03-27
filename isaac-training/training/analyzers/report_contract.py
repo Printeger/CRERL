@@ -77,6 +77,7 @@ DEFAULT_REPORT_MODE_ARTIFACTS = {
         "validation_runs.json",
         "comparison.json",
         "validation_decision.json",
+        "post_repair_evidence.json",
         "validation_summary.json",
         "validation_summary.md",
         "manifest.json",

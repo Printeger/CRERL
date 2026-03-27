@@ -39,6 +39,16 @@ def parse_args() -> argparse.Namespace:
         help="Explicit repaired accepted run directory. Repeat to add multiple runs.",
     )
     parser.add_argument(
+        "--trigger-rerun",
+        action="store_true",
+        help="Trigger preview-mode targeted reruns when repaired run directories are not provided.",
+    )
+    parser.add_argument(
+        "--repaired-logs-root",
+        default="",
+        help="Optional output root for triggered repaired run directories.",
+    )
+    parser.add_argument(
         "--reports-root",
         default=str(_training_root() / "reports"),
         help="Root reports directory used for namespaced validation artifacts.",
@@ -81,6 +91,8 @@ def main() -> int:
         logs_root=Path(args.logs_root),
         original_run_dirs=[Path(item) for item in args.original_run_dir],
         repaired_run_dirs=[Path(item) for item in args.repaired_run_dir],
+        trigger_rerun=bool(args.trigger_rerun),
+        repaired_logs_root=Path(args.repaired_logs_root) if args.repaired_logs_root else None,
     )
     validation_input = prepared["validation_input"]
     validation_plan = prepared["validation_plan"]
@@ -123,6 +135,7 @@ def main() -> int:
                 "validation_runs_path": str(bundle_paths["validation_runs_path"]),
                 "comparison_path": str(bundle_paths["comparison_path"]),
                 "validation_decision_path": str(bundle_paths["validation_decision_path"]),
+                "post_repair_evidence_path": str(bundle_paths["post_repair_evidence_path"]),
                 "validation_summary_path": str(bundle_paths["validation_summary_path"]),
                 "validation_summary_md_path": str(bundle_paths["validation_summary_md_path"]),
                 "manifest_path": str(bundle_paths["manifest_path"]),
@@ -133,6 +146,7 @@ def main() -> int:
                 "primary_claim_type": str(validation_plan.get("primary_claim_type", "")),
                 "original_run_count": int(comparison.get("original_run_count", 0) or 0),
                 "repaired_run_count": int(comparison.get("repaired_run_count", 0) or 0),
+                "trigger_rerun": bool(args.trigger_rerun),
                 "blocked_by": list(decision.get("blocked_by", []) or []),
             },
             indent=2,

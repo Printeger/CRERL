@@ -10,10 +10,14 @@ METRIC_DIRECTIONS = {
     "W_CR": "lower_better",
     "W_EC": "lower_better",
     "W_ER": "lower_better",
+    "boundary_critical_success_rate": "higher_better",
     "collision_rate": "lower_better",
+    "critical_family_min_distance": "higher_better",
     "near_violation_ratio": "lower_better",
     "min_distance": "higher_better",
+    "nominal_vs_shifted_success_gap": "lower_better",
     "average_return": "higher_better",
+    "shifted_min_distance": "higher_better",
     "success_rate": "higher_better",
 }
 
@@ -64,6 +68,108 @@ def _aggregate_run_summaries(run_payloads: Sequence[Mapping[str, Any]]) -> Dict[
     return aggregated
 
 
+def _extract_run_scenario_type(run_payload: Mapping[str, Any]) -> str:
+    episodes = list(run_payload.get("episodes") or [])
+    for episode in episodes:
+        scenario_type = str(episode.get("scenario_type", "") or "")
+        if scenario_type:
+            return scenario_type
+    summary = dict(run_payload.get("summary") or {})
+    scenario_type = str(summary.get("scenario_type", "") or "")
+    if scenario_type:
+        return scenario_type
+    return ""
+
+
+def _aggregate_by_scenario(run_payloads: Sequence[Mapping[str, Any]]) -> Dict[str, Dict[str, float]]:
+    grouped: Dict[str, List[Mapping[str, Any]]] = {}
+    for payload in run_payloads:
+        scenario_type = _extract_run_scenario_type(payload)
+        if not scenario_type:
+            continue
+        grouped.setdefault(scenario_type, []).append(payload)
+    return {
+        scenario_type: _aggregate_run_summaries(group_payloads)
+        for scenario_type, group_payloads in grouped.items()
+    }
+
+
+def _mean_metric_from_scenarios(
+    scenario_summaries: Mapping[str, Mapping[str, Any]],
+    *,
+    scenario_names: Sequence[str],
+    metric_name: str,
+) -> float | None:
+    values = []
+    for scenario_name in scenario_names:
+        scenario_summary = dict(scenario_summaries.get(scenario_name) or {})
+        if metric_name in scenario_summary:
+            values.append(scenario_summary[metric_name])
+    return _mean_numeric(values)
+
+
+def _derive_metric_value(
+    metric_name: str,
+    *,
+    overall_summary: Mapping[str, Any],
+    scenario_summaries: Mapping[str, Mapping[str, Any]],
+) -> tuple[float | None, str]:
+    if metric_name in overall_summary:
+        return float(overall_summary[metric_name]), metric_name
+
+    alias_name = TARGET_METRIC_ALIASES.get(metric_name)
+    if metric_name == "boundary_critical_success_rate":
+        value = _mean_metric_from_scenarios(
+            scenario_summaries,
+            scenario_names=("boundary_critical",),
+            metric_name="success_rate",
+        )
+        return (float(value), "boundary_critical.success_rate") if value is not None else (None, "")
+
+    if metric_name == "critical_family_min_distance":
+        critical_scenarios = tuple(
+            sorted(name for name in scenario_summaries.keys() if name and name != "nominal")
+        )
+        value = _mean_metric_from_scenarios(
+            scenario_summaries,
+            scenario_names=critical_scenarios,
+            metric_name="min_distance",
+        )
+        if value is None and alias_name and alias_name in overall_summary:
+            return float(overall_summary[alias_name]), alias_name
+        source_name = ",".join(f"{name}.min_distance" for name in critical_scenarios) or alias_name or ""
+        return (float(value), source_name) if value is not None else (None, "")
+
+    if metric_name == "shifted_min_distance":
+        value = _mean_metric_from_scenarios(
+            scenario_summaries,
+            scenario_names=("shifted",),
+            metric_name="min_distance",
+        )
+        if value is None and alias_name and alias_name in overall_summary:
+            return float(overall_summary[alias_name]), alias_name
+        return (float(value), "shifted.min_distance") if value is not None else (None, "")
+
+    if metric_name == "nominal_vs_shifted_success_gap":
+        nominal = _mean_metric_from_scenarios(
+            scenario_summaries,
+            scenario_names=("nominal",),
+            metric_name="success_rate",
+        )
+        shifted = _mean_metric_from_scenarios(
+            scenario_summaries,
+            scenario_names=("shifted",),
+            metric_name="success_rate",
+        )
+        if nominal is None or shifted is None:
+            return None, ""
+        return abs(float(nominal) - float(shifted)), "abs(nominal.success_rate-shifted.success_rate)"
+
+    if alias_name and alias_name in overall_summary:
+        return float(overall_summary[alias_name]), alias_name
+    return None, ""
+
+
 def _metric_category(metric_name: str, primary_claim_type: str) -> str:
     if metric_name in CLAIM_TO_CONSISTENCY_METRICS.get(primary_claim_type, ()):
         return "consistency"
@@ -92,6 +198,8 @@ def compare_validation_runs(
 
     original_summary = _aggregate_run_summaries(original_runs)
     repaired_summary = _aggregate_run_summaries(repaired_runs)
+    original_by_scenario = _aggregate_by_scenario(original_runs)
+    repaired_by_scenario = _aggregate_by_scenario(repaired_runs)
     candidate_metrics = sorted(
         set(validation_targets)
         | set(SAFETY_METRICS)
@@ -103,14 +211,22 @@ def compare_validation_runs(
     metric_deltas: Dict[str, Dict[str, Any]] = {}
     missing_metrics: List[str] = []
     for metric_name in candidate_metrics:
-        source_metric_name = TARGET_METRIC_ALIASES.get(metric_name, metric_name)
-        if source_metric_name not in original_summary or source_metric_name not in repaired_summary:
+        original_value, original_source_metric = _derive_metric_value(
+            metric_name,
+            overall_summary=original_summary,
+            scenario_summaries=original_by_scenario,
+        )
+        repaired_value, repaired_source_metric = _derive_metric_value(
+            metric_name,
+            overall_summary=repaired_summary,
+            scenario_summaries=repaired_by_scenario,
+        )
+        if original_value is None or repaired_value is None:
             if metric_name in validation_targets:
                 missing_metrics.append(metric_name)
             continue
-        original_value = float(original_summary[source_metric_name])
-        repaired_value = float(repaired_summary[source_metric_name])
-        direction, improvement = _metric_improvement(source_metric_name, original_value, repaired_value)
+        source_metric_name = original_source_metric or repaired_source_metric or TARGET_METRIC_ALIASES.get(metric_name, metric_name)
+        direction, improvement = _metric_improvement(metric_name, original_value, repaired_value)
         metric_deltas[metric_name] = {
             "metric_name": metric_name,
             "source_metric_name": source_metric_name,
@@ -136,6 +252,8 @@ def compare_validation_runs(
         "repaired_run_count": len(repaired_runs),
         "original_summary": original_summary,
         "repaired_summary": repaired_summary,
+        "original_by_scenario": original_by_scenario,
+        "repaired_by_scenario": repaired_by_scenario,
         "metric_deltas": metric_deltas,
         "missing_metrics": sorted(set(missing_metrics)),
         "blocked_by": blocked_by,

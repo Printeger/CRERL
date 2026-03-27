@@ -20,8 +20,11 @@ from repair.repair_validator import build_phase9_validation_request, validate_re
 from repair.validation_request_loader import REQUIRED_REPAIR_BUNDLE_ARTIFACTS, load_validation_request_bundle
 from repair.validation_runner import (
     VALIDATION_NAMESPACE,
+    build_validation_rerun_tasks,
     prepare_validation_runs,
+    preview_rerun_runner,
     run_validation_bundle_write,
+    trigger_targeted_reruns,
     write_validation_bundle,
 )
 from repair.rule_based_repair import (
@@ -42,6 +45,7 @@ __all__ = [
     "SUPPORTED_OPERATOR_TYPES",
     "accept_repair",
     "build_phase9_validation_request",
+    "build_validation_rerun_tasks",
     "build_validation_context_preview",
     "build_repair_candidates",
     "compare_validation_runs",
@@ -49,9 +53,11 @@ __all__ = [
     "load_phase7_repair_inputs",
     "load_validation_request_bundle",
     "prepare_validation_runs",
+    "preview_rerun_runner",
     "propose_rule_based_repairs",
     "run_repair_bundle_write",
     "run_validation_bundle_write",
+    "trigger_targeted_reruns",
     "validate_repair",
     "write_validation_bundle",
     "write_repair_bundle",

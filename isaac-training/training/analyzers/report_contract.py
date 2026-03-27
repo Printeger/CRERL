@@ -11,12 +11,14 @@ STATIC_AUDIT_MODE = "static_audit"
 DYNAMIC_ANALYSIS_MODE = "dynamic_analysis"
 SEMANTIC_ANALYSIS_MODE = "semantic_analysis"
 REPORT_GENERATION_MODE = "report_generation"
+REPAIR_GENERATION_MODE = "repair_generation"
 
 DEFAULT_REPORT_NAMESPACES = {
     STATIC_AUDIT_MODE: "analysis/static",
     DYNAMIC_ANALYSIS_MODE: "analysis/dynamic",
     SEMANTIC_ANALYSIS_MODE: "analysis/semantic",
     REPORT_GENERATION_MODE: "analysis/report",
+    REPAIR_GENERATION_MODE: "analysis/repair",
 }
 
 DEFAULT_REPORT_MODE_ARTIFACTS = {
@@ -51,6 +53,16 @@ DEFAULT_REPORT_MODE_ARTIFACTS = {
         "repair_handoff.json",
         "report_summary.md",
         "summary.json",
+        "manifest.json",
+        "namespace_manifest.json",
+    ),
+    REPAIR_GENERATION_MODE: (
+        "repair_plan.json",
+        "repair_candidates.json",
+        "spec_patch.json",
+        "repair_summary.json",
+        "repair_summary.md",
+        "acceptance.json",
         "manifest.json",
         "namespace_manifest.json",
     ),
@@ -94,6 +106,7 @@ def write_namespace_manifest(
             or bundle_paths.get("dynamic_report_path")
             or bundle_paths.get("semantic_report_path")
             or bundle_paths.get("report_json_path")
+            or bundle_paths.get("repair_plan_path")
             or ""
         ),
         "summary_path": str(bundle_paths.get("summary_path", "")),

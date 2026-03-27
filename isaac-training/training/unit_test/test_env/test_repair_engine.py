@@ -1,4 +1,5 @@
 import json
+import subprocess
 import sys
 from pathlib import Path
 
@@ -6,6 +7,8 @@ ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from repair.acceptance import accept_repair
+from repair.patch_executor import run_repair_bundle_write
 from repair.rule_based_repair import propose_rule_based_repairs
 
 
@@ -184,3 +187,70 @@ def test_rule_based_repair_generation_is_deterministic(tmp_path):
     second = propose_rule_based_repairs(report_bundle_dir=bundle).to_dict()
 
     assert first == second
+
+
+def test_repair_acceptance_and_bundle_writer(tmp_path):
+    bundle = _make_report_bundle(
+        tmp_path,
+        claim_type="C-R",
+        summary="Reward progress proxy dominates safety shaping near boundary states.",
+        target_ref=REWARD_SPEC,
+    )
+    plan = propose_rule_based_repairs(report_bundle_dir=bundle)
+    acceptance = accept_repair(plan.to_dict())
+    bundle_paths = run_repair_bundle_write(
+        plan,
+        acceptance,
+        reports_root=tmp_path,
+        bundle_name="repair_fixture",
+    )
+
+    assert acceptance["passed"] is True
+    assert bundle_paths["repair_plan_path"].exists()
+    assert bundle_paths["repair_candidates_path"].exists()
+    assert bundle_paths["spec_patch_path"].exists()
+    assert bundle_paths["repair_summary_path"].exists()
+    assert bundle_paths["repair_summary_md_path"].exists()
+    assert bundle_paths["acceptance_path"].exists()
+    assert bundle_paths["namespace_contract_path"].exists()
+
+    summary_payload = json.loads(bundle_paths["repair_summary_path"].read_text(encoding="utf-8"))
+    assert summary_payload["bundle_type"] == "repair_generation_bundle.v1"
+    assert summary_payload["primary_claim_type"] == "C-R"
+
+
+def test_run_repair_audit_cli_smoke(tmp_path):
+    bundle = _make_report_bundle(
+        tmp_path,
+        claim_type="E-R",
+        summary="Shifted-family robustness is too weak under distribution shift.",
+        target_ref=SHIFTED_CFG,
+    )
+    output_path = tmp_path / "repair_plan_copy.json"
+    script_path = ROOT / "scripts" / "run_repair_audit.py"
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(script_path),
+            "--report-bundle-dir",
+            str(bundle),
+            "--reports-root",
+            str(tmp_path),
+            "--bundle-name",
+            "repair_cli_fixture",
+            "--output",
+            str(output_path),
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    payload = json.loads(result.stdout)
+    assert payload["passed"] is True
+    assert payload["primary_claim_type"] == "E-R"
+    assert payload["candidate_count"] >= 1
+    assert Path(payload["repair_plan_path"]).exists()
+    assert Path(payload["acceptance_path"]).exists()
+    assert output_path.exists()

@@ -50,18 +50,21 @@ This keeps the workflow inside the current repo and avoids touching files outsid
 ## Latest Staged Change Summary
 
 <!-- TRACEABILITY:BEGIN -->
-_Updated: `2026-03-27T11:31:48`_
+_Updated: `2026-03-27T11:45:45`_
 
 - Scope: `/home/mint/rl_dev/CRERL`
 - Branch: `main`
 - Source: `staged diff`
-- Impacted phases: `Phase 8`
-- Diff stat: 6 files changed, 933 insertions(+), 74 deletions(-)
+- Impacted phases: `Phase 4, Phase 7, Phase 8`
+- Diff stat: 9 files changed, 702 insertions(+), 80 deletions(-)
 
 ### Changed Files
 - `M` [doc/dev_log/p8_dev_status.md](doc/dev_log/p8_dev_status.md) [Project Docs]
+- `M` [isaac-training/training/analyzers/report_contract.py](isaac-training/training/analyzers/report_contract.py) [Analyzers]
+- `M` [isaac-training/training/cfg/spec_cfg/policy_spec_v0.yaml](isaac-training/training/cfg/spec_cfg/policy_spec_v0.yaml) [Specification Config]
 - `M` [isaac-training/training/repair/__init__.py](isaac-training/training/repair/__init__.py) [isaac-training]
-- `M` [isaac-training/training/repair/proposal_schema.py](isaac-training/training/repair/proposal_schema.py) [isaac-training]
-- `M` [isaac-training/training/repair/rule_based_repair.py](isaac-training/training/repair/rule_based_repair.py) [isaac-training]
-- `A` [isaac-training/training/unit_test/test_env/test_repair_engine.py](isaac-training/training/unit_test/test_env/test_repair_engine.py) [Training Tests]
+- `M` [isaac-training/training/repair/acceptance.py](isaac-training/training/repair/acceptance.py) [isaac-training]
+- `M` [isaac-training/training/repair/patch_executor.py](isaac-training/training/repair/patch_executor.py) [isaac-training]
+- `A` [isaac-training/training/scripts/run_repair_audit.py](isaac-training/training/scripts/run_repair_audit.py) [Training Pipeline]
+- `M` [isaac-training/training/unit_test/test_env/test_repair_engine.py](isaac-training/training/unit_test/test_env/test_repair_engine.py) [Training Tests]
 <!-- TRACEABILITY:END -->

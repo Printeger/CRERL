@@ -72,3 +72,13 @@ runtime_expectations:
     - "summary.json"
     - "manifest.json"
     - "namespace_manifest.json"
+  repair_generation_namespace: "analysis/repair"
+  repair_generation_required_artifacts:
+    - "repair_plan.json"
+    - "repair_candidates.json"
+    - "spec_patch.json"
+    - "repair_summary.json"
+    - "repair_summary.md"
+    - "acceptance.json"
+    - "manifest.json"
+    - "namespace_manifest.json"

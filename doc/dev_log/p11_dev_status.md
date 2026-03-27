@@ -120,3 +120,18 @@ The next step should be:
    packaging,
 3. while keeping the real-provider path optional so it does not disturb the
    evidence-first default release flow.
+
+## 7. Post-Close-Out Addendum
+
+After the formal roadmap close-out, a user-facing verification guide was added:
+
+- `doc/verification_readme.md`
+
+Its purpose is to make the completed roadmap verifiable in practice by a human
+operator. It summarizes:
+
+- what is still not claimed as finished,
+- what the main modules are,
+- what the canonical call flow is,
+- how to verify each module,
+- and how to verify the full pipeline end-to-end.

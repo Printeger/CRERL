@@ -113,6 +113,8 @@ DEFAULT_REPORT_MODE_ARTIFACTS = {
         "release_plan.json",
         "release_artifacts.json",
         "demo_matrix.json",
+        "demo_consumer.json",
+        "release_acceptance.json",
         "release_summary.json",
         "release_summary.md",
         "manifest.json",

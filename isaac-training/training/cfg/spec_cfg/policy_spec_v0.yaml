@@ -172,9 +172,13 @@ runtime_expectations:
     - "release_plan.json"
     - "release_artifacts.json"
     - "demo_matrix.json"
+    - "demo_consumer.json"
+    - "release_acceptance.json"
     - "release_summary.json"
     - "release_summary.md"
     - "manifest.json"
     - "namespace_manifest.json"
   release_default_provider_mode: "mock"
   release_api_key_required_by_default: false
+  release_demo_consumer_contract: "phase11_clean_vs_injected_demo_consumer.v1"
+  release_acceptance_contract: "phase11_release_acceptance.v1"

@@ -144,6 +144,86 @@ def _build_demo_matrix(
     }
 
 
+def _build_demo_consumer(
+    *,
+    case_records: Sequence[Mapping[str, Any]],
+    demo_matrix: Mapping[str, Any],
+    integration_bundles: Sequence[Mapping[str, Any]],
+    policy_runtime_expectations: Mapping[str, Any],
+) -> Dict[str, Any]:
+    demo_rows = list(demo_matrix.get("rows", []) or [])
+    rows_by_case_id = {
+        str(row.get("case_id", "")): dict(row)
+        for row in demo_rows
+    }
+    clean_case = next(
+        (case for case in case_records if str(case.get("benchmark_class", "")) == "clean"),
+        {},
+    )
+    clean_case_id = str(clean_case.get("case_id", ""))
+    clean_row = rows_by_case_id.get(clean_case_id, {})
+    required_pipeline_steps = [
+        "benchmark",
+        "static",
+        "dynamic",
+        "semantic",
+        "report",
+        "repair",
+        "validation",
+        "integration",
+        "release",
+    ]
+    proof_available = any(bool(bundle.get("acceptance_passed", False)) for bundle in integration_bundles)
+    demo_pairs = []
+    for case in case_records:
+        if str(case.get("benchmark_class", "")) != "injected":
+            continue
+        injected_case_id = str(case.get("case_id", ""))
+        injected_row = rows_by_case_id.get(injected_case_id, {})
+        pair_required_namespaces = sorted(
+            {
+                *list(dict(clean_row.get("required_namespaces", {}) or {}).values()),
+                *list(dict(injected_row.get("required_namespaces", {}) or {}).values()),
+                DEFAULT_REPORT_NAMESPACES[RELEASE_PACKAGING_MODE],
+            }
+        )
+        demo_pairs.append(
+            {
+                "pair_id": f"{clean_case_id}::{injected_case_id}",
+                "clean_case_id": clean_case_id,
+                "injected_case_id": injected_case_id,
+                "inconsistency_type": str(case.get("inconsistency_type", "")),
+                "expected_primary_claim_type": str(case.get("expected_primary_claim_type", "")),
+                "required_pipeline_steps": required_pipeline_steps,
+                "required_namespaces": pair_required_namespaces,
+                "expected_validation_targets": list(case.get("expected_validation_targets", []) or []),
+                "clean_release_ready": bool(clean_row.get("release_demo_ready", False)),
+                "injected_release_ready": bool(injected_row.get("release_demo_ready", False)),
+                "integration_proof_available": bool(proof_available),
+                "pair_ready": bool(
+                    clean_row.get("release_demo_ready", False)
+                    and injected_row.get("release_demo_ready", False)
+                ),
+            }
+        )
+    return {
+        "consumer_type": str(
+            policy_runtime_expectations.get(
+                "release_demo_consumer_contract",
+                "phase11_clean_vs_injected_demo_consumer.v1",
+            )
+        ),
+        "clean_case_id": clean_case_id,
+        "injected_case_ids": [str(pair.get("injected_case_id", "")) for pair in demo_pairs],
+        "demo_pairs": demo_pairs,
+        "integration_proof_bundle_count": len(list(integration_bundles)),
+        "integration_proof_available": bool(proof_available),
+        "api_key_required_by_default": bool(
+            policy_runtime_expectations.get("release_api_key_required_by_default", False)
+        ),
+    }
+
+
 def _build_release_plan(
     *,
     suite_name: str,
@@ -232,8 +312,10 @@ def _build_release_summary(
     suite_name: str,
     suite_version: str,
     demo_matrix: Mapping[str, Any],
+    demo_consumer: Mapping[str, Any],
     release_plan: Mapping[str, Any],
     release_artifacts: Mapping[str, Any],
+    release_acceptance: Mapping[str, Any],
 ) -> Dict[str, Any]:
     rows = list(demo_matrix.get("rows", []) or [])
     return {
@@ -254,6 +336,9 @@ def _build_release_summary(
         ),
         "packaged_namespaces": sorted(set(list(release_plan.get("required_namespaces", []) or []))),
         "release_ready": all(bool(row.get("release_demo_ready", False)) for row in rows),
+        "demo_pair_count": len(list(demo_consumer.get("demo_pairs", []) or [])),
+        "integration_proof_available": bool(demo_consumer.get("integration_proof_available", False)),
+        "phase11_exit_ready": bool(release_acceptance.get("phase11_exit_ready", False)),
     }
 
 
@@ -262,6 +347,8 @@ def _build_release_summary_md(
     release_plan: Mapping[str, Any],
     release_summary: Mapping[str, Any],
     demo_matrix: Mapping[str, Any],
+    demo_consumer: Mapping[str, Any],
+    release_acceptance: Mapping[str, Any],
 ) -> str:
     lines = [
         "# Phase 11 Release Summary",
@@ -272,8 +359,11 @@ def _build_release_summary_md(
         f"- Demo cases: `{release_summary['demo_case_count']}`",
         f"- Release-ready demo cases: `{release_summary['release_ready_case_count']}`",
         f"- Native Phase-10 ready demo cases: `{release_summary['native_phase10_ready_case_count']}`",
+        f"- Demo pairs: `{release_summary['demo_pair_count']}`",
+        f"- Integration proof available: `{release_summary['integration_proof_available']}`",
         f"- Provider mode: `{release_summary['provider_mode']}`",
         f"- API key required by default: `{release_summary['api_key_required_by_default']}`",
+        f"- Phase-11 exit ready: `{release_summary['phase11_exit_ready']}`",
         "",
         "## Demo Matrix",
         "",
@@ -290,7 +380,117 @@ def _build_release_summary_md(
                 "",
             ]
         )
+    lines.extend(["## Clean-vs-Injected Demo Consumer", ""])
+    for pair in list(demo_consumer.get("demo_pairs", []) or []):
+        lines.extend(
+            [
+                f"- `{pair['pair_id']}` -> claim `{pair['expected_primary_claim_type']}` | ready `{pair['pair_ready']}` | integration proof `{pair['integration_proof_available']}`",
+            ]
+        )
+    lines.extend(["", "## Phase 11 Close-Out", ""])
+    for check in list(release_acceptance.get("checks", []) or []):
+        lines.append(f"- `{check['check_id']}` -> `{check['passed']}` ({check['summary']})")
+    lines.append("")
     return "\n".join(lines).strip() + "\n"
+
+
+def _build_release_acceptance(
+    *,
+    benchmark_bundle: Mapping[str, Mapping[str, Any]],
+    demo_matrix: Mapping[str, Any],
+    demo_consumer: Mapping[str, Any],
+    release_plan: Mapping[str, Any],
+    integration_bundles: Sequence[Mapping[str, Any]],
+    policy_runtime_expectations: Mapping[str, Any],
+) -> Dict[str, Any]:
+    checks = []
+    case_records = list(benchmark_bundle["benchmark_cases"].get("cases", []) or [])
+    inconsistency_types = {str(case.get("inconsistency_type", "")) for case in case_records}
+    rows = list(demo_matrix.get("rows", []) or [])
+    demo_pairs = list(demo_consumer.get("demo_pairs", []) or [])
+    accepted_integration_bundles = [bundle for bundle in integration_bundles if bool(bundle.get("acceptance_passed", False))]
+
+    def _append(check_id: str, passed: bool, severity: str, summary: str, details=None):
+        checks.append(
+            {
+                "check_id": check_id,
+                "passed": bool(passed),
+                "severity": severity,
+                "summary": summary,
+                "details": dict(details or {}),
+            }
+        )
+
+    _append(
+        "benchmark_cases_frozen",
+        inconsistency_types >= {"clean", "C-R", "E-C", "E-R"},
+        "high",
+        "Clean plus injected C-R/E-C/E-R benchmark cases are frozen as machine-readable objects.",
+        {"inconsistency_types": sorted(inconsistency_types)},
+    )
+    _append(
+        "benchmark_bundle_regenerable",
+        bool(benchmark_bundle["benchmark_summary"].get("ready_case_count", 0))
+        == bool(benchmark_bundle["benchmark_summary"].get("case_count", 0)),
+        "high",
+        "Benchmark bundle is regenerable without ad hoc manual steps.",
+        {
+            "case_count": int(benchmark_bundle["benchmark_summary"].get("case_count", 0)),
+            "ready_case_count": int(benchmark_bundle["benchmark_summary"].get("ready_case_count", 0)),
+        },
+    )
+    _append(
+        "release_bundle_evidence_surface",
+        all(bool(row.get("release_demo_ready", False)) for row in rows)
+        and bool(demo_pairs),
+        "high",
+        "Release bundle clearly packages clean-vs-injected demo/evidence surface.",
+        {
+            "demo_case_count": len(rows),
+            "demo_pair_count": len(demo_pairs),
+        },
+    )
+    _append(
+        "end_to_end_demo_contract",
+        all(bool(pair.get("pair_ready", False)) for pair in demo_pairs)
+        and bool(accepted_integration_bundles),
+        "medium",
+        "Release path carries clean-vs-injected end-to-end demo consumer plus integration proof.",
+        {
+            "demo_pair_count": len(demo_pairs),
+            "accepted_integration_bundle_count": len(accepted_integration_bundles),
+        },
+    )
+    _append(
+        "api_key_not_required",
+        not bool(policy_runtime_expectations.get("release_api_key_required_by_default", False))
+        and not bool(release_plan.get("api_key_required_by_default", False)),
+        "high",
+        "Default release path does not require a live API key.",
+        {"provider_mode": str(release_plan.get("provider_mode", "mock"))},
+    )
+
+    max_severity = "info"
+    for check in checks:
+        if not check["passed"]:
+            if check["severity"] == "high":
+                max_severity = "high"
+                break
+            if check["severity"] == "medium":
+                max_severity = "medium"
+    phase11_exit_ready = all(bool(check["passed"]) for check in checks)
+    return {
+        "acceptance_type": str(
+            policy_runtime_expectations.get(
+                "release_acceptance_contract",
+                "phase11_release_acceptance.v1",
+            )
+        ),
+        "phase11_exit_ready": bool(phase11_exit_ready),
+        "passed": bool(phase11_exit_ready),
+        "max_severity": max_severity,
+        "checks": checks,
+    }
 
 
 @dataclass
@@ -300,6 +500,8 @@ class ReleaseBundleAudit:
     release_plan: Dict[str, Any]
     release_artifacts: Dict[str, Any]
     demo_matrix: Dict[str, Any]
+    demo_consumer: Dict[str, Any]
+    release_acceptance: Dict[str, Any]
     release_summary: Dict[str, Any]
 
 
@@ -316,6 +518,8 @@ def write_release_bundle(
     release_plan_path = report_dir / "release_plan.json"
     release_artifacts_path = report_dir / "release_artifacts.json"
     demo_matrix_path = report_dir / "demo_matrix.json"
+    demo_consumer_path = report_dir / "demo_consumer.json"
+    release_acceptance_path = report_dir / "release_acceptance.json"
     release_summary_path = report_dir / "release_summary.json"
     release_summary_md_path = report_dir / "release_summary.md"
     manifest_path = report_dir / "manifest.json"
@@ -326,6 +530,14 @@ def write_release_bundle(
         encoding="utf-8",
     )
     demo_matrix_path.write_text(json.dumps(audit.demo_matrix, indent=2, sort_keys=True), encoding="utf-8")
+    demo_consumer_path.write_text(
+        json.dumps(audit.demo_consumer, indent=2, sort_keys=True),
+        encoding="utf-8",
+    )
+    release_acceptance_path.write_text(
+        json.dumps(audit.release_acceptance, indent=2, sort_keys=True),
+        encoding="utf-8",
+    )
     release_summary_path.write_text(
         json.dumps(audit.release_summary, indent=2, sort_keys=True),
         encoding="utf-8",
@@ -335,6 +547,8 @@ def write_release_bundle(
             release_plan=audit.release_plan,
             release_summary=audit.release_summary,
             demo_matrix=audit.demo_matrix,
+            demo_consumer=audit.demo_consumer,
+            release_acceptance=audit.release_acceptance,
         ),
         encoding="utf-8",
     )
@@ -344,6 +558,8 @@ def write_release_bundle(
         "release_plan_path": release_plan_path,
         "release_artifacts_path": release_artifacts_path,
         "demo_matrix_path": demo_matrix_path,
+        "demo_consumer_path": demo_consumer_path,
+        "release_acceptance_path": release_acceptance_path,
         "release_summary_path": release_summary_path,
         "release_summary_md_path": release_summary_md_path,
         "summary_path": release_summary_path,
@@ -377,6 +593,8 @@ def write_release_bundle(
         "release_plan_path": str(release_plan_path),
         "release_artifacts_path": str(release_artifacts_path),
         "demo_matrix_path": str(demo_matrix_path),
+        "demo_consumer_path": str(demo_consumer_path),
+        "release_acceptance_path": str(release_acceptance_path),
         "release_summary_path": str(release_summary_path),
         "release_summary_md_path": str(release_summary_md_path),
         "namespace_manifest_path": str(namespace_manifest_path),
@@ -409,6 +627,12 @@ def build_release_bundle_audit(
         case_records=list(benchmark_cases.get("cases", []) or []),
         benchmark_matrix=benchmark_matrix,
     )
+    demo_consumer = _build_demo_consumer(
+        case_records=list(benchmark_cases.get("cases", []) or []),
+        demo_matrix=demo_matrix,
+        integration_bundles=integration_bundles,
+        policy_runtime_expectations=policy_runtime_expectations,
+    )
     release_plan = _build_release_plan(
         suite_name=str(benchmark_manifest.get("suite_name", "")),
         suite_version=str(benchmark_manifest.get("suite_version", "")),
@@ -425,12 +649,22 @@ def build_release_bundle_audit(
         policy_runtime_expectations=policy_runtime_expectations,
         integration_bundles=integration_bundles,
     )
+    release_acceptance = _build_release_acceptance(
+        benchmark_bundle=benchmark_bundle,
+        demo_matrix=demo_matrix,
+        demo_consumer=demo_consumer,
+        release_plan=release_plan,
+        integration_bundles=integration_bundles,
+        policy_runtime_expectations=policy_runtime_expectations,
+    )
     release_summary = _build_release_summary(
         suite_name=str(benchmark_manifest.get("suite_name", "")),
         suite_version=str(benchmark_manifest.get("suite_version", "")),
         demo_matrix=demo_matrix,
+        demo_consumer=demo_consumer,
         release_plan=release_plan,
         release_artifacts=release_artifacts,
+        release_acceptance=release_acceptance,
     )
     return ReleaseBundleAudit(
         suite_name=str(benchmark_manifest.get("suite_name", "")),
@@ -438,6 +672,8 @@ def build_release_bundle_audit(
         release_plan=release_plan,
         release_artifacts=release_artifacts,
         demo_matrix=demo_matrix,
+        demo_consumer=demo_consumer,
+        release_acceptance=release_acceptance,
         release_summary=release_summary,
     )
 

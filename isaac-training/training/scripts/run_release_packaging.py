@@ -111,6 +111,8 @@ def main() -> int:
                 "release_plan_path": str(bundle_paths["release_plan_path"]),
                 "release_artifacts_path": str(bundle_paths["release_artifacts_path"]),
                 "demo_matrix_path": str(bundle_paths["demo_matrix_path"]),
+                "demo_consumer_path": str(bundle_paths["demo_consumer_path"]),
+                "release_acceptance_path": str(bundle_paths["release_acceptance_path"]),
                 "release_summary_path": str(bundle_paths["release_summary_path"]),
                 "release_summary_md_path": str(bundle_paths["release_summary_md_path"]),
                 "manifest_path": str(bundle_paths["manifest_path"]),
@@ -120,6 +122,7 @@ def main() -> int:
                 "suite_version": audit.suite_version,
                 "demo_case_count": int(audit.release_summary.get("demo_case_count", 0)),
                 "release_ready_case_count": int(audit.release_summary.get("release_ready_case_count", 0)),
+                "phase11_exit_ready": bool(audit.release_summary.get("phase11_exit_ready", False)),
                 "api_key_required_by_default": bool(
                     audit.release_summary.get("api_key_required_by_default", False)
                 ),

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 import subprocess
 from pathlib import Path
 from typing import Any, Callable, Dict, Mapping, Sequence
@@ -79,6 +80,17 @@ def _resolve_repaired_run_dir(
     if discovered:
         return discovered[-1], "discovered_logs_root"
     return None, "unresolved"
+
+
+def _reset_expected_run_dir(expected_run_dir: Path | None) -> None:
+    if expected_run_dir is None:
+        return
+    if expected_run_dir.exists():
+        if expected_run_dir.is_dir():
+            shutil.rmtree(expected_run_dir)
+        else:
+            expected_run_dir.unlink()
+    expected_run_dir.parent.mkdir(parents=True, exist_ok=True)
 
 
 def build_validation_rerun_tasks(
@@ -269,6 +281,7 @@ def bounded_subprocess_rerun_runner(
     subprocess_env.update({str(k): str(v) for k, v in dict(task.get("env_overrides") or {}).items()})
     cwd = Path(str(task.get("repo_root", REPO_ROOT)))
     expected_run_dir = Path(str(task.get("expected_run_dir", ""))) if str(task.get("expected_run_dir", "")) else None
+    _reset_expected_run_dir(expected_run_dir)
 
     result = _invoke_subprocess_command(
         command,

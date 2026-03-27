@@ -1041,6 +1041,75 @@ def test_prepare_validation_runs_subprocess_mode_uses_bounded_execution_adapter(
     assert result["subprocess_returncode"] == 0
 
 
+def test_prepare_validation_runs_subprocess_mode_cleans_stale_expected_run_dir(tmp_path, monkeypatch):
+    repair_bundle_dir = _make_repair_bundle(
+        tmp_path,
+        claim_type="E-R",
+        summary="Shifted-family robustness is too weak under distribution shift.",
+        target_ref=SHIFTED_CFG,
+    )
+    logs_root = tmp_path / "logs"
+    original_run = _make_accepted_run_dir(
+        logs_root,
+        name="train_shifted_original",
+        source="train",
+        scenario_type="shifted",
+        scene_cfg_name="scene_cfg_shifted.yaml",
+        metrics={
+            "W_ER": 0.46,
+            "min_distance": 0.52,
+            "collision_rate": 0.12,
+            "near_violation_ratio": 0.25,
+            "average_return": 2.70,
+            "success_rate": 0.42,
+        },
+    )
+
+    repaired_logs_root = tmp_path / "repaired_logs"
+    stale_run_dir = repaired_logs_root / "repair_e_r_train_shifted_00"
+    stale_run_dir.mkdir(parents=True, exist_ok=True)
+    (stale_run_dir / "episodes").mkdir(parents=True, exist_ok=True)
+    (stale_run_dir / "episodes" / "episode_0001.json").write_text("{}", encoding="utf-8")
+
+    def _fake_invoke(command, *, cwd, env, timeout_sec=600):
+        run_dir = _make_acceptance_valid_run_dir(
+            Path(env["CRE_RUN_LOG_BASE_DIR"]),
+            name=env["CRE_RUN_NAME_OVERRIDE"],
+            source=env["CRE_VALIDATION_EXECUTION_MODE"],
+            scenario_type=env["CRE_VALIDATION_SCENARIO_TYPE"],
+            scene_cfg_name=env["CRE_VALIDATION_SCENE_CFG_NAME"],
+            min_distance=0.81,
+            average_return=3.14,
+            w_er=0.15,
+        )
+        assert run_dir.exists()
+        assert not (run_dir / "episodes" / "episode_0001.json").exists()
+
+        class _Result:
+            returncode = 0
+            stdout = "subprocess adapter smoke"
+            stderr = ""
+
+        return _Result()
+
+    monkeypatch.setattr(validation_runner_module, "_invoke_subprocess_command", _fake_invoke)
+
+    prepared = prepare_validation_runs(
+        repair_bundle_dir=repair_bundle_dir,
+        logs_root=logs_root,
+        original_run_dirs=[original_run],
+        trigger_rerun=True,
+        rerun_mode="subprocess",
+        repaired_logs_root=repaired_logs_root,
+    )
+
+    result = prepared["validation_runs"]["triggered_rerun_results"]["task_results"][0]
+    assert result["status"] == "completed"
+    assert result["fallback_used"] is False
+    assert result["acceptance_passed"] is True
+    assert result["runner_mode"] == "bounded_subprocess_rerun.v1"
+
+
 def test_prepare_validation_runs_auto_mode_keeps_baseline_on_real_subprocess_path(tmp_path, monkeypatch):
     repair_bundle_dir = _make_repair_bundle(
         tmp_path,

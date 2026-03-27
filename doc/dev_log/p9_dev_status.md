@@ -10,7 +10,7 @@ round over baseline / eval / train.
 
 The goal of this step is:
 
-- make at least `baseline` and `eval` run through a more stable real bounded
+- make `baseline / eval / train` run through a more stable real bounded
   subprocess path,
 - bind rerun execution more tightly to the original execution source and
   checkpoint/runtime context,
@@ -98,9 +98,10 @@ It now:
 - and only treats subprocess rerun as successful once a repaired accepted run is
   actually materialized.
 
-In `auto` mode, the runner first attempts bounded subprocess execution and only
-falls back to preview if the subprocess path fails to materialize a repaired
-accepted run.
+In `auto` mode, the runner now starts from bounded subprocess execution with a
+clean deterministic output directory, so stale repaired-run artifacts no longer
+poison acceptance. That was the missing piece that made the `train` path less
+stable than `baseline / eval` in the previous close-out attempt.
 
 ### 2.3 Runtime Logging, Training Metadata, and Baseline Binding Now Honor Validation Overrides
 
@@ -213,6 +214,16 @@ handoff substrate.
 - `validation_subprocess_rerun_acceptance_required`
 - `validation_claim_specific_decision_required_for`
 - `validation_high_order_targets`
+
+The contract now treats:
+
+- `baseline`
+- `eval`
+- `train`
+
+as preferred real bounded execution modes for Phase 9 close-out, while keeping
+preview fallback available only as a safety valve rather than the intended
+primary path.
 
 That gives later static checks and downstream phases a canonical place to read
 the expected validation-side contract instead of inferring it from code shape.
@@ -353,7 +364,7 @@ Validated in this iteration:
 
 - `python3 -m py_compile ...` passed
 - `pytest -q ...` passed:
-  - `23 passed, 1 skipped`
+  - `24 passed, 1 skipped`
 - focused adapter, comparison, and consumer-contract checks passed:
   - baseline tasks emit `phase9_bounded_baseline_rerun_adapter.v1`
   - eval tasks emit `phase9_bounded_eval_rerun_adapter.v1`
@@ -376,7 +387,8 @@ Validated in this iteration:
 - close-out run observations:
   - baseline used `bounded_subprocess_rerun.v1` with `fallback_used = false`
   - eval used `bounded_subprocess_rerun.v1` with `fallback_used = false`
-  - train still required bounded fallback in this iteration
+  - train now also uses `bounded_subprocess_rerun.v1` with `fallback_used = false`
+    after the deterministic output directory is cleaned before rerun
   - all three bundles wrote `post_repair_evidence.json`
   - all three expose `phase10_post_repair_evidence_consumer.v2`
 - the current real close-out decision status is still `inconclusive` for all
@@ -389,8 +401,7 @@ Validated in this iteration:
 This confirms that Phase 9 now has:
 
 - a more realistic bounded rerun adapter substrate,
-- stable real bounded subprocess paths for `baseline` and `eval`,
-- a bounded fallback path for `train`,
+- stable real bounded subprocess paths for `baseline / eval / train`,
 - acceptance-aware repaired run resolution,
 - richer family-conditioned validation metrics,
 - claim-aware decision logic that uses higher-order family-gap signals,
@@ -401,12 +412,12 @@ This confirms that Phase 9 now has:
 
 The next step should be:
 
-1. decide whether to formally close Phase 9 with the current bounded
-   `baseline / eval` real-execution coverage and `train` fallback,
-2. or do one final tightening pass so `train` also reaches a more stable real
-   bounded rerun path,
-3. then start Phase 10 on top of the now-stable
+1. formally close Phase 9 on top of the current real bounded
+   `baseline / eval / train` coverage,
+2. start Phase 10 on top of the now-stable
    `post_repair_evidence.json` contract.
+3. only come back to Phase 9 if later deployment validation reveals a new
+   execution-path instability.
 
-That means Phase 9 is now in close-out territory rather than missing a major
-pipeline block.
+That means Phase 9 is now effectively closed from a pipeline perspective rather
+than missing a major validation block.

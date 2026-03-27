@@ -107,8 +107,8 @@ runtime_expectations:
   validation_real_execution_preferred_modes:
     - "baseline"
     - "eval"
-  validation_preview_fallback_modes:
     - "train"
+  validation_preview_fallback_modes: []
   validation_subprocess_rerun_acceptance_required: true
   validation_claim_specific_decision_required_for:
     - "E-C"

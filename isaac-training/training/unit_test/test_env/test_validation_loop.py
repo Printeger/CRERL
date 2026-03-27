@@ -1,4 +1,5 @@
 import json
+import subprocess
 import sys
 from pathlib import Path
 
@@ -8,9 +9,12 @@ if str(ROOT) not in sys.path:
 
 from repair.acceptance import accept_repair
 from repair.patch_executor import build_validation_context_preview, run_repair_bundle_write
+from repair.comparison import compare_validation_runs
+from repair.decision import decide_validation
 from repair.repair_validator import build_phase9_validation_request, validate_repair
 from repair.rule_based_repair import propose_rule_based_repairs
 from repair.validation_request_loader import load_validation_request_bundle
+from repair.validation_runner import prepare_validation_runs
 
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
@@ -156,6 +160,65 @@ def _make_repair_bundle(tmp_path: Path, *, claim_type: str, summary: str, target
     return bundle_paths["repair_dir"]
 
 
+def _make_accepted_run_dir(
+    base_dir: Path,
+    *,
+    name: str,
+    source: str,
+    scenario_type: str,
+    scene_cfg_name: str,
+    metrics: dict,
+) -> Path:
+    run_dir = base_dir / name
+    run_dir.mkdir(parents=True, exist_ok=True)
+    (run_dir / "episodes").mkdir(parents=True, exist_ok=True)
+    (run_dir / "manifest.json").write_text(
+        json.dumps({"run_id": name, "source": source}, indent=2, sort_keys=True),
+        encoding="utf-8",
+    )
+    summary = {
+        "episode_count": 1,
+        "success_rate": 0.0,
+        "collision_rate": 0.0,
+        "min_distance": 0.0,
+        "average_return": 0.0,
+        "near_violation_ratio": 0.0,
+        **metrics,
+    }
+    (run_dir / "summary.json").write_text(json.dumps(summary, indent=2, sort_keys=True), encoding="utf-8")
+    (run_dir / "acceptance.json").write_text(
+        json.dumps({"passed": True, "max_severity": "info"}, indent=2, sort_keys=True),
+        encoding="utf-8",
+    )
+    episode_row = {
+        "episode_index": 0,
+        "seed": 0,
+        "scene_id": f"{name}:scene0",
+        "scenario_type": scenario_type,
+        "scene_cfg_name": scene_cfg_name,
+        "num_steps": 1,
+        "trajectory_length": 1.0,
+        "return_total": float(summary.get("average_return", 0.0)),
+        "reward_components_total": {},
+        "success_flag": bool(summary.get("success_rate", 0.0) > 0.0),
+        "collision_flag": bool(summary.get("collision_rate", 0.0) > 0.0),
+        "out_of_bounds_flag": False,
+        "min_obstacle_distance": float(summary.get("min_distance", 0.0)),
+        "near_violation_steps": 0,
+        "near_violation_ratio": float(summary.get("near_violation_ratio", 0.0)),
+        "final_goal_distance": 0.0,
+        "done_type": "success" if summary.get("success_rate", 0.0) > 0 else "unknown",
+        "source": source,
+    }
+    (run_dir / "episodes.jsonl").write_text(json.dumps(episode_row) + "\n", encoding="utf-8")
+    (run_dir / "steps.jsonl").write_text("", encoding="utf-8")
+    (run_dir / "episodes" / "episode_0000.json").write_text(
+        json.dumps({"summary": episode_row}, indent=2, sort_keys=True),
+        encoding="utf-8",
+    )
+    return run_dir
+
+
 def test_validation_request_loader_reads_repair_bundle(tmp_path):
     repair_bundle_dir = _make_repair_bundle(
         tmp_path,
@@ -210,3 +273,199 @@ def test_validation_context_preview_is_written_into_repair_bundle(tmp_path):
     assert preview["preview_mode"] == "non_destructive_validation_context"
     assert preview["validation_targets"] == loaded["validation_targets"]
     assert preview["target_file_count"] >= 1
+
+
+def test_prepare_validation_runs_and_decision_accepts_improving_repair(tmp_path):
+    repair_bundle_dir = _make_repair_bundle(
+        tmp_path,
+        claim_type="E-R",
+        summary="Shifted-family robustness is too weak under distribution shift.",
+        target_ref=SHIFTED_CFG,
+    )
+    logs_root = tmp_path / "logs"
+    original_run = _make_accepted_run_dir(
+        logs_root,
+        name="baseline_nominal_original",
+        source="baseline",
+        scenario_type="shifted",
+        scene_cfg_name="scene_cfg_shifted.yaml",
+        metrics={
+            "W_ER": 0.40,
+            "min_distance": 0.60,
+            "collision_rate": 0.10,
+            "near_violation_ratio": 0.20,
+            "average_return": 3.00,
+            "success_rate": 0.50,
+        },
+    )
+    repaired_run = _make_accepted_run_dir(
+        logs_root,
+        name="baseline_nominal_repaired",
+        source="baseline",
+        scenario_type="shifted",
+        scene_cfg_name="scene_cfg_shifted.yaml",
+        metrics={
+            "W_ER": 0.15,
+            "min_distance": 0.82,
+            "collision_rate": 0.04,
+            "near_violation_ratio": 0.10,
+            "average_return": 2.98,
+            "success_rate": 0.52,
+        },
+    )
+
+    prepared = prepare_validation_runs(
+        repair_bundle_dir=repair_bundle_dir,
+        logs_root=logs_root,
+        original_run_dirs=[original_run],
+        repaired_run_dirs=[repaired_run],
+    )
+    comparison = compare_validation_runs(
+        primary_claim_type=prepared["validation_input"]["primary_claim_type"],
+        validation_targets=prepared["validation_input"]["validation_targets"],
+        original_runs=prepared["original_runs"],
+        repaired_runs=prepared["repaired_runs"],
+    )
+    decision = decide_validation(comparison, performance_regression_epsilon=0.05)
+
+    assert prepared["validation_plan"]["primary_claim_type"] == "E-R"
+    assert comparison["metric_deltas"]["W_ER"]["improvement"] > 0.0
+    assert decision["decision_status"] == "accepted"
+    assert decision["accepted"] is True
+
+
+def test_validation_decision_rejects_large_performance_regression(tmp_path):
+    repair_bundle_dir = _make_repair_bundle(
+        tmp_path,
+        claim_type="C-R",
+        summary="Reward progress proxy dominates safety shaping near boundary states.",
+        target_ref=REWARD_SPEC,
+    )
+    logs_root = tmp_path / "logs"
+    original_run = _make_accepted_run_dir(
+        logs_root,
+        name="eval_nominal_original",
+        source="eval",
+        scenario_type="nominal",
+        scene_cfg_name="scene_cfg_nominal.yaml",
+        metrics={
+            "W_CR": 0.35,
+            "min_distance": 0.55,
+            "collision_rate": 0.08,
+            "near_violation_ratio": 0.21,
+            "average_return": 4.20,
+            "success_rate": 0.70,
+        },
+    )
+    repaired_run = _make_accepted_run_dir(
+        logs_root,
+        name="eval_nominal_repaired",
+        source="eval",
+        scenario_type="nominal",
+        scene_cfg_name="scene_cfg_nominal.yaml",
+        metrics={
+            "W_CR": 0.20,
+            "min_distance": 0.68,
+            "collision_rate": 0.03,
+            "near_violation_ratio": 0.09,
+            "average_return": 3.70,
+            "success_rate": 0.60,
+        },
+    )
+    prepared = prepare_validation_runs(
+        repair_bundle_dir=repair_bundle_dir,
+        logs_root=logs_root,
+        original_run_dirs=[original_run],
+        repaired_run_dirs=[repaired_run],
+    )
+    comparison = compare_validation_runs(
+        primary_claim_type=prepared["validation_input"]["primary_claim_type"],
+        validation_targets=prepared["validation_input"]["validation_targets"],
+        original_runs=prepared["original_runs"],
+        repaired_runs=prepared["repaired_runs"],
+    )
+    decision = decide_validation(comparison, performance_regression_epsilon=0.05)
+
+    assert comparison["metric_deltas"]["W_CR"]["improvement"] > 0.0
+    assert comparison["metric_deltas"]["average_return"]["improvement"] < -0.05
+    assert decision["decision_status"] == "rejected"
+    assert decision["accepted"] is False
+
+
+def test_run_validation_audit_cli_smoke(tmp_path):
+    repair_bundle_dir = _make_repair_bundle(
+        tmp_path,
+        claim_type="E-C",
+        summary="Boundary-critical family undercovers critical states near the route corridor.",
+        target_ref=BOUNDARY_CFG,
+    )
+    logs_root = tmp_path / "logs"
+    original_run = _make_accepted_run_dir(
+        logs_root,
+        name="baseline_boundary_original",
+        source="baseline",
+        scenario_type="boundary_critical",
+        scene_cfg_name="scene_cfg_boundary_critical.yaml",
+        metrics={
+            "W_EC": 0.42,
+            "min_distance": 0.48,
+            "collision_rate": 0.12,
+            "near_violation_ratio": 0.24,
+            "average_return": 2.80,
+            "success_rate": 0.42,
+        },
+    )
+    repaired_run = _make_accepted_run_dir(
+        logs_root,
+        name="baseline_boundary_repaired",
+        source="baseline",
+        scenario_type="boundary_critical",
+        scene_cfg_name="scene_cfg_boundary_critical.yaml",
+        metrics={
+            "W_EC": 0.18,
+            "min_distance": 0.66,
+            "collision_rate": 0.04,
+            "near_violation_ratio": 0.10,
+            "average_return": 2.82,
+            "success_rate": 0.48,
+        },
+    )
+
+    output_path = tmp_path / "validation_decision_copy.json"
+    script_path = ROOT / "scripts" / "run_validation_audit.py"
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(script_path),
+            "--repair-bundle-dir",
+            str(repair_bundle_dir),
+            "--logs-root",
+            str(logs_root),
+            "--original-run-dir",
+            str(original_run),
+            "--repaired-run-dir",
+            str(repaired_run),
+            "--reports-root",
+            str(tmp_path),
+            "--bundle-name",
+            "validation_cli_fixture",
+            "--output",
+            str(output_path),
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    payload = json.loads(result.stdout)
+    assert payload["accepted"] is True
+    assert payload["decision_status"] == "accepted"
+    assert payload["primary_claim_type"] == "E-C"
+    assert payload["original_run_count"] == 1
+    assert payload["repaired_run_count"] == 1
+    assert Path(payload["validation_plan_path"]).exists()
+    assert Path(payload["validation_runs_path"]).exists()
+    assert Path(payload["comparison_path"]).exists()
+    assert Path(payload["validation_decision_path"]).exists()
+    assert Path(payload["validation_summary_md_path"]).exists()
+    assert output_path.exists()

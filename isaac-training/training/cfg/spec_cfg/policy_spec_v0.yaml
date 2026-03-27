@@ -86,3 +86,13 @@ runtime_expectations:
     - "validation_request.json"
     - "manifest.json"
     - "namespace_manifest.json"
+  validation_generation_namespace: "analysis/validation"
+  validation_generation_required_artifacts:
+    - "validation_plan.json"
+    - "validation_runs.json"
+    - "comparison.json"
+    - "validation_decision.json"
+    - "validation_summary.json"
+    - "validation_summary.md"
+    - "manifest.json"
+    - "namespace_manifest.json"

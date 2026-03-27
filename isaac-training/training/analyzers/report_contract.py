@@ -12,6 +12,7 @@ DYNAMIC_ANALYSIS_MODE = "dynamic_analysis"
 SEMANTIC_ANALYSIS_MODE = "semantic_analysis"
 REPORT_GENERATION_MODE = "report_generation"
 REPAIR_GENERATION_MODE = "repair_generation"
+VALIDATION_GENERATION_MODE = "validation_generation"
 
 DEFAULT_REPORT_NAMESPACES = {
     STATIC_AUDIT_MODE: "analysis/static",
@@ -19,6 +20,7 @@ DEFAULT_REPORT_NAMESPACES = {
     SEMANTIC_ANALYSIS_MODE: "analysis/semantic",
     REPORT_GENERATION_MODE: "analysis/report",
     REPAIR_GENERATION_MODE: "analysis/repair",
+    VALIDATION_GENERATION_MODE: "analysis/validation",
 }
 
 DEFAULT_REPORT_MODE_ARTIFACTS = {
@@ -70,6 +72,16 @@ DEFAULT_REPORT_MODE_ARTIFACTS = {
         "manifest.json",
         "namespace_manifest.json",
     ),
+    VALIDATION_GENERATION_MODE: (
+        "validation_plan.json",
+        "validation_runs.json",
+        "comparison.json",
+        "validation_decision.json",
+        "validation_summary.json",
+        "validation_summary.md",
+        "manifest.json",
+        "namespace_manifest.json",
+    ),
 }
 
 
@@ -111,6 +123,7 @@ def write_namespace_manifest(
             or bundle_paths.get("semantic_report_path")
             or bundle_paths.get("report_json_path")
             or bundle_paths.get("repair_plan_path")
+            or bundle_paths.get("validation_plan_path")
             or ""
         ),
         "summary_path": str(bundle_paths.get("summary_path", "")),

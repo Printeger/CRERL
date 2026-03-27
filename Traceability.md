@@ -50,25 +50,22 @@ This keeps the workflow inside the current repo and avoids touching files outsid
 ## Latest Staged Change Summary
 
 <!-- TRACEABILITY:BEGIN -->
-_Updated: `2026-03-27T17:13:39`_
+_Updated: `2026-03-27T17:24:33`_
 
 - Scope: `/home/mint/rl_dev/CRERL`
 - Branch: `main`
 - Source: `staged diff`
 - Impacted phases: `Phase 11, Phase 4, Phase 7`
-- Diff stat: 13 files changed, 1183 insertions(+), 90 deletions(-)
+- Diff stat: 9 files changed, 952 insertions(+), 71 deletions(-)
 
 ### Changed Files
 - `M` [doc/dev_log/p11_dev_status.md](doc/dev_log/p11_dev_status.md) [Project Docs]
 - `M` [isaac-training/training/analyzers/report_contract.py](isaac-training/training/analyzers/report_contract.py) [Analyzers]
-- `A` [isaac-training/training/cfg/benchmark_cfg/benchmark_suite_v1.yaml](isaac-training/training/cfg/benchmark_cfg/benchmark_suite_v1.yaml) [Training Config]
-- `A` [isaac-training/training/cfg/benchmark_cfg/clean_nominal.yaml](isaac-training/training/cfg/benchmark_cfg/clean_nominal.yaml) [Training Config]
-- `A` [isaac-training/training/cfg/benchmark_cfg/injected_cr.yaml](isaac-training/training/cfg/benchmark_cfg/injected_cr.yaml) [Training Config]
-- `A` [isaac-training/training/cfg/benchmark_cfg/injected_ec.yaml](isaac-training/training/cfg/benchmark_cfg/injected_ec.yaml) [Training Config]
-- `A` [isaac-training/training/cfg/benchmark_cfg/injected_er.yaml](isaac-training/training/cfg/benchmark_cfg/injected_er.yaml) [Training Config]
 - `M` [isaac-training/training/cfg/spec_cfg/policy_spec_v0.yaml](isaac-training/training/cfg/spec_cfg/policy_spec_v0.yaml) [Specification Config]
 - `M` [isaac-training/training/pipeline/__init__.py](isaac-training/training/pipeline/__init__.py) [isaac-training]
-- `A` [isaac-training/training/pipeline/benchmark_suite.py](isaac-training/training/pipeline/benchmark_suite.py) [isaac-training]
-- `A` [isaac-training/training/scripts/run_benchmark_suite.py](isaac-training/training/scripts/run_benchmark_suite.py) [Training Pipeline]
-- `A` [isaac-training/training/unit_test/test_env/test_benchmark_suite.py](isaac-training/training/unit_test/test_env/test_benchmark_suite.py) [Training Tests]
+- `M` [isaac-training/training/pipeline/benchmark_suite.py](isaac-training/training/pipeline/benchmark_suite.py) [isaac-training]
+- `A` [isaac-training/training/pipeline/release_bundle.py](isaac-training/training/pipeline/release_bundle.py) [isaac-training]
+- `A` [isaac-training/training/scripts/run_release_packaging.py](isaac-training/training/scripts/run_release_packaging.py) [Training Pipeline]
+- `M` [isaac-training/training/unit_test/test_env/test_benchmark_suite.py](isaac-training/training/unit_test/test_env/test_benchmark_suite.py) [Training Tests]
+- `A` [isaac-training/training/unit_test/test_env/test_release_bundle.py](isaac-training/training/unit_test/test_env/test_release_bundle.py) [Training Tests]
 <!-- TRACEABILITY:END -->

@@ -129,6 +129,11 @@ ANALYSIS_MODE_NAMESPACE_KEYS = {
     "validation": "validation_generation_namespace",
     "integration": "integration_audit_namespace",
 }
+EXECUTION_MODE_ENTRYPOINTS = {
+    "baseline": "isaac-training/training/scripts/run_baseline.py",
+    "eval": "isaac-training/training/scripts/eval.py",
+    "train": "isaac-training/training/scripts/train.py",
+}
 
 
 def _load_yaml_file(path: Path) -> Dict[str, Any]:
@@ -285,25 +290,65 @@ def _build_case_record(
 
 def _build_benchmark_matrix(case_records: Sequence[Mapping[str, Any]]) -> Dict[str, Any]:
     rows = []
+    execution_rows = []
+    comparison_rows = []
     for case in case_records:
+        case_id = str(case.get("case_id", ""))
+        execution_modes = list(case.get("execution_modes", []) or [])
+        required_namespaces = dict(case.get("required_namespaces", {}) or {})
+        expected_validation_targets = list(case.get("expected_validation_targets", []) or [])
+        scene_family = str(case.get("scene_family", ""))
+        scene_cfg_name = str(case.get("scene_cfg_name", ""))
+        case_ready = bool(case.get("case_ready", False))
         rows.append(
             {
-                "case_id": str(case.get("case_id", "")),
+                "case_id": case_id,
                 "benchmark_class": str(case.get("benchmark_class", "")),
                 "inconsistency_type": str(case.get("inconsistency_type", "")),
-                "scene_family": str(case.get("scene_family", "")),
-                "execution_modes": list(case.get("execution_modes", []) or []),
+                "scene_family": scene_family,
+                "scene_cfg_name": scene_cfg_name,
+                "execution_modes": execution_modes,
                 "analysis_modes": list(case.get("analysis_modes", []) or []),
-                "case_ready": bool(case.get("case_ready", False)),
+                "case_ready": case_ready,
                 "native_phase10_ready": bool(case.get("native_phase10_ready", False)),
                 "expected_primary_claim_type": str(case.get("expected_primary_claim_type", "")),
-                "expected_validation_targets": list(case.get("expected_validation_targets", []) or []),
-                "required_namespaces": dict(case.get("required_namespaces", {}) or {}),
+                "expected_validation_targets": expected_validation_targets,
+                "required_namespaces": required_namespaces,
             }
         )
+        for execution_mode in execution_modes:
+            execution_rows.append(
+                {
+                    "task_id": f"{case_id}::{execution_mode}",
+                    "case_id": case_id,
+                    "execution_mode": execution_mode,
+                    "entrypoint": EXECUTION_MODE_ENTRYPOINTS.get(execution_mode, ""),
+                    "scene_family": scene_family,
+                    "scene_cfg_name": scene_cfg_name,
+                    "benchmark_class": str(case.get("benchmark_class", "")),
+                    "inconsistency_type": str(case.get("inconsistency_type", "")),
+                    "required_namespaces": required_namespaces,
+                    "expected_validation_targets": expected_validation_targets,
+                    "replay_ready": bool(case_ready and execution_mode in EXECUTION_MODE_ENTRYPOINTS),
+                    "phase10_native_ready": bool(case.get("native_phase10_ready", False)),
+                }
+            )
+        for target in expected_validation_targets:
+            comparison_rows.append(
+                {
+                    "comparison_id": f"{case_id}::{target}",
+                    "case_id": case_id,
+                    "target_metric": target,
+                    "scene_family": scene_family,
+                    "inconsistency_type": str(case.get("inconsistency_type", "")),
+                    "comparison_ready": bool(case_ready),
+                }
+            )
     return {
-        "matrix_type": "phase11_benchmark_matrix.v1",
+        "matrix_type": "phase11_benchmark_execution_matrix.v2",
         "rows": rows,
+        "execution_rows": execution_rows,
+        "comparison_rows": comparison_rows,
     }
 
 
@@ -332,6 +377,12 @@ def _build_benchmark_summary(
         "injected_case_count": len(injected_cases),
         "ready_case_count": len(ready_cases),
         "phase10_native_ready_case_count": sum(bool(case.get("native_phase10_ready", False)) for case in cases),
+        "execution_task_count": len(list(benchmark_matrix.get("execution_rows", []) or [])),
+        "comparison_task_count": len(list(benchmark_matrix.get("comparison_rows", []) or [])),
+        "replay_ready_task_count": sum(
+            bool(row.get("replay_ready", False))
+            for row in list(benchmark_matrix.get("execution_rows", []) or [])
+        ),
         "inconsistency_counts": inconsistency_counts,
         "analysis_mode_union": sorted(
             {
@@ -367,6 +418,9 @@ def _build_summary_markdown(
         f"- Injected cases: `{benchmark_summary['injected_case_count']}`",
         f"- Ready cases: `{benchmark_summary['ready_case_count']}`",
         f"- Phase-10-native-ready cases: `{benchmark_summary['phase10_native_ready_case_count']}`",
+        f"- Execution tasks: `{benchmark_summary['execution_task_count']}`",
+        f"- Replay-ready tasks: `{benchmark_summary['replay_ready_task_count']}`",
+        f"- Comparison tasks: `{benchmark_summary['comparison_task_count']}`",
         "",
         "## Benchmark Cases",
         "",
@@ -388,6 +442,14 @@ def _build_summary_markdown(
                 f"- expected validation targets: `{', '.join(row['expected_validation_targets'])}`"
             )
         lines.append("")
+    lines.extend(["## Replay Matrix", ""])
+    for row in benchmark_matrix.get("execution_rows", []):
+        lines.extend(
+            [
+                f"- `{row['task_id']}` -> entrypoint `{row['entrypoint']}` | replay ready `{row['replay_ready']}`",
+            ]
+        )
+    lines.append("")
     return "\n".join(lines).strip() + "\n"
 
 
@@ -535,6 +597,8 @@ def build_benchmark_suite_audit(
         "default_execution_modes": _as_str_list(suite_payload.get("default_execution_modes")),
         "default_analysis_modes": _as_str_list(suite_payload.get("default_analysis_modes")),
         "case_ids": [str(case.get("case_id", "")) for case in case_records],
+        "execution_task_count": len(list(benchmark_matrix.get("execution_rows", []) or [])),
+        "comparison_task_count": len(list(benchmark_matrix.get("comparison_rows", []) or [])),
     }
     benchmark_summary = _build_benchmark_summary(
         suite_name=benchmark_manifest["suite_name"],

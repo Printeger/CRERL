@@ -157,3 +157,24 @@ runtime_expectations:
     - "C-R"
     - "E-C"
     - "E-R"
+  benchmark_required_execution_modes:
+    - "baseline"
+    - "eval"
+    - "train"
+  benchmark_required_replay_fields:
+    - "execution_mode"
+    - "scene_family"
+    - "scene_cfg_name"
+    - "required_namespaces"
+    - "expected_validation_targets"
+  release_packaging_namespace: "analysis/release"
+  release_packaging_required_artifacts:
+    - "release_plan.json"
+    - "release_artifacts.json"
+    - "demo_matrix.json"
+    - "release_summary.json"
+    - "release_summary.md"
+    - "manifest.json"
+    - "namespace_manifest.json"
+  release_default_provider_mode: "mock"
+  release_api_key_required_by_default: false

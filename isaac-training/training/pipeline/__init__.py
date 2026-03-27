@@ -14,6 +14,13 @@ from .integration_bundle import (
     run_integration_audit_bundle,
     write_integration_bundle,
 )
+from .release_bundle import (
+    RELEASE_NAMESPACE,
+    ReleaseBundleAudit,
+    build_release_bundle_audit,
+    run_release_packaging_bundle,
+    write_release_bundle,
+)
 
 __all__ = [
     "BENCHMARK_NAMESPACE",
@@ -26,4 +33,9 @@ __all__ = [
     "build_integration_audit",
     "run_integration_audit_bundle",
     "write_integration_bundle",
+    "RELEASE_NAMESPACE",
+    "ReleaseBundleAudit",
+    "build_release_bundle_audit",
+    "run_release_packaging_bundle",
+    "write_release_bundle",
 ]

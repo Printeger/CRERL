@@ -61,7 +61,15 @@ def test_run_benchmark_suite_bundle_writes_namespaced_bundle(tmp_path: Path):
 
     matrix = json.loads(bundle_paths["benchmark_matrix_path"].read_text(encoding="utf-8"))
     assert len(matrix["rows"]) == 4
+    assert len(matrix["execution_rows"]) == 12
+    assert len(matrix["comparison_rows"]) == 8
     assert all(row["case_ready"] for row in matrix["rows"])
+    assert all(row["replay_ready"] for row in matrix["execution_rows"])
+    assert all(row["entrypoint"] for row in matrix["execution_rows"])
+
+    summary_md = bundle_paths["benchmark_summary_md_path"].read_text(encoding="utf-8")
+    assert "## Replay Matrix" in summary_md
+    assert "clean_nominal_v1::baseline" in summary_md
 
 
 def test_run_benchmark_suite_cli_smoke(tmp_path: Path):

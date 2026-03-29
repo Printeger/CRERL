@@ -573,6 +573,22 @@ If you want to verify the **whole pipeline**, use this order:
    - benchmark bundle
    - release bundle
 
+If you want a **one-command smoke test**, use:
+
+```bash
+bash isaac-training/training/scripts/run_full_smoke_test.sh \
+  --reports-root /tmp/crerl_verify_reports \
+  --bundle-prefix verify
+```
+
+This script will:
+
+- activate `conda activate NavRL`
+- run the full smoke-test chain from static -> release
+- write per-step CLI outputs under the reports root
+- write a combined summary at:
+  - `/tmp/crerl_verify_reports/full_smoke_summary.json`
+
 The shortest reproducible full chain is:
 
 ```bash

@@ -135,3 +135,62 @@ operator. It summarizes:
 - what the canonical call flow is,
 - how to verify each module,
 - and how to verify the full pipeline end-to-end.
+
+## 8. One-Command Smoke-Test Addendum
+
+After the verification guide, the repository was further extended with a
+one-command smoke-test harness:
+
+- `isaac-training/training/scripts/run_full_smoke_test.sh`
+
+Its purpose is to make the full pipeline easier to verify in one shot by:
+
+- activating `conda activate NavRL`,
+- running the canonical smoke chain from:
+  - static
+  - dynamic
+  - semantic
+  - report
+  - repair
+  - validation
+  - integration
+  - benchmark
+  - release
+- and collecting per-step CLI outputs into:
+  - `full_smoke_summary.json`
+
+The verification guide was also updated to advertise this one-command path in:
+
+- `doc/verification_readme.md`
+
+Focused validation for this addendum:
+
+```bash
+bash -n isaac-training/training/scripts/run_full_smoke_test.sh
+```
+
+```bash
+bash isaac-training/training/scripts/run_full_smoke_test.sh \
+  --reports-root /tmp/crerl_full_smoke_20260329_001 \
+  --bundle-prefix full
+```
+
+Validation results:
+
+- the script activated `NavRL` successfully
+- the script completed end to end and wrote:
+  - `/tmp/crerl_full_smoke_20260329_001/full_smoke_summary.json`
+- the generated smoke bundle results were:
+  - static: `passed = true`, `num_findings = 8`
+  - dynamic: `passed = true`, `W_CR = 0.0`, `W_EC = 0.46666666666666673`, `W_ER = 0.14285714285714285`
+  - semantic: `passed = true`, `supported_claims = 1`, `weak_claims = 1`
+  - report: `passed = true`, `primary_claim_type = C-R`
+  - repair: `passed = true`, `phase9_ready = true`
+  - validation: bundle generation succeeded but decision was `inconclusive`
+  - integration: `passed = true`
+  - benchmark: `ready_case_count = 4`
+  - release: `phase11_exit_ready = true`
+
+This means the one-command harness is now working as a full namespace smoke
+generator, even though the default example chain currently lands on a
+`C-R`-dominated repair path whose validation decision remains inconclusive.

@@ -293,6 +293,11 @@ Important note:
 
 - **API key is not required for the default verification path**
 - semantic verification can be done with `--provider-mode mock`
+- the semantic prompt template now lives at:
+  - `isaac-training/training/cfg/semantic_cfg/semantic_prompt_v1.yaml`
+- if you want a real online semantic call, the current shell must expose an
+  API key env var such as:
+  - `COMP_OPENAI_API_KEY`
 
 ## 6. Module-by-Module Verification Plan
 
@@ -636,9 +641,25 @@ bash isaac-training/training/scripts/run_full_smoke_test.sh \
   --bundle-prefix verify
 ```
 
+To run the same script with a real online semantic provider instead of the
+default mock path, use:
+
+```bash
+bash isaac-training/training/scripts/run_full_smoke_test.sh \
+  --reports-root /tmp/crerl_verify_reports \
+  --bundle-prefix verify_real \
+  --semantic-provider-mode azure_gateway \
+  --semantic-api-key-env-var COMP_OPENAI_API_KEY \
+  --semantic-gateway-base-url https://comp.azure-api.net/azure \
+  --semantic-deployment-name gpt4o \
+  --semantic-api-version 2024-02-01
+```
+
 This script will:
 
 - activate `conda activate NavRL`
+- fail fast if a non-mock semantic provider is requested but the configured API
+  key env var is not visible in the shell
 - run the full smoke-test chain from static -> release
 - write per-step CLI outputs under the reports root
 - write a combined summary at:
@@ -671,6 +692,19 @@ bash isaac-training/training/scripts/run_native_execution_smoke.sh \
   --bundle-prefix native_verify
 ```
 
+To switch the native path to a real online semantic provider, use:
+
+```bash
+bash isaac-training/training/scripts/run_native_execution_smoke.sh \
+  --work-root /tmp/crerl_native_execution_verify \
+  --bundle-prefix native_verify_real \
+  --semantic-provider-mode azure_gateway \
+  --semantic-api-key-env-var COMP_OPENAI_API_KEY \
+  --semantic-gateway-base-url https://comp.azure-api.net/azure \
+  --semantic-deployment-name gpt4o \
+  --semantic-api-version 2024-02-01
+```
+
 This script writes:
 
 - native accepted runs under:
@@ -685,6 +719,11 @@ This script writes:
 The current default native close-out behavior is:
 
 - the native baseline / train / eval entrypoints all run for real
+- both smoke scripts now forward the same semantic-provider flags into
+  `run_semantic_audit.py`
+- if `--semantic-provider-mode` is not `mock`, both scripts now fail fast
+  before the first audit stage when the configured API key env var is not
+  visible in the shell
 - the default eval leg now runs the `shifted` family so the native close-out
   path carries a stronger `E-R` signal
 - the repair stage produces a real `validation_request.json`

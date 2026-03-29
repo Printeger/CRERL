@@ -387,3 +387,88 @@ Validation results:
 This confirms that the native smoke harness now defaults to a more stable
 `E-R` example and that the validation stage can reach a final accepted/rejected
 decision without requiring explicit repaired `W_ER` evidence.
+
+## 12. Real-Semantic Smoke-Path Addendum
+
+The smoke-test harnesses were then extended so they can optionally call a real
+online semantic provider instead of always forcing mock mode.
+
+This addendum introduced three changes:
+
+1. semantic prompt externalization
+   - the semantic prompt template now lives at:
+     - `isaac-training/training/cfg/semantic_cfg/semantic_prompt_v1.yaml`
+   - `run_semantic_audit.py` now exposes `--prompt-cfg-path`
+
+2. one-command smoke-script provider flags
+   - both scripts now forward:
+     - `--semantic-provider-mode`
+     - `--semantic-api-key-env-var`
+     - `--semantic-gateway-base-url`
+     - `--semantic-deployment-name`
+     - `--semantic-api-version`
+
+3. fail-fast provider preflight
+   - when `--semantic-provider-mode` is not `mock`
+   - both scripts now fail before the first audit stage if the configured API
+     key env var is not visible in the shell
+
+Focused validation for this addendum:
+
+```bash
+bash -n \
+  isaac-training/training/scripts/run_full_smoke_test.sh \
+  isaac-training/training/scripts/run_native_execution_smoke.sh
+```
+
+```bash
+python3 -m py_compile \
+  isaac-training/training/analyzers/semantic_provider.py \
+  isaac-training/training/scripts/run_semantic_audit.py \
+  isaac-training/training/unit_test/test_env/test_semantic_analyzer.py
+```
+
+```bash
+pytest -q isaac-training/training/unit_test/test_env/test_semantic_analyzer.py
+```
+
+```bash
+bash isaac-training/training/scripts/run_full_smoke_test.sh \
+  --reports-root /tmp/crerl_real_llm_smoke_20260329_002 \
+  --bundle-prefix realllm2 \
+  --semantic-provider-mode azure_gateway \
+  --semantic-api-key-env-var COMP_OPENAI_API_KEY \
+  --semantic-gateway-base-url https://comp.azure-api.net/azure \
+  --semantic-deployment-name gpt4o \
+  --semantic-api-version 2024-02-01
+```
+
+```bash
+bash isaac-training/training/scripts/run_full_smoke_test.sh \
+  --reports-root /tmp/crerl_mock_llm_smoke_20260329_001 \
+  --bundle-prefix mockcfg \
+  --semantic-provider-mode mock \
+  --semantic-api-key-env-var COMP_OPENAI_API_KEY \
+  --semantic-gateway-base-url https://comp.azure-api.net/azure \
+  --semantic-deployment-name gpt4o \
+  --semantic-api-version 2024-02-01
+```
+
+Validation results:
+
+- script syntax checks passed
+- semantic-focused `py_compile` passed
+- semantic-focused `pytest` passed:
+  - `17 passed`
+- the real-provider smoke path now fails fast with an explicit blocker when the
+  configured key is not visible:
+  - `Semantic provider mode 'azure_gateway' requires env var 'COMP_OPENAI_API_KEY' to be set before running this script.`
+- the same full smoke script still succeeds with mock mode and writes:
+  - `/tmp/crerl_mock_llm_smoke_20260329_001/full_smoke_summary.json`
+- in that successful run, semantic CLI output confirms:
+  - `provider_mode = mock`
+  - `prompt_cfg_path = /home/mint/rl_dev/CRERL/isaac-training/training/cfg/semantic_cfg/semantic_prompt_v1.yaml`
+
+This means the repository now supports a one-command real-semantic smoke path,
+but the actual online call will only proceed once the chosen API key env var is
+visible in the launching shell or conda session.

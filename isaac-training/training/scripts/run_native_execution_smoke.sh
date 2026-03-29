@@ -5,6 +5,9 @@ usage() {
   cat <<'EOF'
 Usage:
   run_native_execution_smoke.sh [--work-root DIR] [--bundle-prefix PREFIX] [--skip-conda-activate]
+                                [--semantic-provider-mode MODE] [--semantic-api-key-env-var NAME]
+                                [--semantic-gateway-base-url URL] [--semantic-deployment-name NAME]
+                                [--semantic-api-version VERSION]
 
 Description:
   Runs a true native-execution smoke path:
@@ -23,6 +26,21 @@ Options:
                           Default: /tmp/crerl_native_execution_<timestamp>
   --bundle-prefix PREFIX  Prefix used for bundle names.
                           Default: native
+  --semantic-provider-mode MODE
+                          Semantic provider mode for the semantic audit step.
+                          Default: mock
+  --semantic-api-key-env-var NAME
+                          Env var name used when semantic provider mode needs an API key.
+                          Default: COMP_OPENAI_API_KEY
+  --semantic-gateway-base-url URL
+                          Base URL for azure_gateway semantic provider mode.
+                          Default: https://comp.azure-api.net/azure
+  --semantic-deployment-name NAME
+                          Deployment name for azure_gateway semantic provider mode.
+                          Default: gpt4o
+  --semantic-api-version VERSION
+                          API version for azure_gateway semantic provider mode.
+                          Default: 2024-02-01
   --skip-conda-activate   Skip conda activation if already in NavRL.
   -h, --help              Show this help text.
 EOF
@@ -37,6 +55,11 @@ SETUP_CONDA_ENV_SCRIPT="${ISAAC_ROOT}/setup_conda_env.sh"
 WORK_ROOT=""
 BUNDLE_PREFIX="native"
 SKIP_CONDA_ACTIVATE="0"
+SEMANTIC_PROVIDER_MODE="mock"
+SEMANTIC_API_KEY_ENV_VAR="COMP_OPENAI_API_KEY"
+SEMANTIC_GATEWAY_BASE_URL="https://comp.azure-api.net/azure"
+SEMANTIC_DEPLOYMENT_NAME="gpt4o"
+SEMANTIC_API_VERSION="2024-02-01"
 
 while (($#)); do
   case "$1" in
@@ -46,6 +69,26 @@ while (($#)); do
       ;;
     --bundle-prefix)
       BUNDLE_PREFIX="$2"
+      shift 2
+      ;;
+    --semantic-provider-mode)
+      SEMANTIC_PROVIDER_MODE="$2"
+      shift 2
+      ;;
+    --semantic-api-key-env-var)
+      SEMANTIC_API_KEY_ENV_VAR="$2"
+      shift 2
+      ;;
+    --semantic-gateway-base-url)
+      SEMANTIC_GATEWAY_BASE_URL="$2"
+      shift 2
+      ;;
+    --semantic-deployment-name)
+      SEMANTIC_DEPLOYMENT_NAME="$2"
+      shift 2
+      ;;
+    --semantic-api-version)
+      SEMANTIC_API_VERSION="$2"
       shift 2
       ;;
     --skip-conda-activate)
@@ -115,6 +158,16 @@ activate_navrl() {
   fi
 }
 
+require_semantic_provider_credentials() {
+  if [[ "${SEMANTIC_PROVIDER_MODE}" == "mock" ]]; then
+    return 0
+  fi
+  if [[ -z "${!SEMANTIC_API_KEY_ENV_VAR:-}" ]]; then
+    echo "Semantic provider mode '${SEMANTIC_PROVIDER_MODE}' requires env var '${SEMANTIC_API_KEY_ENV_VAR}' to be set before running this script." >&2
+    exit 1
+  fi
+}
+
 run_hydra_step() {
   local run_name="$1"
   local wandb_dir="$2"
@@ -143,6 +196,7 @@ collect_latest_checkpoint() {
 mkdir -p "${WORK_ROOT}" "${LOGS_ROOT}" "${REPORTS_ROOT}" "${WANDB_ROOT}" "${REPAIRED_LOGS_ROOT}"
 cd "${REPO_ROOT}"
 activate_navrl
+require_semantic_provider_credentials
 
 echo "Repository root: ${REPO_ROOT}"
 echo "Work root: ${WORK_ROOT}"
@@ -152,6 +206,8 @@ echo "WandB root: ${WANDB_ROOT}"
 echo "Repaired logs root: ${REPAIRED_LOGS_ROOT}"
 echo "Python: $(command -v python)"
 echo "Conda env: ${CONDA_DEFAULT_ENV:-unknown}"
+echo "Semantic provider mode: ${SEMANTIC_PROVIDER_MODE}"
+echo "Semantic api key env var: ${SEMANTIC_API_KEY_ENV_VAR}"
 
 echo
 echo "==> Running native baseline"
@@ -228,7 +284,11 @@ echo "==> Running semantic audit"
 python "${TRAINING_DIR}/scripts/run_semantic_audit.py" \
   --static-bundle-dir "${REPORTS_ROOT}/analysis/static/${STATIC_BUNDLE}" \
   --dynamic-bundle-dir "${REPORTS_ROOT}/analysis/dynamic/${DYNAMIC_BUNDLE}" \
-  --provider-mode mock \
+  --provider-mode "${SEMANTIC_PROVIDER_MODE}" \
+  --api-key-env-var "${SEMANTIC_API_KEY_ENV_VAR}" \
+  --gateway-base-url "${SEMANTIC_GATEWAY_BASE_URL}" \
+  --deployment-name "${SEMANTIC_DEPLOYMENT_NAME}" \
+  --api-version "${SEMANTIC_API_VERSION}" \
   --reports-root "${REPORTS_ROOT}" \
   --bundle-name "${SEMANTIC_BUNDLE}" \
   --output "${WORK_ROOT}/semantic_report_copy.json"

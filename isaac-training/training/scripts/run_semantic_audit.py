@@ -56,6 +56,11 @@ def parse_args() -> argparse.Namespace:
         help="API version for azure_gateway provider mode.",
     )
     parser.add_argument(
+        "--prompt-cfg-path",
+        default=str(_training_root() / "cfg" / "semantic_cfg" / "semantic_prompt_v1.yaml"),
+        help="Semantic prompt YAML used to build real-provider messages.",
+    )
+    parser.add_argument(
         "--spec-cfg-dir",
         default=str(_training_root() / "cfg" / "spec_cfg"),
         help="Directory containing machine-readable spec config YAMLs.",
@@ -115,6 +120,7 @@ def main() -> int:
             "base_url": args.gateway_base_url,
             "deployment_name": args.deployment_name,
             "api_version": args.api_version,
+            "prompt_cfg_path": args.prompt_cfg_path,
         },
     )
     report, bundle_paths = run_semantic_analysis_bundle(
@@ -146,6 +152,7 @@ def main() -> int:
                 "namespace_manifest_path": str(bundle_paths.get("namespace_manifest_path", "")),
                 "namespace_contract_path": str(bundle_paths.get("namespace_contract_path", "")),
                 "provider_mode": args.provider_mode,
+                "prompt_cfg_path": args.prompt_cfg_path,
                 "passed": report.passed,
                 "max_severity": report.max_severity,
                 "num_findings": report.num_findings,

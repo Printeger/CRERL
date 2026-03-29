@@ -2,12 +2,152 @@
 
 from __future__ import annotations
 
+import ast
 import json
 import os
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Protocol
 
 from analyzers.semantic_claims import SemanticClaim
+
+try:
+    import yaml
+except ModuleNotFoundError:  # pragma: no cover - fallback for minimal envs
+    class _YamlCompat:
+        @staticmethod
+        def _strip_comment(line: str) -> str:
+            return line.split("#", 1)[0].rstrip()
+
+        @staticmethod
+        def _parse_scalar(value: str):
+            lowered = value.lower()
+            if lowered in {"true", "false"}:
+                return lowered == "true"
+            if lowered in {"null", "none", "~"}:
+                return None
+            if value.startswith(("'", '"')) and value.endswith(("'", '"')):
+                return value[1:-1]
+            if value.startswith(("[", "{", "(", "-")) or value[:1].isdigit():
+                try:
+                    normalized = (
+                        value.replace("true", "True")
+                        .replace("false", "False")
+                        .replace("null", "None")
+                    )
+                    return ast.literal_eval(normalized)
+                except Exception:
+                    pass
+            try:
+                if "." in value or "e" in lowered:
+                    return float(value)
+                return int(value)
+            except Exception:
+                return value
+
+        @classmethod
+        def _parse_block(cls, lines, start_idx: int, indent: int):
+            if start_idx >= len(lines):
+                return {}, start_idx
+
+            line_indent, content = lines[start_idx]
+            if content.startswith("- "):
+                items = []
+                idx = start_idx
+                while idx < len(lines):
+                    current_indent, current = lines[idx]
+                    if current_indent < indent or not current.startswith("- "):
+                        break
+                    if current_indent != indent:
+                        break
+                    payload = current[2:].strip()
+                    idx += 1
+                    if payload == "":
+                        child, idx = cls._parse_block(lines, idx, indent + 2)
+                        items.append(child)
+                    else:
+                        items.append(cls._parse_scalar(payload))
+                return items, idx
+
+            mapping = {}
+            idx = start_idx
+            while idx < len(lines):
+                current_indent, current = lines[idx]
+                if current_indent < indent or current_indent != indent:
+                    break
+                key, sep, raw_value = current.partition(":")
+                if not sep:
+                    raise ValueError(f"Invalid YAML line: {current}")
+                key = key.strip()
+                value = raw_value.strip()
+                idx += 1
+                if value == "":
+                    if idx < len(lines) and lines[idx][0] > current_indent:
+                        child, idx = cls._parse_block(lines, idx, current_indent + 2)
+                        mapping[key] = child
+                    else:
+                        mapping[key] = {}
+                else:
+                    mapping[key] = cls._parse_scalar(value)
+            return mapping, idx
+
+        @classmethod
+        def safe_load(cls, text):
+            lines = []
+            for raw_line in text.splitlines():
+                stripped = cls._strip_comment(raw_line)
+                if not stripped.strip():
+                    continue
+                indent = len(stripped) - len(stripped.lstrip(" "))
+                lines.append((indent, stripped.lstrip(" ")))
+            if not lines:
+                return {}
+            parsed, _ = cls._parse_block(lines, 0, lines[0][0])
+            return parsed
+
+    yaml = _YamlCompat()
+
+
+TRAINING_ROOT = Path(__file__).resolve().parents[1]
+CFG_ROOT = TRAINING_ROOT / "cfg"
+SEMANTIC_CFG_DIR = CFG_ROOT / "semantic_cfg"
+DEFAULT_SEMANTIC_PROMPT_CFG = SEMANTIC_CFG_DIR / "semantic_prompt_v1.yaml"
+
+DEFAULT_SYSTEM_PROMPT = (
+    "You are a CRE semantic analyzer. "
+    "You must stay evidence-first. "
+    "Only propose C-R, E-C, or E-R claims when supported by the provided "
+    "witnesses, evidence objects, findings, and scope context. "
+    "Do not invent ids, families, sources, scene cfg names, or repairs. "
+    "Return strict JSON with top-level key 'claims'."
+)
+DEFAULT_TASK = "Produce grounded CRE semantic claims for downstream machine checking."
+DEFAULT_RULES = [
+    "Use only the provided claim types.",
+    "Reference only provided ids.",
+    "Leave fields empty instead of inventing unsupported values.",
+    "Prefer fewer high-quality claims over many weak guesses.",
+]
+DEFAULT_REQUIRED_OUTPUT_SCHEMA = {
+    "claims": [
+        {
+            "claim_id": "provider:claim:001",
+            "claim_type": "C-R | E-C | E-R",
+            "confidence": 0.0,
+            "severity": "warning | medium | high | critical",
+            "summary": "short summary",
+            "rationale": "evidence-grounded rationale",
+            "status": "weak",
+            "supporting_evidence_ids": [],
+            "supporting_witness_ids": [],
+            "supporting_finding_ids": [],
+            "affected_families": [],
+            "affected_sources": [],
+            "affected_scene_cfg_names": [],
+            "repair_direction_hint": "short actionable direction",
+        }
+    ]
+}
 
 
 CLAIM_TO_REPAIR_HINT = {
@@ -54,6 +194,7 @@ class SemanticProvider(Protocol):
 class SemanticProviderConfig:
     provider_mode: str = "mock"
     max_claims: int = 3
+    prompt_cfg_path: str = str(DEFAULT_SEMANTIC_PROMPT_CFG)
 
 
 @dataclass
@@ -70,6 +211,31 @@ class AzureGatewayProviderConfig(SemanticProviderConfig):
     max_claims: int = 3
     model: str = ""
     extra_headers: Dict[str, str] = field(default_factory=dict)
+
+
+def _load_yaml_file(path: Path) -> Dict[str, Any]:
+    data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    if not isinstance(data, Mapping):
+        raise ValueError(f"Expected YAML mapping in {path}")
+    return dict(data)
+
+
+def load_semantic_prompt_template(path: str | Path = DEFAULT_SEMANTIC_PROMPT_CFG) -> Dict[str, Any]:
+    prompt_path = Path(path)
+    if not prompt_path.exists():
+        raise FileNotFoundError(f"Semantic prompt config not found: {prompt_path}")
+    payload = _load_yaml_file(prompt_path)
+    normalized = {
+        "prompt_type": str(payload.get("prompt_type", "phase6_semantic_prompt_template.v1")),
+        "system_prompt": str(payload.get("system_prompt", DEFAULT_SYSTEM_PROMPT)),
+        "task": str(payload.get("task", DEFAULT_TASK)),
+        "rules": [str(item) for item in payload.get("rules", DEFAULT_RULES) or DEFAULT_RULES],
+        "required_output_schema": dict(
+            payload.get("required_output_schema", DEFAULT_REQUIRED_OUTPUT_SCHEMA)
+            or DEFAULT_REQUIRED_OUTPUT_SCHEMA
+        ),
+    }
+    return normalized
 
 
 def _claim_type_from_witness(
@@ -214,42 +380,24 @@ class MockSemanticProvider:
         return claims
 
 
-def build_provider_messages(semantic_input: Any) -> List[Dict[str, Any]]:
+def build_provider_messages(
+    semantic_input: Any,
+    *,
+    prompt_cfg_path: str | Path = DEFAULT_SEMANTIC_PROMPT_CFG,
+) -> List[Dict[str, Any]]:
     payload = _to_payload(semantic_input)
     prompt_sections = dict(payload.get("prompt_sections") or {})
     evidence_context = dict(payload.get("evidence_context") or {})
     cross_validation = dict(payload.get("cross_validation_requirements") or {})
+    prompt_template = load_semantic_prompt_template(prompt_cfg_path)
 
-    system_prompt = (
-        "You are a CRE semantic analyzer. "
-        "You must stay evidence-first. "
-        "Only propose C-R, E-C, or E-R claims when supported by the provided "
-        "witnesses, evidence objects, findings, and scope context. "
-        "Do not invent ids, families, sources, scene cfg names, or repairs. "
-        "Return strict JSON with top-level key 'claims'."
-    )
     user_payload = {
-        "task": "Produce grounded CRE semantic claims for downstream machine checking.",
-        "required_output_schema": {
-            "claims": [
-                {
-                    "claim_id": "provider:claim:001",
-                    "claim_type": "C-R | E-C | E-R",
-                    "confidence": 0.0,
-                    "severity": "warning | medium | high | critical",
-                    "summary": "short summary",
-                    "rationale": "evidence-grounded rationale",
-                    "status": "weak",
-                    "supporting_evidence_ids": [],
-                    "supporting_witness_ids": [],
-                    "supporting_finding_ids": [],
-                    "affected_families": [],
-                    "affected_sources": [],
-                    "affected_scene_cfg_names": [],
-                    "repair_direction_hint": "short actionable direction",
-                }
-            ]
+        "task": prompt_template["task"],
+        "prompt_template": {
+            "prompt_type": prompt_template["prompt_type"],
+            "prompt_cfg_path": str(Path(prompt_cfg_path)),
         },
+        "required_output_schema": prompt_template["required_output_schema"],
         "semantic_input": {
             "spec_version": payload.get("spec_version", ""),
             "spec_summary": payload.get("spec_summary", {}),
@@ -266,15 +414,10 @@ def build_provider_messages(semantic_input: Any) -> List[Dict[str, Any]]:
             },
             "cross_validation_requirements": cross_validation,
         },
-        "rules": [
-            "Use only the provided claim types.",
-            "Reference only provided ids.",
-            "Leave fields empty instead of inventing unsupported values.",
-            "Prefer fewer high-quality claims over many weak guesses.",
-        ],
+        "rules": prompt_template["rules"],
     }
     return [
-        {"role": "system", "content": system_prompt},
+        {"role": "system", "content": prompt_template["system_prompt"]},
         {
             "role": "user",
             "content": json.dumps(user_payload, indent=2, sort_keys=True),
@@ -324,7 +467,10 @@ class AzureGatewaySemanticProvider:
         deployment_name = self.config.model or self.config.deployment_name
         response = client.chat.completions.create(
             model=deployment_name,
-            messages=build_provider_messages(semantic_input),
+            messages=build_provider_messages(
+                semantic_input,
+                prompt_cfg_path=self.config.prompt_cfg_path,
+            ),
             temperature=0.0,
         )
         message = response.choices[0].message.content or ""
@@ -341,6 +487,7 @@ class AzureGatewaySemanticProvider:
                         "deployment_name": deployment_name,
                         "api_version": self.config.api_version,
                         "base_url": self.config.base_url,
+                        "prompt_cfg_path": self.config.prompt_cfg_path,
                     },
                 }
             )
@@ -361,6 +508,7 @@ def build_semantic_provider(
             effective = SemanticProviderConfig(
                 provider_mode=str(payload.get("provider_mode", "mock")),
                 max_claims=int(payload.get("max_claims", 3) or 3),
+                prompt_cfg_path=str(payload.get("prompt_cfg_path", DEFAULT_SEMANTIC_PROMPT_CFG)),
             )
         elif isinstance(config, SemanticProviderConfig):
             effective = config
@@ -392,4 +540,5 @@ __all__ = [
     "build_provider_messages",
     "build_semantic_provider",
     "generate_mock_claims",
+    "load_semantic_prompt_template",
 ]

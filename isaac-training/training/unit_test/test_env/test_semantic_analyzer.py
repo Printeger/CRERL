@@ -33,6 +33,7 @@ from analyzers.semantic_provider import (
     AzureGatewaySemanticProvider,
     build_provider_messages,
     build_semantic_provider,
+    load_semantic_prompt_template,
 )
 from analyzers.spec_ir import load_spec_ir
 
@@ -515,6 +516,43 @@ def test_build_provider_messages_is_evidence_first(tmp_path):
     assert "cross_validation_requirements" in messages[1]["content"]
 
 
+def test_build_provider_messages_supports_yaml_prompt_template(tmp_path):
+    static_dir = _make_static_bundle(tmp_path)
+    dynamic_dir = _make_dynamic_bundle(tmp_path)
+    semantic_input = build_semantic_analysis_input(
+        static_bundle_dir=static_dir,
+        dynamic_bundle_dir=dynamic_dir,
+    )
+    prompt_cfg = tmp_path / "semantic_prompt_custom.yaml"
+    prompt_cfg.write_text(
+        "\n".join(
+            [
+                "prompt_type: phase6_semantic_prompt_template.v1",
+                "system_prompt: Custom evidence-first semantic analyzer.",
+                "task: Emit only grounded semantic claims.",
+                "rules:",
+                "  - Always cite provided ids.",
+                "required_output_schema:",
+                "  claims:",
+                "    - claim_id: custom:claim:001",
+                "      claim_type: C-R | E-C | E-R",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    template = load_semantic_prompt_template(prompt_cfg)
+    messages = build_provider_messages(semantic_input, prompt_cfg_path=prompt_cfg)
+    payload = json.loads(messages[1]["content"])
+
+    assert template["prompt_type"] == "phase6_semantic_prompt_template.v1"
+    assert messages[0]["content"] == "Custom evidence-first semantic analyzer."
+    assert payload["task"] == "Emit only grounded semantic claims."
+    assert payload["rules"] == ["Always cite provided ids."]
+    assert payload["required_output_schema"]["claims"][0]["claim_id"] == "custom:claim:001"
+    assert payload["prompt_template"]["prompt_cfg_path"] == str(prompt_cfg)
+
+
 def test_build_semantic_provider_supports_mock_and_gateway_modes():
     mock_provider = build_semantic_provider("mock", config={"max_claims": 2})
     assert isinstance(mock_provider, MockSemanticProvider)
@@ -527,6 +565,7 @@ def test_build_semantic_provider_supports_mock_and_gateway_modes():
     assert isinstance(gateway_provider, AzureGatewaySemanticProvider)
     assert gateway_provider.config.deployment_name == "gpt4o"
     assert gateway_provider.config.api_key_env_var == "TEST_COMP_OPENAI_API_KEY"
+    assert gateway_provider.config.prompt_cfg_path.endswith("semantic_prompt_v1.yaml")
 
 
 def test_gateway_provider_requires_api_key():

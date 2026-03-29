@@ -1,6 +1,6 @@
 # Phase 6 Development Status
 
-Updated: 2026-03-27
+Updated: 2026-03-29
 
 ## 1. This Iteration Goal
 
@@ -312,3 +312,53 @@ The next step should be:
   - `claim_consumer.json`
 - define severity ranking and merged root-cause ordering
 - keep the provider path optional until the merged report layer is stable
+
+## 8. Semantic-Prompt Externalization Addendum
+
+The semantic provider path was later tightened without changing the
+evidence-first contract.
+
+This addendum introduced:
+
+- `isaac-training/training/cfg/semantic_cfg/semantic_prompt_v1.yaml`
+- prompt-template loading inside:
+  - `isaac-training/training/analyzers/semantic_provider.py`
+- prompt-config passthrough inside:
+  - `isaac-training/training/scripts/run_semantic_audit.py`
+
+The main result is that the system prompt, task description, output schema, and
+rule list are no longer hardcoded in Python. They now live in a machine-readable
+runtime config file while the semantic analyzer keeps the same claim schema and
+cross-check path as before.
+
+Focused validation for this addendum:
+
+```bash
+python3 -m py_compile \
+  isaac-training/training/analyzers/semantic_provider.py \
+  isaac-training/training/scripts/run_semantic_audit.py \
+  isaac-training/training/unit_test/test_env/test_semantic_analyzer.py
+```
+
+```bash
+pytest -q isaac-training/training/unit_test/test_env/test_semantic_analyzer.py
+```
+
+Validation results:
+
+- `py_compile` passed
+- `pytest` passed:
+  - `17 passed`
+- the semantic provider now reports:
+  - `prompt_cfg_path = isaac-training/training/cfg/semantic_cfg/semantic_prompt_v1.yaml`
+- a temporary YAML prompt template can override:
+  - `system_prompt`
+  - `task`
+  - `rules`
+  - `required_output_schema`
+
+Real-provider note:
+
+- the `NavRL` environment now has the `openai` package available
+- but a live gateway call still requires the configured API key env var to be
+  visible in the shell that launches the semantic CLI or smoke scripts

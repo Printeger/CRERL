@@ -515,6 +515,181 @@ def test_validation_decision_rejects_er_when_shift_gap_worsens(tmp_path):
     assert decision["accepted"] is False
 
 
+def test_validation_decision_accepts_er_with_claim_specific_consistency_fallback(tmp_path):
+    repair_bundle_dir = _make_repair_bundle(
+        tmp_path,
+        claim_type="E-R",
+        summary="Shifted-family robustness is too weak under distribution shift.",
+        target_ref=SHIFTED_CFG,
+    )
+    logs_root = tmp_path / "logs"
+    original_nominal = _make_accepted_run_dir(
+        logs_root,
+        name="baseline_nominal_original",
+        source="baseline_greedy",
+        scenario_type="nominal",
+        scene_cfg_name="scene_cfg_nominal.yaml",
+        metrics={
+            "min_distance": 0.72,
+            "collision_rate": 0.04,
+            "near_violation_ratio": 0.10,
+            "average_return": 3.20,
+            "success_rate": 0.82,
+        },
+    )
+    original_shifted = _make_accepted_run_dir(
+        logs_root,
+        name="baseline_shifted_original",
+        source="baseline_greedy",
+        scenario_type="shifted",
+        scene_cfg_name="scene_cfg_shifted.yaml",
+        metrics={
+            "min_distance": 0.55,
+            "collision_rate": 0.10,
+            "near_violation_ratio": 0.22,
+            "average_return": 2.85,
+            "success_rate": 0.46,
+        },
+    )
+    repaired_nominal = _make_accepted_run_dir(
+        logs_root,
+        name="baseline_nominal_repaired",
+        source="baseline_greedy",
+        scenario_type="nominal",
+        scene_cfg_name="scene_cfg_nominal.yaml",
+        metrics={
+            "min_distance": 0.78,
+            "collision_rate": 0.03,
+            "near_violation_ratio": 0.08,
+            "average_return": 3.22,
+            "success_rate": 0.84,
+        },
+    )
+    repaired_shifted = _make_accepted_run_dir(
+        logs_root,
+        name="baseline_shifted_repaired",
+        source="baseline_greedy",
+        scenario_type="shifted",
+        scene_cfg_name="scene_cfg_shifted.yaml",
+        metrics={
+            "min_distance": 0.71,
+            "collision_rate": 0.05,
+            "near_violation_ratio": 0.11,
+            "average_return": 3.00,
+            "success_rate": 0.70,
+        },
+    )
+
+    prepared = prepare_validation_runs(
+        repair_bundle_dir=repair_bundle_dir,
+        logs_root=logs_root,
+        original_run_dirs=[original_nominal, original_shifted],
+        repaired_run_dirs=[repaired_nominal, repaired_shifted],
+    )
+    comparison = compare_validation_runs(
+        primary_claim_type=prepared["validation_input"]["primary_claim_type"],
+        validation_targets=prepared["validation_input"]["validation_targets"],
+        original_runs=prepared["original_runs"],
+        repaired_runs=prepared["repaired_runs"],
+    )
+    decision = decide_validation(comparison, performance_regression_epsilon=0.05)
+
+    assert "W_ER" not in comparison["metric_deltas"]
+    assert decision["consistency_evidence_mode"] == "claim_specific_fallback"
+    assert "missing_consistency_evidence" not in decision["blocked_by"]
+    assert decision["metric_deltas"]["consistency_improvement"] == decision["metric_deltas"]["claim_specific_improvement"]
+    assert decision["decision_status"] == "accepted"
+    assert decision["accepted"] is True
+
+
+def test_validation_decision_rejects_er_with_claim_specific_consistency_fallback(tmp_path):
+    repair_bundle_dir = _make_repair_bundle(
+        tmp_path,
+        claim_type="E-R",
+        summary="Shifted-family robustness is too weak under distribution shift.",
+        target_ref=SHIFTED_CFG,
+    )
+    logs_root = tmp_path / "logs"
+    original_nominal = _make_accepted_run_dir(
+        logs_root,
+        name="baseline_nominal_original",
+        source="baseline_greedy",
+        scenario_type="nominal",
+        scene_cfg_name="scene_cfg_nominal.yaml",
+        metrics={
+            "min_distance": 0.76,
+            "collision_rate": 0.03,
+            "near_violation_ratio": 0.08,
+            "average_return": 3.35,
+            "success_rate": 0.82,
+        },
+    )
+    original_shifted = _make_accepted_run_dir(
+        logs_root,
+        name="baseline_shifted_original",
+        source="baseline_greedy",
+        scenario_type="shifted",
+        scene_cfg_name="scene_cfg_shifted.yaml",
+        metrics={
+            "min_distance": 0.58,
+            "collision_rate": 0.08,
+            "near_violation_ratio": 0.18,
+            "average_return": 3.02,
+            "success_rate": 0.64,
+        },
+    )
+    repaired_nominal = _make_accepted_run_dir(
+        logs_root,
+        name="baseline_nominal_repaired",
+        source="baseline_greedy",
+        scenario_type="nominal",
+        scene_cfg_name="scene_cfg_nominal.yaml",
+        metrics={
+            "min_distance": 0.88,
+            "collision_rate": 0.01,
+            "near_violation_ratio": 0.04,
+            "average_return": 3.55,
+            "success_rate": 0.96,
+        },
+    )
+    repaired_shifted = _make_accepted_run_dir(
+        logs_root,
+        name="baseline_shifted_repaired",
+        source="baseline_greedy",
+        scenario_type="shifted",
+        scene_cfg_name="scene_cfg_shifted.yaml",
+        metrics={
+            "min_distance": 0.60,
+            "collision_rate": 0.07,
+            "near_violation_ratio": 0.18,
+            "average_return": 2.90,
+            "success_rate": 0.45,
+        },
+    )
+
+    prepared = prepare_validation_runs(
+        repair_bundle_dir=repair_bundle_dir,
+        logs_root=logs_root,
+        original_run_dirs=[original_nominal, original_shifted],
+        repaired_run_dirs=[repaired_nominal, repaired_shifted],
+    )
+    comparison = compare_validation_runs(
+        primary_claim_type=prepared["validation_input"]["primary_claim_type"],
+        validation_targets=prepared["validation_input"]["validation_targets"],
+        original_runs=prepared["original_runs"],
+        repaired_runs=prepared["repaired_runs"],
+    )
+    decision = decide_validation(comparison, performance_regression_epsilon=0.05)
+
+    assert "W_ER" not in comparison["metric_deltas"]
+    assert decision["consistency_evidence_mode"] == "claim_specific_fallback"
+    assert "missing_consistency_evidence" not in decision["blocked_by"]
+    assert decision["metric_deltas"]["consistency_improvement"] == decision["metric_deltas"]["claim_specific_improvement"]
+    assert decision["metric_deltas"]["claim_specific_improvement"] < 0.0
+    assert decision["decision_status"] == "rejected"
+    assert decision["accepted"] is False
+
+
 def test_compare_validation_runs_derives_nominal_vs_shifted_success_gap(tmp_path):
     repair_bundle_dir = _make_repair_bundle(
         tmp_path,

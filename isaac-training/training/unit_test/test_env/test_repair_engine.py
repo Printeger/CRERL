@@ -190,6 +190,56 @@ def test_rule_based_repair_generation_is_deterministic(tmp_path):
     assert first == second
 
 
+def test_rule_based_repair_can_override_primary_claim_type(tmp_path):
+    bundle = _make_report_bundle(
+        tmp_path,
+        claim_type="C-R",
+        summary="Reward progress proxy dominates safety shaping near boundary states.",
+        target_ref=REWARD_SPEC,
+    )
+    handoff_path = bundle / "repair_handoff.json"
+    handoff = json.loads(handoff_path.read_text(encoding="utf-8"))
+    handoff["selected_claims"].append(
+        {
+            "handoff_id": "repair_handoff:E-R:secondary",
+            "claim_type": "E-R",
+            "selected_from": "analysis/semantic",
+            "selected_from_rank": 2,
+            "severity": "high",
+            "confidence": 0.9,
+            "support_status": "semantic_supported",
+            "summary": "Shifted-family robustness is too weak under distribution shift.",
+            "impacted_components": ["E", "R"],
+            "suggested_repair_direction": "mixed",
+            "required_evidence_refs": [str(SHIFTED_CFG)],
+            "source_record_ids": ["source:E-R:secondary"],
+            "selection_basis": "phase7_test_fixture",
+        }
+    )
+    handoff["repair_order"].append(
+        {
+            "order": 2,
+            "handoff_id": "repair_handoff:E-R:secondary",
+            "claim_type": "E-R",
+            "selected_from": "analysis/semantic",
+            "suggested_repair_direction": "mixed",
+            "selection_basis": "phase7_test_fixture",
+        }
+    )
+    handoff["selection_summary"]["selection_focus_order"].append("E-R")
+    handoff_path.write_text(json.dumps(handoff, indent=2, sort_keys=True), encoding="utf-8")
+
+    plan = propose_rule_based_repairs(
+        report_bundle_dir=bundle,
+        primary_claim_type_override="E-R",
+    )
+
+    assert plan.primary_claim_type == "E-R"
+    assert plan.candidates[0].claim_type == "E-R"
+    assert plan.candidates[0].operator_type == "increase_shifted_boundary_bias"
+    assert plan.metadata["primary_claim_type_override"] == "E-R"
+
+
 def test_repair_acceptance_and_bundle_writer(tmp_path):
     bundle = _make_report_bundle(
         tmp_path,

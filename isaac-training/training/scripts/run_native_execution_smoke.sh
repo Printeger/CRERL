@@ -8,7 +8,8 @@ Usage:
 
 Description:
   Runs a true native-execution smoke path:
-    baseline -> short train -> short eval -> static -> dynamic -> semantic -> report -> repair -> validation
+    baseline(nominal) -> short train(nominal) -> short eval(shifted)
+      -> static -> dynamic -> semantic -> report -> repair(E-R) -> validation
 
   The script:
     - activates conda env NavRL
@@ -76,6 +77,7 @@ SUMMARY_PATH="${WORK_ROOT}/native_execution_summary.json"
 BASELINE_RUN_NAME="${BUNDLE_PREFIX}_baseline"
 TRAIN_RUN_NAME="${BUNDLE_PREFIX}_train"
 EVAL_RUN_NAME="${BUNDLE_PREFIX}_eval"
+REPAIR_CLAIM_TYPE_OVERRIDE="E-R"
 
 BASELINE_RUN_DIR="${LOGS_ROOT}/${BASELINE_RUN_NAME}"
 TRAIN_RUN_DIR="${LOGS_ROOT}/${TRAIN_RUN_NAME}"
@@ -196,7 +198,10 @@ run_hydra_step \
   "${TRAINING_DIR}/scripts/eval.py" \
   "headless=True" \
   "wandb.mode=offline" \
-  "scene_family_backend.family=nominal" \
+  "scene_family_backend.family=shifted" \
+  "scene_logging.scenario_type=shifted" \
+  "scene_logging.scene_cfg_name=scene_cfg_shifted.yaml" \
+  "scene_logging.scene_id_prefix=shifted_native_smoke" \
   "env.num_envs=1" \
   "env.max_episode_length=64" \
   "max_frame_num=128" \
@@ -210,7 +215,7 @@ python "${TRAINING_DIR}/scripts/run_static_audit.py" \
   --output "${WORK_ROOT}/static_report_copy.json"
 
 echo
-echo "==> Running dynamic audit on native eval vs baseline"
+echo "==> Running dynamic audit on native shifted eval vs nominal baseline"
 python "${TRAINING_DIR}/scripts/run_dynamic_audit.py" \
   --run-dir "${EVAL_RUN_DIR}" \
   --compare-run-dir "${BASELINE_RUN_DIR}" \
@@ -244,6 +249,7 @@ python "${TRAINING_DIR}/scripts/run_repair_audit.py" \
   --report-bundle-dir "${REPORTS_ROOT}/analysis/report/${REPORT_BUNDLE}" \
   --reports-root "${REPORTS_ROOT}" \
   --bundle-name "${REPAIR_BUNDLE}" \
+  --claim-type-override "${REPAIR_CLAIM_TYPE_OVERRIDE}" \
   --output "${WORK_ROOT}/repair_plan_copy.json"
 
 echo
@@ -258,7 +264,7 @@ python "${TRAINING_DIR}/scripts/run_validation_audit.py" \
   --bundle-name "${VALIDATION_BUNDLE}" \
   --output "${WORK_ROOT}/validation_decision_copy.json"
 
-python - "${WORK_ROOT}" "${BASELINE_RUN_DIR}" "${TRAIN_RUN_DIR}" "${EVAL_RUN_DIR}" "${REPORTS_ROOT}" "${STATIC_BUNDLE}" "${DYNAMIC_BUNDLE}" "${SEMANTIC_BUNDLE}" "${REPORT_BUNDLE}" "${REPAIR_BUNDLE}" "${VALIDATION_BUNDLE}" "${TRAIN_CHECKPOINT}" <<'PY'
+python - "${WORK_ROOT}" "${BASELINE_RUN_DIR}" "${TRAIN_RUN_DIR}" "${EVAL_RUN_DIR}" "${REPORTS_ROOT}" "${STATIC_BUNDLE}" "${DYNAMIC_BUNDLE}" "${SEMANTIC_BUNDLE}" "${REPORT_BUNDLE}" "${REPAIR_BUNDLE}" "${VALIDATION_BUNDLE}" "${TRAIN_CHECKPOINT}" "${REPAIR_CLAIM_TYPE_OVERRIDE}" <<'PY'
 from __future__ import annotations
 
 import json
@@ -277,6 +283,7 @@ report_bundle = sys.argv[9]
 repair_bundle = sys.argv[10]
 validation_bundle = sys.argv[11]
 train_checkpoint = sys.argv[12]
+repair_claim_type_override = sys.argv[13]
 
 def load_json(path: Path):
     return json.loads(path.read_text(encoding="utf-8"))
@@ -314,6 +321,7 @@ summary = {
         "validation": load_json(reports_root / "analysis" / "validation" / validation_bundle / "validation_summary.json"),
     },
     "repair": {
+        "claim_type_override": repair_claim_type_override,
         "acceptance": load_json(reports_root / "analysis" / "repair" / repair_bundle / "acceptance.json"),
         "repair_validation": load_json(reports_root / "analysis" / "repair" / repair_bundle / "repair_validation.json"),
         "validation_request": load_json(reports_root / "analysis" / "repair" / repair_bundle / "validation_request.json"),

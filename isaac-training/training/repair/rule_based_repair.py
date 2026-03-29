@@ -435,6 +435,7 @@ def propose_rule_based_repairs(
     report_bundle_dir: str | Path | None = None,
     report: Mapping[str, Any] | None = None,
     repair_handoff: Mapping[str, Any] | None = None,
+    primary_claim_type_override: str = "",
 ) -> RepairPlan:
     if report_bundle_dir is not None:
         bundle_inputs = load_phase7_repair_inputs(report_bundle_dir)
@@ -446,6 +447,9 @@ def propose_rule_based_repairs(
         effective_handoff = dict(repair_handoff or {})
         source_report_bundle = str(effective_report.get("bundle_name", "report_inline"))
 
+    if primary_claim_type_override:
+        effective_handoff["primary_claim_type"] = str(primary_claim_type_override)
+
     candidates = build_repair_candidates(effective_handoff)
     selected_candidate = candidates[0] if candidates else None
     primary_claim_type = str(effective_handoff.get("primary_claim_type", ""))
@@ -454,12 +458,15 @@ def propose_rule_based_repairs(
         str(item.get("handoff_id", ""))
         for item in list(effective_handoff.get("selected_claims", []) or [])
     ]
-    rationale = (
-        f"Selected `{selected_candidate.operator_type}` as the first repair operator for "
-        f"`{primary_claim_type}` based on Phase 7 handoff ordering and minimal edit cost."
-        if selected_candidate is not None
-        else "No repair candidates were generated from the provided handoff."
-    )
+    if selected_candidate is not None:
+        rationale = (
+            f"Selected `{selected_candidate.operator_type}` as the first repair operator for "
+            f"`{primary_claim_type}` based on Phase 7 handoff ordering and minimal edit cost."
+        )
+        if primary_claim_type_override:
+            rationale += f" The primary claim type was overridden to `{primary_claim_type_override}` for this repair pass."
+    else:
+        rationale = "No repair candidates were generated from the provided handoff."
     return RepairPlan(
         plan_type="phase8_repair_plan.v1",
         source_report_bundle=source_report_bundle,
@@ -476,6 +483,7 @@ def propose_rule_based_repairs(
             "selection_focus_order": list(effective_handoff.get("selection_summary", {}).get("selection_focus_order", []) or []),
             "upstream_report_type": str(effective_report.get("report_type", "")),
             "patch_preview_only": True,
+            "primary_claim_type_override": str(primary_claim_type_override or ""),
         },
     )
 

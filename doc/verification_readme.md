@@ -1,6 +1,6 @@
 # CRE Verification README
 
-Updated: 2026-03-27
+Updated: 2026-03-29
 
 ## 1. What Is Still Not Finished
 
@@ -685,12 +685,31 @@ This script writes:
 The current default native close-out behavior is:
 
 - the native baseline / train / eval entrypoints all run for real
+- the default eval leg now runs the `shifted` family so the native close-out
+  path carries a stronger `E-R` signal
 - the repair stage produces a real `validation_request.json`
+- the repair stage now forces a targeted `E-R` repair pass for this smoke path
 - the validation stage now also produces real repaired accepted runs under
   `repaired_logs/`
-- the default example still usually ends with `decision_status = inconclusive`
-  because the selected `C-R` repair path often lacks strong enough
-  consistency-evidence deltas, even though the rerun path itself is working
+- the validation decision now uses claim-specific family-gap evidence as a
+  deterministic fallback when explicit `W_EC / W_ER` repaired metrics are not
+  available
+- the current default native smoke therefore now tends to end with a **final**
+  `accepted` or `rejected` decision instead of stalling at `inconclusive`
+
+In the latest native verification run:
+
+- work root:
+  - `/tmp/crerl_native_execution_20260329_005`
+- the generated summary is:
+  - `/tmp/crerl_native_execution_20260329_005/native_execution_summary.json`
+- key results were:
+  - `dynamic.W_ER = 0.20745278398795164`
+  - `semantic primary claim type = E-R`
+  - `repair primary claim type = E-R`
+  - `validation decision_status = rejected`
+  - `validation consistency_evidence_mode = claim_specific_fallback`
+  - `validation repaired_run_count = 2`
 
 The recommended interpretation is:
 

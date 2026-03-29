@@ -309,3 +309,81 @@ stage. It now reaches a real `repair -> validation` close-out loop and
 materializes repaired accepted runs, even though the current default
 `C-R`-dominated example still does not reach a final accepted/rejected
 validation decision.
+
+## 11. Native-Execution Decision-Closure Addendum
+
+The native smoke harness was then tightened so that its default example is more
+likely to land on a final `accepted/rejected` validation decision instead of
+stopping at `inconclusive`.
+
+This update made three connected changes:
+
+1. the native smoke default now uses a stronger `E-R` signal
+   - `baseline(nominal) -> train(nominal) -> eval(shifted)`
+   - the repair pass now explicitly overrides the repair claim type to `E-R`
+
+2. the repair engine now supports targeted claim-type overrides
+   - `run_repair_audit.py` accepts `--claim-type-override`
+   - `rule_based_repair.py` records the override in repair-plan metadata
+
+3. the validation decision rule now supports claim-specific fallback
+   consistency evidence
+   - when `E-C / E-R` repaired runs do not carry explicit `W_EC / W_ER`
+   - but the higher-order family-gap metrics are present
+   - the decision rule now resolves to `accepted` or `rejected`
+     deterministically instead of returning `missing_consistency_evidence`
+
+Focused validation for this addendum:
+
+```bash
+python3 -m py_compile \
+  isaac-training/training/repair/decision.py \
+  isaac-training/training/repair/rule_based_repair.py \
+  isaac-training/training/scripts/run_repair_audit.py \
+  isaac-training/training/unit_test/test_env/test_repair_engine.py \
+  isaac-training/training/unit_test/test_env/test_validation_loop.py
+```
+
+```bash
+bash -n isaac-training/training/scripts/run_native_execution_smoke.sh
+```
+
+```bash
+pytest -q \
+  isaac-training/training/unit_test/test_env/test_repair_engine.py \
+  isaac-training/training/unit_test/test_env/test_validation_loop.py
+```
+
+```bash
+bash isaac-training/training/scripts/run_native_execution_smoke.sh \
+  --work-root /tmp/crerl_native_execution_20260329_005 \
+  --bundle-prefix native5
+```
+
+Validation results:
+
+- focused repair/validation regression tests now pass:
+  - `27 passed, 1 skipped`
+- the native smoke script syntax check passes
+- the latest native smoke run completed successfully and wrote:
+  - `/tmp/crerl_native_execution_20260329_005/native_execution_summary.json`
+- the native accepted runs all passed acceptance:
+  - baseline: `true`
+  - train: `true`
+  - eval: `true`
+- the native analysis chain again passed through repair:
+  - static: `passed = true`
+  - dynamic: `passed = true`
+  - semantic: `passed = true`
+  - report: `passed = true`
+  - repair: `passed = true`
+- validation now closes with a final machine-readable decision:
+  - `primary_claim_type = E-R`
+  - `decision_status = rejected`
+  - `blocked_by = []`
+  - `consistency_evidence_mode = claim_specific_fallback`
+  - `repaired_run_count = 2`
+
+This confirms that the native smoke harness now defaults to a more stable
+`E-R` example and that the validation stage can reach a final accepted/rejected
+decision without requiring explicit repaired `W_ER` evidence.

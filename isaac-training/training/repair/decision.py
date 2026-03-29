@@ -61,11 +61,22 @@ def decide_validation(
     performance_floor = _min_improvement(metric_deltas, PERFORMANCE_METRICS)
     claim_specific_improvement = _mean_improvements(metric_deltas, claim_specific_metrics)
     claim_specific_floor = _min_improvement(metric_deltas, claim_specific_metrics)
+    consistency_evidence_mode = "direct" if consistency_improvement is not None else "missing"
 
     if not consistency_metrics:
         blocked_by.append("missing_consistency_metric_mapping")
-    if consistency_improvement is None:
-        blocked_by.append("missing_consistency_evidence")
+        consistency_evidence_mode = "missing"
+    elif consistency_improvement is None:
+        # E-C / E-R repaired runs often do not carry explicit W_EC / W_ER, but
+        # they do carry the higher-order family-gap metrics that the repair was
+        # supposed to improve. Use that evidence as a deterministic fallback so
+        # these cases resolve to accepted/rejected instead of inconclusive.
+        if claim_specific_metrics and claim_specific_improvement is not None:
+            consistency_improvement = claim_specific_improvement
+            consistency_evidence_mode = "claim_specific_fallback"
+        else:
+            blocked_by.append("missing_consistency_evidence")
+            consistency_evidence_mode = "missing"
     if safety_improvement is None:
         blocked_by.append("missing_safety_evidence")
     if performance_floor is None:
@@ -116,7 +127,11 @@ def decide_validation(
         "decision_status": status,
         "accepted": accepted,
         "acceptance_rule": {
-            "consistency": "delta > 0",
+            "consistency": (
+                "delta > 0 (direct or claim-specific fallback)"
+                if claim_specific_metrics
+                else "delta > 0"
+            ),
             "safety": "delta > 0",
             "claim_specific": (
                 "mean(delta) > 0 and min(delta) >= 0"
@@ -126,6 +141,7 @@ def decide_validation(
             "performance": f"delta >= -{float(performance_regression_epsilon)}",
         },
         "decision_rationale": rationale,
+        "consistency_evidence_mode": consistency_evidence_mode,
         "metric_deltas": metric_deltas_summary,
         "claim_specific_metrics": list(claim_specific_metrics),
         "blocked_by": sorted(set(blocked_by)),

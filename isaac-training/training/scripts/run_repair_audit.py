@@ -45,6 +45,12 @@ def parse_args() -> argparse.Namespace:
         default="",
         help="Optional extra output path for a standalone repair_plan.json copy.",
     )
+    parser.add_argument(
+        "--claim-type-override",
+        default="",
+        choices=("", "C-R", "E-C", "E-R"),
+        help="Optional primary claim-type override for targeted repair passes.",
+    )
     return parser.parse_args()
 
 
@@ -58,7 +64,10 @@ def main() -> int:
     from repair.repair_validator import build_phase9_validation_request, validate_repair
     from repair.rule_based_repair import propose_rule_based_repairs
 
-    plan = propose_rule_based_repairs(report_bundle_dir=Path(args.report_bundle_dir))
+    plan = propose_rule_based_repairs(
+        report_bundle_dir=Path(args.report_bundle_dir),
+        primary_claim_type_override=str(args.claim_type_override or ""),
+    )
     acceptance = accept_repair(plan.to_dict())
     repair_validation = validate_repair(plan.to_dict(), acceptance=acceptance)
     validation_request = build_phase9_validation_request(
@@ -105,6 +114,7 @@ def main() -> int:
                 "max_severity": str(acceptance.get("max_severity", "info")),
                 "phase9_ready": bool(repair_validation.get("phase9_ready", False)),
                 "primary_claim_type": plan.primary_claim_type,
+                "claim_type_override": str(args.claim_type_override or ""),
                 "selected_candidate_id": plan.selected_candidate_id,
                 "candidate_count": len(plan.candidates),
             },

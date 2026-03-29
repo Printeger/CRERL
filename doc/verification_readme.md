@@ -218,7 +218,51 @@ with the implemented stack:
 - Repair Engine
 - Validation and release packaging
 
-## 4. Before You Verify Anything
+## 4. Module Interface Map
+
+The most useful way to understand the implemented pipeline is to treat each
+major module as a stage in an artifact contract chain.
+
+The table below shows:
+
+- what each stage reads,
+- what it produces,
+- and which downstream stage consumes those outputs.
+
+| Module / Stage | Main Inputs | Main Outputs | Downstream Consumer |
+| --- | --- | --- | --- |
+| spec/config layer | `cfg/spec_cfg/*.yaml`, `cfg/env_cfg/*.yaml`, spec docs | machine-readable `C/R/E/P` rules, scene-family definitions | `env_gen.py`, `scene_family_bridge.py`, static analyzer, benchmark/release packaging |
+| `env_gen.py` | scene-family configs, primitive rules, request seed / difficulty | validated scene config, compiled scene primitives, scene tags | `scene_family_bridge.py`, `test_flight.py`, `env.py` |
+| `scene_family_bridge.py` | scene-family config, scene compiler, spec/runtime config | effective scene binding, effective spec binding, runtime metadata | `env.py`, `train.py`, `eval.py`, `run_baseline.py`, integration audit |
+| execution entrypoints (`test_flight.py`, `run_baseline.py`, `eval.py`, `train.py`) | effective scene/spec binding, policy/runtime setup, repaired-preview context when applicable | runtime rollouts, raw step/episode evidence, accepted run candidates | logging layer, accepted run directories under `training/logs/` |
+| logging layer (`cre_logging.py`, `training_log_adapter.py`, `runtime_logging/acceptance.py`) | rollout stats, scene metadata, done types, reward components | `manifest.json`, `steps.jsonl`, `episodes.jsonl`, `summary.json`, `acceptance.json` | dynamic analyzer, validation runner, native integration proof |
+| static audit (`run_static_audit.py`) | spec/config bundle, scene-family rules, detector thresholds | `analysis/static/<bundle>/static_report.json`, `summary.json`, `manifest.json` | semantic analyzer, report generator |
+| dynamic audit (`run_dynamic_audit.py`) | accepted run dirs, logs root, optional comparison runs, static bundle context | `analysis/dynamic/<bundle>/dynamic_report.json`, `dynamic_evidence.json`, `semantic_inputs.json` | semantic analyzer, report generator, integration proof |
+| semantic audit (`run_semantic_audit.py`) | static bundle, dynamic bundle, semantic input builder, provider mode | `analysis/semantic/<bundle>/semantic_report.json`, `semantic_claims.json`, `semantic_merge_input.json`, `claim_consumer.json` | report generator, later repair/report consumers |
+| report audit (`run_report_audit.py`) | static bundle, dynamic bundle, semantic bundle | `analysis/report/<bundle>/report.json`, `ranked_findings.json`, `repair_handoff.json`, `report_summary.md` | repair engine |
+| repair audit (`run_repair_audit.py`) | report bundle, repair rules, spec config files | `analysis/repair/<bundle>/repair_plan.json`, `repair_candidates.json`, `spec_patch.json`, `validation_request.json`, `validation_context_preview.json` | validation runner, integration audit |
+| validation audit (`run_validation_audit.py`) | repair bundle, original accepted runs, bounded rerun adapters, repair preview | `analysis/validation/<bundle>/validation_decision.json`, `comparison.json`, `validation_runs.json`, `post_repair_evidence.json` | integration audit, Phase 10 native consumer, future post-repair consumers |
+| integration audit (`run_integration_audit.py`) | scene-family binding, repair preview, optional native accepted runs, optional comparison bundle | `analysis/integration/<bundle>/integration_summary.json`, `integration_acceptance.json`, `native_execution_consumer.json` | benchmark/release packaging |
+| benchmark suite (`run_benchmark_suite.py`) | benchmark case YAMLs, optional integration/native readiness assumptions | `analysis/benchmark/<bundle>/benchmark_cases.json`, `benchmark_matrix.json`, `benchmark_summary.json` | release packaging |
+| release packaging (`run_release_packaging.py`) | benchmark bundle, optional integration bundle, spec/env cfg directories | `analysis/release/<bundle>/release_summary.json`, `release_artifacts.json`, `demo_consumer.json`, `release_acceptance.json` | human operator, release close-out, future external packaging |
+
+Two practical rules follow from this map:
+
+1. **Information should move forward as namespaced artifacts**
+   - not as implicit runtime state
+   - when debugging, inspect the nearest upstream bundle first
+
+2. **Rule changes should move from upstream to downstream**
+   - first `cfg/spec_cfg` or `cfg/env_cfg`
+   - then scene/runtime binding
+   - then execution/logging
+   - then analyzers
+   - finally report/repair/validation/integration/benchmark/release
+
+If you change this order, you often end up patching downstream interpretation
+without actually changing the audited object or the evidence source.
+
+## 5. Before You Verify Anything
 
 Use two execution contexts:
 
@@ -250,7 +294,7 @@ Important note:
 - **API key is not required for the default verification path**
 - semantic verification can be done with `--provider-mode mock`
 
-## 5. Module-by-Module Verification Plan
+## 6. Module-by-Module Verification Plan
 
 This section is the recommended order if you want to personally verify each
 module.
@@ -556,7 +600,7 @@ Expected artifacts:
 - `/tmp/crerl_verify_reports/analysis/benchmark/benchmark_verify/`
 - `/tmp/crerl_verify_reports/analysis/release/release_verify/`
 
-## 6. Full End-to-End Verification
+## 7. Full End-to-End Verification
 
 If you want to verify the **whole pipeline**, use this order:
 
@@ -656,7 +700,7 @@ At the end, check these namespaces:
 - `analysis/benchmark`
 - `analysis/release`
 
-## 7. What “Correct” Looks Like
+## 8. What “Correct” Looks Like
 
 For a healthy verification result, you should expect:
 
@@ -667,7 +711,7 @@ For a healthy verification result, you should expect:
 4. release close-out to show:
    - `phase11_exit_ready = true`
 
-## 8. Practical Advice
+## 9. Practical Advice
 
 If you want the fastest confidence path:
 
@@ -682,7 +726,7 @@ If you want the deepest confidence path:
 2. then rerun the full chain with your own generated run directories instead of
    the existing repository examples
 
-## 9. Bottom Line
+## 10. Bottom Line
 
 The current repo is no longer just a collection of separate scripts.
 

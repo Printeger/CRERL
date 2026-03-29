@@ -194,3 +194,51 @@ Validation results:
 This means the one-command harness is now working as a full namespace smoke
 generator, even though the default example chain currently lands on a
 `C-R`-dominated repair path whose validation decision remains inconclusive.
+
+## 9. Interface-Map Addendum
+
+The verification guide was further extended with a module interface map in:
+
+- `doc/verification_readme.md`
+
+This addition turns the README from a verification checklist into a pipeline
+inspection guide. The new section explicitly records:
+
+- `module/stage -> inputs -> outputs -> downstream consumer`
+
+for the major CRE pipeline layers:
+
+- spec/config
+- scene compilation
+- execution/logging
+- static/dynamic/semantic analysis
+- report/repair/validation
+- integration/benchmark/release
+
+Its purpose is to make two things much easier for a human verifier:
+
+1. trace where a piece of information originates and where it should appear
+   next
+2. understand the correct order for changing rules without breaking downstream
+   contracts
+
+Focused validation for this addendum:
+
+```bash
+rg -n "Module Interface Map|Rule changes should move from upstream to downstream|analysis/static/<bundle>" \
+  doc/verification_readme.md
+```
+
+Validation results:
+
+- the README now contains a dedicated interface-map section
+- the map explicitly ties together:
+  - inputs
+  - outputs
+  - downstream consumers
+- the README now also explicitly states the preferred rule-change order:
+  - spec/config
+  - scene/runtime binding
+  - execution/logging
+  - analyzers
+  - report/repair/validation/integration/benchmark/release

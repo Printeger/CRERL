@@ -617,7 +617,18 @@ If you want to verify the **whole pipeline**, use this order:
    - benchmark bundle
    - release bundle
 
-If you want a **one-command smoke test**, use:
+### 7.1 Analysis-Only Smoke Test
+
+This path is the fastest way to prove that the analysis/packaging pipeline is
+wired correctly.
+
+It does **not** require launching a fresh native baseline/train/eval cycle.
+Instead, it reuses:
+
+- existing accepted runs already under `training/logs/`
+- mock semantic provider mode
+
+If you want a **one-command analysis-only smoke test**, use:
 
 ```bash
 bash isaac-training/training/scripts/run_full_smoke_test.sh \
@@ -632,6 +643,47 @@ This script will:
 - write per-step CLI outputs under the reports root
 - write a combined summary at:
   - `/tmp/crerl_verify_reports/full_smoke_summary.json`
+
+### 7.2 Native Execution Smoke Test
+
+This path does launch real native execution entrypoints.
+
+It will:
+
+- activate `NavRL`
+- run a real baseline rollout
+- run a short native training loop
+- locate the newly produced `checkpoint_final.pt`
+- run a real native eval pass using that checkpoint
+- then run a short analysis chain:
+  - static
+  - dynamic
+  - semantic
+  - report
+
+Use:
+
+```bash
+bash isaac-training/training/scripts/run_native_execution_smoke.sh \
+  --work-root /tmp/crerl_native_execution_verify \
+  --bundle-prefix native_verify
+```
+
+This script writes:
+
+- native accepted runs under:
+  - `/tmp/crerl_native_execution_verify/logs/`
+- analysis bundles under:
+  - `/tmp/crerl_native_execution_verify/reports/`
+- a combined execution+analysis summary at:
+  - `/tmp/crerl_native_execution_verify/native_execution_summary.json`
+
+The recommended interpretation is:
+
+- use **7.1** when you want the fastest artifact-based confidence path
+- use **7.2** when you specifically want to prove that the real
+  `baseline / train / eval` entrypoints still execute correctly and still feed
+  the analyzer stack
 
 The shortest reproducible full chain is:
 

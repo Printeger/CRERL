@@ -50,15 +50,16 @@ This keeps the workflow inside the current repo and avoids touching files outsid
 ## Latest Staged Change Summary
 
 <!-- TRACEABILITY:BEGIN -->
-_Updated: `2026-03-29T21:13:04`_
+_Updated: `2026-03-29T21:25:34`_
 
 - Scope: `/home/mint/rl_dev/CRERL`
 - Branch: `main`
 - Source: `staged diff`
 - Impacted phases: `Phase 11`
-- Diff stat: 2 files changed, 98 insertions(+), 6 deletions(-)
+- Diff stat: 3 files changed, 418 insertions(+), 1 deletion(-)
 
 ### Changed Files
 - `M` [doc/dev_log/p11_dev_status.md](doc/dev_log/p11_dev_status.md) [Project Docs]
 - `M` [doc/verification_readme.md](doc/verification_readme.md) [Project Docs]
+- `A` [isaac-training/training/scripts/run_native_execution_smoke.sh](isaac-training/training/scripts/run_native_execution_smoke.sh) [Training Pipeline]
 <!-- TRACEABILITY:END -->

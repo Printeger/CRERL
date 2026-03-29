@@ -362,3 +362,13 @@ Real-provider note:
 - the `NavRL` environment now has the `openai` package available
 - but a live gateway call still requires the configured API key env var to be
   visible in the shell that launches the semantic CLI or smoke scripts
+- after exposing the COMP gateway key in the launching shell, a real semantic
+  smoke run completed successfully through the `azure_gateway` path
+- the successful smoke artifacts were written under:
+  - `/tmp/crerl_real_llm_smoke_20260329_004/analysis/semantic/realllm4_semantic/`
+- observed real-provider result:
+  - `provider_mode = azure_gateway`
+  - `passed = true`
+  - `supported_claims = 3`
+  - `weak_claims = 0`
+  - `most_likely_claim_type = E-C`

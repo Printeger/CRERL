@@ -468,6 +468,16 @@ Validation results:
 - in that successful run, semantic CLI output confirms:
   - `provider_mode = mock`
   - `prompt_cfg_path = /home/mint/rl_dev/CRERL/isaac-training/training/cfg/semantic_cfg/semantic_prompt_v1.yaml`
+- a later real-provider full smoke run also completed successfully once the
+  COMP gateway key was exposed in the launching shell:
+  - `/tmp/crerl_real_llm_smoke_20260329_004/full_smoke_summary.json`
+- in that successful real-provider run:
+  - `provider_mode = azure_gateway`
+  - `semantic passed = true`
+  - `supported_claims = 3`
+  - `weak_claims = 0`
+  - `most_likely_claim_type = E-C`
+  - `release phase11_exit_ready = true`
 
 This means the repository now supports a one-command real-semantic smoke path,
 but the actual online call will only proceed once the chosen API key env var is

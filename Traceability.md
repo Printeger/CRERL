@@ -50,22 +50,15 @@ This keeps the workflow inside the current repo and avoids touching files outsid
 ## Latest Staged Change Summary
 
 <!-- TRACEABILITY:BEGIN -->
-_Updated: `2026-03-29T22:13:53`_
+_Updated: `2026-03-29T22:45:11`_
 
 - Scope: `/home/mint/rl_dev/CRERL`
 - Branch: `main`
 - Source: `staged diff`
 - Impacted phases: `Phase 11, Phase 6`
-- Diff stat: 10 files changed, 566 insertions(+), 48 deletions(-)
+- Diff stat: 3 files changed, 22 insertions(+), 9 deletions(-)
 
 ### Changed Files
 - `M` [doc/dev_log/p11_dev_status.md](doc/dev_log/p11_dev_status.md) [Project Docs]
 - `M` [doc/dev_log/p6_dev_status.md](doc/dev_log/p6_dev_status.md) [Project Docs]
-- `M` [doc/verification_readme.md](doc/verification_readme.md) [Project Docs]
-- `M` [isaac-training/training/analyzers/semantic_provider.py](isaac-training/training/analyzers/semantic_provider.py) [Analyzers]
-- `A` [isaac-training/training/cfg/semantic_cfg/semantic_prompt_v1.yaml](isaac-training/training/cfg/semantic_cfg/semantic_prompt_v1.yaml) [Training Config]
-- `M` [isaac-training/training/scripts/run_full_smoke_test.sh](isaac-training/training/scripts/run_full_smoke_test.sh) [Training Pipeline]
-- `M` [isaac-training/training/scripts/run_native_execution_smoke.sh](isaac-training/training/scripts/run_native_execution_smoke.sh) [Training Pipeline]
-- `M` [isaac-training/training/scripts/run_semantic_audit.py](isaac-training/training/scripts/run_semantic_audit.py) [Training Pipeline]
-- `M` [isaac-training/training/unit_test/test_env/test_semantic_analyzer.py](isaac-training/training/unit_test/test_env/test_semantic_analyzer.py) [Training Tests]
 <!-- TRACEABILITY:END -->

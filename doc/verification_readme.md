@@ -298,6 +298,27 @@ Important note:
 - if you want a real online semantic call, the current shell must expose an
   API key env var such as:
   - `COMP_OPENAI_API_KEY`
+- local key-note files are intentionally not version-controlled:
+  - `doc/API_KEY`
+  - `doc/API_KEY.md`
+
+Recommended local-only injection pattern:
+
+```bash
+export COMP_OPENAI_API_KEY="$(
+  python3 - <<'PY'
+from pathlib import Path
+text = Path('doc/API_KEY.md').read_text(encoding='utf-8')
+print(''.join(ch for ch in text if not ch.isspace()), end='')
+PY
+)"
+```
+
+Why this form is recommended:
+
+- it reads the key only into the current shell
+- it strips accidental Unicode / non-breaking whitespace from copied keys
+- it does not require checking the key file into git
 
 ## 6. Module-by-Module Verification Plan
 
@@ -645,6 +666,14 @@ To run the same script with a real online semantic provider instead of the
 default mock path, use:
 
 ```bash
+export COMP_OPENAI_API_KEY="$(
+  python3 - <<'PY'
+from pathlib import Path
+text = Path('doc/API_KEY.md').read_text(encoding='utf-8')
+print(''.join(ch for ch in text if not ch.isspace()), end='')
+PY
+)"
+
 bash isaac-training/training/scripts/run_full_smoke_test.sh \
   --reports-root /tmp/crerl_verify_reports \
   --bundle-prefix verify_real \
@@ -695,6 +724,14 @@ bash isaac-training/training/scripts/run_native_execution_smoke.sh \
 To switch the native path to a real online semantic provider, use:
 
 ```bash
+export COMP_OPENAI_API_KEY="$(
+  python3 - <<'PY'
+from pathlib import Path
+text = Path('doc/API_KEY.md').read_text(encoding='utf-8')
+print(''.join(ch for ch in text if not ch.isspace()), end='')
+PY
+)"
+
 bash isaac-training/training/scripts/run_native_execution_smoke.sh \
   --work-root /tmp/crerl_native_execution_verify \
   --bundle-prefix native_verify_real \
@@ -735,6 +772,8 @@ The current default native close-out behavior is:
   available
 - the current default native smoke therefore now tends to end with a **final**
   `accepted` or `rejected` decision instead of stalling at `inconclusive`
+- the same native path has also been validated with a real online semantic
+  provider after locally injecting a sanitized COMP gateway key
 
 In the latest native verification run:
 
@@ -749,6 +788,19 @@ In the latest native verification run:
   - `validation decision_status = rejected`
   - `validation consistency_evidence_mode = claim_specific_fallback`
   - `validation repaired_run_count = 2`
+
+In the latest native **real-provider** verification run:
+
+- work root:
+  - `/tmp/crerl_native_real_llm_20260329_001`
+- the generated summary is:
+  - `/tmp/crerl_native_real_llm_20260329_001/native_execution_summary.json`
+- key results were:
+  - `semantic provider_mode = azure_gateway`
+  - `semantic supported_claims = 3`
+  - `semantic most_likely_claim_type = E-C`
+  - `repair primary_claim_type = E-R`
+  - `validation decision_status = rejected`
 
 The recommended interpretation is:
 

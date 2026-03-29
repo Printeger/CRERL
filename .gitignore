@@ -124,3 +124,7 @@ core
 core.*
 *.core
 *.stackdump
+
+# Local API key notes / secrets
+doc/API_KEY
+doc/API_KEY.md

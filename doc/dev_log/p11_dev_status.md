@@ -478,6 +478,25 @@ Validation results:
   - `weak_claims = 0`
   - `most_likely_claim_type = E-C`
   - `release phase11_exit_ready = true`
+- a later native real-provider smoke run also completed successfully:
+  - `/tmp/crerl_native_real_llm_20260329_001/native_execution_summary.json`
+- in that successful native real-provider run:
+  - `semantic provider_mode = azure_gateway`
+  - `semantic passed = true`
+  - `supported_claims = 3`
+  - `weak_claims = 0`
+  - `most_likely_claim_type = E-C`
+  - `repair primary_claim_type = E-R`
+  - `validation decision_status = rejected`
+  - `validation repaired_run_count = 2`
+- the verification guide now also documents a safe local-only key injection
+  pattern using:
+  - `python3` + `Path('doc/API_KEY.md').read_text(...)`
+  - Unicode-whitespace stripping via `ch.isspace()`
+  - `export COMP_OPENAI_API_KEY=\"$(...)\"`
+- `.gitignore` now ignores:
+  - `doc/API_KEY`
+  - `doc/API_KEY.md`
 
 This means the repository now supports a one-command real-semantic smoke path,
 but the actual online call will only proceed once the chosen API key env var is

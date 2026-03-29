@@ -876,6 +876,14 @@ def test_build_validation_rerun_tasks_emit_bounded_adapter_metadata(tmp_path):
     assert train_task["command_preview"][:2] == ["bash", "-lc"]
     assert "setup_conda_env.sh" in train_task["command_preview"][2]
     assert "train.py" in train_task["command_preview"][2]
+    assert any(
+        item.startswith("repair.validation_context_preview=")
+        for item in train_task["hydra_overrides"]
+    )
+    assert not any(
+        item.startswith("+repair.validation_context_preview=")
+        for item in train_task["hydra_overrides"]
+    )
     assert train_task["env_overrides"]["CRE_RUN_USE_TIMESTAMP"] == "0"
     assert train_task["env_overrides"]["CRE_VALIDATION_SCENE_ID_PREFIX"] == train_task["output_run_name"]
     assert train_task["expected_run_dir"].endswith(train_task["output_run_name"])

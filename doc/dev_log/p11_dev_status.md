@@ -1,6 +1,6 @@
 # Phase 11 Development Status
 
-Updated: 2026-03-27
+Updated: 2026-03-29
 
 ## 1. This Iteration Goal
 
@@ -259,19 +259,16 @@ still feed the analysis stack.
 
 Concretely, it performs:
 
-- one real baseline rollout
-- one short native train run
-- one native eval run using the newly produced train checkpoint
-- one short analysis chain:
-  - static
-  - dynamic
-  - semantic
-  - report
-
-This makes the verification README more explicit about the difference between:
-
-- reusing existing accepted runs for a lightweight analysis smoke test
-- and truly launching `baseline / train / eval` again under `NavRL`
+- `baseline`
+- `train`
+- `eval`
+- then:
+  - `static`
+  - `dynamic`
+  - `semantic`
+  - `report`
+  - `repair`
+  - `validation`
 
 Focused validation for this addendum:
 
@@ -281,31 +278,34 @@ bash -n isaac-training/training/scripts/run_native_execution_smoke.sh
 
 ```bash
 bash isaac-training/training/scripts/run_native_execution_smoke.sh \
-  --work-root /tmp/crerl_native_execution_20260329_001 \
-  --bundle-prefix native
+  --work-root /tmp/crerl_native_execution_20260329_003 \
+  --bundle-prefix native3
 ```
 
 Validation results:
 
-- the script launched real native:
-  - baseline
-  - train
-  - eval
-- it produced:
-  - deterministic accepted run directories under `/tmp/crerl_native_execution_20260329_001/logs/`
-  - analysis bundles under `/tmp/crerl_native_execution_20260329_001/reports/`
-  - a combined summary at:
-    - `/tmp/crerl_native_execution_20260329_001/native_execution_summary.json`
-- it also confirmed that a short train loop can still feed the analyzer chain:
-  - static
-  - dynamic
-  - semantic
-  - report
-- concrete observed results were:
-  - baseline acceptance: `passed = true`
-  - train acceptance: `passed = true`
-  - eval acceptance: `passed = true`
-  - train checkpoint: `checkpoint_final.pt` was generated and reused by eval
-  - dynamic audit: `passed = true`, `W_CR = 0.0`, `W_EC = 0.46666666666666673`, `W_ER = 0.06452697876685222`
-  - semantic audit: `passed = true`, `primary_claim_type = E-C`, `supported_claims = 0`, `weak_claims = 2`
-  - report audit: `passed = true`, `primary_claim_type = C-R`, `repair_ready_claims = 6`
+- the script completed successfully and wrote:
+  - `/tmp/crerl_native_execution_20260329_003/native_execution_summary.json`
+- the native accepted runs all passed acceptance:
+  - baseline: `true`
+  - train: `true`
+  - eval: `true`
+- the native analysis chain all passed:
+  - static: `passed = true`
+  - dynamic: `passed = true`
+  - semantic: `passed = true`
+  - report: `passed = true`
+  - repair: `passed = true`
+- the validation stage now produces real repaired accepted reruns:
+  - `/tmp/crerl_native_execution_20260329_003/repaired_logs/native3_repair_baseline_nominal_00`
+  - `/tmp/crerl_native_execution_20260329_003/repaired_logs/native3_repair_eval_nominal_01`
+- validation now records:
+  - `repaired_run_count = 2`
+  - `decision_status = inconclusive`
+  - `blocked_by = ['missing_consistency_evidence']`
+
+This confirms that the native smoke harness no longer stops at the report
+stage. It now reaches a real `repair -> validation` close-out loop and
+materializes repaired accepted runs, even though the current default
+`C-R`-dominated example still does not reach a final accepted/rejected
+validation decision.

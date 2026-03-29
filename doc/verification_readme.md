@@ -655,11 +655,13 @@ It will:
 - run a short native training loop
 - locate the newly produced `checkpoint_final.pt`
 - run a real native eval pass using that checkpoint
-- then run a short analysis chain:
+- then run a native close-out chain:
   - static
   - dynamic
   - semantic
   - report
+  - repair
+  - validation
 
 Use:
 
@@ -673,17 +675,29 @@ This script writes:
 
 - native accepted runs under:
   - `/tmp/crerl_native_execution_verify/logs/`
+- repaired accepted rerun outputs under:
+  - `/tmp/crerl_native_execution_verify/repaired_logs/`
 - analysis bundles under:
   - `/tmp/crerl_native_execution_verify/reports/`
 - a combined execution+analysis summary at:
   - `/tmp/crerl_native_execution_verify/native_execution_summary.json`
+
+The current default native close-out behavior is:
+
+- the native baseline / train / eval entrypoints all run for real
+- the repair stage produces a real `validation_request.json`
+- the validation stage now also produces real repaired accepted runs under
+  `repaired_logs/`
+- the default example still usually ends with `decision_status = inconclusive`
+  because the selected `C-R` repair path often lacks strong enough
+  consistency-evidence deltas, even though the rerun path itself is working
 
 The recommended interpretation is:
 
 - use **7.1** when you want the fastest artifact-based confidence path
 - use **7.2** when you specifically want to prove that the real
   `baseline / train / eval` entrypoints still execute correctly and still feed
-  the analyzer stack
+  the analyzer, repair, and validation stack
 
 The shortest reproducible full chain is:
 

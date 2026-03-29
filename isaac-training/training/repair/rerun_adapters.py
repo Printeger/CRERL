@@ -194,7 +194,7 @@ def build_hydra_overrides(
         overrides.append(f"+repair.selected_target_paths={json.dumps(selected_target_paths)}")
     preview_context_path = str((validation_input.get("resolved_paths") or {}).get("validation_context_preview.json", ""))
     if preview_context_path:
-        overrides.append(f"+repair.validation_context_preview={preview_context_path}")
+        overrides.append(f"repair.validation_context_preview={preview_context_path}")
     overrides.extend(spec.extra_overrides)
     return overrides
 

@@ -8,14 +8,14 @@ Usage:
 
 Description:
   Runs a true native-execution smoke path:
-    baseline -> short train -> short eval -> static -> dynamic -> semantic -> report
+    baseline -> short train -> short eval -> static -> dynamic -> semantic -> report -> repair -> validation
 
   The script:
     - activates conda env NavRL
     - sources setup_conda_env.sh when available
     - launches real baseline/train/eval entrypoints
     - stores deterministic accepted runs under a dedicated logs root
-    - runs a short analysis chain over the generated native runs
+    - runs a short analysis/repair/validation chain over the generated native runs
 
 Options:
   --work-root DIR         Root working directory for logs, reports, and wandb artifacts.
@@ -70,6 +70,7 @@ fi
 LOGS_ROOT="${WORK_ROOT}/logs"
 REPORTS_ROOT="${WORK_ROOT}/reports"
 WANDB_ROOT="${WORK_ROOT}/wandb"
+REPAIRED_LOGS_ROOT="${WORK_ROOT}/repaired_logs"
 SUMMARY_PATH="${WORK_ROOT}/native_execution_summary.json"
 
 BASELINE_RUN_NAME="${BUNDLE_PREFIX}_baseline"
@@ -84,6 +85,8 @@ STATIC_BUNDLE="${BUNDLE_PREFIX}_static"
 DYNAMIC_BUNDLE="${BUNDLE_PREFIX}_dynamic"
 SEMANTIC_BUNDLE="${BUNDLE_PREFIX}_semantic"
 REPORT_BUNDLE="${BUNDLE_PREFIX}_report"
+REPAIR_BUNDLE="${BUNDLE_PREFIX}_repair"
+VALIDATION_BUNDLE="${BUNDLE_PREFIX}_validation"
 
 activate_navrl() {
   if [[ "${SKIP_CONDA_ACTIVATE}" == "1" ]]; then
@@ -135,7 +138,7 @@ collect_latest_checkpoint() {
   find "${wandb_dir}" -path '*checkpoint_final.pt' | sort | tail -n 1
 }
 
-mkdir -p "${WORK_ROOT}" "${LOGS_ROOT}" "${REPORTS_ROOT}" "${WANDB_ROOT}"
+mkdir -p "${WORK_ROOT}" "${LOGS_ROOT}" "${REPORTS_ROOT}" "${WANDB_ROOT}" "${REPAIRED_LOGS_ROOT}"
 cd "${REPO_ROOT}"
 activate_navrl
 
@@ -144,6 +147,7 @@ echo "Work root: ${WORK_ROOT}"
 echo "Logs root: ${LOGS_ROOT}"
 echo "Reports root: ${REPORTS_ROOT}"
 echo "WandB root: ${WANDB_ROOT}"
+echo "Repaired logs root: ${REPAIRED_LOGS_ROOT}"
 echo "Python: $(command -v python)"
 echo "Conda env: ${CONDA_DEFAULT_ENV:-unknown}"
 
@@ -234,7 +238,27 @@ python "${TRAINING_DIR}/scripts/run_report_audit.py" \
   --bundle-name "${REPORT_BUNDLE}" \
   --output "${WORK_ROOT}/report_copy.json"
 
-python - "${WORK_ROOT}" "${BASELINE_RUN_DIR}" "${TRAIN_RUN_DIR}" "${EVAL_RUN_DIR}" "${REPORTS_ROOT}" "${STATIC_BUNDLE}" "${DYNAMIC_BUNDLE}" "${SEMANTIC_BUNDLE}" "${REPORT_BUNDLE}" "${TRAIN_CHECKPOINT}" <<'PY'
+echo
+echo "==> Running repair audit"
+python "${TRAINING_DIR}/scripts/run_repair_audit.py" \
+  --report-bundle-dir "${REPORTS_ROOT}/analysis/report/${REPORT_BUNDLE}" \
+  --reports-root "${REPORTS_ROOT}" \
+  --bundle-name "${REPAIR_BUNDLE}" \
+  --output "${WORK_ROOT}/repair_plan_copy.json"
+
+echo
+echo "==> Running validation audit"
+python "${TRAINING_DIR}/scripts/run_validation_audit.py" \
+  --repair-bundle-dir "${REPORTS_ROOT}/analysis/repair/${REPAIR_BUNDLE}" \
+  --logs-root "${LOGS_ROOT}" \
+  --repaired-logs-root "${REPAIRED_LOGS_ROOT}" \
+  --trigger-rerun \
+  --rerun-mode auto \
+  --reports-root "${REPORTS_ROOT}" \
+  --bundle-name "${VALIDATION_BUNDLE}" \
+  --output "${WORK_ROOT}/validation_decision_copy.json"
+
+python - "${WORK_ROOT}" "${BASELINE_RUN_DIR}" "${TRAIN_RUN_DIR}" "${EVAL_RUN_DIR}" "${REPORTS_ROOT}" "${STATIC_BUNDLE}" "${DYNAMIC_BUNDLE}" "${SEMANTIC_BUNDLE}" "${REPORT_BUNDLE}" "${REPAIR_BUNDLE}" "${VALIDATION_BUNDLE}" "${TRAIN_CHECKPOINT}" <<'PY'
 from __future__ import annotations
 
 import json
@@ -250,7 +274,9 @@ static_bundle = sys.argv[6]
 dynamic_bundle = sys.argv[7]
 semantic_bundle = sys.argv[8]
 report_bundle = sys.argv[9]
-train_checkpoint = sys.argv[10]
+repair_bundle = sys.argv[10]
+validation_bundle = sys.argv[11]
+train_checkpoint = sys.argv[12]
 
 def load_json(path: Path):
     return json.loads(path.read_text(encoding="utf-8"))
@@ -284,6 +310,19 @@ summary = {
         "dynamic": load_json(reports_root / "analysis" / "dynamic" / dynamic_bundle / "summary.json"),
         "semantic": load_json(reports_root / "analysis" / "semantic" / semantic_bundle / "summary.json"),
         "report": load_json(reports_root / "analysis" / "report" / report_bundle / "summary.json"),
+        "repair": load_json(reports_root / "analysis" / "repair" / repair_bundle / "repair_summary.json"),
+        "validation": load_json(reports_root / "analysis" / "validation" / validation_bundle / "validation_summary.json"),
+    },
+    "repair": {
+        "acceptance": load_json(reports_root / "analysis" / "repair" / repair_bundle / "acceptance.json"),
+        "repair_validation": load_json(reports_root / "analysis" / "repair" / repair_bundle / "repair_validation.json"),
+        "validation_request": load_json(reports_root / "analysis" / "repair" / repair_bundle / "validation_request.json"),
+    },
+    "validation": {
+        "decision": load_json(reports_root / "analysis" / "validation" / validation_bundle / "validation_decision.json"),
+        "comparison": load_json(reports_root / "analysis" / "validation" / validation_bundle / "comparison.json"),
+        "validation_runs": load_json(reports_root / "analysis" / "validation" / validation_bundle / "validation_runs.json"),
+        "post_repair_evidence": load_json(reports_root / "analysis" / "validation" / validation_bundle / "post_repair_evidence.json"),
     },
 }
 

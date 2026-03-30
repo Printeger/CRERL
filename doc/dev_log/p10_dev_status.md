@@ -286,3 +286,92 @@ with the intended CRE architecture:
 - it now also consumes `env_gen.py`'s shared scene backend directly
 - and the resulting accepted runs expose that scene binding more explicitly in
   the machine-readable evidence surface
+
+## 8. Native Backend Parity Smoke (2026-03-30)
+
+### What changed
+
+This follow-up did not change code. It ran short native smokes for:
+
+- `run_baseline.py`
+- `eval.py`
+
+and compared them against the already-validated short `train.py` run to confirm
+that all three native execution paths are now consuming the same shared
+`env_gen.py` scene backend.
+
+### How to validate
+
+```bash
+source "$HOME/miniconda3/etc/profile.d/conda.sh"
+conda activate NavRL
+source /home/mint/rl_dev/setup_conda_env.sh
+cd /home/mint/rl_dev/CRERL
+
+python isaac-training/training/scripts/run_baseline.py \
+  headless=True \
+  scene_family_backend.family=nominal \
+  env.num_envs=1 \
+  env.max_episode_length=64 \
+  baseline.num_episodes=1 \
+  baseline.name=random
+
+python isaac-training/training/scripts/eval.py \
+  headless=True \
+  wandb.mode=offline \
+  scene_family_backend.family=nominal \
+  env.num_envs=1 \
+  env.max_episode_length=64 \
+  max_frame_num=64 \
+  +checkpoint_path=wandb/offline-run-20260330_175427-h58g8qy0/files/checkpoint_final.pt
+```
+
+Then inspect the newest native run bundles:
+
+```bash
+python3 - <<'PY'
+from pathlib import Path
+import json
+
+root = Path('isaac-training/training/logs')
+runs = {
+    'train': root / 'train_rollout_20260330_191951',
+    'eval': root / 'eval_rollout_20260330_192159',
+    'baseline': root / 'baseline_random_rollout_20260330_192128',
+}
+for kind, run_dir in runs.items():
+    meta = json.loads((run_dir / 'manifest.json').read_text())['run_metadata']
+    acceptance = json.loads((run_dir / 'acceptance.json').read_text())
+    print(kind, run_dir.name, meta['scene_id'], meta['scene_cfg_name'], acceptance['passed'])
+PY
+```
+
+### Validation results
+
+- short native `baseline` smoke passed
+- short native `eval` smoke passed
+- the latest accepted native runs now agree on the same env-gen scene binding:
+  - `train_rollout_20260330_191951`
+  - `eval_rollout_20260330_192159`
+  - `baseline_random_rollout_20260330_192128`
+- all three runs confirm:
+  - `scene_id = nominal_v0`
+  - `scene_family = nominal`
+  - `scene_cfg_name = scene_cfg_nominal.yaml`
+  - `shared_scene_obstacle_count = 12`
+  - `shared_scene_dynamic_obstacle_count = 0`
+  - `shared_scene_complexity = 0.08750711987984028`
+  - `shared_scene_tags.scene_id = nominal_v0`
+  - `acceptance passed = true`
+
+### What this means
+
+The native execution parity check is now complete:
+
+- `train.py`
+- `eval.py`
+- `run_baseline.py`
+
+all emit machine-readable accepted runs that point at the same shared
+authoritative `env_gen.py` scene backend instead of diverging into separate
+scene-generation paths.

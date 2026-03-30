@@ -50,16 +50,14 @@ This keeps the workflow inside the current repo and avoids touching files outsid
 ## Latest Staged Change Summary
 
 <!-- TRACEABILITY:BEGIN -->
-_Updated: `2026-03-30T17:55:56`_
+_Updated: `2026-03-30T19:24:07`_
 
 - Scope: `/home/mint/rl_dev/CRERL`
 - Branch: `main`
 - Source: `staged diff`
-- Impacted phases: `Phase 1, Phase 10, Phase 2, Phase 3, Phase 4, Phase 7`
-- Diff stat: 4 files changed, 428 insertions(+), 19 deletions(-)
+- Impacted phases: `Phase 10`
+- Diff stat: 2 files changed, 93 insertions(+), 7 deletions(-)
 
 ### Changed Files
 - `M` [doc/dev_log/p10_dev_status.md](doc/dev_log/p10_dev_status.md) [Project Docs]
-- `M` [isaac-training/training/runtime_logging/training_log_adapter.py](isaac-training/training/runtime_logging/training_log_adapter.py) [Runtime Logging]
-- `M` [isaac-training/training/scripts/env.py](isaac-training/training/scripts/env.py) [Isaac Env Core]
 <!-- TRACEABILITY:END -->

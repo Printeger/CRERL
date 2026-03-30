@@ -50,16 +50,16 @@ This keeps the workflow inside the current repo and avoids touching files outsid
 ## Latest Staged Change Summary
 
 <!-- TRACEABILITY:BEGIN -->
-_Updated: `2026-03-29T23:09:04`_
+_Updated: `2026-03-30T09:24:06`_
 
 - Scope: `/home/mint/rl_dev/CRERL`
 - Branch: `main`
 - Source: `staged diff`
 - Impacted phases: `Phase 11`
-- Diff stat: 4 files changed, 80 insertions(+), 4 deletions(-)
+- Diff stat: 4 files changed, 243 insertions(+), 104 deletions(-)
 
 ### Changed Files
-- `M` [.gitignore](.gitignore) [Repo Root]
 - `M` [doc/dev_log/p11_dev_status.md](doc/dev_log/p11_dev_status.md) [Project Docs]
 - `M` [doc/verification_readme.md](doc/verification_readme.md) [Project Docs]
+- `A` [isaac-training/training/scripts/with_comp_api_key.sh](isaac-training/training/scripts/with_comp_api_key.sh) [Training Pipeline]
 <!-- TRACEABILITY:END -->

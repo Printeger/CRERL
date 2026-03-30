@@ -1,6 +1,6 @@
 # CRE Verification README
 
-Updated: 2026-03-29
+Updated: 2026-03-30
 
 ## 1. What Is Still Not Finished
 
@@ -293,32 +293,29 @@ Important note:
 
 - **API key is not required for the default verification path**
 - semantic verification can be done with `--provider-mode mock`
-- the semantic prompt template now lives at:
-  - `isaac-training/training/cfg/semantic_cfg/semantic_prompt_v1.yaml`
-- if you want a real online semantic call, the current shell must expose an
-  API key env var such as:
-  - `COMP_OPENAI_API_KEY`
-- local key-note files are intentionally not version-controlled:
-  - `doc/API_KEY`
-  - `doc/API_KEY.md`
 
-Recommended local-only injection pattern:
+If you want to run the same smoke paths with the real online semantic provider,
+prefer the helper script instead of hand-writing an `export ... $(python3 ...)`
+command every time:
 
 ```bash
-export COMP_OPENAI_API_KEY="$(
-  python3 - <<'PY'
-from pathlib import Path
-text = Path('doc/API_KEY.md').read_text(encoding='utf-8')
-print(''.join(ch for ch in text if not ch.isspace()), end='')
-PY
-)"
+bash isaac-training/training/scripts/with_comp_api_key.sh --print-source -- \
+  bash isaac-training/training/scripts/run_full_smoke_test.sh \
+    --reports-root /tmp/crerl_real_llm_smoke \
+    --bundle-prefix realllm \
+    --semantic-provider-mode azure_gateway \
+    --semantic-api-key-env-var COMP_OPENAI_API_KEY \
+    --semantic-gateway-base-url https://comp.azure-api.net/azure \
+    --semantic-deployment-name gpt4o \
+    --semantic-api-version 2024-02-01
 ```
 
-Why this form is recommended:
+The helper script:
 
-- it reads the key only into the current shell
-- it strips accidental Unicode / non-breaking whitespace from copied keys
-- it does not require checking the key file into git
+- searches `doc/API_KEY` first, then `doc/API_KEY.md`
+- strips all Unicode whitespace before export
+- injects the key only into the child process environment
+- does **not** require the key file itself to be version controlled
 
 ## 6. Module-by-Module Verification Plan
 
@@ -662,33 +659,24 @@ bash isaac-training/training/scripts/run_full_smoke_test.sh \
   --bundle-prefix verify
 ```
 
-To run the same script with a real online semantic provider instead of the
-default mock path, use:
+If you want the same analysis-only smoke path with the real online semantic
+provider, use:
 
 ```bash
-export COMP_OPENAI_API_KEY="$(
-  python3 - <<'PY'
-from pathlib import Path
-text = Path('doc/API_KEY.md').read_text(encoding='utf-8')
-print(''.join(ch for ch in text if not ch.isspace()), end='')
-PY
-)"
-
-bash isaac-training/training/scripts/run_full_smoke_test.sh \
-  --reports-root /tmp/crerl_verify_reports \
-  --bundle-prefix verify_real \
-  --semantic-provider-mode azure_gateway \
-  --semantic-api-key-env-var COMP_OPENAI_API_KEY \
-  --semantic-gateway-base-url https://comp.azure-api.net/azure \
-  --semantic-deployment-name gpt4o \
-  --semantic-api-version 2024-02-01
+bash isaac-training/training/scripts/with_comp_api_key.sh --print-source -- \
+  bash isaac-training/training/scripts/run_full_smoke_test.sh \
+    --reports-root /tmp/crerl_real_llm_smoke \
+    --bundle-prefix realllm \
+    --semantic-provider-mode azure_gateway \
+    --semantic-api-key-env-var COMP_OPENAI_API_KEY \
+    --semantic-gateway-base-url https://comp.azure-api.net/azure \
+    --semantic-deployment-name gpt4o \
+    --semantic-api-version 2024-02-01
 ```
 
 This script will:
 
 - activate `conda activate NavRL`
-- fail fast if a non-mock semantic provider is requested but the configured API
-  key env var is not visible in the shell
 - run the full smoke-test chain from static -> release
 - write per-step CLI outputs under the reports root
 - write a combined summary at:
@@ -721,25 +709,18 @@ bash isaac-training/training/scripts/run_native_execution_smoke.sh \
   --bundle-prefix native_verify
 ```
 
-To switch the native path to a real online semantic provider, use:
+If you want the same native path with the real online semantic provider, use:
 
 ```bash
-export COMP_OPENAI_API_KEY="$(
-  python3 - <<'PY'
-from pathlib import Path
-text = Path('doc/API_KEY.md').read_text(encoding='utf-8')
-print(''.join(ch for ch in text if not ch.isspace()), end='')
-PY
-)"
-
-bash isaac-training/training/scripts/run_native_execution_smoke.sh \
-  --work-root /tmp/crerl_native_execution_verify \
-  --bundle-prefix native_verify_real \
-  --semantic-provider-mode azure_gateway \
-  --semantic-api-key-env-var COMP_OPENAI_API_KEY \
-  --semantic-gateway-base-url https://comp.azure-api.net/azure \
-  --semantic-deployment-name gpt4o \
-  --semantic-api-version 2024-02-01
+bash isaac-training/training/scripts/with_comp_api_key.sh --print-source -- \
+  bash isaac-training/training/scripts/run_native_execution_smoke.sh \
+    --work-root /tmp/crerl_native_execution_real_llm \
+    --bundle-prefix native_llm \
+    --semantic-provider-mode azure_gateway \
+    --semantic-api-key-env-var COMP_OPENAI_API_KEY \
+    --semantic-gateway-base-url https://comp.azure-api.net/azure \
+    --semantic-deployment-name gpt4o \
+    --semantic-api-version 2024-02-01
 ```
 
 This script writes:
@@ -756,51 +737,13 @@ This script writes:
 The current default native close-out behavior is:
 
 - the native baseline / train / eval entrypoints all run for real
-- both smoke scripts now forward the same semantic-provider flags into
-  `run_semantic_audit.py`
-- if `--semantic-provider-mode` is not `mock`, both scripts now fail fast
-  before the first audit stage when the configured API key env var is not
-  visible in the shell
-- the default eval leg now runs the `shifted` family so the native close-out
-  path carries a stronger `E-R` signal
 - the repair stage produces a real `validation_request.json`
-- the repair stage now forces a targeted `E-R` repair pass for this smoke path
 - the validation stage now also produces real repaired accepted runs under
   `repaired_logs/`
-- the validation decision now uses claim-specific family-gap evidence as a
-  deterministic fallback when explicit `W_EC / W_ER` repaired metrics are not
-  available
-- the current default native smoke therefore now tends to end with a **final**
-  `accepted` or `rejected` decision instead of stalling at `inconclusive`
-- the same native path has also been validated with a real online semantic
-  provider after locally injecting a sanitized COMP gateway key
-
-In the latest native verification run:
-
-- work root:
-  - `/tmp/crerl_native_execution_20260329_005`
-- the generated summary is:
-  - `/tmp/crerl_native_execution_20260329_005/native_execution_summary.json`
-- key results were:
-  - `dynamic.W_ER = 0.20745278398795164`
-  - `semantic primary claim type = E-R`
-  - `repair primary claim type = E-R`
-  - `validation decision_status = rejected`
-  - `validation consistency_evidence_mode = claim_specific_fallback`
-  - `validation repaired_run_count = 2`
-
-In the latest native **real-provider** verification run:
-
-- work root:
-  - `/tmp/crerl_native_real_llm_20260329_001`
-- the generated summary is:
-  - `/tmp/crerl_native_real_llm_20260329_001/native_execution_summary.json`
-- key results were:
-  - `semantic provider_mode = azure_gateway`
-  - `semantic supported_claims = 3`
-  - `semantic most_likely_claim_type = E-C`
-  - `repair primary_claim_type = E-R`
-  - `validation decision_status = rejected`
+- the default example now uses a more stable `E-R` repair path
+- because of that, the native validation result now more often lands on an
+  explicit `accepted` or `rejected` decision instead of remaining
+  `inconclusive`
 
 The recommended interpretation is:
 

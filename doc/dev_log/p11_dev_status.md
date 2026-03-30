@@ -1,6 +1,6 @@
 # Phase 11 Development Status
 
-Updated: 2026-03-29
+Updated: 2026-03-30
 
 ## 1. This Iteration Goal
 
@@ -501,3 +501,87 @@ Validation results:
 This means the repository now supports a one-command real-semantic smoke path,
 but the actual online call will only proceed once the chosen API key env var is
 visible in the launching shell or conda session.
+
+## 11. Local Key-Helper and Online-Chain Consistency Addendum
+
+After the real-provider smoke path was proven manually, the repository was
+further extended with a local-only API-key helper:
+
+- `isaac-training/training/scripts/with_comp_api_key.sh`
+
+Its purpose is to avoid repeatedly hand-writing:
+
+- `export COMP_OPENAI_API_KEY="$(python3 ...)"`,
+
+while still preserving two important safety properties:
+
+1. the key is read only from ignored local files:
+   - `doc/API_KEY`
+   - `doc/API_KEY.md`
+2. the cleaned key is injected only into the child process environment that
+   runs the smoke command
+
+The verification guide was updated accordingly:
+
+- `doc/verification_readme.md`
+
+It now documents:
+
+- the helper-script path,
+- the real-provider analysis-only smoke command,
+- and the real-provider native smoke command.
+
+Focused validation for this addendum:
+
+```bash
+bash -n isaac-training/training/scripts/with_comp_api_key.sh
+```
+
+```bash
+bash isaac-training/training/scripts/with_comp_api_key.sh --print-source -- \
+  bash isaac-training/training/scripts/run_full_smoke_test.sh \
+    --reports-root /tmp/crerl_real_llm_smoke_20260330_001 \
+    --bundle-prefix realllm5 \
+    --semantic-provider-mode azure_gateway \
+    --semantic-api-key-env-var COMP_OPENAI_API_KEY \
+    --semantic-gateway-base-url https://comp.azure-api.net/azure \
+    --semantic-deployment-name gpt4o \
+    --semantic-api-version 2024-02-01
+```
+
+Validation results:
+
+- the helper script successfully loaded the local key file, stripped Unicode
+  whitespace, and executed the requested smoke command
+- the new real-provider analysis-only smoke run completed successfully:
+  - `/tmp/crerl_real_llm_smoke_20260330_001/full_smoke_summary.json`
+- the earlier native real-provider smoke run remains:
+  - `/tmp/crerl_native_real_llm_20260329_001/native_execution_summary.json`
+- comparing the two online chains shows consistent semantic behavior on their
+  shared high-level outputs:
+  - analysis-only:
+    - `semantic supported_claims = 3`
+    - `semantic weak_claims = 0`
+    - `semantic most_likely_claim_type = E-C`
+    - `report primary_claim_type = C-R`
+  - native:
+    - `semantic supported_claims = 3`
+    - `semantic weak_claims = 0`
+    - `semantic most_likely_claim_type = E-C`
+    - `report primary_claim_type = C-R`
+- the two chains intentionally diverge after the shared report stage:
+  - analysis-only reuses existing accepted runs and lands on:
+    - `validation decision_status = inconclusive`
+    - `validation repaired_run_count = 4`
+  - native uses fresh baseline/train/eval execution evidence and then applies a
+    native-smoke repair override that lands on:
+    - `repair primary_claim_type = E-R`
+    - `validation decision_status = rejected`
+    - `validation repaired_run_count = 2`
+
+This confirms that the real online provider path is now reproducible in both:
+
+- the artifact-only analysis smoke chain
+- the native execution smoke chain
+
+while still keeping the local key material out of version control.

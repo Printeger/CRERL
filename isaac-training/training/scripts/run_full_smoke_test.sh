@@ -5,6 +5,7 @@ usage() {
   cat <<'EOF'
 Usage:
   run_full_smoke_test.sh [--reports-root DIR] [--bundle-prefix PREFIX] [--rerun-mode MODE] [--skip-conda-activate]
+                         [--launch-dashboard] [--dashboard-host HOST] [--dashboard-port PORT]
                          [--semantic-provider-mode MODE] [--semantic-api-key-env-var NAME]
                          [--semantic-gateway-base-url URL] [--semantic-deployment-name NAME]
                          [--semantic-api-version VERSION]
@@ -20,6 +21,11 @@ Options:
                            Default: smoke
   --rerun-mode MODE        Validation rerun mode: preview | auto | subprocess
                            Default: auto
+  --launch-dashboard       Launch the local CRE dashboard in the background before the smoke chain starts.
+  --dashboard-host HOST    Host for the local dashboard server.
+                           Default: 127.0.0.1
+  --dashboard-port PORT    Port for the local dashboard server.
+                           Default: 8765
   --semantic-provider-mode MODE
                            Semantic provider mode for the semantic audit step.
                            Default: mock
@@ -48,6 +54,9 @@ REPORTS_ROOT=""
 BUNDLE_PREFIX="smoke"
 RERUN_MODE="auto"
 SKIP_CONDA_ACTIVATE="0"
+LAUNCH_DASHBOARD="0"
+DASHBOARD_HOST="127.0.0.1"
+DASHBOARD_PORT="8765"
 SEMANTIC_PROVIDER_MODE="mock"
 SEMANTIC_API_KEY_ENV_VAR="COMP_OPENAI_API_KEY"
 SEMANTIC_GATEWAY_BASE_URL="https://comp.azure-api.net/azure"
@@ -66,6 +75,18 @@ while (($#)); do
       ;;
     --rerun-mode)
       RERUN_MODE="$2"
+      shift 2
+      ;;
+    --launch-dashboard)
+      LAUNCH_DASHBOARD="1"
+      shift
+      ;;
+    --dashboard-host)
+      DASHBOARD_HOST="$2"
+      shift 2
+      ;;
+    --dashboard-port)
+      DASHBOARD_PORT="$2"
       shift 2
       ;;
     --semantic-provider-mode)
@@ -121,6 +142,8 @@ RELEASE_BUNDLE="${BUNDLE_PREFIX}_release"
 DYNAMIC_PRIMARY_RUN="${DYNAMIC_PRIMARY_RUN:-${TRAINING_DIR}/logs/baseline_greedy_rollout_20260326_190209}"
 DYNAMIC_COMPARE_RUN="${DYNAMIC_COMPARE_RUN:-${TRAINING_DIR}/logs/baseline_greedy_rollout_20260326_223636}"
 REPAIRED_LOGS_ROOT="${REPAIRED_LOGS_ROOT:-${REPORTS_ROOT}/repaired_logs}"
+DASHBOARD_LOG_PATH="${REPORTS_ROOT}/dashboard.log"
+DASHBOARD_PID_PATH="${REPORTS_ROOT}/dashboard.pid"
 
 activate_navrl() {
   if [[ "${SKIP_CONDA_ACTIVATE}" == "1" ]]; then
@@ -156,6 +179,42 @@ require_semantic_provider_credentials() {
   fi
 }
 
+build_dashboard_command() {
+  DASHBOARD_CMD=(
+    python "${TRAINING_DIR}/scripts/run_dashboard.py"
+    --host "${DASHBOARD_HOST}"
+    --port "${DASHBOARD_PORT}"
+    --logs-root "${TRAINING_DIR}/logs"
+    --reports-root "${REPORTS_ROOT}"
+    --watch-root "${REPORTS_ROOT}"
+  )
+}
+
+print_dashboard_command() {
+  build_dashboard_command
+  printf 'Dashboard command: '
+  printf '%q ' "${DASHBOARD_CMD[@]}"
+  printf '\n'
+  echo "Dashboard URL: http://${DASHBOARD_HOST}:${DASHBOARD_PORT}/"
+}
+
+launch_dashboard_if_requested() {
+  build_dashboard_command
+  print_dashboard_command
+  if [[ "${LAUNCH_DASHBOARD}" != "1" ]]; then
+    return 0
+  fi
+  if command -v lsof >/dev/null 2>&1 && lsof -iTCP:"${DASHBOARD_PORT}" -sTCP:LISTEN >/dev/null 2>&1; then
+    echo "Dashboard port ${DASHBOARD_PORT} is already in use; skipping auto-launch." >&2
+    return 0
+  fi
+  nohup "${DASHBOARD_CMD[@]}" >"${DASHBOARD_LOG_PATH}" 2>&1 &
+  local dashboard_pid=$!
+  echo "${dashboard_pid}" > "${DASHBOARD_PID_PATH}"
+  echo "Dashboard launched in background: http://${DASHBOARD_HOST}:${DASHBOARD_PORT}/ (pid ${dashboard_pid})"
+  echo "Dashboard log: ${DASHBOARD_LOG_PATH}"
+}
+
 run_step() {
   local step_name="$1"
   shift
@@ -187,6 +246,9 @@ echo "Python: $(command -v python)"
 echo "Conda env: ${CONDA_DEFAULT_ENV:-unknown}"
 echo "Semantic provider mode: ${SEMANTIC_PROVIDER_MODE}"
 echo "Semantic api key env var: ${SEMANTIC_API_KEY_ENV_VAR}"
+echo "Launch dashboard: ${LAUNCH_DASHBOARD}"
+
+launch_dashboard_if_requested
 
 run_step "static" \
   python "${TRAINING_DIR}/scripts/run_static_audit.py" \
@@ -265,7 +327,7 @@ run_step "release" \
   --benchmark-bundle-dir "${REPORTS_ROOT}/analysis/benchmark/${BENCHMARK_BUNDLE}" \
   --output "${REPORTS_ROOT}/release_summary_copy.json"
 
-python - "${REPORTS_ROOT}" <<'PY'
+python - "${REPORTS_ROOT}" "${LAUNCH_DASHBOARD}" "${DASHBOARD_HOST}" "${DASHBOARD_PORT}" "${DASHBOARD_LOG_PATH}" "${DASHBOARD_PID_PATH}" <<'PY'
 from __future__ import annotations
 
 import json
@@ -273,6 +335,11 @@ import sys
 from pathlib import Path
 
 reports_root = Path(sys.argv[1])
+dashboard_launched = bool(int(sys.argv[2]))
+dashboard_host = sys.argv[3]
+dashboard_port = sys.argv[4]
+dashboard_log_path = sys.argv[5]
+dashboard_pid_path = sys.argv[6]
 steps = [
     "static",
     "dynamic",
@@ -287,6 +354,14 @@ steps = [
 summary = {
     "summary_type": "cre_full_smoke_summary.v1",
     "reports_root": str(reports_root),
+    "dashboard": {
+        "host": dashboard_host,
+        "port": int(dashboard_port),
+        "url": f"http://{dashboard_host}:{dashboard_port}/",
+        "launched": dashboard_launched,
+        "log_path": dashboard_log_path,
+        "pid_path": dashboard_pid_path,
+    },
     "steps": {},
 }
 for step in steps:
@@ -302,3 +377,4 @@ PY
 echo
 echo "Full smoke test completed successfully."
 echo "Summary: ${REPORTS_ROOT}/full_smoke_summary.json"
+echo "Dashboard: http://${DASHBOARD_HOST}:${DASHBOARD_PORT}/"

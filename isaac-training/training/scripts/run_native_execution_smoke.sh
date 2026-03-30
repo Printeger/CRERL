@@ -5,6 +5,7 @@ usage() {
   cat <<'EOF'
 Usage:
   run_native_execution_smoke.sh [--work-root DIR] [--bundle-prefix PREFIX] [--skip-conda-activate]
+                                [--launch-dashboard] [--dashboard-host HOST] [--dashboard-port PORT]
                                 [--semantic-provider-mode MODE] [--semantic-api-key-env-var NAME]
                                 [--semantic-gateway-base-url URL] [--semantic-deployment-name NAME]
                                 [--semantic-api-version VERSION]
@@ -26,6 +27,11 @@ Options:
                           Default: /tmp/crerl_native_execution_<timestamp>
   --bundle-prefix PREFIX  Prefix used for bundle names.
                           Default: native
+  --launch-dashboard      Launch the local CRE dashboard in the background before native execution starts.
+  --dashboard-host HOST   Host for the local dashboard server.
+                          Default: 127.0.0.1
+  --dashboard-port PORT   Port for the local dashboard server.
+                          Default: 8765
   --semantic-provider-mode MODE
                           Semantic provider mode for the semantic audit step.
                           Default: mock
@@ -55,6 +61,9 @@ SETUP_CONDA_ENV_SCRIPT="${ISAAC_ROOT}/setup_conda_env.sh"
 WORK_ROOT=""
 BUNDLE_PREFIX="native"
 SKIP_CONDA_ACTIVATE="0"
+LAUNCH_DASHBOARD="0"
+DASHBOARD_HOST="127.0.0.1"
+DASHBOARD_PORT="8765"
 SEMANTIC_PROVIDER_MODE="mock"
 SEMANTIC_API_KEY_ENV_VAR="COMP_OPENAI_API_KEY"
 SEMANTIC_GATEWAY_BASE_URL="https://comp.azure-api.net/azure"
@@ -69,6 +78,18 @@ while (($#)); do
       ;;
     --bundle-prefix)
       BUNDLE_PREFIX="$2"
+      shift 2
+      ;;
+    --launch-dashboard)
+      LAUNCH_DASHBOARD="1"
+      shift
+      ;;
+    --dashboard-host)
+      DASHBOARD_HOST="$2"
+      shift 2
+      ;;
+    --dashboard-port)
+      DASHBOARD_PORT="$2"
       shift 2
       ;;
     --semantic-provider-mode)
@@ -116,6 +137,8 @@ REPORTS_ROOT="${WORK_ROOT}/reports"
 WANDB_ROOT="${WORK_ROOT}/wandb"
 REPAIRED_LOGS_ROOT="${WORK_ROOT}/repaired_logs"
 SUMMARY_PATH="${WORK_ROOT}/native_execution_summary.json"
+DASHBOARD_LOG_PATH="${WORK_ROOT}/dashboard.log"
+DASHBOARD_PID_PATH="${WORK_ROOT}/dashboard.pid"
 
 BASELINE_RUN_NAME="${BUNDLE_PREFIX}_baseline"
 TRAIN_RUN_NAME="${BUNDLE_PREFIX}_train"
@@ -168,6 +191,42 @@ require_semantic_provider_credentials() {
   fi
 }
 
+build_dashboard_command() {
+  DASHBOARD_CMD=(
+    python "${TRAINING_DIR}/scripts/run_dashboard.py"
+    --host "${DASHBOARD_HOST}"
+    --port "${DASHBOARD_PORT}"
+    --logs-root "${LOGS_ROOT}"
+    --reports-root "${REPORTS_ROOT}"
+    --watch-root "${WORK_ROOT}"
+  )
+}
+
+print_dashboard_command() {
+  build_dashboard_command
+  printf 'Dashboard command: '
+  printf '%q ' "${DASHBOARD_CMD[@]}"
+  printf '\n'
+  echo "Dashboard URL: http://${DASHBOARD_HOST}:${DASHBOARD_PORT}/"
+}
+
+launch_dashboard_if_requested() {
+  build_dashboard_command
+  print_dashboard_command
+  if [[ "${LAUNCH_DASHBOARD}" != "1" ]]; then
+    return 0
+  fi
+  if command -v lsof >/dev/null 2>&1 && lsof -iTCP:"${DASHBOARD_PORT}" -sTCP:LISTEN >/dev/null 2>&1; then
+    echo "Dashboard port ${DASHBOARD_PORT} is already in use; skipping auto-launch." >&2
+    return 0
+  fi
+  nohup "${DASHBOARD_CMD[@]}" >"${DASHBOARD_LOG_PATH}" 2>&1 &
+  local dashboard_pid=$!
+  echo "${dashboard_pid}" > "${DASHBOARD_PID_PATH}"
+  echo "Dashboard launched in background: http://${DASHBOARD_HOST}:${DASHBOARD_PORT}/ (pid ${dashboard_pid})"
+  echo "Dashboard log: ${DASHBOARD_LOG_PATH}"
+}
+
 run_hydra_step() {
   local run_name="$1"
   local wandb_dir="$2"
@@ -208,6 +267,9 @@ echo "Python: $(command -v python)"
 echo "Conda env: ${CONDA_DEFAULT_ENV:-unknown}"
 echo "Semantic provider mode: ${SEMANTIC_PROVIDER_MODE}"
 echo "Semantic api key env var: ${SEMANTIC_API_KEY_ENV_VAR}"
+echo "Launch dashboard: ${LAUNCH_DASHBOARD}"
+
+launch_dashboard_if_requested
 
 echo
 echo "==> Running native baseline"
@@ -324,7 +386,7 @@ python "${TRAINING_DIR}/scripts/run_validation_audit.py" \
   --bundle-name "${VALIDATION_BUNDLE}" \
   --output "${WORK_ROOT}/validation_decision_copy.json"
 
-python - "${WORK_ROOT}" "${BASELINE_RUN_DIR}" "${TRAIN_RUN_DIR}" "${EVAL_RUN_DIR}" "${REPORTS_ROOT}" "${STATIC_BUNDLE}" "${DYNAMIC_BUNDLE}" "${SEMANTIC_BUNDLE}" "${REPORT_BUNDLE}" "${REPAIR_BUNDLE}" "${VALIDATION_BUNDLE}" "${TRAIN_CHECKPOINT}" "${REPAIR_CLAIM_TYPE_OVERRIDE}" <<'PY'
+python - "${WORK_ROOT}" "${BASELINE_RUN_DIR}" "${TRAIN_RUN_DIR}" "${EVAL_RUN_DIR}" "${REPORTS_ROOT}" "${STATIC_BUNDLE}" "${DYNAMIC_BUNDLE}" "${SEMANTIC_BUNDLE}" "${REPORT_BUNDLE}" "${REPAIR_BUNDLE}" "${VALIDATION_BUNDLE}" "${TRAIN_CHECKPOINT}" "${REPAIR_CLAIM_TYPE_OVERRIDE}" "${LAUNCH_DASHBOARD}" "${DASHBOARD_HOST}" "${DASHBOARD_PORT}" "${DASHBOARD_LOG_PATH}" "${DASHBOARD_PID_PATH}" <<'PY'
 from __future__ import annotations
 
 import json
@@ -344,6 +406,11 @@ repair_bundle = sys.argv[10]
 validation_bundle = sys.argv[11]
 train_checkpoint = sys.argv[12]
 repair_claim_type_override = sys.argv[13]
+dashboard_launched = bool(int(sys.argv[14]))
+dashboard_host = sys.argv[15]
+dashboard_port = sys.argv[16]
+dashboard_log_path = sys.argv[17]
+dashboard_pid_path = sys.argv[18]
 
 def load_json(path: Path):
     return json.loads(path.read_text(encoding="utf-8"))
@@ -351,6 +418,14 @@ def load_json(path: Path):
 summary = {
     "summary_type": "cre_native_execution_smoke_summary.v1",
     "work_root": str(work_root),
+    "dashboard": {
+        "host": dashboard_host,
+        "port": int(dashboard_port),
+        "url": f"http://{dashboard_host}:{dashboard_port}/",
+        "launched": dashboard_launched,
+        "log_path": dashboard_log_path,
+        "pid_path": dashboard_pid_path,
+    },
     "baseline_run_dir": str(baseline_run_dir),
     "train_run_dir": str(train_run_dir),
     "eval_run_dir": str(eval_run_dir),
@@ -403,3 +478,4 @@ PY
 echo
 echo "Native execution smoke test completed successfully."
 echo "Summary: ${SUMMARY_PATH}"
+echo "Dashboard: http://${DASHBOARD_HOST}:${DASHBOARD_PORT}/"

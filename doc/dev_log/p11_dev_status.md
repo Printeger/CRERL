@@ -706,3 +706,56 @@ Validation results:
 
 This means the repository now has a browser-based local observability surface
 for the CRE pipeline without introducing a separate Node frontend.
+
+## 13. Dashboard One-Click and Design-Inventory Addendum
+
+The smoke scripts were further extended so the local dashboard can now be tied
+directly into one-command verification runs.
+
+Updated scripts:
+
+- `isaac-training/training/scripts/run_full_smoke_test.sh`
+- `isaac-training/training/scripts/run_native_execution_smoke.sh`
+
+New smoke-script flags:
+
+- `--launch-dashboard`
+- `--dashboard-host`
+- `--dashboard-port`
+
+The current behavior is:
+
+1. both smoke scripts always print the exact dashboard command for the current
+   generated work root
+2. when `--launch-dashboard` is passed, the dashboard is launched in the
+   background before the smoke chain starts
+3. each smoke root now records dashboard metadata in its summary JSON
+
+The verification guide was also updated with a design-facing content inventory
+for the current dashboard. That inventory now explicitly lists:
+
+- overview bar items
+- flow-graph nodes
+- active-module panel fields
+- KPI card fields
+- latest-run fields
+- chart titles currently rendered
+
+Focused validation for this addendum:
+
+```bash
+bash -n isaac-training/training/scripts/run_full_smoke_test.sh
+bash -n isaac-training/training/scripts/run_native_execution_smoke.sh
+```
+
+```bash
+python3 tools/update_traceability.py --working-tree
+```
+
+Validation results:
+
+- both smoke scripts accept the new dashboard-launch arguments
+- both smoke scripts now print a deterministic dashboard command
+- the verification guide now documents:
+  - how to auto-launch the dashboard from the smoke scripts
+  - the current dashboard content inventory for UI redesign

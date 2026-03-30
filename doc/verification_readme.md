@@ -327,6 +327,13 @@ conda activate NavRL
 python isaac-training/training/scripts/run_dashboard.py --host 127.0.0.1 --port 8765
 ```
 
+If you want the one-command smoke scripts to auto-start the dashboard in the
+background so you can watch the pipeline while it runs, add:
+
+```bash
+--launch-dashboard --dashboard-host 127.0.0.1 --dashboard-port 8765
+```
+
 Then open:
 
 - `http://127.0.0.1:8765/`
@@ -355,6 +362,139 @@ Dashboard refresh model:
   - KPI cards
 - every `5s`:
   - charts
+
+### 5.1.1 Current Dashboard Content Inventory
+
+If you want to redesign the page, these are the current information blocks and
+the concrete items rendered in each block.
+
+**Top overview bar**
+
+- current phase
+- active module
+- current run / bundle
+- execution mode
+- scene family
+- provider mode
+- watch roots
+- artifact update time
+- overall health badge
+
+**System flow column**
+
+The left column shows the running CRE flow:
+
+- `Spec`
+- `Scene`
+- `Execution`
+- `Logs`
+- `Static`
+- `Dynamic`
+- `Semantic`
+- `Report`
+- `Repair`
+- `Validation`
+- `Integration`
+- `Benchmark`
+- `Release`
+
+Each node currently shows:
+
+- node label
+- phase label
+- status badge
+- headline
+- current object
+- updated time
+- expandable details:
+  - path
+  - summary path when available
+  - primary artifact path when available
+
+**Active module panel**
+
+The middle column currently renders:
+
+- activity title
+- input / output path
+- current input object
+- current phase
+- current status
+- key details card
+- recent events list
+
+The current key-details card may contain:
+
+- execution mode
+- scenario type
+- scene cfg name
+- source
+- average return
+- max severity
+- decision status
+- blocked by
+- supported claims
+- weak claims
+
+The current recent-events list shows up to the latest `20` items with:
+
+- title
+- status badge
+- timestamp
+- short summary
+- path
+
+**KPI card column**
+
+The right column currently shows fixed KPI cards for:
+
+- success rate
+- collision rate
+- out-of-bounds rate
+- min distance
+- near-violation ratio
+- average return
+- `W_CR`
+- `W_EC`
+- `W_ER`
+- semantic primary claim type
+- report primary claim type
+- validation decision status
+- release readiness
+
+Below that it renders a `Latest Runs` list with:
+
+- run id
+- run status
+- execution mode
+- family / scenario
+- success rate
+- min distance
+- average return
+
+**Chart area**
+
+The bottom chart area currently renders any available charts from artifact
+data, including:
+
+- `Average Return Trend`
+- `Safety Outcome Trend`
+- `Minimum Distance Trend`
+- `Near-Violation Ratio Trend`
+- `Done Type Distribution`
+- `Reward Components Breakdown`
+- `Family Comparison`
+- `Witness Trend`
+- `Before/After Repair Delta`
+
+Optional charts appear only when WandB history artifacts are present:
+
+- policy loss
+- value loss
+- entropy
+- KL
+- learning rate
+- FPS
 
 ## 6. Module-by-Module Verification Plan
 
@@ -695,7 +835,10 @@ If you want a **one-command analysis-only smoke test**, use:
 ```bash
 bash isaac-training/training/scripts/run_full_smoke_test.sh \
   --reports-root /tmp/crerl_verify_reports \
-  --bundle-prefix verify
+  --bundle-prefix verify \
+  --launch-dashboard \
+  --dashboard-host 127.0.0.1 \
+  --dashboard-port 8765
 ```
 
 If you want the same analysis-only smoke path with the real online semantic
@@ -717,6 +860,8 @@ This script will:
 
 - activate `conda activate NavRL`
 - run the full smoke-test chain from static -> release
+- print the exact dashboard command for the generated work root
+- optionally auto-launch the dashboard in the background when `--launch-dashboard` is set
 - write per-step CLI outputs under the reports root
 - write a combined summary at:
   - `/tmp/crerl_verify_reports/full_smoke_summary.json`
@@ -745,7 +890,10 @@ Use:
 ```bash
 bash isaac-training/training/scripts/run_native_execution_smoke.sh \
   --work-root /tmp/crerl_native_execution_verify \
-  --bundle-prefix native_verify
+  --bundle-prefix native_verify \
+  --launch-dashboard \
+  --dashboard-host 127.0.0.1 \
+  --dashboard-port 8765
 ```
 
 If you want the same native path with the real online semantic provider, use:
@@ -772,6 +920,9 @@ This script writes:
   - `/tmp/crerl_native_execution_verify/reports/`
 - a combined execution+analysis summary at:
   - `/tmp/crerl_native_execution_verify/native_execution_summary.json`
+- dashboard runtime metadata under:
+  - `/tmp/crerl_native_execution_verify/dashboard.log`
+  - `/tmp/crerl_native_execution_verify/dashboard.pid`
 
 The current default native close-out behavior is:
 

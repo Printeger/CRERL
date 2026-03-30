@@ -50,17 +50,18 @@ This keeps the workflow inside the current repo and avoids touching files outsid
 ## Latest Staged Change Summary
 
 <!-- TRACEABILITY:BEGIN -->
-_Updated: `2026-03-30T11:46:42`_
+_Updated: `2026-03-30T14:20:29`_
 
 - Scope: `/home/mint/rl_dev/CRERL`
 - Branch: `main`
 - Source: `staged diff`
 - Impacted phases: `Phase 11`
-- Diff stat: 5 files changed, 364 insertions(+), 15 deletions(-)
+- Diff stat: 6 files changed, 865 insertions(+), 309 deletions(-)
 
 ### Changed Files
 - `M` [doc/dev_log/p11_dev_status.md](doc/dev_log/p11_dev_status.md) [Project Docs]
-- `M` [doc/verification_readme.md](doc/verification_readme.md) [Project Docs]
-- `M` [isaac-training/training/scripts/run_full_smoke_test.sh](isaac-training/training/scripts/run_full_smoke_test.sh) [Training Pipeline]
-- `M` [isaac-training/training/scripts/run_native_execution_smoke.sh](isaac-training/training/scripts/run_native_execution_smoke.sh) [Training Pipeline]
+- `M` [isaac-training/training/dashboard/templates/index.html](isaac-training/training/dashboard/templates/index.html) [isaac-training]
+- `M` [isaac-training/training/dashboard/templates/partials/charts.html](isaac-training/training/dashboard/templates/partials/charts.html) [isaac-training]
+- `M` [isaac-training/training/dashboard/templates/partials/live_grid.html](isaac-training/training/dashboard/templates/partials/live_grid.html) [isaac-training]
+- `M` [isaac-training/training/dashboard/templates/partials/overview.html](isaac-training/training/dashboard/templates/partials/overview.html) [isaac-training]
 <!-- TRACEABILITY:END -->

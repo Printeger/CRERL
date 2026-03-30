@@ -1,9 +1,15 @@
-<div style="display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:14px;">
+{% set selected_run = (state.runs|reverse|list|first).run_id if state.runs else "-" %}
+<div style="display:flex; justify-content:space-between; align-items:center; gap:16px; margin-bottom:16px; flex-wrap:wrap;">
   <div>
-    <h2 class="panel-title" style="margin-bottom:4px;">Training and Analysis Charts</h2>
-    <div class="muted">Run statistics refresh every 5 seconds. Optional WandB charts appear only when history files are detected.</div>
+    <h2 class="panel-title" style="margin-bottom:6px; font-size:16px;">Training and Analysis Charts</h2>
+    <div class="muted">
+      Average Return、Safety Outcome、Minimum Distance、Near-Violation Ratio、Done Type、Reward Components、Family Comparison、Witness、Before/After Repair Delta
+    </div>
   </div>
-  <span class="badge completed">{{ state.charts|length }} charts</span>
+  <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+    <span class="muted" style="font-size:13px;">selected run: <strong style="color:var(--text);">{{ selected_run }}</strong></span>
+    <span class="badge passed">{{ state.charts|length }} charts</span>
+  </div>
 </div>
 
 {% if not state.charts %}
@@ -12,7 +18,13 @@
   <div class="chart-grid">
     {% for chart in state.charts %}
       <div class="chart-card">
-        <div id="chart-{{ loop.index0 }}" style="width:100%; height:290px;"></div>
+        <div class="chart-card-header">
+          <div class="icon-box" style="width:32px; height:32px;">
+            <i data-lucide="line-chart" class="w-4 h-4"></i>
+          </div>
+          <div class="panel-title">{{ chart.title }}</div>
+        </div>
+        <div id="chart-{{ loop.index0 }}" class="chart-plot"></div>
         <script>
           (function () {
             const spec = {{ chart | asjson | safe }};

@@ -1,167 +1,267 @@
-<div class="grid-3">
-  <section class="panel section-block" style="padding:16px;">
-    <h2 class="panel-title">System Flow</h2>
-    <div class="stack">
+{% set details = state.active.details %}
+<div class="dashboard-grid">
+  <section class="panel sticky-top">
+    <div class="panel-header">
+      <div class="panel-header-left">
+        <div class="icon-box">
+          <i data-lucide="folder-tree" class="w-4 h-4"></i>
+        </div>
+        <div>
+          <h2 class="panel-title">System Flow</h2>
+        </div>
+      </div>
+      <span class="muted" style="font-size:12px;">{{ state.flow_nodes|length }} nodes</span>
+    </div>
+    <div class="flow-stack scroll-y">
       {% for node in state.flow_nodes %}
-        <div class="node {% if node.module == state.active.module %}active{% endif %}">
-          <div class="node-header">
-            <div>
-              <strong>{{ node.label }}</strong>
-              <div class="muted">{{ node.phase }}</div>
-            </div>
-            <span class="badge {{ node.status }}">{{ node.status }}</span>
-          </div>
-          <div style="margin-top:8px;">
-            <div><strong>{{ node.headline }}</strong></div>
-            {% if node.current_object %}
-              <div class="muted" style="margin-top:4px;">{{ node.current_object }}</div>
-            {% endif %}
-            {% if node.last_update %}
-              <div class="muted" style="margin-top:4px;">Updated: {{ node.last_update }}</div>
-            {% endif %}
-          </div>
-          {% if node.path %}
-            <details>
-              <summary>Details</summary>
-              <div class="kv" style="margin-top:10px;">
-                <div>Path</div>
-                <div><code class="path">{{ node.path }}</code></div>
-                {% if node.details.get("summary_path") %}
-                  <div>Summary</div>
-                  <div><code class="path">{{ node.details.get("summary_path") }}</code></div>
-                {% endif %}
-                {% if node.details.get("primary_path") %}
-                  <div>Primary</div>
-                  <div><code class="path">{{ node.details.get("primary_path") }}</code></div>
-                {% endif %}
-              </div>
-            </details>
+        <div class="flow-entry">
+          {% if not loop.last %}
+            <div class="flow-line"></div>
           {% endif %}
-        </div>
-        {% if not loop.last %}
-          <div class="flow-arrow">↓</div>
-        {% endif %}
-      {% endfor %}
-    </div>
-  </section>
-
-  <section class="panel section-block" style="padding:16px;">
-    <h2 class="panel-title">Active Module Panel</h2>
-    <div class="stack">
-      <div class="metric-card">
-        <div class="label">Activity</div>
-        <div class="value" style="font-size:22px;">{{ state.active.title }}</div>
-      </div>
-      <div class="metric-card">
-        <div class="label">Input / Output Path</div>
-        <div style="margin-top:8px;"><code class="path">{{ state.active.path or "-" }}</code></div>
-      </div>
-      <div class="metric-card">
-        <div class="label">Current Input Object</div>
-        <div class="value" style="font-size:18px;">{{ state.active.input_name or "-" }}</div>
-      </div>
-      <div class="metric-card">
-        <div class="label">Current Phase</div>
-        <div class="value" style="font-size:18px;">{{ state.active.phase or "-" }}</div>
-      </div>
-      <div class="metric-card">
-        <div class="label">Current Status</div>
-        <div style="margin-top:8px;"><span class="badge {{ state.active.status }}">{{ state.active.status }}</span></div>
-      </div>
-
-      {% set details = state.active.details %}
-      {% if details %}
-        <div class="panel" style="padding:14px;">
-          <h3 style="margin:0 0 10px; font-size:15px;">Key Details</h3>
-          <div class="kv">
-            {% if details.get("execution_mode") %}
-              <div>Execution</div><div>{{ details.get("execution_mode") }}</div>
-            {% endif %}
-            {% if details.get("scenario_type") %}
-              <div>Scenario</div><div>{{ details.get("scenario_type") }}</div>
-            {% endif %}
-            {% if details.get("scene_cfg_name") %}
-              <div>Scene cfg</div><div>{{ details.get("scene_cfg_name") }}</div>
-            {% endif %}
-            {% if details.get("source") %}
-              <div>Source</div><div>{{ details.get("source") }}</div>
-            {% endif %}
-            {% if details.get("summary", {}).get("average_return") is not none %}
-              <div>Average return</div><div>{{ details.get("summary", {}).get("average_return") }}</div>
-            {% endif %}
-            {% if details.get("primary", {}).get("max_severity") %}
-              <div>Max severity</div><div>{{ details.get("primary", {}).get("max_severity") }}</div>
-            {% endif %}
-            {% if details.get("primary", {}).get("decision_status") %}
-              <div>Decision</div><div>{{ details.get("primary", {}).get("decision_status") }}</div>
-            {% endif %}
-            {% if details.get("primary", {}).get("blocked_by") %}
-              <div>Blocked by</div><div>{{ details.get("primary", {}).get("blocked_by")|join(", ") }}</div>
-            {% endif %}
-            {% if details.get("primary", {}).get("supported_claims") is not none %}
-              <div>Supported claims</div><div>{{ details.get("primary", {}).get("supported_claims") }}</div>
-            {% endif %}
-            {% if details.get("primary", {}).get("weak_claims") is not none %}
-              <div>Weak claims</div><div>{{ details.get("primary", {}).get("weak_claims") }}</div>
+          <div class="flow-dot {{ node.status }}"></div>
+          <div class="flow-card {% if node.module == state.active.module %}active{% endif %}">
+            <div class="flow-head">
+              <div style="min-width:0;">
+                <div class="flow-meta">
+                  <strong>{{ node.label }}</strong>
+                  <span class="badge idle">{{ node.phase }}</span>
+                  <span class="badge {{ node.status }}">{{ node.status }}</span>
+                </div>
+                <div class="flow-body">{{ node.headline }}</div>
+              </div>
+            </div>
+            <div class="mini-grid">
+              <div class="mini-card">
+                <div class="eyebrow">Current Object</div>
+                <div style="margin-top:6px; font-weight:600; word-break:break-word;">{{ node.current_object or "-" }}</div>
+              </div>
+              <div class="mini-card">
+                <div class="eyebrow">Updated Time</div>
+                <div style="margin-top:6px; font-weight:600;">{{ node.last_update or "-" }}</div>
+              </div>
+            </div>
+            {% if node.path %}
+              <details class="details-box">
+                <summary>Details</summary>
+                <div class="kv">
+                  <div>Path</div>
+                  <div><code class="path">{{ node.path }}</code></div>
+                  {% if node.details.get("summary_path") %}
+                    <div>Summary</div>
+                    <div><code class="path">{{ node.details.get("summary_path") }}</code></div>
+                  {% endif %}
+                  {% if node.details.get("primary_path") %}
+                    <div>Primary</div>
+                    <div><code class="path">{{ node.details.get("primary_path") }}</code></div>
+                  {% endif %}
+                </div>
+              </details>
             {% endif %}
           </div>
         </div>
-      {% endif %}
+      {% endfor %}
+    </div>
+  </section>
 
-      <div class="panel" style="padding:14px;">
-        <h3 style="margin:0 0 10px; font-size:15px;">Recent Events</h3>
-        <div class="event-list">
-          {% for event in state.events %}
-            <div class="event-item">
-              <div style="display:flex; justify-content:space-between; gap:8px;">
-                <strong>{{ event.title }}</strong>
-                <span class="badge {{ event.status }}">{{ event.status }}</span>
-              </div>
-              <div class="muted" style="margin-top:4px;">{{ event.timestamp }}</div>
-              {% if event.summary %}
-                <div style="margin-top:6px;">{{ event.summary }}</div>
-              {% endif %}
-              {% if event.path %}
-                <div style="margin-top:6px;"><code class="path">{{ event.path }}</code></div>
-              {% endif %}
+  <section class="middle-stack">
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-header-left">
+          <div class="icon-box">
+            <i data-lucide="activity" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h2 class="panel-title">Active Module Panel</h2>
+          </div>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <span class="badge {{ state.active.status }}">{{ state.active.status }}</span>
+          <span class="badge chip-violet">{{ state.active.module|title }}</span>
+        </div>
+      </div>
+      <div class="active-shell">
+        <div class="activity-hero">
+          <div class="eyebrow">Activity</div>
+          <div class="activity-title">{{ state.active.title }}</div>
+          <div class="split-grid" style="margin-top:14px;">
+            <div>
+              <div class="eyebrow">Input / Output Path</div>
+              <div style="margin-top:8px;"><code class="path">{{ state.active.path or "-" }}</code></div>
             </div>
-          {% endfor %}
+            <div>
+              <div class="eyebrow">Current Input Object</div>
+              <div style="margin-top:8px; font-weight:600; word-break:break-word;">{{ state.active.input_name or "-" }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="split-grid" style="margin-top:16px;">
+          {% if details %}
+            <div class="info-card">
+              <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+                <div class="icon-box" style="width:32px; height:32px;">
+                  <i data-lucide="gauge" class="w-4 h-4"></i>
+                </div>
+                <h3 class="panel-title">Key Details</h3>
+              </div>
+              <div class="kv">
+                {% if details.get("execution_mode") %}
+                  <div>Execution</div><div>{{ details.get("execution_mode") }}</div>
+                {% endif %}
+                {% if details.get("scenario_type") %}
+                  <div>Scenario</div><div>{{ details.get("scenario_type") }}</div>
+                {% endif %}
+                {% if details.get("scene_cfg_name") %}
+                  <div>Scene cfg</div><div>{{ details.get("scene_cfg_name") }}</div>
+                {% endif %}
+                {% if details.get("source") %}
+                  <div>Source</div><div>{{ details.get("source") }}</div>
+                {% endif %}
+                {% if details.get("summary", {}).get("average_return") is not none %}
+                  <div>Average return</div><div>{{ details.get("summary", {}).get("average_return") }}</div>
+                {% endif %}
+                {% if details.get("primary", {}).get("max_severity") %}
+                  <div>Max severity</div><div>{{ details.get("primary", {}).get("max_severity") }}</div>
+                {% endif %}
+                {% if details.get("primary", {}).get("decision_status") %}
+                  <div>Decision</div><div>{{ details.get("primary", {}).get("decision_status") }}</div>
+                {% endif %}
+                {% if details.get("primary", {}).get("blocked_by") %}
+                  <div>Blocked by</div><div>{{ details.get("primary", {}).get("blocked_by")|join(", ") }}</div>
+                {% endif %}
+                {% if details.get("primary", {}).get("supported_claims") is not none %}
+                  <div>Supported claims</div><div>{{ details.get("primary", {}).get("supported_claims") }}</div>
+                {% endif %}
+                {% if details.get("primary", {}).get("weak_claims") is not none %}
+                  <div>Weak claims</div><div>{{ details.get("primary", {}).get("weak_claims") }}</div>
+                {% endif %}
+              </div>
+            </div>
+          {% endif %}
+
+          <div class="info-card">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+              <div class="icon-box" style="width:32px; height:32px;">
+                <i data-lucide="sparkles" class="w-4 h-4"></i>
+              </div>
+              <h3 class="panel-title">Module Summary</h3>
+            </div>
+            <p>
+              当前模块面板直接从现有 artifact 合同中取数，重点暴露当前输入对象、当前状态、关键路径和最近事件。
+            </p>
+            <p style="margin-top:10px;">
+              {% if details.get("primary", {}).get("decision_status") %}
+                当前决策状态是 <strong style="color:var(--text);">{{ details.get("primary", {}).get("decision_status") }}</strong>。
+              {% elif details.get("primary", {}).get("max_severity") %}
+                当前主严重度是 <strong style="color:var(--text);">{{ details.get("primary", {}).get("max_severity") }}</strong>。
+              {% elif details.get("summary", {}).get("average_return") is not none %}
+                当前平均回报是 <strong style="color:var(--text);">{{ details.get("summary", {}).get("average_return") }}</strong>。
+              {% else %}
+                当前模块还没有更多可汇总的高层判断，建议从下方事件和左侧流程节点继续看。
+              {% endif %}
+            </p>
+            <div class="details-box" style="margin-top:14px;">
+              <div class="eyebrow">Current Phase</div>
+              <div style="margin-top:6px; font-weight:600;">{{ state.active.phase or "-" }}</div>
+              <div class="eyebrow" style="margin-top:12px;">Current Status</div>
+              <div style="margin-top:6px;">
+                <span class="badge {{ state.active.status }}">{{ state.active.status }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="info-card" style="margin-top:16px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px;">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <div class="icon-box" style="width:32px; height:32px;">
+                <i data-lucide="play-circle" class="w-4 h-4"></i>
+              </div>
+              <h3 class="panel-title">Recent Events</h3>
+            </div>
+            <span class="muted" style="font-size:12px;">Latest 20</span>
+          </div>
+          <div class="event-list">
+            {% for event in state.events %}
+              <div class="event-item">
+                <div style="display:flex; justify-content:space-between; gap:8px;">
+                  <strong>{{ event.title }}</strong>
+                  <span class="badge {{ event.status }}">{{ event.status }}</span>
+                </div>
+                <div class="muted" style="margin-top:6px;">{{ event.timestamp }}</div>
+                {% if event.summary %}
+                  <div style="margin-top:8px; line-height:1.6;">{{ event.summary }}</div>
+                {% endif %}
+                {% if event.path %}
+                  <div style="margin-top:8px;"><code class="path">{{ event.path }}</code></div>
+                {% endif %}
+              </div>
+            {% endfor %}
+          </div>
         </div>
       </div>
     </div>
   </section>
 
-  <section class="panel section-block" style="padding:16px;">
-    <h2 class="panel-title">Key KPI Cards</h2>
-    <div class="card-grid">
-      {% for card in state.kpis %}
-        <div class="metric-card">
-          <div class="label">{{ card.label }}</div>
-          <div class="value" style="font-size:20px;">{{ card.value }}</div>
-          <div style="margin-top:8px;"><span class="badge {{ card.status }}">{{ card.status }}</span></div>
+  <section class="right-stack sticky-top">
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-header-left">
+          <div class="icon-box">
+            <i data-lucide="zap" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h2 class="panel-title">Key KPI Cards</h2>
+          </div>
         </div>
-      {% endfor %}
-    </div>
-
-    <div class="panel" style="padding:14px; margin-top:14px;">
-      <h3 style="margin:0 0 10px; font-size:15px;">Latest Runs</h3>
-      <div class="event-list" style="max-height:220px;">
-        {% for run in state.runs[:6] %}
-          <div class="event-item">
-            <div style="display:flex; justify-content:space-between; gap:8px;">
-              <strong>{{ run.run_id }}</strong>
-              <span class="badge {{ run.status }}">{{ run.status }}</span>
-            </div>
-            <div class="muted" style="margin-top:4px;">
-              {{ run.execution_mode }} · {{ run.scene_family or run.scenario_type or "-" }}
-            </div>
-            <div style="margin-top:6px;">
-              success={{ run.summary.get("success_rate", "-") }},
-              min_distance={{ run.summary.get("min_distance", "-") }},
-              avg_return={{ run.summary.get("average_return", "-") }}
+        <span class="muted" style="font-size:12px;">live score</span>
+      </div>
+      <div class="kpi-grid">
+        {% for card in state.kpis %}
+          <div class="kpi-card">
+            <div class="eyebrow">{{ card.label }}</div>
+            <div class="kpi-value">{{ card.value }}</div>
+            <div style="margin-top:10px;">
+              <span class="badge {{ card.status }}">{{ card.status }}</span>
             </div>
           </div>
         {% endfor %}
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-header-left">
+          <div class="icon-box">
+            <i data-lucide="layers-3" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h2 class="panel-title">Latest Runs</h2>
+          </div>
+        </div>
+        <span class="muted" style="font-size:12px;">6 latest</span>
+      </div>
+      <div class="latest-runs">
+        <div class="event-list" style="max-height:340px;">
+          {% for run in state.runs|reverse %}
+            {% if loop.index <= 6 %}
+              <div class="run-item">
+                <div style="display:flex; justify-content:space-between; gap:8px;">
+                  <strong>{{ run.run_id }}</strong>
+                  <span class="badge {{ run.status }}">{{ run.status }}</span>
+                </div>
+                <div class="muted" style="margin-top:6px;">
+                  {{ run.execution_mode }} · {{ run.scene_family or run.scenario_type or "-" }}
+                </div>
+                <div style="margin-top:8px; line-height:1.65;">
+                  success={{ run.summary.get("success_rate", "-") }},
+                  min_distance={{ run.summary.get("min_distance", "-") }},
+                  avg_return={{ run.summary.get("average_return", "-") }}
+                </div>
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
       </div>
     </div>
   </section>

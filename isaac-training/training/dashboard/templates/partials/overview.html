@@ -1,48 +1,53 @@
 {% set overview = state.overview %}
-<div class="panel" style="padding: 16px 18px; margin-bottom: 16px;">
+<div class="panel" style="padding: 18px; margin-bottom: 20px;">
   <div style="display:flex; justify-content:space-between; gap:16px; align-items:flex-start; flex-wrap:wrap;">
-    <div>
-      <h2 class="panel-title" style="font-size:20px; margin-bottom:6px;">Global Overview</h2>
-      <div class="muted">Last refresh: {{ state.generated_at }}</div>
+    <div style="display:flex; align-items:center; gap:10px;">
+      <div class="icon-box">
+        <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+      </div>
+      <div>
+        <h2 class="panel-title" style="font-size:20px; margin-bottom:4px;">Global Overview</h2>
+        <div class="muted">Last refresh: {{ state.generated_at }}</div>
+      </div>
     </div>
     <span class="badge {{ overview.overall_health_label }}">{{ overview.overall_health }}</span>
   </div>
-  <div class="card-grid" style="margin-top: 14px;">
-    <div class="metric-card">
-      <div class="label">Current Phase</div>
-      <div class="value" style="font-size:22px;">{{ overview.current_phase }}</div>
+  <div class="overview-grid" style="margin-top: 16px;">
+    <div class="overview-card">
+      <div class="eyebrow">Current Phase</div>
+      <div class="overview-value">{{ overview.current_phase }}</div>
     </div>
-    <div class="metric-card">
-      <div class="label">Active Module</div>
-      <div class="value" style="font-size:22px;">{{ overview.active_module }}</div>
+    <div class="overview-card">
+      <div class="eyebrow">Active Module</div>
+      <div class="overview-value">{{ overview.active_module }}</div>
     </div>
-    <div class="metric-card">
-      <div class="label">Current Run / Bundle</div>
-      <div class="value" style="font-size:18px;">{{ overview.current_object or "-" }}</div>
+    <div class="overview-card">
+      <div class="eyebrow">Current Run / Bundle</div>
+      <div class="overview-value">{{ overview.current_object or "-" }}</div>
     </div>
-    <div class="metric-card">
-      <div class="label">Execution Mode</div>
-      <div class="value" style="font-size:18px;">{{ overview.execution_mode }}</div>
+    <div class="overview-card">
+      <div class="eyebrow">Execution Mode</div>
+      <div class="overview-value">{{ overview.execution_mode }}</div>
     </div>
-    <div class="metric-card">
-      <div class="label">Scene Family</div>
-      <div class="value" style="font-size:18px;">{{ overview.scene_family }}</div>
+    <div class="overview-card">
+      <div class="eyebrow">Scene Family</div>
+      <div class="overview-value">{{ overview.scene_family }}</div>
     </div>
-    <div class="metric-card">
-      <div class="label">Provider Mode</div>
-      <div class="value" style="font-size:18px;">{{ overview.provider_mode }}</div>
+    <div class="overview-card">
+      <div class="eyebrow">Provider Mode</div>
+      <div class="overview-value">{{ overview.provider_mode }}</div>
     </div>
-    <div class="metric-card" style="grid-column: span 2;">
-      <div class="label">Watch Roots</div>
-      <div class="value" style="font-size:14px; line-height:1.5;">
+    <div class="overview-card span-2">
+      <div class="eyebrow">Watch Roots</div>
+      <div class="overview-value" style="font-size:14px; line-height:1.6;">
         {% for root in state.watch_roots[:4] %}
           <div><code class="path">{{ root }}</code></div>
         {% endfor %}
       </div>
     </div>
-    <div class="metric-card">
-      <div class="label">Artifact Update</div>
-      <div class="value" style="font-size:16px;">{{ overview.last_update or "-" }}</div>
+    <div class="overview-card">
+      <div class="eyebrow">Artifact Update</div>
+      <div class="overview-value">{{ overview.last_update or "-" }}</div>
     </div>
   </div>
 </div>

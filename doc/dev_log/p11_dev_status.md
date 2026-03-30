@@ -759,3 +759,74 @@ Validation results:
 - the verification guide now documents:
   - how to auto-launch the dashboard from the smoke scripts
   - the current dashboard content inventory for UI redesign
+
+## 14. Dashboard Reference-Layout Addendum
+
+The local dashboard frontend was then restyled against the reference layout in:
+
+- `doc/cre_frame_rl_live_dashboard.html`
+
+This change intentionally kept the artifact-scanning backend unchanged and
+focused only on the browser surface:
+
+- `isaac-training/training/dashboard/templates/index.html`
+- `isaac-training/training/dashboard/templates/partials/overview.html`
+- `isaac-training/training/dashboard/templates/partials/live_grid.html`
+- `isaac-training/training/dashboard/templates/partials/charts.html`
+
+Key UI changes:
+
+1. **reference-aligned visual direction**
+   - switched from the previous blue-white utilitarian look to a warm
+     cream/stroke/accent palette
+   - adopted a headline + workbench layout closer to the provided reference
+
+2. **restructured dashboard composition**
+   - top hero panel now mirrors the live-monitor framing used by the reference
+   - flow column now uses a vertical rail + node-card presentation
+   - active-module area now has:
+     - activity hero
+     - key-details card
+     - module-summary card
+     - recent-events block
+   - KPI and latest-run panels were restyled into separate right-rail cards
+
+3. **chart-area redesign**
+   - chart section now uses a more presentation-oriented heading and card layout
+   - lucide icons are re-initialized after HTMX swaps so icons survive live
+     refreshes
+
+Focused validation for this addendum:
+
+```bash
+source "$HOME/miniconda3/etc/profile.d/conda.sh"
+conda activate NavRL
+pytest -q isaac-training/training/unit_test/test_env/test_dashboard_monitor.py
+```
+
+```bash
+source "$HOME/miniconda3/etc/profile.d/conda.sh"
+conda activate NavRL
+python isaac-training/training/scripts/run_dashboard.py --host 127.0.0.1 --port 8772
+```
+
+Then:
+
+```bash
+curl -s http://127.0.0.1:8772/healthz
+curl -s http://127.0.0.1:8772/ | rg -n \
+  "CRE Frame RL Live Monitor|Global Overview|System Flow|Active Module Panel|Training and Analysis Charts"
+```
+
+Validation results:
+
+- focused dashboard tests passed:
+  - `2 passed, 1 skipped`
+- live dashboard smoke passed:
+  - `/healthz` returned `ok`
+  - the rendered page contained the expected reference-aligned major sections:
+    - `CRE Frame RL Live Monitor`
+    - `Global Overview`
+    - `System Flow`
+    - `Active Module Panel`
+    - `Training and Analysis Charts`

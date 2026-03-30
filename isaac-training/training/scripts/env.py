@@ -32,6 +32,7 @@ from utils import vec_to_new_frame, vec_to_world, construct_input
 import omni.isaac.core.utils.prims as prim_utils
 import omni.isaac.orbit.utils.math as math_utils
 import time
+from envs.env_gen import ArenaConfig, ArenaSpawner, UniversalArenaGenerator
 from envs.runtime.scene_family_bridge import (
     build_scene_family_runtime_profile,
     sample_start_goal_from_profile,
@@ -336,6 +337,16 @@ def _cfg_section_get(section, key: str, default):
     return getattr(section, key, default)
 
 
+def _resolve_registered_drone_model_name(model_name: str) -> str:
+    if model_name in MultirotorBase.REGISTRY:
+        return model_name
+    print(
+        f"[Navigation Environment]: model '{model_name}' not found in registry, "
+        "falling back to 'Hummingbird'."
+    )
+    return "Hummingbird"
+
+
 class NavigationEnv(IsaacEnv):
     """
     导航环境类
@@ -383,7 +394,8 @@ class NavigationEnv(IsaacEnv):
         self.lidar_vbeams = cfg.sensor.lidar_vbeams  # 垂直线束数（例如4条）
         self.lidar_hres = cfg.sensor.lidar_hres  # 水平角分辨率（度，例如10°）
         self.lidar_hbeams = int(360/self.lidar_hres)  # 水平线束数（360°/10° = 36条）
-        self.drone_base_link_prim_expr = f"/World/envs/env_.*/{cfg.drone.model_name}_0/base_link"
+        self.drone_model_name = _resolve_registered_drone_model_name(cfg.drone.model_name)
+        self.drone_base_link_prim_expr = f"/World/envs/env_.*/{self.drone_model_name}_0/base_link"
         self.done_type_labels = dict(DONE_TYPE_LABELS)
         self.scene_family_profile = build_scene_family_runtime_profile(
             getattr(cfg, "scene_family_backend", None),
@@ -394,6 +406,14 @@ class NavigationEnv(IsaacEnv):
         self.runtime_dynamic_obstacle_count = int(getattr(cfg.env_dyn, "num_obstacles", 0))
         if self.scene_family_profile.get("enabled") and not self.scene_family_profile.get("dynamic_obstacles_enabled", False):
             self.runtime_dynamic_obstacle_count = 0
+        self.scene_mesh_prim_paths = ["/World/ground"]
+        self.shared_scene_generator = None
+        self.shared_scene_spawner = None
+        self.shared_scene_result = None
+        self.use_env_gen_dynamic_runtime = False
+        self.env_gen_dynamic_indices = []
+        self.dynamic_lidar_refresh_interval = 10
+        self.lidar_scan_mesh_path = "/World/LidarScanMesh"
 
         # ============================================
         # 第 2 步：调用父类初始化（创建仿真场景）
@@ -435,7 +455,7 @@ class NavigationEnv(IsaacEnv):
             debug_vis=False,  # 不可视化射线（提高性能）
             
             # 检测的对象：只检测地面（静态障碍物在地面上）
-            mesh_prim_paths=["/World/ground"],
+            mesh_prim_paths=list(self.scene_mesh_prim_paths),
         )
         self.lidar = RayCaster(ray_caster_cfg)
         self.lidar._initialize_impl()  # 初始化射线投射器
@@ -460,19 +480,33 @@ class NavigationEnv(IsaacEnv):
 
     def _build_cre_runtime_metadata(self, cfg):
         profile = dict(self.scene_family_profile or {})
+        shared_scene_tags = {}
+        shared_scene_metadata = None
+        if self.shared_scene_result is not None:
+            shared_scene_metadata = self.shared_scene_result.cre_metadata
+            shared_scene_tags = dict(shared_scene_metadata.scene_tags)
         if profile:
             repair_preview_binding = dict(profile.get("repair_preview_binding", {}))
             effective_scene_binding = dict(profile.get("effective_scene_binding", {}))
             effective_spec_binding = dict(profile.get("effective_spec_binding", {}))
             if profile.get("enabled"):
+                scene_id = str(shared_scene_tags.get("scene_id", profile["scene_id_prefix"]))
+                scene_family = str(shared_scene_tags.get("family", profile["family"]))
+                scene_cfg_name = str(shared_scene_tags.get("scene_cfg_name", profile["scene_cfg_name"]))
                 return {
-                    "scene_id": profile["scene_id_prefix"],
+                    "scene_id": scene_id,
                     "scene_id_prefix": profile["scene_id_prefix"],
-                    "scenario_type": profile["family"],
-                    "scene_cfg_name": profile["scene_cfg_name"],
-                    "scene_family": profile["family"],
+                    "scenario_type": scene_family,
+                    "scene_cfg_name": scene_cfg_name,
+                    "scene_family": scene_family,
                     "distribution_modes": dict(profile.get("distribution_modes", {})),
                     "validation_rules": dict(profile.get("validation_rules", {})),
+                    "shared_scene_tags": shared_scene_tags,
+                    "shared_scene_complexity": float(getattr(shared_scene_metadata, "complexity", 0.0) or 0.0),
+                    "shared_scene_obstacle_count": int(getattr(shared_scene_metadata, "obstacle_count", 0) or 0),
+                    "shared_scene_dynamic_obstacle_count": int(
+                        getattr(shared_scene_metadata, "dynamic_obstacle_count", 0) or 0
+                    ),
                     "repair_preview_binding": repair_preview_binding,
                     "effective_scene_binding": effective_scene_binding,
                     "effective_spec_binding": effective_spec_binding,
@@ -502,6 +536,267 @@ class NavigationEnv(IsaacEnv):
     def get_cre_runtime_metadata(self):
         return dict(self.cre_runtime_metadata)
 
+    def _make_env_gen_arena_cfg(self):
+        compiled = dict(self.scene_family_profile.get("compiled_scene_config", {}) or {})
+        workspace = dict(self.scene_family_profile.get("workspace", {}) or {})
+        start = tuple(compiled.get("start", (-16.0, 0.0, 1.5)))
+        goal = tuple(compiled.get("goal", (16.0, 0.0, 1.5)))
+        return ArenaConfig(
+            size_x=float(workspace.get("size_x", self.map_range[0] * 2.0)),
+            size_y=float(workspace.get("size_y", self.map_range[1] * 2.0)),
+            size_z=float(workspace.get("size_z", self.map_range[2])),
+            start_pos=tuple(float(value) for value in start),
+            goal_pos=tuple(float(value) for value in goal),
+            flight_height_min=float(workspace.get("flight_height_min", self.runtime_height_bounds[0])),
+            flight_height_max=float(workspace.get("flight_height_max", self.runtime_height_bounds[1])),
+        )
+
+    def _sync_env_gen_dynamic_state(self):
+        if self.shared_scene_result is None:
+            self.use_env_gen_dynamic_runtime = False
+            self.runtime_dynamic_obstacle_count = 0
+            return
+
+        dynamic_items = [
+            (index, obstacle)
+            for index, obstacle in enumerate(self.shared_scene_result.obstacles)
+            if obstacle.is_dynamic
+        ]
+        self.env_gen_dynamic_indices = [index for index, _ in dynamic_items]
+        self.runtime_dynamic_obstacle_count = len(dynamic_items)
+        self.use_env_gen_dynamic_runtime = self.runtime_dynamic_obstacle_count > 0
+
+        if not self.use_env_gen_dynamic_runtime:
+            return
+
+        positions = torch.tensor(
+            [obstacle.position for _, obstacle in dynamic_items],
+            dtype=torch.float,
+            device=self.cfg.device,
+        )
+        sizes = torch.tensor(
+            [obstacle.scale for _, obstacle in dynamic_items],
+            dtype=torch.float,
+            device=self.cfg.device,
+        )
+        heights = [float(obstacle.scale[2]) for _, obstacle in dynamic_items]
+        narrow_dynamic_heights = [height for height in heights if height <= 1.5]
+        tall_dynamic_heights = [height for height in heights if height > 1.5]
+
+        self.dyn_obs_list = []
+        self.dyn_obs_num_of_each_category = self.runtime_dynamic_obstacle_count
+        self.dyn_obs_state = torch.zeros(
+            (self.runtime_dynamic_obstacle_count, 13),
+            dtype=torch.float,
+            device=self.cfg.device,
+        )
+        self.dyn_obs_state[:, 3] = 1.0
+        self.dyn_obs_state[:, :3] = positions
+        self.dyn_obs_goal = positions.clone()
+        self.dyn_obs_origin = positions.clone()
+        self.dyn_obs_vel = torch.zeros(
+            (self.runtime_dynamic_obstacle_count, 3),
+            dtype=torch.float,
+            device=self.cfg.device,
+        )
+        self.dyn_obs_step_count = 0
+        self.dyn_obs_size = sizes
+        max_dynamic_width = max(float(obstacle.scale[0]) for _, obstacle in dynamic_items)
+        self.dyn_obs_width_res = max(max_dynamic_width / 4.0, 1e-6)
+        self.max_obs_3d_height = max(narrow_dynamic_heights or [1.0])
+        self.max_obs_2d_height = max(tall_dynamic_heights or [self.max_obs_3d_height])
+
+    def _spawn_shared_scene_from_env_gen(self):
+        arena_cfg = self._make_env_gen_arena_cfg()
+        self.shared_scene_generator = UniversalArenaGenerator(
+            arena_cfg,
+            seed=int(self.scene_family_profile.get("seed", 0)),
+        )
+        self.shared_scene_spawner = ArenaSpawner(self.sim.stage, base_path="/World/Arena")
+        self.shared_scene_result = self.shared_scene_generator.generate_from_scene_family(
+            scene_family=self.scene_family_profile["family"],
+            seed=int(self.scene_family_profile.get("seed", 0)),
+            difficulty=float(self.scene_family_profile.get("difficulty", 0.5)),
+            gravity_tilt_enabled=bool(self.scene_family_profile.get("gravity_tilt_enabled", False)),
+        )
+        self.shared_scene_spawner.spawn(self.shared_scene_result)
+        self._build_scene_lidar_mesh()
+        self.scene_mesh_prim_paths = [self.lidar_scan_mesh_path]
+        self._sync_env_gen_dynamic_state()
+
+    def _step_env_gen_dynamic_obstacles(self):
+        if not self.use_env_gen_dynamic_runtime or self.shared_scene_generator is None:
+            return
+        new_positions = self.shared_scene_generator.update_dynamic_obstacles(self.cfg.sim.dt)
+        if new_positions and self.shared_scene_spawner is not None:
+            self.shared_scene_spawner.update_positions(new_positions)
+        if self.shared_scene_generator._current_result is not None:
+            self.shared_scene_result = self.shared_scene_generator._current_result
+
+        dynamic_positions = [
+            self.shared_scene_result.obstacles[index].position
+            for index in self.env_gen_dynamic_indices
+        ]
+        if dynamic_positions:
+            position_tensor = torch.tensor(
+                dynamic_positions,
+                dtype=torch.float,
+                device=self.cfg.device,
+            )
+            previous_positions = self.dyn_obs_state[:, :3].clone()
+            self.dyn_obs_state[:, :3] = position_tensor
+            self.dyn_obs_goal = position_tensor.clone()
+            self.dyn_obs_vel = (position_tensor - previous_positions) / max(float(self.cfg.sim.dt), 1e-6)
+        self.dyn_obs_step_count += 1
+
+    @staticmethod
+    def _append_scene_mesh_triangles(points_out, counts_out, indices_out, verts, tri_faces):
+        base = len(points_out)
+        points_out.extend(verts)
+        for a, b, c in tri_faces:
+            counts_out.append(3)
+            indices_out.extend([base + a, base + b, base + c])
+
+    @staticmethod
+    def _transform_scene_mesh_vertices(world_mat, verts):
+        from pxr import Gf
+
+        out = []
+        for vx, vy, vz in verts:
+            point = world_mat.Transform(Gf.Vec3d(float(vx), float(vy), float(vz)))
+            out.append((float(point[0]), float(point[1]), float(point[2])))
+        return out
+
+    @staticmethod
+    def _cube_mesh_local():
+        verts = [
+            (-1, -1, -1), (1, -1, -1), (1, 1, -1), (-1, 1, -1),
+            (-1, -1, 1), (1, -1, 1), (1, 1, 1), (-1, 1, 1),
+        ]
+        tris = [
+            (0, 1, 2), (0, 2, 3),
+            (4, 6, 5), (4, 7, 6),
+            (0, 4, 5), (0, 5, 1),
+            (1, 5, 6), (1, 6, 2),
+            (2, 6, 7), (2, 7, 3),
+            (3, 7, 4), (3, 4, 0),
+        ]
+        return verts, tris
+
+    @staticmethod
+    def _cylinder_mesh_local(segments: int = 16):
+        verts = [(0.0, 0.0, 1.0), (0.0, 0.0, -1.0)]
+        tris = []
+        for index in range(segments):
+            angle = 2.0 * np.pi * index / segments
+            x = np.cos(angle)
+            y = np.sin(angle)
+            verts.append((x, y, 1.0))
+            verts.append((x, y, -1.0))
+
+        for index in range(segments):
+            next_index = (index + 1) % segments
+            top_index = 2 + 2 * index
+            bottom_index = top_index + 1
+            top_next = 2 + 2 * next_index
+            bottom_next = top_next + 1
+
+            tris.append((top_index, bottom_index, bottom_next))
+            tris.append((top_index, bottom_next, top_next))
+            tris.append((0, top_next, top_index))
+            tris.append((1, bottom_index, bottom_next))
+        return verts, tris
+
+    @staticmethod
+    def _sphere_mesh_local(lat: int = 8, lon: int = 16):
+        verts = []
+        tris = []
+        for lat_index in range(lat + 1):
+            phi = np.pi * lat_index / lat
+            z = np.cos(phi)
+            radius = np.sin(phi)
+            for lon_index in range(lon):
+                theta = 2.0 * np.pi * lon_index / lon
+                x = radius * np.cos(theta)
+                y = radius * np.sin(theta)
+                verts.append((x, y, z))
+
+        def _vid(i, j):
+            return i * lon + (j % lon)
+
+        for lat_index in range(lat):
+            for lon_index in range(lon):
+                a = _vid(lat_index, lon_index)
+                b = _vid(lat_index + 1, lon_index)
+                c = _vid(lat_index + 1, lon_index + 1)
+                d = _vid(lat_index, lon_index + 1)
+                if lat_index > 0:
+                    tris.append((a, b, d))
+                if lat_index < lat - 1:
+                    tris.append((b, c, d))
+        return verts, tris
+
+    def _build_scene_lidar_mesh(self):
+        from pxr import UsdGeom, Usd
+
+        stage = self.sim.stage
+        existing = stage.GetPrimAtPath(self.lidar_scan_mesh_path)
+        if existing.IsValid():
+            stage.RemovePrim(self.lidar_scan_mesh_path)
+
+        mesh = UsdGeom.Mesh.Define(stage, self.lidar_scan_mesh_path)
+        points = []
+        counts = []
+        indices = []
+
+        ground_prim = stage.GetPrimAtPath("/World/ground")
+        if ground_prim.IsValid() and ground_prim.GetTypeName() == "Mesh":
+            ground_mesh = UsdGeom.Mesh(ground_prim)
+            ground_points = ground_mesh.GetPointsAttr().Get() or []
+            ground_counts = ground_mesh.GetFaceVertexCountsAttr().Get() or []
+            ground_indices = ground_mesh.GetFaceVertexIndicesAttr().Get() or []
+            base = len(points)
+            points.extend([(float(p[0]), float(p[1]), float(p[2])) for p in ground_points])
+            cursor = 0
+            for face_count in ground_counts:
+                face = [base + int(item) for item in ground_indices[cursor: cursor + face_count]]
+                cursor += face_count
+                if len(face) < 3:
+                    continue
+                for idx in range(1, len(face) - 1):
+                    counts.append(3)
+                    indices.extend([face[0], face[idx], face[idx + 1]])
+
+        if self.shared_scene_spawner is not None and self.shared_scene_result is not None:
+            xform_cache = UsdGeom.XformCache(Usd.TimeCode.Default())
+            for prim_path, obstacle in zip(
+                self.shared_scene_spawner.spawned_prims,
+                self.shared_scene_result.obstacles,
+            ):
+                if obstacle.is_dynamic:
+                    continue
+                prim = stage.GetPrimAtPath(prim_path)
+                if not prim.IsValid():
+                    continue
+
+                prim_type = prim.GetTypeName()
+                if prim_type == "Cube":
+                    verts, tris = self._cube_mesh_local()
+                elif prim_type == "Cylinder":
+                    verts, tris = self._cylinder_mesh_local(segments=16)
+                elif prim_type == "Sphere":
+                    verts, tris = self._sphere_mesh_local(lat=8, lon=16)
+                else:
+                    continue
+
+                world_mat = xform_cache.GetLocalToWorldTransform(prim)
+                verts_world = self._transform_scene_mesh_vertices(world_mat, verts)
+                self._append_scene_mesh_triangles(points, counts, indices, verts_world, tris)
+
+        mesh.CreatePointsAttr(points)
+        mesh.CreateFaceVertexCountsAttr(counts)
+        mesh.CreateFaceVertexIndicesAttr(indices)
+
     def done_type_code_to_label(self, code):
         if isinstance(code, torch.Tensor):
             if code.numel() == 0:
@@ -526,8 +821,8 @@ class NavigationEnv(IsaacEnv):
         # ============================================
         # 1. 创建无人机模型
         # ============================================
-        # 从注册表中获取无人机模型类（例如 "Hummingbird"）
-        drone_model = MultirotorBase.REGISTRY[self.cfg.drone.model_name]
+        # 从注册表中获取无人机模型类（优先使用 TaslabUAV，缺失时回退到 Hummingbird）
+        drone_model = MultirotorBase.REGISTRY[self.drone_model_name]
         cfg = drone_model.cfg_cls(force_sensor=False)  # 不使用力传感器
         self.drone = drone_model(cfg=cfg)
         # 生成无人机，初始位置在 z=2.0 米处
@@ -569,6 +864,7 @@ class NavigationEnv(IsaacEnv):
             float(workspace.get("flight_height_max", 4.0)),
         )
 
+        terrain_static_obstacle_count = 0 if self.scene_family_profile.get("enabled") else self.cfg.env.num_obstacles
         terrain_cfg = TerrainImporterCfg(
             num_envs=self.num_envs,  # 多少个并行环境
             env_spacing=0.0,  # 环境之间的间距（0表示共享地形）
@@ -593,7 +889,7 @@ class NavigationEnv(IsaacEnv):
                         horizontal_scale=0.1,
                         vertical_scale=0.1,
                         border_width=0.0,
-                        num_obstacles=self.cfg.env.num_obstacles,  # 障碍物数量
+                        num_obstacles=terrain_static_obstacle_count,  # family backend 启用时交给 env_gen 生成
                         obstacle_height_mode="range",  # 高度模式：范围
                         obstacle_width_range=(0.4, 1.1),  # 宽度范围：0.4-1.1m
                         # 高度范围（米）：[1.0, 1.5, 2.0, 4.0, 6.0]
@@ -611,7 +907,10 @@ class NavigationEnv(IsaacEnv):
         )
         terrain_importer = TerrainImporter(terrain_cfg)  # 导入地形
 
-        if self.runtime_dynamic_obstacle_count == 0:
+        if self.scene_family_profile.get("enabled"):
+            self._spawn_shared_scene_from_env_gen()
+
+        if self.use_env_gen_dynamic_runtime or self.runtime_dynamic_obstacle_count == 0:
             return
         # Dynamic Obstacles
         # NOTE: we use cuboid to represent 3D dynamic obstacles which can float in the air 
@@ -722,6 +1021,10 @@ class NavigationEnv(IsaacEnv):
 
 
     def move_dynamic_obstacle(self):
+        if self.use_env_gen_dynamic_runtime:
+            self._step_env_gen_dynamic_obstacles()
+            return
+
         # Step 1: Random sample new goals for required update dynamic obstacles
         # Check whether the current dynamic obstacles need new goals
         dyn_obs_goal_dist = torch.sqrt(torch.sum((self.dyn_obs_state[:, :3] - self.dyn_obs_goal)**2, dim=1)) if self.dyn_obs_step_count !=0 \

@@ -50,18 +50,16 @@ This keeps the workflow inside the current repo and avoids touching files outsid
 ## Latest Staged Change Summary
 
 <!-- TRACEABILITY:BEGIN -->
-_Updated: `2026-03-30T14:20:29`_
+_Updated: `2026-03-30T17:55:56`_
 
 - Scope: `/home/mint/rl_dev/CRERL`
 - Branch: `main`
 - Source: `staged diff`
-- Impacted phases: `Phase 11`
-- Diff stat: 6 files changed, 865 insertions(+), 309 deletions(-)
+- Impacted phases: `Phase 1, Phase 10, Phase 2, Phase 3, Phase 4, Phase 7`
+- Diff stat: 4 files changed, 428 insertions(+), 19 deletions(-)
 
 ### Changed Files
-- `M` [doc/dev_log/p11_dev_status.md](doc/dev_log/p11_dev_status.md) [Project Docs]
-- `M` [isaac-training/training/dashboard/templates/index.html](isaac-training/training/dashboard/templates/index.html) [isaac-training]
-- `M` [isaac-training/training/dashboard/templates/partials/charts.html](isaac-training/training/dashboard/templates/partials/charts.html) [isaac-training]
-- `M` [isaac-training/training/dashboard/templates/partials/live_grid.html](isaac-training/training/dashboard/templates/partials/live_grid.html) [isaac-training]
-- `M` [isaac-training/training/dashboard/templates/partials/overview.html](isaac-training/training/dashboard/templates/partials/overview.html) [isaac-training]
+- `M` [doc/dev_log/p10_dev_status.md](doc/dev_log/p10_dev_status.md) [Project Docs]
+- `M` [isaac-training/training/runtime_logging/training_log_adapter.py](isaac-training/training/runtime_logging/training_log_adapter.py) [Runtime Logging]
+- `M` [isaac-training/training/scripts/env.py](isaac-training/training/scripts/env.py) [Isaac Env Core]
 <!-- TRACEABILITY:END -->

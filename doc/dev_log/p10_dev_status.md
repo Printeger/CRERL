@@ -1,6 +1,6 @@
 # Phase 10 Development Status
 
-Updated: 2026-03-27
+Updated: 2026-03-30
 
 ## 1. This Iteration Goal
 
@@ -194,3 +194,95 @@ The next step should be to begin Phase 11 planning and implementation around:
 2. repeatable clean-vs-injected end-to-end demonstrations,
 3. and a higher-level release-ready CRE integration story built on the now
    unified execution stack.
+
+## 7. Follow-Up Alignment (2026-03-30)
+
+This follow-up tightens the native training stack so it is less of a legacy
+island and closer to the `test_flight.py` / `env_gen.py` mainline path.
+
+### What changed
+
+- `env.py` now resolves the drone model the same way `test_flight.py` does:
+  prefer the configured model (for example `TaslabUAV`) and fall back to
+  `Hummingbird` only if the registry does not expose it.
+- when `scene_family_backend.enabled = true`, `NavigationEnv` now uses
+  `UniversalArenaGenerator + ArenaSpawner` to build the shared scene from
+  `env_gen.py` instead of relying only on the legacy terrain obstacle path.
+- LiDAR now consumes a single merged scan mesh built from:
+  - `/World/ground`
+  - the static obstacles spawned by `env_gen.py`
+  which keeps Orbit `RayCaster` compatible while letting the training stack see
+  the authoritative CRE static scene.
+- env-gen dynamic obstacles now feed the training env's dynamic-obstacle state
+  directly through the existing analytic obstacle interface.
+- `training_log_adapter.py` now preserves richer native scene metadata in
+  `manifest.json` / `summary.json`, including:
+  - `scene_id`
+  - `shared_scene_tags`
+  - `shared_scene_complexity`
+  - `shared_scene_obstacle_count`
+  - `shared_scene_dynamic_obstacle_count`
+
+### How to validate
+
+```bash
+python3 -m py_compile \
+  isaac-training/training/scripts/env.py \
+  isaac-training/training/runtime_logging/training_log_adapter.py \
+  isaac-training/training/scripts/train.py
+```
+
+```bash
+source "$HOME/miniconda3/etc/profile.d/conda.sh"
+conda activate NavRL
+source /home/mint/rl_dev/setup_conda_env.sh
+cd /home/mint/rl_dev/CRERL
+python isaac-training/training/scripts/train.py \
+  headless=True \
+  wandb.mode=offline \
+  scene_family_backend.family=nominal \
+  env.num_envs=1 \
+  env.max_episode_length=64 \
+  max_frame_num=64 \
+  save_interval=999999 \
+  eval_interval=999999 \
+  +skip_periodic_eval=True
+```
+
+After the run finishes, inspect the newest `train_rollout_*` directory:
+
+```bash
+python3 - <<'PY'
+import json
+from pathlib import Path
+run = sorted(Path('isaac-training/training/logs').glob('train_rollout_*'))[-1]
+meta = json.loads((run / 'manifest.json').read_text())['run_metadata']
+print(run)
+print(meta['scene_id'])
+print(meta['scene_cfg_name'])
+print(meta['shared_scene_tags'])
+print(meta['shared_scene_complexity'])
+PY
+```
+
+### Validation results
+
+- `py_compile` passed
+- the short native `train.py` smoke run passed
+- the newest accepted run (`train_rollout_20260330_175430`) confirms:
+  - `scene_id = nominal_v0`
+  - `scene_cfg_name = scene_cfg_nominal.yaml`
+  - `shared_scene_obstacle_count = 12`
+  - `shared_scene_dynamic_obstacle_count = 0`
+  - `shared_scene_complexity = 0.08750711987984028`
+  - `acceptance passed = true`
+
+### What this means
+
+Phase 10 remains complete, but the native execution stack is now better aligned
+with the intended CRE architecture:
+
+- `train.py` is no longer only consuming scene-family metadata
+- it now also consumes `env_gen.py`'s shared scene backend directly
+- and the resulting accepted runs expose that scene binding more explicitly in
+  the machine-readable evidence surface

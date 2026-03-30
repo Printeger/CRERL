@@ -137,6 +137,7 @@ def extract_cre_env_metadata(
     repair_preview_binding = _mapping_dict(metadata.get("repair_preview_binding"))
     effective_scene_binding = _mapping_dict(metadata.get("effective_scene_binding"))
     effective_spec_binding = _mapping_dict(metadata.get("effective_spec_binding"))
+    shared_scene_tags = _mapping_dict(metadata.get("shared_scene_tags"))
     scene_family = str(
         metadata.get("scene_family")
         or effective_scene_binding.get("effective_family")
@@ -147,7 +148,14 @@ def extract_cre_env_metadata(
         "scenario_type": scenario_type,
         "scene_cfg_name": scene_cfg_name,
         "scene_id_prefix": scene_id_prefix,
+        "scene_id": str(metadata.get("scene_id", scene_id_prefix)),
         "scene_family": scene_family,
+        "shared_scene_tags": shared_scene_tags,
+        "shared_scene_complexity": float(metadata.get("shared_scene_complexity", 0.0) or 0.0),
+        "shared_scene_obstacle_count": int(metadata.get("shared_scene_obstacle_count", 0) or 0),
+        "shared_scene_dynamic_obstacle_count": int(
+            metadata.get("shared_scene_dynamic_obstacle_count", 0) or 0
+        ),
         "repair_preview_binding": repair_preview_binding,
         "effective_scene_binding": effective_scene_binding,
         "effective_spec_binding": effective_spec_binding,
@@ -168,6 +176,7 @@ def build_cre_run_metadata(
     repair_preview_binding = _mapping_dict(metadata.get("repair_preview_binding"))
     effective_scene_binding = _mapping_dict(metadata.get("effective_scene_binding"))
     effective_spec_binding = _mapping_dict(metadata.get("effective_spec_binding"))
+    shared_scene_tags = _mapping_dict(metadata.get("shared_scene_tags"))
     return {
         "run_metadata_type": "phase10_native_execution_run_metadata.v1",
         "source": str(source),
@@ -176,6 +185,13 @@ def build_cre_run_metadata(
         "scene_family": str(metadata.get("scene_family", metadata.get("scenario_type", ""))),
         "scene_cfg_name": str(metadata.get("scene_cfg_name", "")),
         "scene_id_prefix": str(metadata.get("scene_id_prefix", "")),
+        "scene_id": str(metadata.get("scene_id", metadata.get("scene_id_prefix", ""))),
+        "shared_scene_tags": shared_scene_tags,
+        "shared_scene_complexity": float(metadata.get("shared_scene_complexity", 0.0) or 0.0),
+        "shared_scene_obstacle_count": int(metadata.get("shared_scene_obstacle_count", 0) or 0),
+        "shared_scene_dynamic_obstacle_count": int(
+            metadata.get("shared_scene_dynamic_obstacle_count", 0) or 0
+        ),
         "native_repair_preview_consumption": bool(metadata.get("native_repair_preview_consumption", False)),
         "integration_binding_type": str(metadata.get("integration_binding_type", "")),
         "repair_preview_binding": repair_preview_binding,

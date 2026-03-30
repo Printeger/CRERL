@@ -1,0 +1,25 @@
+<div style="display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:14px;">
+  <div>
+    <h2 class="panel-title" style="margin-bottom:4px;">Training and Analysis Charts</h2>
+    <div class="muted">Run statistics refresh every 5 seconds. Optional WandB charts appear only when history files are detected.</div>
+  </div>
+  <span class="badge completed">{{ state.charts|length }} charts</span>
+</div>
+
+{% if not state.charts %}
+  <div class="muted">No chartable artifacts discovered yet.</div>
+{% else %}
+  <div class="chart-grid">
+    {% for chart in state.charts %}
+      <div class="chart-card">
+        <div id="chart-{{ loop.index0 }}" style="width:100%; height:290px;"></div>
+        <script>
+          (function () {
+            const spec = {{ chart | asjson | safe }};
+            Plotly.newPlot("chart-{{ loop.index0 }}", spec.data, spec.layout, {displayModeBar: false, responsive: true});
+          })();
+        </script>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}

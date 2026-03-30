@@ -1,0 +1,48 @@
+{% set overview = state.overview %}
+<div class="panel" style="padding: 16px 18px; margin-bottom: 16px;">
+  <div style="display:flex; justify-content:space-between; gap:16px; align-items:flex-start; flex-wrap:wrap;">
+    <div>
+      <h2 class="panel-title" style="font-size:20px; margin-bottom:6px;">Global Overview</h2>
+      <div class="muted">Last refresh: {{ state.generated_at }}</div>
+    </div>
+    <span class="badge {{ overview.overall_health_label }}">{{ overview.overall_health }}</span>
+  </div>
+  <div class="card-grid" style="margin-top: 14px;">
+    <div class="metric-card">
+      <div class="label">Current Phase</div>
+      <div class="value" style="font-size:22px;">{{ overview.current_phase }}</div>
+    </div>
+    <div class="metric-card">
+      <div class="label">Active Module</div>
+      <div class="value" style="font-size:22px;">{{ overview.active_module }}</div>
+    </div>
+    <div class="metric-card">
+      <div class="label">Current Run / Bundle</div>
+      <div class="value" style="font-size:18px;">{{ overview.current_object or "-" }}</div>
+    </div>
+    <div class="metric-card">
+      <div class="label">Execution Mode</div>
+      <div class="value" style="font-size:18px;">{{ overview.execution_mode }}</div>
+    </div>
+    <div class="metric-card">
+      <div class="label">Scene Family</div>
+      <div class="value" style="font-size:18px;">{{ overview.scene_family }}</div>
+    </div>
+    <div class="metric-card">
+      <div class="label">Provider Mode</div>
+      <div class="value" style="font-size:18px;">{{ overview.provider_mode }}</div>
+    </div>
+    <div class="metric-card" style="grid-column: span 2;">
+      <div class="label">Watch Roots</div>
+      <div class="value" style="font-size:14px; line-height:1.5;">
+        {% for root in state.watch_roots[:4] %}
+          <div><code class="path">{{ root }}</code></div>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="metric-card">
+      <div class="label">Artifact Update</div>
+      <div class="value" style="font-size:16px;">{{ overview.last_update or "-" }}</div>
+    </div>
+  </div>
+</div>

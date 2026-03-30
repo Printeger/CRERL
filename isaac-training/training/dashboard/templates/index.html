@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CRE Local Dashboard</title>
+    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+    <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+    <style>
+      :root {
+        --bg: #f4f8fb;
+        --panel: #ffffff;
+        --ink: #102a43;
+        --muted: #627d98;
+        --line: #d9e2ec;
+        --blue: #2563eb;
+        --green: #16a34a;
+        --amber: #d97706;
+        --red: #dc2626;
+        --violet: #7c3aed;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "Segoe UI", "Helvetica Neue", sans-serif;
+        background: linear-gradient(180deg, #eff6ff 0%, var(--bg) 22%, #eef2ff 100%);
+        color: var(--ink);
+      }
+      .shell {
+        max-width: 1580px;
+        margin: 0 auto;
+        padding: 20px 18px 48px;
+      }
+      .hero {
+        background: radial-gradient(circle at top right, rgba(37, 99, 235, 0.16), transparent 32%), var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        padding: 20px 22px;
+        box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);
+        margin-bottom: 16px;
+      }
+      .hero h1 {
+        margin: 0 0 8px;
+        font-size: 30px;
+        letter-spacing: -0.02em;
+      }
+      .hero p {
+        margin: 0;
+        color: var(--muted);
+      }
+      .polling-note {
+        margin-top: 12px;
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .panel {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        box-shadow: 0 14px 30px rgba(15, 23, 42, 0.04);
+      }
+      .panel-title {
+        margin: 0 0 10px;
+        font-size: 16px;
+      }
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 999px;
+        padding: 4px 10px;
+        font-size: 12px;
+        font-weight: 700;
+      }
+      .badge.completed { background: rgba(22, 163, 74, 0.12); color: var(--green); }
+      .badge.running { background: rgba(37, 99, 235, 0.12); color: var(--blue); }
+      .badge.warning { background: rgba(217, 119, 6, 0.14); color: var(--amber); }
+      .badge.failed { background: rgba(220, 38, 38, 0.12); color: var(--red); }
+      .badge.idle { background: rgba(100, 116, 139, 0.12); color: #475569; }
+      .grid-3 {
+        display: grid;
+        gap: 16px;
+        grid-template-columns: 1.05fr 1.2fr 0.95fr;
+        align-items: start;
+      }
+      .section-block { min-height: 380px; }
+      .card-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 12px;
+      }
+      .metric-card {
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 14px;
+        background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+      }
+      .metric-card .label {
+        color: var(--muted);
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+      .metric-card .value {
+        margin-top: 6px;
+        font-size: 24px;
+        font-weight: 700;
+      }
+      .stack {
+        display: grid;
+        gap: 12px;
+      }
+      .node {
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 12px 14px;
+        background: #f8fbff;
+      }
+      .node.active {
+        border-color: rgba(37, 99, 235, 0.45);
+        box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.08);
+      }
+      .node-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+      }
+      .node small, .muted {
+        color: var(--muted);
+      }
+      .flow-arrow {
+        text-align: center;
+        color: #94a3b8;
+        font-size: 18px;
+        line-height: 1;
+      }
+      details {
+        border-top: 1px dashed var(--line);
+        margin-top: 10px;
+        padding-top: 10px;
+      }
+      summary {
+        cursor: pointer;
+        color: var(--blue);
+        font-weight: 600;
+      }
+      .kv {
+        display: grid;
+        grid-template-columns: 130px 1fr;
+        gap: 8px 10px;
+        font-size: 13px;
+      }
+      .kv div:nth-child(odd) {
+        color: var(--muted);
+      }
+      .event-list {
+        display: grid;
+        gap: 10px;
+        max-height: 320px;
+        overflow: auto;
+      }
+      .event-item {
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 10px 12px;
+        background: #fbfdff;
+      }
+      .chart-grid {
+        display: grid;
+        gap: 16px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .chart-card {
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 10px;
+        min-height: 320px;
+        background: #ffffff;
+      }
+      code.path {
+        display: inline-block;
+        max-width: 100%;
+        overflow-wrap: anywhere;
+        font-size: 12px;
+        color: #0f172a;
+        background: #eef4ff;
+        border: 1px solid #dbeafe;
+        border-radius: 10px;
+        padding: 4px 8px;
+      }
+      @media (max-width: 1180px) {
+        .grid-3 { grid-template-columns: 1fr; }
+        .section-block { min-height: 0; }
+        .chart-grid { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <section class="hero">
+        <h1>CRE Local Monitoring Dashboard</h1>
+        <p>
+          Observe runs, analyzers, repair, validation, integration, benchmark, and release
+          through the existing machine-readable CRE artifacts.
+        </p>
+        <div class="polling-note">
+          1s polling for live module state and KPI panels. 5s polling for charts.
+          Backend: <strong>{{ backend }}</strong>.
+        </div>
+      </section>
+
+      <section
+        id="overview-region"
+        hx-get="/partials/overview"
+        hx-trigger="load, every 1s"
+        hx-swap="innerHTML"
+      >
+        {% include "partials/overview.html" %}
+      </section>
+
+      <div
+        id="live-region"
+        hx-get="/partials/live"
+        hx-trigger="load, every 1s"
+        hx-swap="innerHTML"
+      >
+        {% include "partials/live_grid.html" %}
+      </div>
+
+      <section
+        id="charts-region"
+        class="panel"
+        style="margin-top: 16px; padding: 16px;"
+        hx-get="/partials/charts"
+        hx-trigger="load, every 5s"
+        hx-swap="innerHTML"
+      >
+        {% include "partials/charts.html" %}
+      </section>
+    </div>
+  </body>
+</html>

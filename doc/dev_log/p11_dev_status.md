@@ -585,3 +585,124 @@ This confirms that the real online provider path is now reproducible in both:
 - the native execution smoke chain
 
 while still keeping the local key material out of version control.
+
+## 12. Local Dashboard Addendum
+
+After the release-grade artifact pipeline was frozen, the repository was
+extended with a local monitoring dashboard for observing CRE module activity in
+the browser.
+
+New files:
+
+- `isaac-training/training/dashboard/state.py`
+- `isaac-training/training/dashboard/app.py`
+- `isaac-training/training/dashboard/templates/`
+- `isaac-training/training/scripts/run_dashboard.py`
+- `isaac-training/training/unit_test/test_env/test_dashboard_monitor.py`
+
+The first version is a local single-user read-only dashboard. It reads existing
+machine-readable artifacts and does not trigger execution itself.
+
+Key capabilities added:
+
+1. **artifact-backed live state model**
+   - scans accepted runs under `training/logs/`
+   - scans namespaced bundles under `analysis/*`
+   - scans smoke/native work roots under `/tmp/crerl_*`
+   - infers:
+     - active module
+     - flow-node state
+     - KPI cards
+     - recent events
+     - chart data
+
+2. **browser dashboard with layered refresh**
+   - top overview bar
+   - left flow graph
+   - middle active module panel
+   - right KPI cards
+   - bottom chart grid
+   - refresh cadence:
+     - `1s` for state panels
+     - `5s` for charts
+
+3. **training / analysis visualization**
+   - average return trend
+   - safety outcome trend
+   - minimum distance trend
+   - near-violation ratio trend
+   - done-type distribution
+   - reward-components breakdown
+   - family comparison
+   - witness trend
+   - before/after repair deltas
+   - optional WandB charts when history files exist
+
+4. **environment-compatible ASGI fallback**
+   - the intended backend shape is FastAPI-like
+   - but the current `NavRL` environment has a broken FastAPI/pydantic import
+     chain
+   - therefore the app currently prefers:
+     - FastAPI when importable
+     - Starlette fallback when FastAPI is unavailable
+
+Focused validation for this addendum:
+
+```bash
+python3 -m py_compile \
+  isaac-training/training/dashboard/__init__.py \
+  isaac-training/training/dashboard/state.py \
+  isaac-training/training/dashboard/app.py \
+  isaac-training/training/scripts/run_dashboard.py \
+  isaac-training/training/unit_test/test_env/test_dashboard_monitor.py
+```
+
+```bash
+pytest -q isaac-training/training/unit_test/test_env/test_dashboard_monitor.py
+```
+
+```bash
+source "$HOME/miniconda3/etc/profile.d/conda.sh"
+conda activate NavRL
+pytest -q isaac-training/training/unit_test/test_env/test_dashboard_monitor.py
+```
+
+```bash
+source "$HOME/miniconda3/etc/profile.d/conda.sh"
+conda activate NavRL
+python isaac-training/training/scripts/run_dashboard.py --host 127.0.0.1 --port 8766
+```
+
+Then:
+
+```bash
+curl -s http://127.0.0.1:8766/healthz
+python3 - <<'PY'
+import json, urllib.request
+payload = json.load(urllib.request.urlopen('http://127.0.0.1:8766/api/state'))
+print(payload['overview']['provider_mode'])
+print(payload['overview']['active_module'])
+print(payload['overview']['current_object'])
+PY
+```
+
+Validation results:
+
+- system-python focused tests passed:
+  - `2 passed, 1 skipped`
+- `NavRL` focused tests also passed:
+  - `2 passed, 1 skipped`
+- live dashboard smoke passed:
+  - `/healthz` returned `ok`
+  - `/api/state` returned:
+    - `provider_mode = azure_gateway`
+    - `active_module = Repair`
+    - `current_object = repair_phase9_loader_smoke`
+- the HTML page rendered the expected major sections:
+  - `Global Overview`
+  - `System Flow`
+  - `Active Module Panel`
+  - `Training and Analysis Charts`
+
+This means the repository now has a browser-based local observability surface
+for the CRE pipeline without introducing a separate Node frontend.

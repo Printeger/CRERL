@@ -317,6 +317,45 @@ The helper script:
 - injects the key only into the child process environment
 - does **not** require the key file itself to be version controlled
 
+## 5.1 Local Dashboard
+
+If you want a browser view of the whole CRE pipeline, launch the local
+dashboard in `NavRL`:
+
+```bash
+conda activate NavRL
+python isaac-training/training/scripts/run_dashboard.py --host 127.0.0.1 --port 8765
+```
+
+Then open:
+
+- `http://127.0.0.1:8765/`
+
+What it watches by default:
+
+- `isaac-training/training/logs/`
+- `isaac-training/training/reports/`
+- discovered `/tmp/crerl_*` smoke / native work roots
+
+Useful endpoints:
+
+- page:
+  - `/`
+- machine-readable state:
+  - `/api/state`
+- health:
+  - `/healthz`
+
+Dashboard refresh model:
+
+- every `1s`:
+  - global overview
+  - flow graph
+  - active module panel
+  - KPI cards
+- every `5s`:
+  - charts
+
 ## 6. Module-by-Module Verification Plan
 
 This section is the recommended order if you want to personally verify each

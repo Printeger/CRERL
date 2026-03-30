@@ -50,16 +50,24 @@ This keeps the workflow inside the current repo and avoids touching files outsid
 ## Latest Staged Change Summary
 
 <!-- TRACEABILITY:BEGIN -->
-_Updated: `2026-03-30T09:24:06`_
+_Updated: `2026-03-30T11:00:04`_
 
 - Scope: `/home/mint/rl_dev/CRERL`
 - Branch: `main`
 - Source: `staged diff`
 - Impacted phases: `Phase 11`
-- Diff stat: 4 files changed, 243 insertions(+), 104 deletions(-)
+- Diff stat: 12 files changed, 2341 insertions(+), 3 deletions(-)
 
 ### Changed Files
 - `M` [doc/dev_log/p11_dev_status.md](doc/dev_log/p11_dev_status.md) [Project Docs]
 - `M` [doc/verification_readme.md](doc/verification_readme.md) [Project Docs]
-- `A` [isaac-training/training/scripts/with_comp_api_key.sh](isaac-training/training/scripts/with_comp_api_key.sh) [Training Pipeline]
+- `A` [isaac-training/training/dashboard/__init__.py](isaac-training/training/dashboard/__init__.py) [isaac-training]
+- `A` [isaac-training/training/dashboard/app.py](isaac-training/training/dashboard/app.py) [isaac-training]
+- `A` [isaac-training/training/dashboard/state.py](isaac-training/training/dashboard/state.py) [isaac-training]
+- `A` [isaac-training/training/dashboard/templates/index.html](isaac-training/training/dashboard/templates/index.html) [isaac-training]
+- `A` [isaac-training/training/dashboard/templates/partials/charts.html](isaac-training/training/dashboard/templates/partials/charts.html) [isaac-training]
+- `A` [isaac-training/training/dashboard/templates/partials/live_grid.html](isaac-training/training/dashboard/templates/partials/live_grid.html) [isaac-training]
+- `A` [isaac-training/training/dashboard/templates/partials/overview.html](isaac-training/training/dashboard/templates/partials/overview.html) [isaac-training]
+- `A` [isaac-training/training/scripts/run_dashboard.py](isaac-training/training/scripts/run_dashboard.py) [Training Pipeline]
+- `A` [isaac-training/training/unit_test/test_env/test_dashboard_monitor.py](isaac-training/training/unit_test/test_env/test_dashboard_monitor.py) [Training Tests]
 <!-- TRACEABILITY:END -->

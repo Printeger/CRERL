@@ -1246,6 +1246,36 @@ class NavigationEnv(IsaacEnv):
         self.info = info_spec.zero()
 
     
+    def _env_world_offsets(self, env_ids: torch.Tensor):
+        return self.envs_positions[env_ids].unsqueeze(1)
+
+    def _sample_local_start_goal_uniform(self, env_ids: torch.Tensor):
+        count = int(env_ids.numel())
+        starts = torch.zeros(count, 1, 3, dtype=torch.float, device=self.device)
+        goals = torch.zeros_like(starts)
+
+        xy_margin = min(1.0, self.map_range[0] * 0.2, self.map_range[1] * 0.2)
+        x_low, x_high = -self.map_range[0] + xy_margin, self.map_range[0] - xy_margin
+        y_low, y_high = -self.map_range[1] + xy_margin, self.map_range[1] - xy_margin
+        z_low, z_high = self.runtime_height_bounds
+        min_goal_distance = max(2.0, min(self.map_range[0], self.map_range[1]) * 0.35)
+
+        for index in range(count):
+            start = torch.empty(3, dtype=torch.float, device=self.device)
+            goal = torch.empty(3, dtype=torch.float, device=self.device)
+            for _ in range(32):
+                start[0] = torch.empty((), device=self.device).uniform_(x_low, x_high)
+                start[1] = torch.empty((), device=self.device).uniform_(y_low, y_high)
+                start[2] = torch.empty((), device=self.device).uniform_(z_low, z_high)
+                goal[0] = torch.empty((), device=self.device).uniform_(x_low, x_high)
+                goal[1] = torch.empty((), device=self.device).uniform_(y_low, y_high)
+                goal[2] = torch.empty((), device=self.device).uniform_(z_low, z_high)
+                if torch.norm(goal[:2] - start[:2]) >= min_goal_distance:
+                    break
+            starts[index, 0] = start
+            goals[index, 0] = goal
+        return starts, goals
+
     def _sample_scene_family_positions(self, env_ids: torch.Tensor):
         starts = torch.zeros(len(env_ids), 1, 3, dtype=torch.float, device=self.device)
         goals = torch.zeros_like(starts)
@@ -1258,60 +1288,20 @@ class NavigationEnv(IsaacEnv):
             starts[offset, 0] = torch.tensor(start, dtype=torch.float, device=self.device)
             goals[offset, 0] = torch.tensor(goal, dtype=torch.float, device=self.device)
         self.scene_family_reset_counter += 1
-        return starts, goals
-
-    def reset_target(self, env_ids: torch.Tensor):
-        if (self.training):
-            # decide which side
-            masks = torch.tensor([[1., 0., 1.], [1., 0., 1.], [0., 1., 1.], [0., 1., 1.]], dtype=torch.float, device=self.device)
-            shifts = torch.tensor([[0., 24., 0.], [0., -24., 0.], [24., 0., 0.], [-24., 0., 0.]], dtype=torch.float, device=self.device)
-            mask_indices = np.random.randint(0, masks.size(0), size=env_ids.size(0))
-            selected_masks = masks[mask_indices].unsqueeze(1)
-            selected_shifts = shifts[mask_indices].unsqueeze(1)
-
-
-            # generate random positions
-            target_pos = 48. * torch.rand(env_ids.size(0), 1, 3, dtype=torch.float, device=self.device) + (-24.)
-            heights = 0.5 + torch.rand(env_ids.size(0), dtype=torch.float, device=self.device) * (2.5 - 0.5)
-            target_pos[:, 0, 2] = heights# height
-            target_pos = target_pos * selected_masks + selected_shifts
-            
-            # apply target pos
-            self.target_pos[env_ids] = target_pos
-
-            # self.target_pos[:, 0, 0] = torch.linspace(-0.5, 0.5, self.num_envs) * 32.
-            # self.target_pos[:, 0, 1] = 24.
-            # self.target_pos[:, 0, 2] = 2.    
-        else:
-            self.target_pos[:, 0, 0] = torch.linspace(-0.5, 0.5, self.num_envs) * 32.
-            self.target_pos[:, 0, 1] = -24.
-            self.target_pos[:, 0, 2] = 2.            
+        env_offsets = self._env_world_offsets(env_ids)
+        return starts + env_offsets, goals + env_offsets
 
 
     def _reset_idx(self, env_ids: torch.Tensor):
         self.drone._reset_idx(env_ids, self.training)
         if self.scene_family_profile.get("enabled"):
             pos, target_pos = self._sample_scene_family_positions(env_ids)
-            self.target_pos[env_ids] = target_pos
         else:
-            self.reset_target(env_ids)
-            if (self.training):
-                masks = torch.tensor([[1., 0., 1.], [1., 0., 1.], [0., 1., 1.], [0., 1., 1.]], dtype=torch.float, device=self.device)
-                shifts = torch.tensor([[0., 24., 0.], [0., -24., 0.], [24., 0., 0.], [-24., 0., 0.]], dtype=torch.float, device=self.device)
-                mask_indices = np.random.randint(0, masks.size(0), size=env_ids.size(0))
-                selected_masks = masks[mask_indices].unsqueeze(1)
-                selected_shifts = shifts[mask_indices].unsqueeze(1)
-
-                # generate random positions
-                pos = 48. * torch.rand(env_ids.size(0), 1, 3, dtype=torch.float, device=self.device) + (-24.)
-                heights = 0.5 + torch.rand(env_ids.size(0), dtype=torch.float, device=self.device) * (2.5 - 0.5)
-                pos[:, 0, 2] = heights# height
-                pos = pos * selected_masks + selected_shifts
-            else:
-                pos = torch.zeros(len(env_ids), 1, 3, device=self.device)
-                pos[:, 0, 0] = (env_ids / self.num_envs - 0.5) * 32.
-                pos[:, 0, 1] = 24.
-                pos[:, 0, 2] = 2.
+            local_pos, local_target_pos = self._sample_local_start_goal_uniform(env_ids)
+            env_offsets = self._env_world_offsets(env_ids)
+            pos = local_pos + env_offsets
+            target_pos = local_target_pos + env_offsets
+        self.target_pos[env_ids] = target_pos
         
         # Coordinate change: after reset, the drone's target direction should be changed
         self.target_dir[env_ids] = self.target_pos[env_ids] - pos

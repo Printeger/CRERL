@@ -413,6 +413,42 @@ scene instances rather than one shared scene.
 - `python -m py_compile isaac-training/training/scripts/env.py`
   - passed
 
+## 14. Follow-Up Per-Env Spawn/Goal Binding (2026-04-10)
+
+This follow-up fixes a reset-coordinate bug that could place drones and goals
+outside their owning env instance during vectorized execution.
+
+### What changed
+
+- scene-family start/goal samples are still generated in env-local coordinates
+  but are now converted to world coordinates by adding the owning env offset
+- the legacy non-family reset path now also samples both spawn and goal inside
+  the local footprint of the owning env instead of using one shared global
+  coordinate scheme
+- `self.target_pos` and `self.drone.set_world_poses(...)` now consume the same
+  per-env world-frame coordinates
+
+### How to validate
+
+```bash
+python -m py_compile isaac-training/training/scripts/env.py
+```
+
+Then run a visible short train with:
+
+- `headless=False`
+- `env.num_envs=4`
+
+and confirm:
+
+- each drone spawn point lies inside its own env
+- each goal lies inside the same env as the drone
+
+### Validation results
+
+- `python -m py_compile isaac-training/training/scripts/env.py`
+  - passed
+
 ## 13. Follow-Up Ground Footprint Alignment (2026-04-10)
 
 This follow-up tightens the visible per-env floor so it matches the actual env

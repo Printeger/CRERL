@@ -264,6 +264,8 @@ def _install_lightweight_orbit_shims():
         RigidBodyPropertiesCfg=schemas_cfg_module.RigidBodyPropertiesCfg,
         MassPropertiesCfg=schemas_cfg_module.MassPropertiesCfg,
         CollisionPropertiesCfg=schemas_cfg_module.CollisionPropertiesCfg,
+        bind_visual_material=sim_utils_module.bind_visual_material,
+        bind_physics_material=sim_utils_module.bind_physics_material,
     )
 
 

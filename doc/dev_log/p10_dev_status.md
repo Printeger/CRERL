@@ -413,6 +413,34 @@ scene instances rather than one shared scene.
 - `python -m py_compile isaac-training/training/scripts/env.py`
   - passed
 
+## 16. Follow-Up Shim Material Binding Fix (2026-04-10)
+
+This follow-up fixes a startup regression introduced by the visible red-drone
+override.
+
+### What changed
+
+- the lightweight Orbit shim in `env.py` now exposes:
+  - `bind_visual_material`
+  - `bind_physics_material`
+- this keeps the trimmed `sim_utils` namespace compatible with the new drone
+  material override path without re-enabling heavyweight startup imports
+
+### How to validate
+
+```bash
+python -m py_compile isaac-training/training/scripts/env.py
+```
+
+Then rerun the visible short train command that previously failed during
+`NavigationEnv` initialization and confirm it no longer exits with:
+
+- `AttributeError: 'types.SimpleNamespace' object has no attribute 'bind_visual_material'`
+
+### Validation results
+
+- pending rerun of the visible train command
+
 ## 15. Follow-Up Drone Visual Override (2026-04-10)
 
 This follow-up improves visible RL inspection by making the cloned training

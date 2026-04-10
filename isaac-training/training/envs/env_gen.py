@@ -1304,12 +1304,16 @@ def _sample_start_goal_pair(
     d_max = float(start_goal_cfg.get("start_goal_distance_max", 16.0))
     z_min = workspace["flight_height_min"]
     z_max = workspace["flight_height_max"]
+    goal_z_min = max(z_min, goal_boundary_clearance)
+    goal_z_max = min(z_max, workspace["size_z"] - goal_boundary_clearance)
+    if goal_z_min > goal_z_max:
+        goal_z_min, goal_z_max = z_min, z_max
 
     for _ in range(200):
         sx, sy = _sample_boundary_band_point(rng, workspace, band_min, band_max)
         gx, gy = _sample_interior_point(rng, workspace, goal_boundary_clearance)
         sz = rng.uniform(z_min, z_max)
-        gz = rng.uniform(z_min, z_max)
+        gz = rng.uniform(goal_z_min, goal_z_max)
         dist = math.sqrt((sx - gx) ** 2 + (sy - gy) ** 2 + (sz - gz) ** 2)
         if d_min <= dist <= d_max:
             return (sx, sy, sz), (gx, gy, gz)
@@ -1383,6 +1387,12 @@ def _compile_scene_rule_templates(
     templates_cfg = dict(scene_rules.get("templates", {}))
     params_cfg = dict(scene_rules.get("template_params", {}))
     static_ratio_cfg = dict(scene_rules.get("primitive_type_ratio", {}).get("static", {}))
+    background_cfg = dict(scene_rules.get("background_placement", {}))
+    fill_to_boundary = bool(background_cfg.get("fill_to_boundary", False))
+    structured_margin_xy = background_cfg.get(
+        "structured_boundary_margin_xy",
+        background_cfg.get("obstacle_boundary_min_dist") if fill_to_boundary else None,
+    )
     if not templates_cfg.get("enabled", False):
         return [], {}
 
@@ -1405,6 +1415,8 @@ def _compile_scene_rule_templates(
         param_cfg = dict(params_cfg.get(template_type, {}))
         placement_mode = param_cfg.get("placement_mode", "random_free_region")
         template_cfg: Dict[str, Any] = {"type": template_type, "count": 1, "placement_mode": placement_mode}
+        if structured_margin_xy is not None:
+            template_cfg["margin_xy"] = float(structured_margin_xy)
 
         if template_type == "bottleneck":
             template_cfg["gap_width"] = _sample_float_range(rng, param_cfg.get("width_range"), 2.2)
@@ -1438,7 +1450,20 @@ def _compile_background_templates(
     primitive_budget = dict(scene_rules.get("primitive_budget", {}))
     static_ratio_cfg = dict(scene_rules.get("primitive_type_ratio", {}).get("static", {}))
     dynamic_cfg = dict(scene_rules.get("dynamic_obstacles", {}))
+    background_cfg = dict(scene_rules.get("background_placement", {}))
+    fill_to_boundary = bool(background_cfg.get("fill_to_boundary", False))
+    field_margin_xy = background_cfg.get(
+        "field_boundary_margin_xy",
+        background_cfg.get("obstacle_boundary_min_dist") if fill_to_boundary else None,
+    )
+    cover_edges = bool(background_cfg.get("cover_edges", fill_to_boundary))
     templates: List[Dict[str, Any]] = []
+
+    def with_background_placement(template_cfg: Dict[str, Any]) -> Dict[str, Any]:
+        if field_margin_xy is not None:
+            template_cfg["margin_xy"] = float(field_margin_xy)
+        template_cfg["cover_edges"] = cover_edges
+        return template_cfg
 
     def budget_target(primitive_type: str) -> int:
         budget = primitive_budget.get(primitive_type, [0, 0])
@@ -1451,19 +1476,19 @@ def _compile_background_templates(
 
     cylinder_target = budget_target("cylinder")
     if cylinder_target > 0:
-        templates.append({"type": "pillar_field", "count": 1, "target_count": cylinder_target})
+        templates.append(with_background_placement({"type": "pillar_field", "count": 1, "target_count": cylinder_target}))
 
     box_target = budget_target("box")
     if box_target > 0:
-        templates.append({"type": "box_field", "count": 1, "target_count": box_target})
+        templates.append(with_background_placement({"type": "box_field", "count": 1, "target_count": box_target}))
 
     slab_target = budget_target("slab")
     if slab_target > 0:
-        templates.append({"type": "slab_field", "count": 1, "target_count": slab_target})
+        templates.append(with_background_placement({"type": "slab_field", "count": 1, "target_count": slab_target}))
 
     perforated_target = budget_target("perforated_slab")
     if perforated_target > 0:
-        templates.append({"type": "perforated_field", "count": 1, "target_count": perforated_target})
+        templates.append(with_background_placement({"type": "perforated_field", "count": 1, "target_count": perforated_target}))
 
     if dynamic_cfg.get("enabled", False) and int(dynamic_cfg.get("max_dynamic_count", 0)) > 0:
         sphere_target = budget_target("sphere")
@@ -1473,12 +1498,12 @@ def _compile_background_templates(
             sphere_target + capsule_target,
         )
         if dynamic_target > 0:
-            templates.append({
+            templates.append(with_background_placement({
                 "type": "dynamic_field",
                 "count": 1,
                 "target_count": dynamic_target,
                 "sphere_fraction": float(scene_rules.get("primitive_type_ratio", {}).get("dynamic", {}).get("sphere", 0.5)),
-            })
+            }))
 
     return templates
 
@@ -1577,6 +1602,7 @@ def _jittered_grid_positions(
     margin_xy: float,
     cell_size: float,
     jitter_ratio: float = 0.35,
+    cover_edges: bool = False,
 ) -> List[Tuple[float, float]]:
     x_min = -workspace["size_x"] / 2.0 + margin_xy
     x_max = workspace["size_x"] / 2.0 - margin_xy
@@ -1585,28 +1611,42 @@ def _jittered_grid_positions(
     if x_min >= x_max or y_min >= y_max:
         return []
 
-    x_centers: List[float] = []
-    y_centers: List[float] = []
-    x = x_min + cell_size / 2.0
-    while x <= x_max - cell_size / 2.0 + 1e-6:
-        x_centers.append(x)
-        x += cell_size
-    if not x_centers:
-        x_centers = [(x_min + x_max) / 2.0]
+    def axis_centers(axis_min: float, axis_max: float) -> List[float]:
+        if cover_edges:
+            span = axis_max - axis_min
+            count = max(1, int(math.floor(span / cell_size)) + 1)
+            if count == 1:
+                return [(axis_min + axis_max) / 2.0]
+            return [axis_min + span * idx / float(count - 1) for idx in range(count)]
 
-    y = y_min + cell_size / 2.0
-    while y <= y_max - cell_size / 2.0 + 1e-6:
-        y_centers.append(y)
-        y += cell_size
-    if not y_centers:
-        y_centers = [(y_min + y_max) / 2.0]
+        centers: List[float] = []
+        value = axis_min + cell_size / 2.0
+        while value <= axis_max - cell_size / 2.0 + 1e-6:
+            centers.append(value)
+            value += cell_size
+        if not centers:
+            centers = [(axis_min + axis_max) / 2.0]
+        return centers
+
+    x_centers = axis_centers(x_min, x_max)
+    y_centers = axis_centers(y_min, y_max)
 
     jitter = cell_size * jitter_ratio
     positions: List[Tuple[float, float]] = []
+
+    def jitter_center(center: float, axis_min: float, axis_max: float) -> float:
+        low = -jitter
+        high = jitter
+        if cover_edges and center <= axis_min + 1e-6:
+            low = 0.0
+        elif cover_edges and center >= axis_max - 1e-6:
+            high = 0.0
+        return max(axis_min, min(axis_max, center + rng.uniform(low, high)))
+
     for cx in x_centers:
         for cy in y_centers:
-            px = max(x_min, min(x_max, cx + rng.uniform(-jitter, jitter)))
-            py = max(y_min, min(y_max, cy + rng.uniform(-jitter, jitter)))
+            px = jitter_center(cx, x_min, x_max)
+            py = jitter_center(cy, y_min, y_max)
             positions.append((px, py))
     rng.shuffle(positions)
     return positions
@@ -1623,15 +1663,16 @@ def _template_bottleneck(
     start: Tuple[float, float, float],
     goal: Tuple[float, float, float],
     existing: Sequence[PrimitiveSpec],
+    margin_xy: Optional[float] = None,
 ) -> Tuple[List[PrimitiveSpec], Dict[str, Any]]:
     gap = gap_width if gap_width is not None else max(1.0, 2.4 - 1.0 * difficulty)
     slab_length = float(length_override) if length_override is not None else (1.8 + 1.2 * difficulty)
     thickness = 0.4
     wall_height = min(workspace["size_z"] - 0.2, _sample_navrl_height(rng, workspace))
     if placement_mode == "route_adjacent":
-        center_x, center_y = _sample_route_adjacent_center(rng, workspace, start, goal, margin_xy=2.5, lateral_span=2.0)
+        center_x, center_y = _sample_route_adjacent_center(rng, workspace, start, goal, margin_xy=margin_xy if margin_xy is not None else 2.5, lateral_span=2.0)
     else:
-        center_x, center_y, _ = _uniform_pose(rng, workspace, margin_xy=3.0, z=0.0)
+        center_x, center_y, _ = _uniform_pose(rng, workspace, margin_xy=margin_xy if margin_xy is not None else 3.0, z=0.0)
     left_y = -(gap / 2.0 + slab_length / 2.0)
     right_y = +(gap / 2.0 + slab_length / 2.0)
 
@@ -1675,11 +1716,13 @@ def _template_pillar_field(
     start: Tuple[float, float, float],
     goal: Tuple[float, float, float],
     existing: Sequence[PrimitiveSpec],
+    margin_xy: float = 2.0,
+    cover_edges: bool = False,
 ) -> Tuple[List[PrimitiveSpec], Dict[str, Any]]:
     density = difficulty if obstacle_density is None else max(difficulty, obstacle_density)
     count = int(count_override) if count_override is not None else max(12, int(round((18 + density * 20) * density_scale)))
     primitives: List[PrimitiveSpec] = []
-    positions = _jittered_grid_positions(rng, workspace, margin_xy=2.0, cell_size=2.2)
+    positions = _jittered_grid_positions(rng, workspace, margin_xy=margin_xy, cell_size=2.2, cover_edges=cover_edges)
     for x, y in positions:
         if len(primitives) >= count:
             break
@@ -1723,11 +1766,13 @@ def _template_box_field(
     start: Tuple[float, float, float],
     goal: Tuple[float, float, float],
     existing: Sequence[PrimitiveSpec],
+    margin_xy: float = 2.0,
+    cover_edges: bool = False,
 ) -> Tuple[List[PrimitiveSpec], Dict[str, Any]]:
     density = difficulty if obstacle_density is None else max(difficulty, obstacle_density)
     count = int(count_override) if count_override is not None else max(6, int(round((8 + density * 12) * density_scale)))
     primitives: List[PrimitiveSpec] = []
-    positions = _jittered_grid_positions(rng, workspace, margin_xy=2.0, cell_size=3.0)
+    positions = _jittered_grid_positions(rng, workspace, margin_xy=margin_xy, cell_size=3.0, cover_edges=cover_edges)
     for x, y in positions:
         if len(primitives) >= count:
             break
@@ -1774,11 +1819,13 @@ def _template_slab_field(
     start: Tuple[float, float, float],
     goal: Tuple[float, float, float],
     existing: Sequence[PrimitiveSpec],
+    margin_xy: float = 2.5,
+    cover_edges: bool = False,
 ) -> Tuple[List[PrimitiveSpec], Dict[str, Any]]:
     density = difficulty if obstacle_density is None else max(difficulty, obstacle_density)
     count = int(count_override) if count_override is not None else max(2, int(round((3 + density * 4) * density_scale)))
     primitives: List[PrimitiveSpec] = []
-    positions = _jittered_grid_positions(rng, workspace, margin_xy=2.5, cell_size=4.5)
+    positions = _jittered_grid_positions(rng, workspace, margin_xy=margin_xy, cell_size=4.5, cover_edges=cover_edges)
     mid_height = (workspace["flight_height_min"] + workspace["flight_height_max"]) / 2.0
     for x, y in positions:
         if len(primitives) >= count:
@@ -1846,11 +1893,13 @@ def _template_perforated_field(
     start: Tuple[float, float, float],
     goal: Tuple[float, float, float],
     existing: Sequence[PrimitiveSpec],
+    margin_xy: float = 2.8,
+    cover_edges: bool = False,
 ) -> Tuple[List[PrimitiveSpec], Dict[str, Any]]:
     density = difficulty if obstacle_density is None else max(difficulty, obstacle_density)
     count = int(count_override) if count_override is not None else max(1, int(round((2 + density * 3) * density_scale)))
     primitives: List[PrimitiveSpec] = []
-    positions = _jittered_grid_positions(rng, workspace, margin_xy=2.8, cell_size=5.2)
+    positions = _jittered_grid_positions(rng, workspace, margin_xy=margin_xy, cell_size=5.2, cover_edges=cover_edges)
     mid_height = (workspace["flight_height_min"] + workspace["flight_height_max"]) / 2.0
     for x, y in positions:
         if len(primitives) >= count:
@@ -1915,11 +1964,13 @@ def _template_dynamic_field(
     start: Tuple[float, float, float],
     goal: Tuple[float, float, float],
     existing: Sequence[PrimitiveSpec],
+    margin_xy: float = 2.8,
+    cover_edges: bool = False,
 ) -> Tuple[List[PrimitiveSpec], Dict[str, Any]]:
     dynamic_density = max(difficulty, dynamic_ratio)
     count = int(count_override) if count_override is not None else max(2, int(round((2 + dynamic_density * 4) * density_scale)))
     primitives: List[PrimitiveSpec] = []
-    positions = _jittered_grid_positions(rng, workspace, margin_xy=2.8, cell_size=5.5)
+    positions = _jittered_grid_positions(rng, workspace, margin_xy=margin_xy, cell_size=5.5, cover_edges=cover_edges)
     mid_height = (workspace["flight_height_min"] + workspace["flight_height_max"]) / 2.0
     for idx, (x, y) in enumerate(positions):
         if len(primitives) >= count:
@@ -1988,13 +2039,14 @@ def _template_clutter_cluster(
     start: Tuple[float, float, float],
     goal: Tuple[float, float, float],
     existing: Sequence[PrimitiveSpec],
+    margin_xy: Optional[float] = None,
 ) -> Tuple[List[PrimitiveSpec], Dict[str, Any]]:
     count = int(count_override) if count_override is not None else int(4 + difficulty * 6)
     cluster_radius_value = float(cluster_radius) if cluster_radius is not None else 2.2
     if placement_mode == "route_adjacent":
-        center_x, center_y = _sample_route_adjacent_center(rng, workspace, start, goal, margin_xy=2.5, lateral_span=2.5)
+        center_x, center_y = _sample_route_adjacent_center(rng, workspace, start, goal, margin_xy=margin_xy if margin_xy is not None else 2.5, lateral_span=2.5)
     else:
-        center_x, center_y, _ = _uniform_pose(rng, workspace, margin_xy=3.0, z=0.0)
+        center_x, center_y, _ = _uniform_pose(rng, workspace, margin_xy=margin_xy if margin_xy is not None else 3.0, z=0.0)
     primitives: List[PrimitiveSpec] = []
     for _ in range(count):
         def make_candidate():
@@ -2146,6 +2198,7 @@ def _template_perforated_barrier(
     start: Tuple[float, float, float],
     goal: Tuple[float, float, float],
     existing: Sequence[PrimitiveSpec],
+    margin_xy: Optional[float] = None,
 ) -> Tuple[List[PrimitiveSpec], Dict[str, Any]]:
     hole_width = corridor_width if corridor_width is not None else max(0.9, 1.8 - 0.6 * difficulty)
     hole_height = max(0.8, workspace["flight_height_max"] - workspace["flight_height_min"] - 0.2)
@@ -2154,9 +2207,9 @@ def _template_perforated_barrier(
     panel_width = float(panel_width) if panel_width is not None else 3.0
     panel_thickness = float(thickness) if thickness is not None else 0.1
     if placement_mode == "route_adjacent":
-        center_x, center_y = _sample_route_adjacent_center(rng, workspace, start, goal, margin_xy=3.0, lateral_span=2.5)
+        center_x, center_y = _sample_route_adjacent_center(rng, workspace, start, goal, margin_xy=margin_xy if margin_xy is not None else 3.0, lateral_span=2.5)
     else:
-        center_x, center_y, _ = _uniform_pose(rng, workspace, margin_xy=3.0, z=0.0)
+        center_x, center_y, _ = _uniform_pose(rng, workspace, margin_xy=margin_xy if margin_xy is not None else 3.0, z=0.0)
     shapes = list(hole_shape_candidates or ["rectangle"])
     desired_hole_count = max(1, int(hole_count or 1))
     holes = []
@@ -2319,6 +2372,8 @@ def _generate_template(
     template_type = template_cfg["type"]
     count = int(template_cfg.get("count", 1))
     scale = float(template_cfg.get("scale", 1.0))
+    margin_xy = template_cfg.get("margin_xy")
+    cover_edges = bool(template_cfg.get("cover_edges", False))
     all_primitives: List[PrimitiveSpec] = []
     logs: List[Dict[str, Any]] = []
 
@@ -2336,6 +2391,7 @@ def _generate_template(
                 start,
                 goal,
                 current_existing,
+                None if margin_xy is None else float(margin_xy),
             )
         elif template_type == "pillar_field":
             primitives, log = _template_pillar_field(
@@ -2349,6 +2405,8 @@ def _generate_template(
                 start,
                 goal,
                 current_existing,
+                float(margin_xy) if margin_xy is not None else 2.0,
+                cover_edges,
             )
         elif template_type == "box_field":
             primitives, log = _template_box_field(
@@ -2362,6 +2420,8 @@ def _generate_template(
                 start,
                 goal,
                 current_existing,
+                float(margin_xy) if margin_xy is not None else 2.0,
+                cover_edges,
             )
         elif template_type == "clutter_cluster":
             primitives, log = _template_clutter_cluster(
@@ -2375,6 +2435,7 @@ def _generate_template(
                 start,
                 goal,
                 current_existing,
+                None if margin_xy is None else float(margin_xy),
             )
         elif template_type == "slab_field":
             primitives, log = _template_slab_field(
@@ -2388,6 +2449,8 @@ def _generate_template(
                 start,
                 goal,
                 current_existing,
+                float(margin_xy) if margin_xy is not None else 2.5,
+                cover_edges,
             )
         elif template_type == "perforated_field":
             primitives, log = _template_perforated_field(
@@ -2401,6 +2464,8 @@ def _generate_template(
                 start,
                 goal,
                 current_existing,
+                float(margin_xy) if margin_xy is not None else 2.8,
+                cover_edges,
             )
         elif template_type == "low_clearance_passage":
             primitives, log = _template_low_clearance_passage(
@@ -2431,6 +2496,7 @@ def _generate_template(
                 start,
                 goal,
                 current_existing,
+                None if margin_xy is None else float(margin_xy),
             )
         elif template_type == "dynamic_field":
             primitives, log = _template_dynamic_field(
@@ -2445,6 +2511,8 @@ def _generate_template(
                 start,
                 goal,
                 current_existing,
+                float(margin_xy) if margin_xy is not None else 2.8,
+                cover_edges,
             )
         elif template_type == "moving_crossing":
             primitives, log = _template_moving_crossing(

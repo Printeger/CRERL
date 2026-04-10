@@ -26,9 +26,14 @@ distribution_modes:
 background_placement:
   obstacle_obstacle_min_dist: 0.20
   obstacle_boundary_min_dist: 0.15
+  fill_to_boundary: true
+  field_boundary_margin_xy: 0.15
+  structured_boundary_margin_xy: 0.8
+  cover_edges: true
   max_rejection_trials: 520
   free_space_fraction_min: 0.06
-  free_space_fraction_max: 0.20
+  free_space_fraction_max: 0.40
+  occupancy_estimate_scale: 0.14
 
 templates:
   enabled: true

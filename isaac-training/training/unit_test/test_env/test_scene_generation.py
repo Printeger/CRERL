@@ -31,10 +31,15 @@ from env_gen import (
 )
 def test_load_scene_family_config_merges_family_yaml(family, scene_id):
     scene_rules = load_scene_family_config(family)
+    expected_size_x = {
+        SceneMode.NOMINAL: 15.0,
+        SceneMode.BOUNDARY_CRITICAL: 40.0,
+        SceneMode.SHIFTED: 40.0,
+    }[family]
 
     assert scene_rules["scene_family"] == family.value
     assert scene_rules["scene_id"] == scene_id
-    assert scene_rules["workspace"]["size_x"] == 40.0
+    assert scene_rules["workspace"]["size_x"] == expected_size_x
     assert scene_rules["templates"]["enabled"] is True
 
 
@@ -44,8 +49,8 @@ def test_boundary_critical_rules_tighten_clearance_and_template_pressure():
 
     assert critical["templates"]["max_templates_per_scene"] == 2
     assert critical["distribution_modes"]["route_adjacent_bias"] > nominal["distribution_modes"]["route_adjacent_bias"]
-    assert critical["start_goal"]["start_clearance_min"] < nominal["start_goal"]["start_clearance_min"]
-    assert critical["background_placement"]["free_space_fraction_min"] < nominal["background_placement"]["free_space_fraction_min"]
+    assert critical["start_goal"]["start_goal_distance_max"] > nominal["start_goal"]["start_goal_distance_max"]
+    assert critical["background_placement"]["obstacle_boundary_min_dist"] > nominal["background_placement"]["obstacle_boundary_min_dist"]
 
 
 def test_shifted_rules_change_template_mix_and_primitive_ratio():
@@ -87,7 +92,7 @@ def test_generate_scene_returns_required_sections_for_mainline_families(family, 
 @pytest.mark.parametrize(
     ("family", "difficulty", "distance_lo", "distance_hi"),
     [
-        (SceneMode.NOMINAL, 0.5, 8.0, 16.0),
+        (SceneMode.NOMINAL, 0.5, 4.0, 8.0),
         (SceneMode.BOUNDARY_CRITICAL, 0.4, 8.0, 14.0),
         (SceneMode.SHIFTED, 0.5, 8.0, 16.0),
     ],
@@ -97,8 +102,8 @@ def test_family_scene_uses_rules_and_start_goal_validation(family, difficulty, d
     scene_config = compile_scene_config_from_rules(scene_rules, seed=19, difficulty=difficulty, gravity_tilt_enabled=False)
     scene = generate_scene(scene_config)
 
-    assert scene["workspace"]["size_x"] == 40.0
-    assert scene["workspace"]["size_y"] == 40.0
+    assert scene["workspace"]["size_x"] == scene_rules["workspace"]["size_x"]
+    assert scene["workspace"]["size_y"] == scene_rules["workspace"]["size_y"]
     assert scene["workspace"]["size_z"] == 4.5
     assert scene["scene_mode"] == family.value
     assert scene["validation_report"]["template_presence_valid"] is True

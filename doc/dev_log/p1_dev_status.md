@@ -195,3 +195,63 @@ PY
     - `box`
     - `slab`
     - occasional `perforated_slab`
+
+## 7. Follow-Up Edge-Fill Placement (2026-04-10)
+
+This follow-up makes the dense `15 x 15` nominal family visibly use the edge
+area of each env instead of concentrating background obstacles near the center.
+
+### What changed
+
+- `scene_cfg_nominal.yaml` now enables boundary-fill placement controls under
+  `background_placement`:
+  - `fill_to_boundary`
+  - `field_boundary_margin_xy`
+  - `structured_boundary_margin_xy`
+  - `cover_edges`
+- `env_gen.py` now threads those controls into the compiled background field
+  templates instead of relying only on hard-coded `2.0m+` sampling margins.
+- `_jittered_grid_positions(...)` now supports `cover_edges=True`, which places
+  grid centers across the full configured sampling interval and jitters edge
+  centers inward so obstacles can populate the boundary band without violating
+  workspace bounds.
+- goal-height sampling now respects `goal_boundary_clearance_min`, matching the
+  start/goal generator with validation.
+- the nominal occupancy target was retuned for the new packed edge-fill density
+  so valid scenes do not exhaust the retry budget unnecessarily.
+- `test_scene_generation.py` was updated to reflect the current `15 x 15`
+  nominal scene-family contract instead of the old `40 x 40` nominal default.
+
+### How To Validate
+
+```bash
+python -m py_compile \
+  isaac-training/training/envs/env_gen.py \
+  isaac-training/training/unit_test/test_env/test_scene_generation.py
+```
+
+```bash
+pytest -q isaac-training/training/unit_test/test_env/test_scene_generation.py
+```
+
+Run a focused boundary-fill generation check:
+
+```bash
+python -c 'import sys; sys.path.insert(0,"isaac-training/training"); from envs.env_gen import load_scene_family_config, compile_scene_config_from_rules, generate_scene, validate_scene; cfg=load_scene_family_config("nominal"); [print(seed, validate_scene(generate_scene(compile_scene_config_from_rules(cfg, seed=seed, difficulty=1.0)))["valid"]) for seed in range(1001,1006)]'
+```
+
+### Validation Results
+
+- `python -m py_compile ...`
+  - passed
+- `pytest -q isaac-training/training/unit_test/test_env/test_scene_generation.py`
+  - `15 passed`
+- focused nominal scene generation:
+  - seeds `0-4` at `difficulty=0.5` passed `valid = true` and
+    `strict_valid = true`
+  - seeds `1001-1005` at `difficulty=1.0` passed `valid = true` and
+    `strict_valid = true`
+  - `retry_exhausted = false` for the checked seeds
+  - the `difficulty=1.0` scenes realized `43-48` primitives
+  - each checked `difficulty=1.0` scene had `17-25` obstacles within `0.75m`
+    of an env boundary

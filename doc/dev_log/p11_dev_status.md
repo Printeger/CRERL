@@ -258,7 +258,6 @@ Its purpose is to prove that the real native entrypoints still execute and can
 still feed the analysis stack.
 
 Concretely, it performs:
-
 - `baseline`
 - `train`
 - `eval`
@@ -830,3 +829,75 @@ Validation results:
     - `System Flow`
     - `Active Module Panel`
     - `Training and Analysis Charts`
+
+## 15. CRE_v4 Structure-Alignment Addendum
+
+On `2026-04-10`, a new structure-comparison note was added for the latest
+framework document:
+
+- `doc/cre_v4_structure_gap_analysis.md`
+
+Its purpose is to answer one practical question:
+
+- how the current repository structure differs from the latest
+  `doc/CRE_v4.pdf` structure dated `2026-04-10`
+
+This addendum does not change the runtime pipeline itself. It records a
+documentation-level alignment pass between:
+
+- the current repository reality,
+- the repo's own roadmap/architecture docs,
+- and the new `CRE_v4` handbook-style module layout
+
+What this note adds:
+
+1. a documented comparison method
+   - compare `CRE_v4.pdf` Part II module registry, data schemas, orchestrator,
+     and integration-test definitions
+   - against the real repository tree and the current implemented modules
+
+2. a module-by-module structure mapping
+   - `M1` through `M8`
+   - `Pipeline Orchestrator`
+   - typed schema objects
+   - current repo packages and scripts
+
+3. an explicit judgment on alignment status
+   - what is already aligned
+   - what is only partially aligned
+   - what is absent
+   - what the current repo already contains beyond `CRE_v4`
+
+4. a migration recommendation
+   - keep the current bundle-first engineering shape
+   - selectively absorb the most valuable `CRE_v4` structural ideas:
+     - real orchestrator
+     - unified typed pipeline state
+     - discrepancy protocol
+     - audit trail
+
+Focused validation for this addendum:
+
+```bash
+rg -n "CRE_v4 与当前项目结构差异对比|Module Registry|Pipeline Orchestrator|PsiCRE|AuditTrail" \
+  doc/cre_v4_structure_gap_analysis.md
+```
+
+```bash
+git diff -- \
+  doc/cre_v4_structure_gap_analysis.md \
+  doc/dev_log/p11_dev_status.md \
+  Traceability.md
+```
+
+Validation results:
+
+- the comparison note now exists under `doc/`
+- it explicitly records the `2026-04-10` PDF date/version context
+- it distinguishes:
+  - top-level structure differences
+  - module mapping differences
+  - data contract differences
+  - method-path differences
+- it concludes that the repo is architecturally compatible in intent, but not
+  yet structurally identical to the latest `CRE_v4` single-orchestrator model

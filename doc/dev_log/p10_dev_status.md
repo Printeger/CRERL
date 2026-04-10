@@ -413,6 +413,50 @@ scene instances rather than one shared scene.
 - `python -m py_compile isaac-training/training/scripts/env.py`
   - passed
 
+## 17. Follow-Up Per-Env Scene Diversity (2026-04-10)
+
+This follow-up removes the last major vectorized-scene shortcut in the native
+RL path.
+
+### What changed
+
+- `env.py` no longer relies on one shared family scene cloned into every env
+- when `scene_family_backend.enabled = true`, each env now:
+  - gets its own env-specific scene seed
+  - generates its own family scene through `env_gen.py`
+  - spawns its own obstacle set under its own env namespace
+- the merged LiDAR scan mesh now aggregates per-env spawned geometry instead of
+  repeating one shared obstacle layout
+- runtime metadata now records vectorized scene diversity using:
+  - `vectorized_scene_count`
+  - `vectorized_scene_ids`
+  - vectorized obstacle-count summary fields
+
+### How to validate
+
+```bash
+python -m py_compile isaac-training/training/scripts/env.py
+```
+
+Then run a short train/eval smoke with:
+
+- `scene_family_backend.family=nominal`
+- `env.num_envs > 1`
+
+and confirm:
+
+- envs no longer show identical obstacle layouts
+- different envs report different scene ids / obstacle counts in runtime metadata
+
+### Validation results
+
+- `python -m py_compile isaac-training/training/scripts/env.py`
+  - passed
+- focused runtime smoke in this shell:
+  - not completed
+  - reason: the current shell Python is missing `hydra`, so `train.py` could
+    not be launched here end-to-end
+
 ## 16. Follow-Up Shim Material Binding Fix (2026-04-10)
 
 This follow-up fixes a startup regression introduced by the visible red-drone

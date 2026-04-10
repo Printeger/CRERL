@@ -122,7 +122,9 @@ avoidance.
   - `perforated_slab`
 - reduced background spacing and free-space targets so more obstacles can fit
   into the smaller workspace
-- increased `max_templates_per_scene` from `1` to `2`
+- increased template count pressure to:
+  - `min_templates_per_scene = 2`
+  - `max_templates_per_scene = 3`
 - enlarged the realized clutter load by increasing:
   - clutter-cluster obstacle count
   - perforated-barrier panel size / hole count
@@ -187,7 +189,7 @@ PY
 - result:
   - all five generated scenes were `valid = true`
   - all five generated scenes were `strict_valid = true`
-  - realized primitive counts were between `13` and `15`
+  - realized primitive counts were between `19` and `24`
   - the realized primitive mix was dominated by:
     - `cylinder`
     - `box`

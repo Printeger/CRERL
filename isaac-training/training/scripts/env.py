@@ -412,6 +412,10 @@ class NavigationEnv(IsaacEnv):
         self.shared_scene_generator = None
         self.shared_scene_spawner = None
         self.shared_scene_result = None
+        self.env_scene_generators = []
+        self.env_scene_spawners = []
+        self.env_scene_results = []
+        self.env_scene_seeds = []
         self.use_env_gen_dynamic_runtime = False
         self.env_gen_dynamic_indices = []
         self.dynamic_lidar_refresh_interval = 10
@@ -427,10 +431,12 @@ class NavigationEnv(IsaacEnv):
         # 2. 调用 _design_scene() 创建场景
         # 3. 调用 _set_specs() 定义空间规范
         super().__init__(cfg, cfg.headless)
-        self.cre_runtime_metadata = self._build_cre_runtime_metadata(cfg)
         if self.scene_family_profile.get("enabled"):
+            self._spawn_shared_scene_from_env_gen()
+            self.sim.reset()
             self._build_scene_lidar_mesh()
             self.scene_mesh_prim_paths = [self.lidar_scan_mesh_path]
+        self.cre_runtime_metadata = self._build_cre_runtime_metadata(cfg)
         if not cfg.headless:
             self._spawn_env_visual_guides()
         
@@ -491,6 +497,18 @@ class NavigationEnv(IsaacEnv):
         profile = dict(self.scene_family_profile or {})
         shared_scene_tags = {}
         shared_scene_metadata = None
+        per_env_scene_ids = []
+        per_env_obstacle_counts = []
+        per_env_dynamic_counts = []
+        per_env_complexities = []
+        if self.env_scene_results:
+            for env_index, result in enumerate(self.env_scene_results):
+                metadata = result.cre_metadata
+                base_scene_id = str(metadata.scene_tags.get("scene_id", profile.get("scene_id_prefix", "")))
+                per_env_scene_ids.append(f"{base_scene_id}:env{env_index}:seed{getattr(metadata, 'seed', 'na')}")
+                per_env_obstacle_counts.append(int(getattr(metadata, "obstacle_count", 0) or 0))
+                per_env_dynamic_counts.append(int(getattr(metadata, "dynamic_obstacle_count", 0) or 0))
+                per_env_complexities.append(float(getattr(metadata, "complexity", 0.0) or 0.0))
         if self.shared_scene_result is not None:
             shared_scene_metadata = self.shared_scene_result.cre_metadata
             shared_scene_tags = dict(shared_scene_metadata.scene_tags)
@@ -515,6 +533,18 @@ class NavigationEnv(IsaacEnv):
                     "shared_scene_obstacle_count": int(getattr(shared_scene_metadata, "obstacle_count", 0) or 0),
                     "shared_scene_dynamic_obstacle_count": int(
                         getattr(shared_scene_metadata, "dynamic_obstacle_count", 0) or 0
+                    ),
+                    "vectorized_scene_count": len(per_env_scene_ids) or 1,
+                    "vectorized_scene_ids": per_env_scene_ids,
+                    "vectorized_scene_unique": len(set(per_env_scene_ids)) > 1,
+                    "vectorized_scene_obstacle_count_min": min(per_env_obstacle_counts) if per_env_obstacle_counts else 0,
+                    "vectorized_scene_obstacle_count_max": max(per_env_obstacle_counts) if per_env_obstacle_counts else 0,
+                    "vectorized_scene_obstacle_count_avg": (
+                        sum(per_env_obstacle_counts) / len(per_env_obstacle_counts) if per_env_obstacle_counts else 0.0
+                    ),
+                    "vectorized_scene_dynamic_count_total": sum(per_env_dynamic_counts),
+                    "vectorized_scene_complexity_avg": (
+                        sum(per_env_complexities) / len(per_env_complexities) if per_env_complexities else 0.0
                     ),
                     "repair_preview_binding": repair_preview_binding,
                     "effective_scene_binding": effective_scene_binding,
@@ -545,6 +575,10 @@ class NavigationEnv(IsaacEnv):
     def get_cre_runtime_metadata(self):
         return dict(self.cre_runtime_metadata)
 
+    def _scene_seed_for_env(self, env_index: int) -> int:
+        base_seed = int(self.scene_family_profile.get("seed", 0))
+        return base_seed + env_index * 1009
+
     def _make_env_gen_arena_cfg(self):
         compiled = dict(self.scene_family_profile.get("compiled_scene_config", {}) or {})
         workspace = dict(self.scene_family_profile.get("workspace", {}) or {})
@@ -561,17 +595,24 @@ class NavigationEnv(IsaacEnv):
         )
 
     def _sync_env_gen_dynamic_state(self):
-        if self.shared_scene_result is None:
+        scene_entries = []
+        if self.env_scene_results:
+            for env_index, result in enumerate(self.env_scene_results):
+                scene_entries.append((env_index, result))
+        elif self.shared_scene_result is not None:
+            scene_entries.append((0, self.shared_scene_result))
+        else:
             self.use_env_gen_dynamic_runtime = False
             self.runtime_dynamic_obstacle_count = 0
             return
 
         dynamic_items = [
-            (index, obstacle)
-            for index, obstacle in enumerate(self.shared_scene_result.obstacles)
+            (env_index, index, obstacle)
+            for env_index, result in scene_entries
+            for index, obstacle in enumerate(result.obstacles)
             if obstacle.is_dynamic
         ]
-        self.env_gen_dynamic_indices = [index for index, _ in dynamic_items]
+        self.env_gen_dynamic_indices = [(env_index, index) for env_index, index, _ in dynamic_items]
         self.runtime_dynamic_obstacle_count = len(dynamic_items)
         self.use_env_gen_dynamic_runtime = self.runtime_dynamic_obstacle_count > 0
 
@@ -579,16 +620,23 @@ class NavigationEnv(IsaacEnv):
             return
 
         positions = torch.tensor(
-            [obstacle.position for _, obstacle in dynamic_items],
+            [
+                (
+                    float(obstacle.position[0] + self.envs_positions[env_index, 0].item()),
+                    float(obstacle.position[1] + self.envs_positions[env_index, 1].item()),
+                    float(obstacle.position[2] + self.envs_positions[env_index, 2].item()),
+                )
+                for env_index, _, obstacle in dynamic_items
+            ],
             dtype=torch.float,
             device=self.cfg.device,
         )
         sizes = torch.tensor(
-            [obstacle.scale for _, obstacle in dynamic_items],
+            [obstacle.scale for _, _, obstacle in dynamic_items],
             dtype=torch.float,
             device=self.cfg.device,
         )
-        heights = [float(obstacle.scale[2]) for _, obstacle in dynamic_items]
+        heights = [float(obstacle.scale[2]) for _, _, obstacle in dynamic_items]
         narrow_dynamic_heights = [height for height in heights if height <= 1.5]
         tall_dynamic_heights = [height for height in heights if height > 1.5]
 
@@ -617,33 +665,80 @@ class NavigationEnv(IsaacEnv):
 
     def _spawn_shared_scene_from_env_gen(self):
         arena_cfg = self._make_env_gen_arena_cfg()
-        self.shared_scene_generator = UniversalArenaGenerator(
-            arena_cfg,
-            seed=int(self.scene_family_profile.get("seed", 0)),
-        )
-        self.shared_scene_spawner = ArenaSpawner(self.sim.stage, base_path=self.template_scene_base_path)
-        self.shared_scene_result = self.shared_scene_generator.generate_from_scene_family(
-            scene_family=self.scene_family_profile["family"],
-            seed=int(self.scene_family_profile.get("seed", 0)),
-            difficulty=float(self.scene_family_profile.get("difficulty", 0.5)),
-            gravity_tilt_enabled=bool(self.scene_family_profile.get("gravity_tilt_enabled", False)),
-        )
-        self.shared_scene_spawner.spawn(self.shared_scene_result)
+        self.env_scene_generators = []
+        self.env_scene_spawners = []
+        self.env_scene_results = []
+        self.env_scene_seeds = []
+
+        if self.scene_family_profile.get("enabled") and hasattr(self, "envs_prim_paths"):
+            for env_index, env_path in enumerate(self.envs_prim_paths):
+                scene_seed = self._scene_seed_for_env(env_index)
+                generator = UniversalArenaGenerator(arena_cfg, seed=scene_seed)
+                spawner = ArenaSpawner(self.sim.stage, base_path=f"{env_path}/Arena")
+                result = generator.generate_from_scene_family(
+                    scene_family=self.scene_family_profile["family"],
+                    seed=scene_seed,
+                    difficulty=float(self.scene_family_profile.get("difficulty", 0.5)),
+                    gravity_tilt_enabled=bool(self.scene_family_profile.get("gravity_tilt_enabled", False)),
+                )
+                spawner.spawn(result)
+                self.env_scene_generators.append(generator)
+                self.env_scene_spawners.append(spawner)
+                self.env_scene_results.append(result)
+                self.env_scene_seeds.append(scene_seed)
+
+            if self.env_scene_results:
+                self.shared_scene_generator = self.env_scene_generators[0]
+                self.shared_scene_spawner = self.env_scene_spawners[0]
+                self.shared_scene_result = self.env_scene_results[0]
+        else:
+            self.shared_scene_generator = UniversalArenaGenerator(
+                arena_cfg,
+                seed=int(self.scene_family_profile.get("seed", 0)),
+            )
+            self.shared_scene_spawner = ArenaSpawner(self.sim.stage, base_path=self.template_scene_base_path)
+            self.shared_scene_result = self.shared_scene_generator.generate_from_scene_family(
+                scene_family=self.scene_family_profile["family"],
+                seed=int(self.scene_family_profile.get("seed", 0)),
+                difficulty=float(self.scene_family_profile.get("difficulty", 0.5)),
+                gravity_tilt_enabled=bool(self.scene_family_profile.get("gravity_tilt_enabled", False)),
+            )
+            self.shared_scene_spawner.spawn(self.shared_scene_result)
         self._sync_env_gen_dynamic_state()
 
     def _step_env_gen_dynamic_obstacles(self):
-        if not self.use_env_gen_dynamic_runtime or self.shared_scene_generator is None:
+        if not self.use_env_gen_dynamic_runtime:
             return
-        new_positions = self.shared_scene_generator.update_dynamic_obstacles(self.cfg.sim.dt)
-        if new_positions and self.shared_scene_spawner is not None:
-            self.shared_scene_spawner.update_positions(new_positions)
-        if self.shared_scene_generator._current_result is not None:
-            self.shared_scene_result = self.shared_scene_generator._current_result
+        if self.env_scene_generators:
+            for env_index, (generator, spawner) in enumerate(zip(self.env_scene_generators, self.env_scene_spawners)):
+                new_positions = generator.update_dynamic_obstacles(self.cfg.sim.dt)
+                if new_positions and spawner is not None:
+                    spawner.update_positions(new_positions)
+                if generator._current_result is not None:
+                    self.env_scene_results[env_index] = generator._current_result
+            if self.env_scene_results:
+                self.shared_scene_result = self.env_scene_results[0]
+        elif self.shared_scene_generator is not None:
+            new_positions = self.shared_scene_generator.update_dynamic_obstacles(self.cfg.sim.dt)
+            if new_positions and self.shared_scene_spawner is not None:
+                self.shared_scene_spawner.update_positions(new_positions)
+            if self.shared_scene_generator._current_result is not None:
+                self.shared_scene_result = self.shared_scene_generator._current_result
 
-        dynamic_positions = [
-            self.shared_scene_result.obstacles[index].position
-            for index in self.env_gen_dynamic_indices
-        ]
+        dynamic_positions = []
+        for env_index, obstacle_index in self.env_gen_dynamic_indices:
+            if self.env_scene_results:
+                obstacle = self.env_scene_results[env_index].obstacles[obstacle_index]
+            else:
+                obstacle = self.shared_scene_result.obstacles[obstacle_index]
+            env_offset = self.envs_positions[env_index]
+            dynamic_positions.append(
+                (
+                    float(obstacle.position[0] + env_offset[0].item()),
+                    float(obstacle.position[1] + env_offset[1].item()),
+                    float(obstacle.position[2] + env_offset[2].item()),
+                )
+            )
         if dynamic_positions:
             position_tensor = torch.tensor(
                 dynamic_positions,
@@ -780,7 +875,31 @@ class NavigationEnv(IsaacEnv):
                     counts.append(3)
                     indices.extend([face[0], face[idx], face[idx + 1]])
 
-        if self.shared_scene_spawner is not None and self.shared_scene_result is not None:
+        if self.env_scene_results and self.env_scene_spawners:
+            xform_cache = UsdGeom.XformCache(Usd.TimeCode.Default())
+            for result, spawner in zip(self.env_scene_results, self.env_scene_spawners):
+                for obstacle, prim_path in zip(result.obstacles, spawner.spawned_prims):
+                    if obstacle.is_dynamic:
+                        continue
+                    prim = stage.GetPrimAtPath(prim_path)
+                    if not prim.IsValid():
+                        continue
+
+                    prim_type = prim.GetTypeName()
+                    if prim_type == "Cube":
+                        verts, tris = self._cube_mesh_local()
+                    elif prim_type == "Cylinder":
+                        verts, tris = self._cylinder_mesh_local(segments=16)
+                    elif prim_type == "Sphere":
+                        verts, tris = self._sphere_mesh_local(lat=8, lon=16)
+                    else:
+                        continue
+
+                    world_mat = xform_cache.GetLocalToWorldTransform(prim)
+                    verts_world = self._transform_scene_mesh_vertices(world_mat, verts)
+                    self._append_scene_mesh_triangles(points, counts, indices, verts_world, tris)
+
+        elif self.shared_scene_spawner is not None and self.shared_scene_result is not None:
             xform_cache = UsdGeom.XformCache(Usd.TimeCode.Default())
             scene_prim_paths = list(self.shared_scene_spawner.spawned_prims)
             if self.scene_family_profile.get("enabled") and hasattr(self, "envs_prim_paths"):
@@ -1019,9 +1138,6 @@ class NavigationEnv(IsaacEnv):
             debug_vis=True,  # 显示调试可视化
         )
         terrain_importer = TerrainImporter(terrain_cfg)  # 导入地形
-
-        if self.scene_family_profile.get("enabled"):
-            self._spawn_shared_scene_from_env_gen()
 
         if self.use_env_gen_dynamic_runtime or self.runtime_dynamic_obstacle_count == 0:
             return
@@ -1293,11 +1409,11 @@ class NavigationEnv(IsaacEnv):
     def _sample_scene_family_positions(self, env_ids: torch.Tensor):
         starts = torch.zeros(len(env_ids), 1, 3, dtype=torch.float, device=self.device)
         goals = torch.zeros_like(starts)
-        base_seed = int(self.scene_family_profile.get("seed", 0)) + self.scene_family_reset_counter * max(1, self.num_envs)
         for offset, env_id in enumerate(env_ids.tolist()):
+            env_seed = self.env_scene_seeds[env_id] if env_id < len(self.env_scene_seeds) else self._scene_seed_for_env(int(env_id))
             start, goal = sample_start_goal_from_profile(
                 self.scene_family_profile,
-                seed=base_seed + int(env_id),
+                seed=env_seed + self.scene_family_reset_counter,
             )
             starts[offset, 0] = torch.tensor(start, dtype=torch.float, device=self.device)
             goals[offset, 0] = torch.tensor(goal, dtype=torch.float, device=self.device)

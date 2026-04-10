@@ -295,7 +295,226 @@ flowchart LR
 | 流程收口 | 统一 orchestrator | 多 CLI 脚本 + smoke path |
 | 发布导向 | 到 acceptance/test 为止 | 继续向 benchmark/release 包装延伸 |
 
-## 9. 当前仓库相对 `CRE_v4` 的“多出来的结构”
+## 9. 以强化学习训练为主线看 CRE 的介入方式
+
+如果把“强化学习训练”当作系统主线，那么更容易看清一个关键问题：
+
+- CRE 不是替代 RL 训练
+- CRE 是在 **训练前、训练中、训练后、修复回环** 的多个位置对 RL 主线进行约束、观测、诊断和反馈
+
+下面分别说明当前 project 和 `CRE_v4` 是怎么沿着 RL 训练主线介入的。
+
+### 9.1 当前 project 中 CRE 如何介入 RL 训练主线
+
+当前 project 的 RL 主线大致可以写成：
+
+`scene/spec config -> env/train/eval execution -> runtime logs -> analysis bundles -> report -> repair -> validation -> 再回到 execution`
+
+如果按训练时序展开，可以分成四段。
+
+#### A. 训练前介入
+
+在当前 project 里，CRE 首先不是从自然语言进入，而是从机器可读规格进入：
+
+- `cfg/spec_cfg/*.yaml`
+- `cfg/env_cfg/*.yaml`
+- `analyzers/spec_ir.py`
+- `scripts/run_static_audit.py`
+
+这一段 CRE 的作用是：
+
+- 在训练开始前把 `C/R/E` 约束成可检查对象
+- 确认 scene family 是否满足预期
+- 用 static audit 提前发现 reward/constraint/environment 的结构性问题
+
+也就是说，当前项目里的 CRE 在训练前的角色偏“**训练前审计器**”。
+
+#### B. 训练中介入
+
+当前项目的训练主入口仍然是 RL 脚本：
+
+- `scripts/train.py`
+- `scripts/eval.py`
+- `scripts/env.py`
+
+CRE 在训练中的主要介入方式不是改写 PPO 本身，而是：
+
+- 把 scene-family backend 接进训练/评估路径
+- 把训练过程转成统一的 CRE 运行日志
+- 给训练 rollout、周期性 eval rollout、baseline rollout 都打上统一 metadata
+
+这意味着当前 project 里，CRE 在训练中的角色更像：
+
+- **训练运行的观测与证据采集层**
+- 而不是训练算法内部的直接控制器
+
+换句话说，当前设计更强调：
+
+- 让训练继续按 RL 主线跑
+- 但训练产生的每条执行路径都要变成可分析证据
+
+#### C. 训练后介入
+
+训练或评估结束后，CRE 的主线开始变强：
+
+- `analysis/static`
+- `analysis/dynamic`
+- `analysis/semantic`
+- `analysis/report`
+
+这一段的作用是：
+
+- 把训练产物从“模型表现”转成“CRE 证据”
+- 不只问 reward 高不高
+- 而是问：
+  - 有没有 `C-R` 冲突
+  - 有没有 `E-C` 覆盖缺口
+  - 有没有 `E-R` 迁移脆弱性
+
+所以当前 project 的 CRE 在训练后的角色是：
+
+- **训练结果解释器**
+- **失配定位器**
+- **repair handoff 生成器**
+
+#### D. 修复回环中的介入
+
+当前 project 在训练主线之后还接上了 repair/validation 回环：
+
+- `analysis/repair`
+- `analysis/validation`
+- bounded rerun / native rerun
+
+这一步的逻辑是：
+
+1. 根据 report 形成 repair candidate
+2. 对 spec/env/reward 做最小修补
+3. 用 rerun 或受限真实执行重新拿证据
+4. 再判断修复是否改善了训练相关问题
+
+因此，当前 project 里 CRE 对 RL 的完整介入方式可以总结为：
+
+- **训练前：先审计规格**
+- **训练中：采集统一证据**
+- **训练后：做结构化诊断**
+- **训练后回环：推动修复并验证**
+
+它更像一个围绕 RL 训练主线包裹起来的“**证据型外环系统**”。
+
+### 9.2 `CRE_v4` 中 CRE 如何介入 RL 训练主线
+
+`CRE_v4` 的思路也围绕 RL 训练，但它的介入更内聚、更强类型化。
+
+如果按训练主线理解，`CRE_v4` 的逻辑更接近：
+
+`NL spec -> SpecS -> pre-training estimators -> discrepancy/composite diagnosis -> semantic reasoning -> repair proposal -> acceptance -> repaired SpecS -> 再进入训练/验证`
+
+同样按时序拆开看：
+
+#### A. 训练前介入更早
+
+`CRE_v4` 的入口是：
+
+- `NLInput`
+- `M1`
+- `SpecS`
+
+这意味着它在“训练之前”的介入比当前 project 更早一步：
+
+- 不仅检查训练要用的 machine-readable config
+- 还要先把自然语言目标、奖励、约束、环境描述解析成正式规格
+
+所以 `CRE_v4` 在训练前的角色是：
+
+- **规格构造器**
+- **规格消歧器**
+- **训练前一致性分析器**
+
+#### B. 对训练前诊断的建模更强
+
+在 `CRE_v4` 里，训练前不是简单 static check，而是：
+
+- `M2` primary estimators
+- `M3` enhanced estimators
+- Stage III discrepancy protocol
+- `M5` composite scoring
+
+这说明 `CRE_v4` 试图在真正进入训练或大规模运行前，就先形成：
+
+- reporter
+- discrepancy signal
+- `PsiCRE`
+- 不确定性区间
+
+因此它把 CRE 对 RL 主线的介入前推到了：
+
+- **训练前诊断层**
+- 而且是一个比当前项目更统一、更模型化的训练前诊断层
+
+#### C. 训练后语义诊断和修复提议更嵌入主流程
+
+在 `CRE_v4` 中：
+
+- `M4` 负责 semantic analysis + repair-target ranking
+- `M7` 负责 repair proposal generation
+- `M8` 负责 acceptance and semantic verification
+
+这表示训练后阶段不是“若干外部脚本消费 bundle”，而是：
+
+- 同一个 pipeline state 持续流经语义诊断、修复生成、验收判断
+
+所以 `CRE_v4` 在训练后的角色更像：
+
+- **训练诊断内核**
+- **修复决策内核**
+
+#### D. 修复后返回训练主线的路径更规范化
+
+`CRE_v4` 里 repair 的目标是得到：
+
+- repaired `SpecS`
+- `AcceptanceVerdict`
+
+然后再把修复后的规格送回下一轮训练/验证。
+
+因此它对 RL 主线的介入是一个更规范的：
+
+- `spec -> diagnose -> repair -> accept/reject -> retrain/revalidate`
+
+闭环。
+
+从这个角度看，`CRE_v4` 更像围绕 RL 训练主线构建出的“**统一内核型中枢系统**”。
+
+### 9.3 两者在 RL 训练主线上的差异总结
+
+| 观察角度 | 当前 project | `CRE_v4` |
+| --- | --- | --- |
+| CRE 从哪里开始介入训练主线 | 从 YAML spec/env config 和静态审计开始 | 从自然语言规格解析和 `SpecS` 构造开始 |
+| 训练前介入重点 | 规则化、可落盘、可执行的 preflight audit | 统一 reporter、discrepancy、`PsiCRE` 的训练前诊断 |
+| 训练中介入重点 | 日志标准化、scene-family 绑定、运行证据采集 | 文档结构里更强调前后诊断，训练中细节不如当前 repo 工程化 |
+| 训练后介入重点 | bundle-based static/dynamic/semantic/report 流 | 单 pipeline state 上的模块化诊断与修复 |
+| repair 如何回到 RL 主线 | 通过 repair bundle 和 validation rerun 回流 | 通过 repaired `SpecS` 和 `AcceptanceVerdict` 回流 |
+| 整体形态 | 围绕 RL 的证据型外环系统 | 围绕 RL 的统一内核型中枢系统 |
+
+### 9.4 一个更直观的判断
+
+如果只从“强化学习训练是不是主线”这个问题看：
+
+- 两者都把 RL 训练当主线
+- 区别不在于谁围绕 RL，谁不围绕 RL
+- 而在于 CRE 是以什么方式围绕 RL
+
+当前 project 更像：
+
+- **训练主线在中间跑**
+- CRE 在两侧做审计、证据化、诊断、修复和验证
+
+`CRE_v4` 更像：
+
+- **CRE 本身就是训练主线的上层控制内核**
+- 训练是这个内核所驱动和反复调用的执行环节之一
+
+## 10. 当前仓库相对 `CRE_v4` 的“多出来的结构”
 
 这些结构不是问题，但它们说明当前仓库比 `CRE_v4` 的 Part II 范围更宽：
 
@@ -314,7 +533,7 @@ flowchart LR
 - release artifact 输出
 - 离线/无 API key 默认可验证路径
 
-## 10. 差异归因
+## 11. 差异归因
 
 当前差异主要来自四类原因：
 
@@ -334,7 +553,7 @@ flowchart LR
    - `CRE_v4` 聚焦 CRE pipeline 本体
    - 当前仓库还保留 RL、仿真、ROS、dashboard、兼容层
 
-## 11. 对齐建议
+## 12. 对齐建议
 
 如果后续目标是让仓库结构更贴近 `CRE_v4.pdf`，建议按下面顺序推进，而不是推翻现有工程骨架：
 
@@ -358,7 +577,7 @@ flowchart LR
    - 如果保留当前 finding-first/report-first 路线，可以把 `PsiCRE` 作为派生指标
    - 不建议为了对齐文档而牺牲现有 bundle 契约
 
-## 12. 最终判断
+## 13. 最终判断
 
 截至 `2026-04-10`，当前项目与 `doc/CRE_v4.pdf` 的关系可以概括为：
 

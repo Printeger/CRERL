@@ -972,3 +972,83 @@ Validation results:
 - the note now contains two `mermaid` flowcharts
 - the current project flow and the `CRE_v4` flow are now both represented as
   standalone diagrams in the same document
+
+## 17. RL-Mainline CRE-Intervention Addendum
+
+The comparison note was then extended with a training-centered explanation so
+the structural difference can be read from the perspective of reinforcement
+learning workflow, not only from the perspective of module topology.
+
+This update added one new chapter to:
+
+- `doc/cre_v4_structure_gap_analysis.md`
+
+The new chapter answers:
+
+- if RL training is treated as the project mainline, how does CRE intervene in
+  the current repository?
+- if RL training is treated as the project mainline, how does CRE intervene in
+  `doc/CRE_v4.pdf`?
+
+What this addendum now makes explicit:
+
+1. **current project intervention path**
+   - pre-training:
+     - YAML spec/env config
+     - `spec_ir`
+     - static audit
+   - in-training:
+     - scene-family binding
+     - runtime metadata binding
+     - unified CRE log capture for train/eval/baseline
+   - post-training:
+     - static/dynamic/semantic/report bundles interpret rollout evidence
+   - repair loop:
+     - repair bundle
+     - validation rerun
+     - evidence-based return to execution
+
+2. **`CRE_v4` intervention path**
+   - pre-training starts even earlier from:
+     - `NLInput`
+     - `M1`
+     - `SpecS`
+   - pre-training diagnosis is more centralized through:
+     - `M2`
+     - `M3`
+     - discrepancy protocol
+     - `M5 / PsiCRE`
+   - semantic diagnosis, repair generation, and acceptance are modelled as one
+     continuous typed pipeline around repaired `SpecS`
+
+3. **a clearer architectural interpretation**
+   - current repo:
+     - CRE acts as an evidence-oriented outer loop around RL training
+   - `CRE_v4`:
+     - CRE acts more like a unified supervisory kernel over the RL loop
+
+Focused validation for this addendum:
+
+```bash
+rg -n "以强化学习训练为主线看 CRE 的介入方式|训练前介入|训练中介入|证据型外环系统|统一内核型中枢系统" \
+  doc/cre_v4_structure_gap_analysis.md
+```
+
+```bash
+git diff -- \
+  doc/cre_v4_structure_gap_analysis.md \
+  doc/dev_log/p11_dev_status.md \
+  Traceability.md
+```
+
+Validation results:
+
+- the note now contains a dedicated RL-mainline chapter
+- the chapter distinguishes:
+  - pre-training intervention
+  - in-training intervention
+  - post-training interpretation
+  - repair-loop return path
+- the chapter now makes the difference between current-project CRE and
+  `CRE_v4` CRE readable from the RL workflow perspective instead of only from
+  the static architecture perspective

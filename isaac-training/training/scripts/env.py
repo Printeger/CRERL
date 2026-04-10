@@ -414,6 +414,8 @@ class NavigationEnv(IsaacEnv):
         self.env_gen_dynamic_indices = []
         self.dynamic_lidar_refresh_interval = 10
         self.lidar_scan_mesh_path = "/World/LidarScanMesh"
+        self.template_ground_prim_path = f"{self.template_env_ns}/ground"
+        self.template_scene_base_path = f"{self.template_env_ns}/Arena"
 
         # ============================================
         # 第 2 步：调用父类初始化（创建仿真场景）
@@ -424,6 +426,9 @@ class NavigationEnv(IsaacEnv):
         # 3. 调用 _set_specs() 定义空间规范
         super().__init__(cfg, cfg.headless)
         self.cre_runtime_metadata = self._build_cre_runtime_metadata(cfg)
+        if self.scene_family_profile.get("enabled"):
+            self._build_scene_lidar_mesh()
+            self.scene_mesh_prim_paths = [self.lidar_scan_mesh_path]
         
         # ============================================
         # 第 3 步：初始化无人机
@@ -612,7 +617,7 @@ class NavigationEnv(IsaacEnv):
             arena_cfg,
             seed=int(self.scene_family_profile.get("seed", 0)),
         )
-        self.shared_scene_spawner = ArenaSpawner(self.sim.stage, base_path="/World/Arena")
+        self.shared_scene_spawner = ArenaSpawner(self.sim.stage, base_path=self.template_scene_base_path)
         self.shared_scene_result = self.shared_scene_generator.generate_from_scene_family(
             scene_family=self.scene_family_profile["family"],
             seed=int(self.scene_family_profile.get("seed", 0)),
@@ -620,8 +625,6 @@ class NavigationEnv(IsaacEnv):
             gravity_tilt_enabled=bool(self.scene_family_profile.get("gravity_tilt_enabled", False)),
         )
         self.shared_scene_spawner.spawn(self.shared_scene_result)
-        self._build_scene_lidar_mesh()
-        self.scene_mesh_prim_paths = [self.lidar_scan_mesh_path]
         self._sync_env_gen_dynamic_state()
 
     def _step_env_gen_dynamic_obstacles(self):
@@ -749,8 +752,14 @@ class NavigationEnv(IsaacEnv):
         counts = []
         indices = []
 
-        ground_prim = stage.GetPrimAtPath("/World/ground")
-        if ground_prim.IsValid() and ground_prim.GetTypeName() == "Mesh":
+        ground_prim_paths = ["/World/ground"]
+        if self.scene_family_profile.get("enabled") and hasattr(self, "envs_prim_paths"):
+            ground_prim_paths = [f"{env_path}/ground" for env_path in self.envs_prim_paths]
+
+        for ground_path in ground_prim_paths:
+            ground_prim = stage.GetPrimAtPath(ground_path)
+            if not ground_prim.IsValid() or ground_prim.GetTypeName() != "Mesh":
+                continue
             ground_mesh = UsdGeom.Mesh(ground_prim)
             ground_points = ground_mesh.GetPointsAttr().Get() or []
             ground_counts = ground_mesh.GetFaceVertexCountsAttr().Get() or []
@@ -769,10 +778,17 @@ class NavigationEnv(IsaacEnv):
 
         if self.shared_scene_spawner is not None and self.shared_scene_result is not None:
             xform_cache = UsdGeom.XformCache(Usd.TimeCode.Default())
-            for prim_path, obstacle in zip(
-                self.shared_scene_spawner.spawned_prims,
-                self.shared_scene_result.obstacles,
-            ):
+            scene_prim_paths = list(self.shared_scene_spawner.spawned_prims)
+            if self.scene_family_profile.get("enabled") and hasattr(self, "envs_prim_paths"):
+                scene_prim_paths = []
+                obstacle_count = len(self.shared_scene_result.obstacles)
+                for env_path in self.envs_prim_paths:
+                    for index in range(obstacle_count):
+                        scene_prim_paths.append(f"{env_path}/Arena/obstacle_{index}")
+
+            obstacle_cycle = self.shared_scene_result.obstacles
+            for prim_index, prim_path in enumerate(scene_prim_paths):
+                obstacle = obstacle_cycle[prim_index % len(obstacle_cycle)]
                 if obstacle.is_dynamic:
                     continue
                 prim = stage.GetPrimAtPath(prim_path)
@@ -866,9 +882,9 @@ class NavigationEnv(IsaacEnv):
 
         terrain_static_obstacle_count = 0 if self.scene_family_profile.get("enabled") else self.cfg.env.num_obstacles
         terrain_cfg = TerrainImporterCfg(
-            num_envs=self.num_envs,  # 多少个并行环境
-            env_spacing=0.0,  # 环境之间的间距（0表示共享地形）
-            prim_path="/World/ground",
+            num_envs=1 if self.scene_family_profile.get("enabled") else self.num_envs,
+            env_spacing=0.0,  # family backend 启用时地形在模板环境内复制
+            prim_path=self.template_ground_prim_path if self.scene_family_profile.get("enabled") else "/World/ground",
             terrain_type="generator",  # 使用生成器创建地形
             
             terrain_generator=TerrainGeneratorCfg(

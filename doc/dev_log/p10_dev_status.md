@@ -375,3 +375,46 @@ The native execution parity check is now complete:
 all emit machine-readable accepted runs that point at the same shared
 authoritative `env_gen.py` scene backend instead of diverging into separate
 scene-generation paths.
+
+## 9. Follow-Up Alignment (2026-04-10)
+
+This follow-up fixes a native vectorization mismatch in the RL stack.
+
+### What changed
+
+- when `scene_family_backend.enabled = true`, the family scene is now spawned
+  under the template environment namespace instead of under a global
+  `/World/Arena` root
+- the family ground is now also generated under the template environment
+  namespace instead of a single global `/World/ground`
+- after cloning completes, `env.py` rebuilds one merged LiDAR scan mesh from
+  the cloned per-env scene geometry
+
+This means vectorized RL execution now behaves as:
+
+- multiple cloned environment instances
+
+instead of:
+
+- one shared obstacle scene with multiple drones inside it
+
+### How to validate
+
+```bash
+python -m py_compile isaac-training/training/scripts/env.py
+```
+
+Then launch a short visible train/eval smoke with `headless=False` and
+`env.num_envs=4`, and confirm the stage shows four spatially separated cloned
+scene instances rather than one shared scene.
+
+### Validation results
+
+- `python -m py_compile isaac-training/training/scripts/env.py`
+  - passed
+
+### What this means
+
+The RL execution stack is now better aligned with the expected vectorized-env
+semantics: each cloned env owns its own scene instance when consuming the
+family-based backend.

@@ -429,6 +429,8 @@ class NavigationEnv(IsaacEnv):
         if self.scene_family_profile.get("enabled"):
             self._build_scene_lidar_mesh()
             self.scene_mesh_prim_paths = [self.lidar_scan_mesh_path]
+        if not cfg.headless:
+            self._spawn_env_visual_guides()
         
         # ============================================
         # 第 3 步：初始化无人机
@@ -820,44 +822,54 @@ class NavigationEnv(IsaacEnv):
             code = code.reshape(-1)[0].item()
         return self.done_type_labels.get(int(code), "unknown")
 
-    def _spawn_env_boundary_markers(self):
-        half_x = float(self.map_range[0])
-        half_y = float(self.map_range[1])
-        wall_height = 0.35
-        wall_thickness = 0.06
-        marker_base = f"{self.template_env_ns}/EnvBoundary"
-        marker_specs = [
-            (
-                f"{marker_base}/north",
-                (half_x * 2.0 + wall_thickness * 2.0, wall_thickness, wall_height),
-                (0.0, half_y + wall_thickness / 2.0, wall_height / 2.0),
-                (0.95, 0.55, 0.10),
-            ),
-            (
-                f"{marker_base}/south",
-                (half_x * 2.0 + wall_thickness * 2.0, wall_thickness, wall_height),
-                (0.0, -(half_y + wall_thickness / 2.0), wall_height / 2.0),
-                (0.95, 0.55, 0.10),
-            ),
-            (
-                f"{marker_base}/east",
-                (wall_thickness, half_y * 2.0 + wall_thickness * 2.0, wall_height),
-                (half_x + wall_thickness / 2.0, 0.0, wall_height / 2.0),
-                (0.15, 0.70, 0.95),
-            ),
-            (
-                f"{marker_base}/west",
-                (wall_thickness, half_y * 2.0 + wall_thickness * 2.0, wall_height),
-                (-(half_x + wall_thickness / 2.0), 0.0, wall_height / 2.0),
-                (0.15, 0.70, 0.95),
-            ),
+    @staticmethod
+    def _env_visual_palette():
+        return [
+            (0.90, 0.95, 1.00),
+            (1.00, 0.94, 0.90),
+            (0.92, 1.00, 0.92),
+            (0.98, 0.93, 1.00),
+            (1.00, 0.98, 0.88),
+            (0.90, 0.98, 0.98),
         ]
 
-        for prim_path, size, translation, color in marker_specs:
-            marker_cfg = AssetBaseCfg(
-                prim_path=prim_path,
+    @staticmethod
+    def _darken_color(color, factor: float = 0.72):
+        return tuple(max(0.0, min(1.0, channel * factor)) for channel in color)
+
+    def _spawn_env_visual_guides(self):
+        stage = self.sim.stage
+        visuals_root = "/World/EnvVisuals"
+        existing_root = stage.GetPrimAtPath(visuals_root)
+        if existing_root.IsValid():
+            stage.RemovePrim(visuals_root)
+        prim_utils.define_prim(visuals_root, "Xform")
+
+        half_x = float(self.map_range[0])
+        half_y = float(self.map_range[1])
+        floor_margin = 0.55
+        frame_inset = 0.70
+        floor_thickness = 0.02
+        frame_thickness = 0.08
+        frame_height = 0.12
+        palette = self._env_visual_palette()
+
+        for env_index in range(self.num_envs):
+            env_pos = self.envs_positions[env_index].tolist()
+            color = palette[env_index % len(palette)]
+            frame_color = self._darken_color(color)
+            env_root = f"{visuals_root}/env_{env_index}"
+            prim_utils.define_prim(env_root, "Xform")
+
+            floor_size = (
+                max(0.5, half_x * 2.0 - floor_margin * 2.0),
+                max(0.5, half_y * 2.0 - floor_margin * 2.0),
+                floor_thickness,
+            )
+            floor_cfg = AssetBaseCfg(
+                prim_path=f"{env_root}/floor",
                 spawn=sim_utils.CuboidCfg(
-                    size=size,
+                    size=floor_size,
                     collision_props=sim_utils.CollisionPropertiesCfg(collision_enabled=False),
                     visual_material=sim_utils.PreviewSurfaceCfg(
                         diffuse_color=color,
@@ -865,7 +877,53 @@ class NavigationEnv(IsaacEnv):
                     ),
                 ),
             )
-            marker_cfg.spawn.func(marker_cfg.prim_path, marker_cfg.spawn, translation=translation)
+            floor_cfg.spawn.func(
+                floor_cfg.prim_path,
+                floor_cfg.spawn,
+                translation=(env_pos[0], env_pos[1], floor_thickness / 2.0),
+            )
+
+            frame_half_x = max(0.4, half_x - frame_inset)
+            frame_half_y = max(0.4, half_y - frame_inset)
+            frame_specs = [
+                (
+                    f"{env_root}/north",
+                    (frame_half_x * 2.0 + frame_thickness, frame_thickness, frame_height),
+                    (env_pos[0], env_pos[1] + frame_half_y, frame_height / 2.0),
+                ),
+                (
+                    f"{env_root}/south",
+                    (frame_half_x * 2.0 + frame_thickness, frame_thickness, frame_height),
+                    (env_pos[0], env_pos[1] - frame_half_y, frame_height / 2.0),
+                ),
+                (
+                    f"{env_root}/east",
+                    (frame_thickness, frame_half_y * 2.0 + frame_thickness, frame_height),
+                    (env_pos[0] + frame_half_x, env_pos[1], frame_height / 2.0),
+                ),
+                (
+                    f"{env_root}/west",
+                    (frame_thickness, frame_half_y * 2.0 + frame_thickness, frame_height),
+                    (env_pos[0] - frame_half_x, env_pos[1], frame_height / 2.0),
+                ),
+            ]
+            for prim_path, size, translation in frame_specs:
+                frame_cfg = AssetBaseCfg(
+                    prim_path=prim_path,
+                    spawn=sim_utils.CuboidCfg(
+                        size=size,
+                        collision_props=sim_utils.CollisionPropertiesCfg(collision_enabled=False),
+                        visual_material=sim_utils.PreviewSurfaceCfg(
+                            diffuse_color=frame_color,
+                            metallic=0.0,
+                        ),
+                    ),
+                )
+                frame_cfg.spawn.func(
+                    frame_cfg.prim_path,
+                    frame_cfg.spawn,
+                    translation=translation,
+                )
 
 
     def _design_scene(self):
@@ -969,7 +1027,6 @@ class NavigationEnv(IsaacEnv):
             debug_vis=True,  # 显示调试可视化
         )
         terrain_importer = TerrainImporter(terrain_cfg)  # 导入地形
-        self._spawn_env_boundary_markers()
 
         if self.scene_family_profile.get("enabled"):
             self._spawn_shared_scene_from_env_gen()

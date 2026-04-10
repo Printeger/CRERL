@@ -413,6 +413,46 @@ scene instances rather than one shared scene.
 - `python -m py_compile isaac-training/training/scripts/env.py`
   - passed
 
+## 11. Follow-Up Visualization Refinement (2026-04-10)
+
+This refinement replaces the earlier full-boundary-line overlay that could read
+visually as a `3 x 3` grid when only `2 x 2` envs were present.
+
+### What changed
+
+- the template-cloned boundary-line overlay was removed
+- `env.py` now spawns post-clone per-env visual guides in world space
+- each env now gets:
+  - one shallow pastel floor tile
+  - one inset outer frame
+- the frame is inset from the true env boundary so neighboring env guides do
+  not merge into a nine-grid pattern
+
+### How to validate
+
+```bash
+python -m py_compile isaac-training/training/scripts/env.py
+```
+
+Then run a visible short train with:
+
+- `headless=False`
+- `env.num_envs=4`
+- `env.env_spacing=20`
+
+and confirm the scene now reads as:
+
+- four separate env boxes
+
+instead of:
+
+- nine apparent cells
+
+### Validation results
+
+- `python -m py_compile isaac-training/training/scripts/env.py`
+  - passed
+
 ### What this means
 
 The RL execution stack is now better aligned with the expected vectorized-env

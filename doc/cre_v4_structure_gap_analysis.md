@@ -514,7 +514,268 @@ CRE 在训练中的主要介入方式不是改写 PPO 本身，而是：
 - **CRE 本身就是训练主线的上层控制内核**
 - 训练是这个内核所驱动和反复调用的执行环节之一
 
-## 10. 当前仓库相对 `CRE_v4` 的“多出来的结构”
+## 10. 当前 project 在没有 CRE 介入时的 RL 训练启动主流程
+
+如果暂时把下面这些内容都从主线里拿掉：
+
+- CRE runtime logging
+- static/dynamic/semantic/report/repair/validation
+- bundle 命名空间
+- acceptance 检查
+- repair rerun 回环
+
+那么当前 project 的强化学习训练启动主流程，实际上仍然是一条比较标准的：
+
+`配置加载 -> 启动 Isaac Sim -> 创建环境 -> 创建控制器包装 -> 创建 PPO 策略 -> collector 收集数据 -> PPO 更新 -> 周期性评估 -> 保存 checkpoint`
+
+这一节只描述这条“**不带 CRE 外环**”的纯 RL 主链。
+
+### 10.1 启动主流程概览
+
+从入口脚本看，训练启动主线是：
+
+1. 读取 Hydra 配置
+2. 启动 `SimulationApp`
+3. 初始化 WandB run
+4. 构造 `NavigationEnv`
+5. 用 `LeePositionController + VelController` 包装环境
+6. 构造 `PPO` 策略
+7. 用 `SyncDataCollector` 开始采样 rollout
+8. 在主循环里反复：
+   - 收集一批数据
+   - 调用 `policy.train(data)` 更新网络
+   - 累积 episode 统计
+   - 按周期调用 `evaluate(...)`
+   - 按周期保存 checkpoint
+9. 训练结束后保存最终模型并退出
+
+如果忽略 CRE 部分，`train.py` 的主职责就是把这 9 步串起来。
+
+### 10.2 纯 RL 视角下的启动链条
+
+#### A. 配置装配
+
+训练入口首先由 Hydra 组装配置：
+
+- `cfg/train.yaml`
+- `cfg/ppo.yaml`
+- `cfg/sim.yaml`
+- `cfg/drone.yaml`
+
+其中：
+
+- `train.yaml` 决定训练长度、环境规模、WandB、默认 scene/runtime 参数
+- `ppo.yaml` 决定 PPO 超参数
+- `sim.yaml` 决定 Isaac Sim/PhysX 仿真参数
+- `drone.yaml` 决定无人机模型相关参数
+
+在“无 CRE 介入”的视角下，这一层可以理解成：
+
+- **训练启动所需的基础实验配置层**
+
+#### B. 仿真器和实验 run 启动
+
+然后 `scripts/train.py` 做两件最上游的事情：
+
+- 启动 `SimulationApp`
+- 初始化 WandB run
+
+这一步的功能是：
+
+- 给 RL 训练准备仿真运行时
+- 给训练过程准备实验记录器
+
+如果没有 CRE，这里依然成立，因为这是 RL 训练最基础的外部运行壳。
+
+#### C. 环境构造
+
+随后训练脚本构造：
+
+- `scripts/env.py` 中的 `NavigationEnv`
+
+这是纯 RL 主流程里的核心一层。
+
+从职责上看，`NavigationEnv` 负责：
+
+- 设计和生成场景
+- 挂载无人机、障碍物、传感器
+- 定义 observation space
+- 定义 action space
+- 定义 reward
+- 定义 done / termination
+
+从代码结构上看，环境主干包括这些关键方法：
+
+- `_design_scene`
+- `_set_specs`
+- `_reset_idx`
+- `_pre_sim_step`
+- `_post_sim_step`
+- `_compute_state_and_obs`
+- `_compute_reward_and_done`
+
+如果不考虑 CRE，这一层就是：
+
+- **标准 RL 任务环境定义层**
+
+#### D. 控制器包装
+
+环境创建后，训练脚本不会直接让策略输出电机级动作，而是先加一个控制器包装：
+
+- `LeePositionController`
+- `VelController`
+- `TransformedEnv`
+
+这一步的作用是：
+
+- 让策略输出速度指令
+- 再由低层控制器把速度指令转成无人机可执行控制
+
+所以在纯 RL 主链里，这一层是：
+
+- **动作语义到真实执行控制的桥接层**
+
+#### E. 策略与优化器构造
+
+接着训练脚本构造：
+
+- `scripts/ppo.py` 中的 `PPO`
+
+这里面包含：
+
+- feature extractor
+- actor
+- critic
+- value norm
+- GAE
+- Adam optimizers
+
+从训练主线看，这一层是：
+
+- **策略学习内核**
+
+也就是纯 RL 主流程里真正负责“学”的部分。
+
+#### F. 数据采样
+
+然后训练脚本构造：
+
+- `SyncDataCollector`
+
+collector 的职责是：
+
+- 驱动策略和环境交互
+- 收集一批 rollout 数据
+- 返回包含 observation/action/reward/next/done 的 `TensorDict`
+
+如果没有 CRE，这一步仍然是 RL 主流程的中心数据入口：
+
+- **经验采样层**
+
+#### G. 参数更新
+
+主循环里最关键的一步是：
+
+- `policy.train(data)`
+
+也就是 `scripts/ppo.py` 里的 PPO 更新逻辑。
+
+从算法过程看，它做的事情包括：
+
+- 计算 next state value
+- 计算 GAE advantage 和 return
+- 做 advantage normalization
+- 多 epoch / minibatch 更新 actor、critic、feature extractor
+
+所以纯 RL 主链真正的训练闭环是：
+
+`collector rollout -> PPO update -> next rollout -> next PPO update`
+
+#### H. 周期性评估
+
+训练过程中，`scripts/train.py` 还会按 `eval_interval` 周期性调用：
+
+- `scripts/utils.py` 中的 `evaluate(...)`
+
+评估路径的作用是：
+
+- 切到 eval 模式
+- 用确定性策略跑一轮评估
+- 统计回报、成功率、碰撞等指标
+- 恢复训练模式
+
+如果没有 CRE，这一层依然是：
+
+- **训练过程中的策略质量回看层**
+
+#### I. checkpoint 保存与训练结束
+
+最后训练脚本会：
+
+- 按 `save_interval` 保存 checkpoint
+- 训练结束保存 `checkpoint_final.pt`
+- 关闭 WandB
+- 关闭仿真器
+
+所以纯 RL 主流程最终收口到：
+
+- 模型权重
+- WandB 训练曲线
+- 评估统计
+
+### 10.3 涉及哪些文件
+
+如果只看“没有 CRE 介入时”的训练启动主流程，核心文件可以按职责分成下面几组。
+
+#### A. 启动与配置
+
+- `isaac-training/training/scripts/train.py`
+- `isaac-training/training/cfg/train.yaml`
+- `isaac-training/training/cfg/ppo.yaml`
+- `isaac-training/training/cfg/sim.yaml`
+- `isaac-training/training/cfg/drone.yaml`
+
+#### B. 环境与仿真任务定义
+
+- `isaac-training/training/scripts/env.py`
+- `isaac-training/training/envs/env_gen.py`
+
+说明：
+
+- 从“去掉 CRE 外环”的角度看，`env.py` 仍然是环境主定义
+- `env_gen.py` 仍然是场景/障碍物生成的底层支撑
+
+#### C. 策略学习内核
+
+- `isaac-training/training/scripts/ppo.py`
+- `isaac-training/training/scripts/utils.py`
+
+说明：
+
+- `ppo.py` 负责 actor/critic/GAE/PPO update
+- `utils.py` 提供评估函数、优势估计和若干训练工具
+
+#### D. 第三方运行时依赖
+
+- `isaac-training/third_party/OmniDrones/...`
+- Isaac Sim / TorchRL / PyTorch 相关依赖
+
+这些文件不是项目自己定义的训练主逻辑，但它们是主流程能跑起来的基础依赖。
+
+### 10.4 一句话总结
+
+如果不引入 CRE，当前 project 的 RL 训练启动主流程本质上就是：
+
+- `train.py` 读取配置并启动 Isaac Sim
+- `env.py` 构造导航环境
+- `ppo.py` 定义并训练策略
+- `utils.py` 负责评估与训练辅助
+- 配置文件决定仿真、环境和算法超参数
+
+也就是说，它首先仍然是一个**标准的 Isaac Sim + PPO 导航训练栈**；
+CRE 是后来叠加在这条主链外侧和上下游的分析、证据与修复系统。
+
+## 11. 当前仓库相对 `CRE_v4` 的“多出来的结构”
 
 这些结构不是问题，但它们说明当前仓库比 `CRE_v4` 的 Part II 范围更宽：
 
@@ -533,7 +794,7 @@ CRE 在训练中的主要介入方式不是改写 PPO 本身，而是：
 - release artifact 输出
 - 离线/无 API key 默认可验证路径
 
-## 11. 差异归因
+## 12. 差异归因
 
 当前差异主要来自四类原因：
 
@@ -553,7 +814,7 @@ CRE 在训练中的主要介入方式不是改写 PPO 本身，而是：
    - `CRE_v4` 聚焦 CRE pipeline 本体
    - 当前仓库还保留 RL、仿真、ROS、dashboard、兼容层
 
-## 12. 对齐建议
+## 13. 对齐建议
 
 如果后续目标是让仓库结构更贴近 `CRE_v4.pdf`，建议按下面顺序推进，而不是推翻现有工程骨架：
 
@@ -577,7 +838,7 @@ CRE 在训练中的主要介入方式不是改写 PPO 本身，而是：
    - 如果保留当前 finding-first/report-first 路线，可以把 `PsiCRE` 作为派生指标
    - 不建议为了对齐文档而牺牲现有 bundle 契约
 
-## 13. 最终判断
+## 14. 最终判断
 
 截至 `2026-04-10`，当前项目与 `doc/CRE_v4.pdf` 的关系可以概括为：
 

@@ -1052,3 +1052,78 @@ Validation results:
 - the chapter now makes the difference between current-project CRE and
   `CRE_v4` CRE readable from the RL workflow perspective instead of only from
   the static architecture perspective
+
+## 18. Pure-RL Mainline Addendum
+
+The comparison note was then extended once more to isolate the reinforcement
+learning training stack itself before discussing CRE intervention.
+
+This update added one new chapter to:
+
+- `doc/cre_v4_structure_gap_analysis.md`
+
+The new chapter answers:
+
+- if CRE is temporarily removed from consideration, what is the actual RL
+  training startup mainline in the current repository?
+- which files are on that mainline?
+
+What this addendum now makes explicit:
+
+1. **startup flow without CRE**
+   - config composition via Hydra
+   - Isaac Sim startup
+   - WandB run initialization
+   - `NavigationEnv` construction
+   - controller wrapping via `LeePositionController + VelController`
+   - PPO policy construction
+   - rollout collection through `SyncDataCollector`
+   - `policy.train(data)` updates
+   - periodic `evaluate(...)`
+   - checkpoint saving and shutdown
+
+2. **file-level mainline ownership**
+   - startup/config:
+     - `scripts/train.py`
+     - `cfg/train.yaml`
+     - `cfg/ppo.yaml`
+     - `cfg/sim.yaml`
+     - `cfg/drone.yaml`
+   - env/runtime:
+     - `scripts/env.py`
+     - `envs/env_gen.py`
+   - learning core:
+     - `scripts/ppo.py`
+     - `scripts/utils.py`
+
+3. **a clarified architectural baseline**
+   - before CRE is layered on top, the repo is still fundamentally an
+     Isaac-Sim-based PPO navigation training stack
+   - CRE should therefore be understood as an added evidence/diagnosis/repair
+     system around this training backbone, not as the original base training
+     loop itself
+
+Focused validation for this addendum:
+
+```bash
+rg -n "没有 CRE 介入时的 RL 训练启动主流程|NavigationEnv|SyncDataCollector|policy.train\\(data\\)|checkpoint_final.pt|标准的 Isaac Sim \\+ PPO 导航训练栈" \
+  doc/cre_v4_structure_gap_analysis.md
+```
+
+```bash
+git diff -- \
+  doc/cre_v4_structure_gap_analysis.md \
+  doc/dev_log/p11_dev_status.md \
+  Traceability.md
+```
+
+Validation results:
+
+- the comparison note now contains a dedicated pure-RL startup chapter
+- the chapter explicitly separates:
+  - startup/config
+  - environment definition
+  - PPO learning core
+  - collector/evaluation/checkpoint flow
+- the file ownership of the non-CRE RL mainline is now documented directly in
+  the comparison note

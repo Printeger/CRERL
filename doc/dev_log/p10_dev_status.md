@@ -413,6 +413,42 @@ scene instances rather than one shared scene.
 - `python -m py_compile isaac-training/training/scripts/env.py`
   - passed
 
+## 12. Follow-Up Ground Isolation (2026-04-10)
+
+This follow-up removes the last visual artifact that could still make multiple
+cloned envs look like one overlapped global floor.
+
+### What changed
+
+- `env.py` no longer spawns the extra pastel world-space floor tiles under
+  `/World/EnvVisuals`
+- visible multi-env runs now rely on:
+  - the real cloned per-env ground generated inside each env instance
+  - one inset outer frame per env for boundary readability
+- `train.yaml` now defaults `env.env_spacing` to `20.0`, which is a better
+  fit for the current `15 x 15` nominal workspace
+
+### How to validate
+
+```bash
+python -m py_compile isaac-training/training/scripts/env.py
+```
+
+Then run a visible short train with:
+
+- `headless=False`
+- `env.num_envs=4`
+
+and confirm the stage now reads as:
+
+- four separated env instances
+- no extra global floor overlay spanning the whole layout
+
+### Validation results
+
+- `python -m py_compile isaac-training/training/scripts/env.py`
+  - passed
+
 ## 11. Follow-Up Visualization Refinement (2026-04-10)
 
 This refinement replaces the earlier full-boundary-line overlay that could read

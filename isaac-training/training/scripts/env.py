@@ -847,9 +847,7 @@ class NavigationEnv(IsaacEnv):
 
         half_x = float(self.map_range[0])
         half_y = float(self.map_range[1])
-        floor_margin = 0.55
         frame_inset = 0.70
-        floor_thickness = 0.02
         frame_thickness = 0.08
         frame_height = 0.12
         palette = self._env_visual_palette()
@@ -860,28 +858,6 @@ class NavigationEnv(IsaacEnv):
             frame_color = self._darken_color(color)
             env_root = f"{visuals_root}/env_{env_index}"
             prim_utils.define_prim(env_root, "Xform")
-
-            floor_size = (
-                max(0.5, half_x * 2.0 - floor_margin * 2.0),
-                max(0.5, half_y * 2.0 - floor_margin * 2.0),
-                floor_thickness,
-            )
-            floor_cfg = AssetBaseCfg(
-                prim_path=f"{env_root}/floor",
-                spawn=sim_utils.CuboidCfg(
-                    size=floor_size,
-                    collision_props=sim_utils.CollisionPropertiesCfg(collision_enabled=False),
-                    visual_material=sim_utils.PreviewSurfaceCfg(
-                        diffuse_color=color,
-                        metallic=0.0,
-                    ),
-                ),
-            )
-            floor_cfg.spawn.func(
-                floor_cfg.prim_path,
-                floor_cfg.spawn,
-                translation=(env_pos[0], env_pos[1], floor_thickness / 2.0),
-            )
 
             frame_half_x = max(0.4, half_x - frame_inset)
             frame_half_y = max(0.4, half_y - frame_inset)

@@ -31,7 +31,7 @@ save_interval: 1000
 env:
   num_envs: 512 # Number of drones for training - 根据GPU内存调整
   max_episode_length: 2200 # 最大episode长度 - 根据任务复杂度调整
-  env_spacing: 8.0
+  env_spacing: 20.0
   num_obstacles: 350 # 静态障碍物数量 - 根据地图大小调整
 
 env_dyn:

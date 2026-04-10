@@ -901,3 +901,74 @@ Validation results:
   - method-path differences
 - it concludes that the repo is architecturally compatible in intent, but not
   yet structurally identical to the latest `CRE_v4` single-orchestrator model
+
+## 16. CRE_v4 Terminology-and-Flowchart Addendum
+
+The new structure-comparison note was then extended so it is easier to read by
+someone who was not involved in the earlier implementation passes.
+
+This addendum added two things to:
+
+- `doc/cre_v4_structure_gap_analysis.md`
+
+### 16.1 `bundle-first` terminology clarification
+
+The note now explicitly explains what `bundle-first` means in the context of
+this repository.
+
+The key clarification is:
+
+- the current repo uses stage output bundles as the primary interface boundary
+- instead of treating one in-memory orchestrator state object as the only
+  system backbone
+
+The note now also explains:
+
+- where bundles appear in the repo
+- what files typically exist in a bundle
+- why this helps replay, verification, benchmark packaging, and release
+  packaging
+- what structural tradeoff it introduces
+
+### 16.2 current-project and `CRE_v4` flowcharts
+
+The note now includes two markdown-native `mermaid` flowcharts:
+
+1. **current project flow**
+   - `cfg/spec_cfg + cfg/env_cfg`
+   - `spec_ir`
+   - scene/runtime substrate
+   - execution modes
+   - runtime evidence
+   - static/dynamic/semantic/report/repair/validation
+   - integration/benchmark/release
+
+2. **`CRE_v4.pdf` flow**
+   - `NLInput`
+   - `M1 -> M2 -> M3 -> DP(M6) -> M5 -> M4 -> M7 -> M8`
+   - `PO.run_cre_pipeline`
+   - `AuditTrail + PipelineResult`
+
+This makes the structural difference visible at a glance instead of requiring
+the reader to reconstruct the control flow mentally from text-only sections.
+
+Focused validation for this addendum:
+
+```bash
+rg -n "bundle-first|flowchart LR|Current project flow|CRE_v4.pdf flow" \
+  doc/cre_v4_structure_gap_analysis.md
+```
+
+```bash
+git diff -- \
+  doc/cre_v4_structure_gap_analysis.md \
+  doc/dev_log/p11_dev_status.md \
+  Traceability.md
+```
+
+Validation results:
+
+- the comparison note now contains an explicit `bundle-first` explanation
+- the note now contains two `mermaid` flowcharts
+- the current project flow and the `CRE_v4` flow are now both represented as
+  standalone diagrams in the same document

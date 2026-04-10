@@ -58,9 +58,120 @@ Updated: 2026-04-10
 - 没有 `PsiCRE + ci_95` 这种统一复合评分中心对象
 - 没有把整个系统统一到 `NLInput -> SpecS -> DiagReport -> RepairProposal -> AcceptanceVerdict` 这一套强类型主干上
 
-## 3. 顶层结构对比
+## 3. `bundle-first` 是什么意思
 
-### 3.1 `CRE_v4` 的结构重心
+这里说当前仓库更偏 `bundle-first`，意思不是“先写 bundle 文件”，而是：
+
+- 系统把每个阶段的**机器可读产物包**当成主接口
+- 阶段之间主要通过**目录 + JSON/YAML/Markdown 产物**衔接
+- “某个阶段是否完成”更多是看它是否写出了约定好的 bundle，而不是只看某个 Python 对象是否在内存里传下去了
+
+在当前项目里，一个 bundle 通常表现为：
+
+- `analysis/<mode>/<bundle_name>/`
+- 或者 `training/logs/<run_name>/`
+
+bundle 里通常会有：
+
+- `manifest.json`
+- `summary.json`
+- 主报告文件
+- 下游消费文件
+- 可读摘要文件
+
+例如：
+
+- `analysis/static/<bundle>/static_report.json`
+- `analysis/report/<bundle>/repair_handoff.json`
+- `analysis/repair/<bundle>/validation_context_preview.json`
+- `analysis/validation/<bundle>/validation_decision.json`
+
+所以 `bundle-first` 的准确含义是：
+
+- **以落盘后的阶段性证据包作为系统主边界**
+- 而不是以“单一 orchestrator 里流动的一组强类型对象”作为唯一主边界
+
+这种方式的优点：
+
+- 更容易复查和回放
+- 更适合 smoke test、benchmark、release packaging
+- 更方便离线验证与跨脚本衔接
+
+这种方式的代价：
+
+- 容易缺少统一的进程内 pipeline state
+- 阶段语义可能分散在多个文件中
+- 如果没有额外约束，整体结构会比单 orchestrator 更松散
+
+## 4. 结构流程图
+
+### 4.1 当前 project 流程图
+
+```mermaid
+flowchart LR
+    A["spec/env config<br/>cfg/spec_cfg + cfg/env_cfg"] --> B["Spec IR<br/>analyzers/spec_ir.py"]
+    B --> C["Scene/runtime substrate<br/>env_gen.py + scene_family_bridge.py"]
+    C --> D["Execution modes<br/>manual / baseline / eval / train"]
+    D --> E["Runtime evidence<br/>training/logs/<run>/"]
+    B --> F["Static audit<br/>analysis/static/<bundle>/"]
+    E --> G["Dynamic audit<br/>analysis/dynamic/<bundle>/"]
+    F --> H["Semantic audit<br/>analysis/semantic/<bundle>/"]
+    G --> H
+    F --> I["Unified report<br/>analysis/report/<bundle>/"]
+    G --> I
+    H --> I
+    I --> J["Repair generation<br/>analysis/repair/<bundle>/"]
+    J --> K["Validation / rerun<br/>analysis/validation/<bundle>/"]
+    K --> L["Integration proof<br/>analysis/integration/<bundle>/"]
+    L --> M["Benchmark suite<br/>analysis/benchmark/<bundle>/"]
+    M --> N["Release packaging<br/>analysis/release/<bundle>/"]
+```
+
+当前流程的结构特点：
+
+- 主入口是 YAML 规格与 scene-family 配置
+- 各阶段通过 namespaced bundle 连接
+- `integration / benchmark / release` 是主线的一部分
+
+### 4.2 `CRE_v4.pdf` 流程图
+
+```mermaid
+flowchart LR
+    A["NLInput<br/>r_desc / c_desc / e_desc"] --> B["M1<br/>parse + ambiguity detection"]
+    B --> C["SpecS"]
+    C --> D["M2<br/>primary estimators"]
+    D --> E["M3<br/>enhanced estimators"]
+    E --> F["Stage III DP<br/>discrepancy protocol"]
+    F --> G["M6<br/>temporal hypothesis"]
+    F --> H["M5<br/>PsiCRE + CI"]
+    D --> H
+    E --> H
+    H --> I["DiagReport"]
+    I --> J["M4<br/>semantic analysis + repair targets"]
+    J --> K["M7<br/>repair proposals"]
+    K --> L["M8<br/>acceptance + semantic verification"]
+    L --> M["AcceptanceVerdict / repaired SpecS"]
+    C --> N["Pipeline Orchestrator PO.run_cre_pipeline"]
+    D --> N
+    E --> N
+    F --> N
+    H --> N
+    J --> N
+    K --> N
+    L --> N
+    N --> O["AuditTrail + PipelineResult"]
+```
+
+`CRE_v4` 流程的结构特点：
+
+- 主入口是假定可能来自自然语言的 `NLInput`
+- 所有模块由统一 orchestrator 收口
+- `SpecS / DiagReport / RepairProposal / AcceptanceVerdict` 是核心中间态
+- `AuditTrail` 是全流程公共记录结构
+
+## 5. 顶层结构对比
+
+### 5.1 `CRE_v4` 的结构重心
 
 `CRE_v4.pdf` 的重心是一个统一流水线：
 
@@ -73,7 +184,7 @@ Updated: 2026-04-10
 - 所有模块通过统一 typed schema 交换数据
 - 最终由 `Pipeline Orchestrator` 统一编排
 
-### 3.2 当前仓库的结构重心
+### 5.2 当前仓库的结构重心
 
 当前仓库的主线更接近：
 
@@ -86,7 +197,7 @@ Updated: 2026-04-10
 - 结果以 `analysis/<mode>/<bundle>/` 命名空间产物为中心
 - 除主线外，还保留了 `ROS1/ROS2`、`dashboard`、兼容脚本、第三方仿真栈
 
-### 3.3 顶层判断
+### 5.3 顶层判断
 
 | 维度 | `CRE_v4.pdf` | 当前仓库 | 判断 |
 | --- | --- | --- | --- |
@@ -95,7 +206,7 @@ Updated: 2026-04-10
 | 核心交换对象 | dataclass records | JSON/YAML bundles + Python dict/dataclass 混合 | 部分对齐 |
 | 发布边界 | 以 CRE pipeline 为中心 | CRE pipeline + benchmark/release + ROS/deployment 兼容层 | 超出 `CRE_v4` |
 
-## 4. 模块结构映射
+## 6. 模块结构映射
 
 | `CRE_v4` 模块/结构 | `CRE_v4` 定义 | 当前仓库对应 | 判断 | 说明 |
 | --- | --- | --- | --- | --- |
@@ -111,9 +222,9 @@ Updated: 2026-04-10
 | Error Code Registry | 全局错误码注册 | 未发现等价统一注册表 | 未对齐 | 当前更多是局部校验与返回结构 |
 | Integration Test Suite | 统一模块/集成测试规范 | `unit_test/test_env/*.py` 与 smoke scripts | 部分对齐 | 测试已不少，但不是按 `CRE_v4` 的模块契约表述组织 |
 
-## 5. 数据与证据结构差异
+## 7. 数据与证据结构差异
 
-### 5.1 `CRE_v4` 的数据主干
+### 7.1 `CRE_v4` 的数据主干
 
 `CRE_v4.pdf` 明确定义了一组中心对象：
 
@@ -128,7 +239,7 @@ Updated: 2026-04-10
 
 这些对象共同构成“模块之间如何传递状态”的主干。
 
-### 5.2 当前仓库的数据主干
+### 7.2 当前仓库的数据主干
 
 当前仓库的数据主干更偏“文件契约”而不是“进程内单对象契约”：
 
@@ -138,7 +249,7 @@ Updated: 2026-04-10
 - 分析产物：`analysis/static|dynamic|semantic|report|repair|validation|integration|benchmark|release/<bundle>/...`
 - 契约声明：`analyzers/report_contract.py`、`policy_spec_v0.yaml`
 
-### 5.3 核心差异
+### 7.3 核心差异
 
 | 维度 | `CRE_v4.pdf` | 当前仓库 | 影响 |
 | --- | --- | --- | --- |
@@ -149,9 +260,9 @@ Updated: 2026-04-10
 | 验收对象 | `AcceptanceVerdict` | `acceptance.json`、`validation_decision.json`、比较结果 | 结果更细，但缺少一个统一 verdict 类型 |
 | 审计追踪 | `AuditTrail` | 主要靠 bundle manifest、summary 和脚本输出 | 当前可追溯，但不是统一追加式 audit trail |
 
-## 6. 方法路径对比
+## 8. 方法路径对比
 
-### 6.1 `CRE_v4` 的方法路径
+### 8.1 `CRE_v4` 的方法路径
 
 `CRE_v4` 的方法主张是：
 
@@ -162,7 +273,7 @@ Updated: 2026-04-10
 5. 再用 LLM 做语义诊断、修复生成、语义一致性验证
 6. 最后由 orchestrator 做全流程编排和错误治理
 
-### 6.2 当前仓库的方法路径
+### 8.2 当前仓库的方法路径
 
 当前仓库的方法主张是：
 
@@ -173,7 +284,7 @@ Updated: 2026-04-10
 5. 以规则式 repair 和受限 rerun validation 为主闭环
 6. 在主闭环之外继续扩展 `integration / benchmark / release`
 
-### 6.3 方法层面的关键差异
+### 8.3 方法层面的关键差异
 
 | 主题 | `CRE_v4.pdf` | 当前仓库 |
 | --- | --- | --- |
@@ -184,7 +295,7 @@ Updated: 2026-04-10
 | 流程收口 | 统一 orchestrator | 多 CLI 脚本 + smoke path |
 | 发布导向 | 到 acceptance/test 为止 | 继续向 benchmark/release 包装延伸 |
 
-## 7. 当前仓库相对 `CRE_v4` 的“多出来的结构”
+## 9. 当前仓库相对 `CRE_v4` 的“多出来的结构”
 
 这些结构不是问题，但它们说明当前仓库比 `CRE_v4` 的 Part II 范围更宽：
 
@@ -203,7 +314,7 @@ Updated: 2026-04-10
 - release artifact 输出
 - 离线/无 API key 默认可验证路径
 
-## 8. 差异归因
+## 10. 差异归因
 
 当前差异主要来自四类原因：
 
@@ -223,7 +334,7 @@ Updated: 2026-04-10
    - `CRE_v4` 聚焦 CRE pipeline 本体
    - 当前仓库还保留 RL、仿真、ROS、dashboard、兼容层
 
-## 9. 对齐建议
+## 11. 对齐建议
 
 如果后续目标是让仓库结构更贴近 `CRE_v4.pdf`，建议按下面顺序推进，而不是推翻现有工程骨架：
 
@@ -247,7 +358,7 @@ Updated: 2026-04-10
    - 如果保留当前 finding-first/report-first 路线，可以把 `PsiCRE` 作为派生指标
    - 不建议为了对齐文档而牺牲现有 bundle 契约
 
-## 10. 最终判断
+## 12. 最终判断
 
 截至 `2026-04-10`，当前项目与 `doc/CRE_v4.pdf` 的关系可以概括为：
 

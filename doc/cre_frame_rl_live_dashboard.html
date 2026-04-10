@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CRE Frame RL Live Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root {
+      --bg: #f7f4ee;
+      --panel: #fffcf8;
+      --stroke: #e7ded2;
+      --text: #312b24;
+      --muted: #746b60;
+      --accent: #8a6a45;
+      --soft: #efe7db;
+      --shadow: 0 12px 28px rgba(75, 55, 29, 0.06);
+      --card-shadow: 0 8px 24px rgba(75, 55, 29, 0.05);
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--stroke);
+      box-shadow: var(--card-shadow);
+    }
+
+    .soft-bg { background: var(--soft); }
+    .muted { color: var(--muted); }
+    .accent { color: var(--accent); }
+    .stroke { border-color: var(--stroke); }
+    .headline-shadow { box-shadow: var(--shadow); }
+
+    .tone-blue { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
+    .tone-amber { background: #fffbeb; color: #b45309; border-color: #fde68a; }
+    .tone-red { background: #fef2f2; color: #b91c1c; border-color: #fecaca; }
+    .tone-emerald { background: #ecfdf5; color: #047857; border-color: #a7f3d0; }
+    .tone-violet { background: #f5f3ff; color: #6d28d9; border-color: #ddd6fe; }
+    .tone-stone { background: #fafaf9; color: #57534e; border-color: #e7e5e4; }
+    .tone-green { background: #f0fdf4; color: #15803d; border-color: #bbf7d0; }
+    .tone-info { background: #f8fafc; color: #334155; border-color: #cbd5e1; }
+
+    .chip {
+      border: 1px solid transparent;
+      border-radius: 9999px;
+      padding: 2px 10px;
+      font-size: 11px;
+      line-height: 1.4;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      white-space: nowrap;
+    }
+
+    .overview-card,
+    .mini-card,
+    .flow-card,
+    .run-card,
+    .event-card,
+    .chart-card {
+      background: var(--panel);
+      border: 1px solid var(--stroke);
+      border-radius: 1rem;
+    }
+
+    .overview-card {
+      padding: 0.8rem;
+    }
+
+    .chart-wrap {
+      position: relative;
+      height: 260px;
+    }
+
+    .flow-line {
+      position: absolute;
+      left: 15px;
+      top: 28px;
+      bottom: -20px;
+      width: 1px;
+      background: var(--stroke);
+    }
+
+    .flow-dot {
+      position: absolute;
+      left: 8px;
+      top: 20px;
+      width: 14px;
+      height: 14px;
+      border-radius: 9999px;
+      border: 2px solid;
+      background: white;
+    }
+
+    .details-content {
+      display: none;
+    }
+
+    .details-content.open {
+      display: block;
+    }
+
+    .selected-run {
+      border-color: var(--accent) !important;
+      background: #f8f1e7 !important;
+    }
+
+    .scroll-y {
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: #d6c7b5 transparent;
+    }
+
+    .scroll-y::-webkit-scrollbar { width: 8px; }
+    .scroll-y::-webkit-scrollbar-thumb { background: #d6c7b5; border-radius: 9999px; }
+    .scroll-y::-webkit-scrollbar-track { background: transparent; }
+
+    @media (min-width: 1280px) {
+      .sticky-top { position: sticky; top: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="max-w-[1680px] mx-auto px-6 py-6">
+    <section class="headline-shadow rounded-[28px] border px-5 py-5 mb-6" style="background: var(--panel); border-color: var(--stroke);">
+      <div class="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-2 text-sm muted">
+            <i data-lucide="shield" class="w-4 h-4"></i>
+            CRE Frame RL Live Monitor
+          </div>
+          <h1 class="mt-2 text-3xl font-semibold tracking-tight">训练动向实时监控页</h1>
+          <p class="mt-2 text-sm max-w-3xl leading-7 muted">
+            面向 CRE Frame 的 Spec → Scene → Execution → Logs → Static → Dynamic → Semantic → Report → Repair → Validation → Integration → Benchmark → Release 全流程监控。
+            页面把“检测—聚合—修复—验证—训练”的主链路放在一个实时工作台里，便于同时看阶段状态、当前模块、关键指标、最新运行与趋势图。
+          </p>
+        </div>
+        <div class="flex flex-wrap gap-3">
+          <div class="inline-flex items-center gap-2 rounded-2xl border px-3 py-2" style="border-color: var(--stroke); background: #faf7f2;">
+            <i data-lucide="radio" class="w-4 h-4 text-emerald-600"></i>
+            <span class="text-sm font-medium">Live</span>
+          </div>
+          <div class="inline-flex items-center gap-2 rounded-2xl border px-3 py-2" style="border-color: var(--stroke); background: #faf7f2;">
+            <i data-lucide="clock-3" class="w-4 h-4 accent"></i>
+            <span class="text-sm font-medium">Auto refresh · 5s</span>
+          </div>
+          <button id="wandbToggle" class="inline-flex items-center gap-2 rounded-2xl border px-3 py-2 text-sm font-medium" style="border-color: var(--stroke); background: var(--soft);">
+            <i data-lucide="bar-chart-3" class="w-4 h-4 accent"></i>
+            <span id="wandbToggleLabel">Hide WandB</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section id="overviewGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-9 gap-3 mb-6"></section>
+
+    <section class="grid grid-cols-1 xl:grid-cols-[1.25fr_1.2fr_0.95fr] gap-5 items-start">
+      <div class="panel rounded-2xl sticky-top">
+        <div class="flex items-center justify-between px-4 py-3 border-b stroke">
+          <div class="flex items-center gap-2 min-w-0">
+            <div class="w-8 h-8 rounded-xl flex items-center justify-center soft-bg accent">
+              <i data-lucide="folder-tree" class="w-4 h-4"></i>
+            </div>
+            <div class="text-sm font-semibold truncate">System Flow</div>
+          </div>
+          <span class="text-xs muted">13 nodes</span>
+        </div>
+        <div id="flowContainer" class="p-4 max-h-[1100px] scroll-y"></div>
+      </div>
+
+      <div class="space-y-5">
+        <div class="panel rounded-2xl">
+          <div class="flex items-center justify-between px-4 py-3 border-b stroke">
+            <div class="flex items-center gap-2 min-w-0">
+              <div class="w-8 h-8 rounded-xl flex items-center justify-center soft-bg accent">
+                <i data-lucide="activity" class="w-4 h-4"></i>
+              </div>
+              <div class="text-sm font-semibold truncate">Active Module Panel</div>
+            </div>
+            <div class="flex items-center gap-2 text-xs">
+              <span class="chip tone-blue">running</span>
+              <span class="chip tone-amber">Dynamic Analysis</span>
+            </div>
+          </div>
+          <div class="p-4 space-y-4">
+            <div class="rounded-2xl border p-4" style="border-color: var(--stroke); background: #faf7f2;">
+              <div class="text-[11px] uppercase tracking-[0.12em] muted">activity title</div>
+              <div class="mt-2 text-lg font-semibold">Reward-aware corridor repair validation</div>
+              <div class="mt-3 grid md:grid-cols-2 gap-3 text-sm">
+                <div>
+                  <div class="text-[11px] uppercase tracking-[0.12em] muted">input/output path</div>
+                  <div class="mt-1 break-all">/workspace/execution/jobs/017 → /workspace/report/draft_017/</div>
+                </div>
+                <div>
+                  <div class="text-[11px] uppercase tracking-[0.12em] muted">current input object</div>
+                  <div class="mt-1">repair_candidate_R3_E2.bundle</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-4">
+              <div class="rounded-2xl border p-4" style="border-color: var(--stroke);">
+                <div class="flex items-center gap-2 mb-3">
+                  <i data-lucide="gauge" class="w-4 h-4 accent"></i>
+                  <div class="text-sm font-semibold">Key Details</div>
+                </div>
+                <div id="keyDetails" class="space-y-2"></div>
+              </div>
+
+              <div class="rounded-2xl border p-4" style="border-color: var(--stroke);">
+                <div class="flex items-center gap-2 mb-3">
+                  <i data-lucide="sparkles" class="w-4 h-4 accent"></i>
+                  <div class="text-sm font-semibold">Module Summary</div>
+                </div>
+                <div class="space-y-3 text-sm leading-7 muted">
+                  <p>
+                    当前模块把动态指标、语义结论和修复候选重新对齐，重点观察 near-violation ratio、minimum distance 与 witness 分数是否同步改善。
+                  </p>
+                  <p>
+                    本轮评估仍然处于“可以继续跑，但不能放行”的状态：W_EC 已过线，W_CR 接近边界，W_ER 还需要更多场景证据支撑。
+                  </p>
+                  <div class="rounded-xl p-3 border" style="border-color: var(--stroke); background: #faf7f2;">
+                    <div class="text-[11px] uppercase tracking-[0.12em] muted">current phase</div>
+                    <div class="mt-1 font-medium" style="color: var(--text);">Dynamic metric refresh + semantic cross-check</div>
+                    <div class="mt-3 text-[11px] uppercase tracking-[0.12em] muted">current status</div>
+                    <div class="mt-1 inline-flex px-2 py-0.5 rounded-full border text-[11px] tone-amber">re-evaluate before validation</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="rounded-2xl border p-4" style="border-color: var(--stroke);">
+              <div class="flex items-center justify-between gap-3 mb-3">
+                <div class="flex items-center gap-2">
+                  <i data-lucide="play-circle" class="w-4 h-4 accent"></i>
+                  <div class="text-sm font-semibold">Recent Events</div>
+                </div>
+                <div class="text-xs muted">Latest 20</div>
+              </div>
+              <div id="recentEvents" class="space-y-2 max-h-[520px] scroll-y pr-1"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="space-y-5 sticky-top">
+        <div class="panel rounded-2xl">
+          <div class="flex items-center justify-between px-4 py-3 border-b stroke">
+            <div class="flex items-center gap-2 min-w-0">
+              <div class="w-8 h-8 rounded-xl flex items-center justify-center soft-bg accent">
+                <i data-lucide="zap" class="w-4 h-4"></i>
+              </div>
+              <div class="text-sm font-semibold truncate">KPI Cards</div>
+            </div>
+            <span class="text-xs muted">live score</span>
+          </div>
+          <div id="kpiCards" class="p-4 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-1 gap-3"></div>
+        </div>
+
+        <div class="panel rounded-2xl">
+          <div class="flex items-center justify-between px-4 py-3 border-b stroke">
+            <div class="flex items-center gap-2 min-w-0">
+              <div class="w-8 h-8 rounded-xl flex items-center justify-center soft-bg accent">
+                <i data-lucide="layers-3" class="w-4 h-4"></i>
+              </div>
+              <div class="text-sm font-semibold truncate">Latest Runs</div>
+            </div>
+            <span class="text-xs muted">5 latest</span>
+          </div>
+          <div id="latestRuns" class="p-3 space-y-2"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="mt-6">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+        <div>
+          <div class="text-sm font-semibold">Bottom Charts</div>
+          <div class="text-sm mt-1 muted">Average Return、Safety Outcome、Minimum Distance、Near-Violation Ratio、Done Type、Reward Components、Family Comparison、Witness、Before/After Repair Delta</div>
+        </div>
+        <div class="text-sm muted">selected run: <span id="selectedRunLabel" class="font-medium" style="color: var(--text);">run_017</span></div>
+      </div>
+
+      <div class="grid grid-cols-1 xl:grid-cols-3 gap-5">
+        <div class="chart-card p-4"><div class="flex items-center gap-2 mb-4"><div class="w-8 h-8 rounded-xl flex items-center justify-center soft-bg accent"><i data-lucide="line-chart" class="w-4 h-4"></i></div><div class="text-sm font-semibold">Average Return Trend</div></div><div class="chart-wrap"><canvas id="avgReturnChart"></canvas></div></div>
+        <div class="chart-card p-4"><div class="flex items-center gap-2 mb-4"><div class="w-8 h-8 rounded-xl flex items-center justify-center soft-bg accent"><i data-lucide="shield" class="w-4 h-4"></i></div><div class="text-sm font-semibold">Safety Outcome Trend</div></div><div class="chart-wrap"><canvas id="safetyOutcomeChart"></canvas></div></div>
+        <div class="chart-card p-4"><div class="flex items-center gap-2 mb-4"><div class="w-8 h-8 rounded-xl flex items-center justify-center soft-bg accent"><i data-lucide="alert-triangle" class="w-4 h-4"></i></div><div class="text-sm font-semibold">Minimum Distance Trend</div></div><div class="chart-wrap"><canvas id="minDistanceChart"></canvas></div></div>
+        <div class="chart-card p-4"><div class="flex items-center gap-2 mb-4"><div class="w-8 h-8 rounded-xl flex items-center justify-center soft-bg accent"><i data-lucide="activity" class="w-4 h-4"></i></div><div class="text-sm font-semibold">Near-Violation Ratio Trend</div></div><div class="chart-wrap"><canvas id="nearViolationChart"></canvas></div></div>
+        <div class="chart-card p-4"><div class="flex items-center gap-2 mb-4"><div class="w-8 h-8 rounded-xl flex items-center justify-center soft-bg accent"><i data-lucide="bar-chart-3" class="w-4 h-4"></i></div><div class="text-sm font-semibold">Done Type Distribution</div></div><div class="chart-wrap"><canvas id="doneTypeChart"></canvas></div></div>
+        <div class="chart-card p-4"><div class="flex items-center gap-2 mb-4"><div class="w-8 h-8 rounded-xl flex items-center justify-center soft-bg accent"><i data-lucide="gauge" class="w-4 h-4"></i></div><div class="text-sm font-semibold">Reward Components Breakdown</div></div><div class="chart-wrap"><canvas id="rewardBreakdownChart"></canvas></div></div>
+        <div class="chart-card p-4"><div class="flex items-center gap-2 mb-4"><div class="w-8 h-8 rounded-xl flex items-center justify-center soft-bg accent"><i data-lucide="layers-3" class="w-4 h-4"></i></div><div class="text-sm font-semibold">Family Comparison</div></div><div class="chart-wrap"><canvas id="familyComparisonChart"></canvas></div></div>
+        <div class="chart-card p-4"><div class="flex items-center gap-2 mb-4"><div class="w-8 h-8 rounded-xl flex items-center justify-center soft-bg accent"><i data-lucide="sparkles" class="w-4 h-4"></i></div><div class="text-sm font-semibold">Witness Trend</div></div><div class="chart-wrap"><canvas id="witnessTrendChart"></canvas></div></div>
+        <div class="chart-card p-4"><div class="flex items-center gap-2 mb-4"><div class="w-8 h-8 rounded-xl flex items-center justify-center soft-bg accent"><i data-lucide="check-circle-2" class="w-4 h-4"></i></div><div class="text-sm font-semibold">Before / After Repair Delta</div></div><div class="chart-wrap"><canvas id="repairDeltaChart"></canvas></div></div>
+      </div>
+
+      <div id="wandbSection" class="mt-5">
+        <div class="flex items-center gap-2 mb-4">
+          <div class="text-sm font-semibold">Optional WandB Charts</div>
+          <span class="px-2 py-0.5 rounded-full border text-[11px] tone-violet">policy / value / entropy / KL / lr / FPS</span>
+        </div>
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-5">
+          <div class="chart-card p-4"><div class="flex items-center gap-2 mb-4"><div class="w-8 h-8 rounded-xl flex items-center justify-center soft-bg accent"><i data-lucide="line-chart" class="w-4 h-4"></i></div><div class="text-sm font-semibold">policy loss</div></div><div class="chart-wrap"><canvas id="policyLossChart"></canvas></div></div>
+          <div class="chart-card p-4"><div class="flex items-center gap-2 mb-4"><div class="w-8 h-8 rounded-xl flex items-center justify-center soft-bg accent"><i data-lucide="line-chart" class="w-4 h-4"></i></div><div class="text-sm font-semibold">value loss</div></div><div class="chart-wrap"><canvas id="valueLossChart"></canvas></div></div>
+          <div class="chart-card p-4"><div class="flex items-center gap-2 mb-4"><div class="w-8 h-8 rounded-xl flex items-center justify-center soft-bg accent"><i data-lucide="line-chart" class="w-4 h-4"></i></div><div class="text-sm font-semibold">entropy</div></div><div class="chart-wrap"><canvas id="entropyChart"></canvas></div></div>
+          <div class="chart-card p-4"><div class="flex items-center gap-2 mb-4"><div class="w-8 h-8 rounded-xl flex items-center justify-center soft-bg accent"><i data-lucide="line-chart" class="w-4 h-4"></i></div><div class="text-sm font-semibold">KL</div></div><div class="chart-wrap"><canvas id="klChart"></canvas></div></div>
+          <div class="chart-card p-4"><div class="flex items-center gap-2 mb-4"><div class="w-8 h-8 rounded-xl flex items-center justify-center soft-bg accent"><i data-lucide="line-chart" class="w-4 h-4"></i></div><div class="text-sm font-semibold">learning rate</div></div><div class="chart-wrap"><canvas id="lrChart"></canvas></div></div>
+          <div class="chart-card p-4"><div class="flex items-center gap-2 mb-4"><div class="w-8 h-8 rounded-xl flex items-center justify-center soft-bg accent"><i data-lucide="line-chart" class="w-4 h-4"></i></div><div class="text-sm font-semibold">FPS</div></div><div class="chart-wrap"><canvas id="fpsChart"></canvas></div></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const overview = [
+      { label: "Current Phase", value: "Dynamic Analysis", tone: "amber" },
+      { label: "Active Module", value: "Execution", tone: "blue" },
+      { label: "Current Run / Bundle", value: "run_2026_03_30_017 / bdl_alpha_12", tone: "stone" },
+      { label: "Execution Mode", value: "Online RL", tone: "emerald" },
+      { label: "Scene Family", value: "Indoor-Clutter / Narrow Corridor", tone: "stone" },
+      { label: "Provider Mode", value: "Mixed (Sim + LLM + Metrics)", tone: "violet" },
+      { label: "Watch Roots", value: "spec/ scene/ logs/ report", tone: "stone" },
+      { label: "Artifact Update Time", value: "2026-03-30 14:22:41", tone: "stone" },
+      { label: "Overall Health", value: "Watch", tone: "red" },
+    ];
+
+    const flowNodes = [
+      { name: "Spec", phase: "Intake", status: "stable", headline: "Spec parsed and normalized into runtime schema.", currentObject: "cre_frame_spec_v12.yaml", updatedTime: "14:18:09", details: { path: "/workspace/spec/cre_frame_spec_v12.yaml", summaryPath: "/workspace/spec/summary/spec_v12.json", primaryPath: "/workspace/spec/primary/spec.primary.json" } },
+      { name: "Scene", phase: "Sampling", status: "running", headline: "Critical narrow-corridor scenes are being oversampled.", currentObject: "scene_bundle_indoor_clutter_07", updatedTime: "14:20:31", details: { path: "/workspace/scene/bundle_07/", summaryPath: "/workspace/scene/bundle_07/scene.summary.json", primaryPath: "/workspace/scene/bundle_07/primary.scene.json" } },
+      { name: "Execution", phase: "Rollout", status: "running", headline: "Current actor is replaying repair-aware bundle with safety hooks.", currentObject: "exec_job_017_ppo_lagrangian", updatedTime: "14:22:38", details: { path: "/workspace/execution/jobs/017/", summaryPath: "/workspace/execution/jobs/017/exec.summary.json", primaryPath: "/workspace/execution/jobs/017/primary.exec.json" } },
+      { name: "Logs", phase: "Streaming", status: "running", headline: "Telemetry stream healthy with 2 warning-level safety events.", currentObject: "telemetry_stream_A", updatedTime: "14:22:41", details: { path: "/workspace/logs/stream_A/", summaryPath: "/workspace/logs/stream_A/log.summary.json", primaryPath: "/workspace/logs/stream_A/primary.log.json" } },
+      { name: "Static", phase: "Precheck", status: "done", headline: "No UNSAT conflicts. One soft C-R tension remained flagged.", currentObject: "static_report_017", updatedTime: "14:16:20", details: { path: "/workspace/static/report_017/", summaryPath: "/workspace/static/report_017/static.summary.json", primaryPath: "/workspace/static/report_017/primary.static.json" } },
+      { name: "Dynamic", phase: "Analysis", status: "running", headline: "Near-violation ratio trending down after latest repair candidate.", currentObject: "dyn_metrics_window_1200", updatedTime: "14:22:34", details: { path: "/workspace/dynamic/window_1200/", summaryPath: "/workspace/dynamic/window_1200/dynamic.summary.json", primaryPath: "/workspace/dynamic/window_1200/primary.dynamic.json" } },
+      { name: "Semantic", phase: "Reasoning", status: "watch", headline: "LLM claim suggests weak reward pressure near corridor boundary.", currentObject: "semantic_claim_pack_09", updatedTime: "14:21:56", details: { path: "/workspace/semantic/claim_pack_09/", summaryPath: "/workspace/semantic/claim_pack_09/semantic.summary.json", primaryPath: "/workspace/semantic/claim_pack_09/primary.semantic.json" } },
+      { name: "Report", phase: "Aggregation", status: "watch", headline: "Primary issue remains E-C partial coverage in clutter transitions.", currentObject: "report_draft_017", updatedTime: "14:22:01", details: { path: "/workspace/report/draft_017/", summaryPath: "/workspace/report/draft_017/report.summary.json", primaryPath: "/workspace/report/draft_017/primary.report.json" } },
+      { name: "Repair", phase: "Candidate Search", status: "running", headline: "Environment augmentation + reward reweighting candidate is active.", currentObject: "repair_candidate_R3_E2", updatedTime: "14:22:12", details: { path: "/workspace/repair/candidate_R3_E2/", summaryPath: "/workspace/repair/candidate_R3_E2/repair.summary.json", primaryPath: "/workspace/repair/candidate_R3_E2/primary.repair.json" } },
+      { name: "Validation", phase: "Backcheck", status: "queued", headline: "Waiting for latest semantic vote and KPI refresh.", currentObject: "validation_job_017b", updatedTime: "14:21:40", details: { path: "/workspace/validation/job_017b/", summaryPath: "/workspace/validation/job_017b/validation.summary.json", primaryPath: "/workspace/validation/job_017b/primary.validation.json" } },
+      { name: "Integration", phase: "Merge", status: "queued", headline: "Pending validated spec patch merge into training bundle.", currentObject: "integration_patch_017", updatedTime: "14:19:11", details: { path: "/workspace/integration/patch_017/", summaryPath: "/workspace/integration/patch_017/integration.summary.json", primaryPath: "/workspace/integration/patch_017/primary.integration.json" } },
+      { name: "Benchmark", phase: "Regression", status: "idle", headline: "Benchmark suite will run after repair acceptance.", currentObject: "benchmark_pack_v4", updatedTime: "13:58:02", details: { path: "/workspace/benchmark/pack_v4/", summaryPath: "/workspace/benchmark/pack_v4/benchmark.summary.json", primaryPath: "/workspace/benchmark/pack_v4/primary.benchmark.json" } },
+      { name: "Release", phase: "Gate", status: "blocked", headline: "Release is blocked by validation decision and readiness threshold.", currentObject: "release_candidate_rc9", updatedTime: "13:57:44", details: { path: "/workspace/release/rc9/", summaryPath: "/workspace/release/rc9/release.summary.json", primaryPath: "/workspace/release/rc9/primary.release.json" } },
+    ];
+
+    const keyDetails = [
+      ["execution mode", "Online RL"],
+      ["scenario type", "Narrow corridor + dynamic obstacle"],
+      ["scene cfg name", "indoor_corridor_clutter_v3"],
+      ["source", "repair_candidate_R3_E2"],
+      ["average return", "0.74"],
+      ["max severity", "0.68"],
+      ["decision status", "re-evaluate"],
+      ["blocked by", "semantic vote < 0.80"],
+      ["supported claims", "E-C gap, weak C-R boundary tension"],
+      ["weak claims", "release-ready improvement not yet robust"],
+    ];
+
+    const recentEvents = [
+      ["Repair candidate promoted", "success", "14:22:38", "Candidate R3_E2 moved to active evaluation window.", "/workspace/repair/candidate_R3_E2/state.json"],
+      ["Near violation cluster found", "warn", "14:22:17", "Three traces dipped below the soft distance margin in family B.", "/workspace/dynamic/window_1200/events/near_violation_03.json"],
+      ["Semantic claim updated", "info", "14:21:56", "Primary claim now points to partial environment undercoverage.", "/workspace/semantic/claim_pack_09/claim_2.json"],
+      ["Static check passed", "success", "14:21:08", "No hard constraint unsat found in patched spec.", "/workspace/static/report_017/pass.json"],
+      ["Scene oversampling changed", "info", "14:20:44", "Narrow corridor family sampling increased from 18% to 29%.", "/workspace/scene/bundle_07/sampling.delta.json"],
+      ["Run switched to live monitor", "info", "14:20:13", "Streaming mode enabled for current execution bundle.", "/workspace/execution/jobs/017/mode.json"],
+      ["W_EC improved", "success", "14:19:51", "Coverage witness rose after scenario injection batch.", "/workspace/dynamic/window_1180/w_ec.json"],
+      ["Validation queued", "info", "14:19:06", "Backcheck requested after semantic disagreement.", "/workspace/validation/job_017b/queue.json"],
+      ["Primary report regenerated", "info", "14:18:42", "Report severity ranking refreshed using latest metrics.", "/workspace/report/draft_017/report.json"],
+      ["Run health warning", "warn", "14:18:02", "Latency spike detected in log aggregation worker.", "/workspace/logs/stream_A/latency_warn.json"],
+      ["Metric window rolled", "info", "14:17:27", "Window advanced to 1200-step horizon.", "/workspace/dynamic/window_1200/meta.json"],
+      ["Execution resumed", "success", "14:16:58", "Policy resumed after repair snapshot restored.", "/workspace/execution/jobs/017/resume.json"],
+      ["Bundle archived", "info", "14:16:04", "Previous candidate bundle moved to archive.", "/workspace/execution/archive/bundle_11.json"],
+      ["LLM disagreement detected", "warn", "14:15:41", "Second-pass semantic score dropped below 0.75.", "/workspace/semantic/claim_pack_08/disagreement.json"],
+      ["Repair seed generated", "info", "14:15:10", "Minimal edit search produced 4 viable seeds.", "/workspace/repair/seeds/seed_list.json"],
+      ["Witness trend updated", "info", "14:14:21", "Witness slope softened for dynamic clutter family.", "/workspace/dynamic/window_1170/witness.json"],
+      ["Run checkpoint saved", "success", "14:13:49", "Checkpoint ckpt_148 saved successfully.", "/workspace/execution/jobs/017/ckpt_148.json"],
+      ["Provider mode switched", "info", "14:13:02", "Provider mode changed to mixed scoring.", "/workspace/system/provider_mode.json"],
+      ["Log root reindexed", "info", "14:12:33", "Artifact watcher reindexed report and validation roots.", "/workspace/logs/reindex.json"],
+      ["Family B drift noted", "warn", "14:11:54", "Minimum distance variance widened in family B.", "/workspace/dynamic/window_1160/family_b_drift.json"],
+    ].slice(0, 20);
+
+    const kpis = [
+      ["success_rate", "91.8%", "up"],
+      ["collision_rate", "2.4%", "down"],
+      ["out_of_bounds_rate", "0.8%", "down"],
+      ["min_distance", "0.41 m", "watch"],
+      ["near_violation_ratio", "7.3%", "down"],
+      ["average_return", "0.74", "up"],
+      ["W_CR", "0.29", "watch"],
+      ["W_EC", "0.82", "up"],
+      ["W_ER", "0.17", "watch"],
+      ["semantic primary claim type", "E-C partial coverage", "watch"],
+      ["report primary claim type", "repair pending", "watch"],
+      ["validation decision status", "re-evaluate", "warn"],
+      ["release readiness", "63 / 100", "warn"],
+    ];
+
+    const latestRuns = [
+      ["run_017", "running", "Online RL", "Indoor-Clutter / Corridor", "91.8%", "0.41m", "0.74"],
+      ["run_016", "watch", "Offline Replay", "Family B / Dynamic", "89.6%", "0.37m", "0.69"],
+      ["run_015", "done", "Online RL", "Family A / Open Hall", "95.1%", "0.64m", "0.81"],
+      ["run_014", "failed", "Stress Test", "Family C / Dense", "78.4%", "0.22m", "0.51"],
+      ["run_013", "done", "Repair Validation", "Mixed Bundle", "92.4%", "0.46m", "0.76"],
+    ];
+
+    const trendData = [
+      { t: "09:00", ret: 0.41, safe: 81, dist: 0.29, nv: 14.2, before: 0.43, after: 0.61, witness: 0.19, cr: 0.31, ec: 0.58, er: 0.28 },
+      { t: "10:00", ret: 0.49, safe: 83, dist: 0.32, nv: 12.9, before: 0.46, after: 0.63, witness: 0.21, cr: 0.30, ec: 0.62, er: 0.24 },
+      { t: "11:00", ret: 0.57, safe: 84, dist: 0.31, nv: 12.1, before: 0.51, after: 0.67, witness: 0.23, cr: 0.28, ec: 0.66, er: 0.22 },
+      { t: "12:00", ret: 0.61, safe: 87, dist: 0.36, nv: 10.5, before: 0.55, after: 0.70, witness: 0.24, cr: 0.27, ec: 0.71, er: 0.20 },
+      { t: "13:00", ret: 0.67, safe: 89, dist: 0.39, nv: 9.2, before: 0.58, after: 0.73, witness: 0.26, cr: 0.28, ec: 0.77, er: 0.18 },
+      { t: "14:00", ret: 0.74, safe: 92, dist: 0.41, nv: 7.3, before: 0.60, after: 0.77, witness: 0.31, cr: 0.29, ec: 0.82, er: 0.17 },
+    ];
+
+    const outcomeData = [
+      { name: "safe_done", value: 74 },
+      { name: "timeout", value: 14 },
+      { name: "collision", value: 7 },
+      { name: "oob", value: 3 },
+      { name: "manual_abort", value: 2 },
+    ];
+
+    const rewardBreakdown = [
+      { name: "command_follow", value: 38 },
+      { name: "safety_margin", value: 24 },
+      { name: "smoothness", value: 17 },
+      { name: "energy", value: 9 },
+      { name: "repair_bonus", value: 12 },
+    ];
+
+    const familyComparison = [
+      { family: "A", success: 95, distance: 0.64, return: 0.81 },
+      { family: "B", success: 89, distance: 0.37, return: 0.68 },
+      { family: "C", success: 84, distance: 0.33, return: 0.61 },
+      { family: "D", success: 92, distance: 0.46, return: 0.76 },
+    ];
+
+    const wandbLoss = [
+      { s: 100, policy: 0.92, value: 0.84, entropy: 0.67, kl: 0.14, lr: 3.0, fps: 181 },
+      { s: 200, policy: 0.81, value: 0.71, entropy: 0.64, kl: 0.13, lr: 2.8, fps: 184 },
+      { s: 300, policy: 0.69, value: 0.62, entropy: 0.59, kl: 0.11, lr: 2.6, fps: 188 },
+      { s: 400, policy: 0.61, value: 0.56, entropy: 0.54, kl: 0.10, lr: 2.4, fps: 192 },
+      { s: 500, policy: 0.56, value: 0.49, entropy: 0.49, kl: 0.09, lr: 2.2, fps: 197 },
+      { s: 600, policy: 0.51, value: 0.46, entropy: 0.46, kl: 0.08, lr: 2.0, fps: 201 },
+    ];
+
+    const toneClass = (tone) => ({
+      blue: 'tone-blue', amber: 'tone-amber', red: 'tone-red', emerald: 'tone-emerald', violet: 'tone-violet', stone: 'tone-stone', green: 'tone-green', info: 'tone-info',
+      stable: 'tone-emerald', running: 'tone-blue', done: 'tone-green', watch: 'tone-amber', queued: 'tone-stone', idle: 'tone-stone', blocked: 'tone-red', warn: 'tone-amber', success: 'tone-emerald', failed: 'tone-red', up: 'tone-emerald', down: 'tone-info'
+    }[tone] || 'tone-stone');
+
+    function renderOverview() {
+      const root = document.getElementById('overviewGrid');
+      root.innerHTML = overview.map(item => `
+        <div class="overview-card chipless border ${toneClass(item.tone)}">
+          <div class="text-[11px] uppercase tracking-[0.12em] opacity-70">${item.label}</div>
+          <div class="mt-1 text-sm font-semibold leading-snug">${item.value}</div>
+        </div>
+      `).join('');
+    }
+
+    function renderFlow() {
+      const root = document.getElementById('flowContainer');
+      root.innerHTML = flowNodes.map((node, idx) => `
+        <div class="relative pl-8">
+          ${idx !== flowNodes.length - 1 ? '<div class="flow-line"></div>' : ''}
+          <div class="flow-dot ${toneClass(node.status)}"></div>
+          <div class="flow-card p-3 mb-4">
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <div class="font-semibold">${node.name}</div>
+                  <span class="chip tone-stone">${node.phase}</span>
+                  <span class="chip ${toneClass(node.status)}">${node.status}</span>
+                </div>
+                <div class="mt-2 text-sm leading-6">${node.headline}</div>
+              </div>
+              <button class="toggle-details shrink-0 rounded-xl border p-1.5" style="border-color: var(--stroke); color: var(--muted);" data-target="details-${idx}">
+                <i data-lucide="${node.name === 'Execution' || node.name === 'Dynamic' ? 'chevron-down' : 'chevron-right'}" class="w-4 h-4"></i>
+              </button>
+            </div>
+            <div class="mt-3 grid grid-cols-1 gap-2 text-sm">
+              <div class="rounded-xl p-2.5" style="background: #faf7f2;">
+                <div class="text-[11px] uppercase tracking-[0.12em] muted">Current Object</div>
+                <div class="mt-1 font-medium break-all">${node.currentObject}</div>
+              </div>
+              <div class="rounded-xl p-2.5" style="background: #faf7f2;">
+                <div class="text-[11px] uppercase tracking-[0.12em] muted">Updated Time</div>
+                <div class="mt-1 font-medium">${node.updatedTime}</div>
+              </div>
+            </div>
+            <div id="details-${idx}" class="details-content ${node.name === 'Execution' || node.name === 'Dynamic' ? 'open' : ''}">
+              <div class="mt-3 rounded-2xl border p-3" style="border-color: var(--stroke); background: #fbf9f5;">
+                <div class="text-[11px] uppercase tracking-[0.12em] mb-2 muted">Details</div>
+                <div class="space-y-2 text-sm break-all">
+                  <div><span class="font-medium">path:</span> <span class="muted">${node.details.path}</span></div>
+                  <div><span class="font-medium">summary path:</span> <span class="muted">${node.details.summaryPath}</span></div>
+                  <div><span class="font-medium">primary path:</span> <span class="muted">${node.details.primaryPath}</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderKeyDetails() {
+      const root = document.getElementById('keyDetails');
+      root.innerHTML = keyDetails.map(([k, v]) => `
+        <div class="grid grid-cols-[130px_1fr] gap-3 text-sm">
+          <div class="capitalize muted">${k}</div>
+          <div class="font-medium break-words">${v}</div>
+        </div>
+      `).join('');
+    }
+
+    function renderRecentEvents() {
+      const root = document.getElementById('recentEvents');
+      root.innerHTML = recentEvents.map(([title, status, timestamp, summary, path], idx) => `
+        <div class="event-card p-3" style="background: ${idx < 3 ? '#faf7f2' : 'var(--panel)'};">
+          <div class="flex items-start justify-between gap-3">
+            <div class="min-w-0">
+              <div class="flex items-center gap-2 flex-wrap">
+                <div class="text-sm font-medium">${title}</div>
+                <span class="chip ${toneClass(status)}">${status}</span>
+              </div>
+              <div class="mt-1 text-sm leading-6 muted">${summary}</div>
+              <div class="mt-2 text-xs break-all" style="color: #8a8177;">${path}</div>
+            </div>
+            <div class="text-xs shrink-0 muted">${timestamp}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderKpis() {
+      const root = document.getElementById('kpiCards');
+      root.innerHTML = kpis.map(([label, value, state]) => `
+        <div class="mini-card p-3" style="background: #faf7f2;">
+          <div class="text-[11px] uppercase tracking-[0.12em] muted">${label}</div>
+          <div class="mt-2 text-sm font-semibold leading-snug">${value}</div>
+          <div class="mt-2"><span class="chip ${toneClass(state)} capitalize">${state}</span></div>
+        </div>
+      `).join('');
+    }
+
+    function renderRuns() {
+      const root = document.getElementById('latestRuns');
+      root.innerHTML = latestRuns.map(run => `
+        <button class="run-card run-btn w-full text-left rounded-2xl border p-3 transition ${run[0] === 'run_017' ? 'selected-run' : ''}" data-run="${run[0]}">
+          <div class="flex items-center justify-between gap-3">
+            <div>
+              <div class="text-sm font-semibold">${run[0]}</div>
+              <div class="mt-1 text-xs muted">${run[2]} · ${run[3]}</div>
+            </div>
+            <span class="chip ${toneClass(run[1])}">${run[1]}</span>
+          </div>
+          <div class="mt-3 grid grid-cols-3 gap-2 text-xs">
+            <div><div class="muted">success rate</div><div class="mt-1 font-medium">${run[4]}</div></div>
+            <div><div class="muted">min_distance</div><div class="mt-1 font-medium">${run[5]}</div></div>
+            <div><div class="muted">avg_return</div><div class="mt-1 font-medium">${run[6]}</div></div>
+          </div>
+        </button>
+      `).join('');
+    }
+
+    function wireInteractions() {
+      document.querySelectorAll('.toggle-details').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const target = document.getElementById(btn.dataset.target);
+          const icon = btn.querySelector('svg');
+          const isOpen = target.classList.toggle('open');
+          btn.innerHTML = `<i data-lucide="${isOpen ? 'chevron-down' : 'chevron-right'}" class="w-4 h-4"></i>`;
+          lucide.createIcons();
+        });
+      });
+
+      document.querySelectorAll('.run-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.run-btn').forEach(el => el.classList.remove('selected-run'));
+          btn.classList.add('selected-run');
+          document.getElementById('selectedRunLabel').textContent = btn.dataset.run;
+        });
+      });
+
+      const toggle = document.getElementById('wandbToggle');
+      const section = document.getElementById('wandbSection');
+      const label = document.getElementById('wandbToggleLabel');
+      let visible = true;
+      toggle.addEventListener('click', () => {
+        visible = !visible;
+        section.style.display = visible ? 'block' : 'none';
+        label.textContent = visible ? 'Hide WandB' : 'Show WandB';
+        toggle.style.background = visible ? 'var(--soft)' : '#faf7f2';
+      });
+    }
+
+    function tooltipStyle() {
+      return {
+        backgroundColor: '#fffaf5',
+        borderColor: '#e7ded2',
+        borderWidth: 1,
+        titleColor: '#312b24',
+        bodyColor: '#746b60',
+        padding: 12,
+        cornerRadius: 12,
+      };
+    }
+
+    const baseGrid = { color: '#ede5d9', drawBorder: false };
+    const tickColor = '#746b60';
+
+    function lineChart(id, labels, datasets, yMin = undefined, yMax = undefined) {
+      new Chart(document.getElementById(id), {
+        type: 'line',
+        data: { labels, datasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: { legend: { display: datasets.length > 1 }, tooltip: tooltipStyle() },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: tickColor } },
+            y: { min: yMin, max: yMax, grid: baseGrid, ticks: { color: tickColor } }
+          }
+        }
+      });
+    }
+
+    function barChart(id, labels, data, color, yMin = undefined, yMax = undefined) {
+      new Chart(document.getElementById(id), {
+        type: 'bar',
+        data: { labels, datasets: [{ data, backgroundColor: color, borderRadius: 8 }] },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false }, tooltip: tooltipStyle() },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: tickColor } },
+            y: { min: yMin, max: yMax, grid: baseGrid, ticks: { color: tickColor } }
+          }
+        }
+      });
+    }
+
+    function pieChart(id, labels, data, colors) {
+      new Chart(document.getElementById(id), {
+        type: 'doughnut',
+        data: { labels, datasets: [{ data, backgroundColor: colors, borderWidth: 0, hoverOffset: 6 }] },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '56%',
+          plugins: { legend: { position: 'bottom', labels: { color: tickColor } }, tooltip: tooltipStyle() }
+        }
+      });
+    }
+
+    function radarChart(id, labels, data) {
+      new Chart(document.getElementById(id), {
+        type: 'radar',
+        data: {
+          labels,
+          datasets: [{
+            label: 'success',
+            data,
+            borderColor: '#8A6A45',
+            backgroundColor: 'rgba(138, 106, 69, 0.18)',
+            pointBackgroundColor: '#8A6A45',
+            pointRadius: 3
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false }, tooltip: tooltipStyle() },
+          scales: {
+            r: {
+              angleLines: { color: '#e7ded2' },
+              grid: { color: '#e7ded2' },
+              pointLabels: { color: tickColor },
+              ticks: { color: tickColor, backdropColor: 'transparent' }
+            }
+          }
+        }
+      });
+    }
+
+    function buildCharts() {
+      const labels = trendData.map(d => d.t);
+      lineChart('avgReturnChart', labels, [{ label: 'avg_return', data: trendData.map(d => d.ret), borderColor: '#8A6A45', backgroundColor: 'rgba(234,223,208,0.55)', fill: true, tension: 0.35 }], 0, 1);
+      lineChart('safetyOutcomeChart', labels, [{ label: 'safe outcome', data: trendData.map(d => d.safe), borderColor: '#4F8A5B', backgroundColor: 'rgba(79,138,91,0.08)', fill: false, tension: 0.35 }], 70, 100);
+      lineChart('minDistanceChart', labels, [{ label: 'min_distance', data: trendData.map(d => d.dist), borderColor: '#C97B63', backgroundColor: 'rgba(201,123,99,0.10)', fill: false, tension: 0.35 }], 0.15, 0.8);
+      lineChart('nearViolationChart', labels, [{ label: 'near_violation_ratio', data: trendData.map(d => d.nv), borderColor: '#A65745', backgroundColor: 'rgba(243,217,211,0.75)', fill: true, tension: 0.35 }]);
+
+      pieChart('doneTypeChart', outcomeData.map(d => d.name), outcomeData.map(d => d.value), ['#8A6A45', '#B7926E', '#D5B79B', '#E6D5C2', '#C97B63']);
+      barChart('rewardBreakdownChart', rewardBreakdown.map(d => d.name), rewardBreakdown.map(d => d.value), '#8A6A45');
+      radarChart('familyComparisonChart', familyComparison.map(d => d.family), familyComparison.map(d => d.success));
+
+      lineChart('witnessTrendChart', labels, [
+        { label: 'witness', data: trendData.map(d => d.witness), borderColor: '#7E6ADF', tension: 0.35 },
+        { label: 'W_CR', data: trendData.map(d => d.cr), borderColor: '#A65745', tension: 0.35 },
+        { label: 'W_EC', data: trendData.map(d => d.ec), borderColor: '#4F8A5B', tension: 0.35 },
+        { label: 'W_ER', data: trendData.map(d => d.er), borderColor: '#4C7AB8', tension: 0.35 }
+      ], 0, 0.9);
+
+      new Chart(document.getElementById('repairDeltaChart'), {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            { label: 'before', data: trendData.map(d => d.before), backgroundColor: '#D8C3AB', borderRadius: 8 },
+            { label: 'after', data: trendData.map(d => d.after), backgroundColor: '#8A6A45', borderRadius: 8 }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: tickColor } }, tooltip: tooltipStyle() },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: tickColor } },
+            y: { min: 0, max: 1, grid: baseGrid, ticks: { color: tickColor } }
+          }
+        }
+      });
+
+      const wl = wandbLoss.map(d => d.s);
+      lineChart('policyLossChart', wl, [{ label: 'policy', data: wandbLoss.map(d => d.policy), borderColor: '#8A6A45', tension: 0.35 }]);
+      lineChart('valueLossChart', wl, [{ label: 'value', data: wandbLoss.map(d => d.value), borderColor: '#4C7AB8', tension: 0.35 }]);
+      lineChart('entropyChart', wl, [{ label: 'entropy', data: wandbLoss.map(d => d.entropy), borderColor: '#7E6ADF', tension: 0.35 }]);
+      lineChart('klChart', wl, [{ label: 'kl', data: wandbLoss.map(d => d.kl), borderColor: '#C97B63', tension: 0.35 }]);
+      lineChart('lrChart', wl, [{ label: 'lr', data: wandbLoss.map(d => d.lr), borderColor: '#4F8A5B', tension: 0.35 }]);
+      lineChart('fpsChart', wl, [{ label: 'fps', data: wandbLoss.map(d => d.fps), borderColor: '#B7926E', tension: 0.35 }]);
+    }
+
+    renderOverview();
+    renderFlow();
+    renderKeyDetails();
+    renderRecentEvents();
+    renderKpis();
+    renderRuns();
+    wireInteractions();
+    buildCharts();
+    lucide.createIcons();
+  </script>
+</body>
+</html>

@@ -50,15 +50,17 @@ This keeps the workflow inside the current repo and avoids touching files outsid
 ## Latest Staged Change Summary
 
 <!-- TRACEABILITY:BEGIN -->
-_Updated: `2026-04-10T15:55:21`_
+_Updated: `2026-04-10T15:59:07`_
 
 - Scope: `/home/mint/rl_dev/CRERL`
 - Branch: `main`
 - Source: `staged diff`
-- Impacted phases: `Phase 11`
-- Diff stat: 3 files changed, 348 insertions(+), 5 deletions(-)
+- Impacted phases: `unclassified`
+- Diff stat: 4 files changed, 1118 insertions(+)
 
 ### Changed Files
-- `A` [doc/cre_v4_structure_gap_analysis.md](doc/cre_v4_structure_gap_analysis.md) [Project Docs]
-- `M` [doc/dev_log/p11_dev_status.md](doc/dev_log/p11_dev_status.md) [Project Docs]
+- `M` [.gitignore](.gitignore) [Repo Root]
+- `A` [doc/CRE_v4.pdf](doc/CRE_v4.pdf) [Project Docs]
+- `A` [doc/cre_frame_new.html](doc/cre_frame_new.html) [Project Docs]
+- `A` [doc/cre_frame_rl_live_dashboard.html](doc/cre_frame_rl_live_dashboard.html) [Project Docs]
 <!-- TRACEABILITY:END -->

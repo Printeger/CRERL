@@ -847,9 +847,10 @@ class NavigationEnv(IsaacEnv):
 
         half_x = float(self.map_range[0])
         half_y = float(self.map_range[1])
-        frame_inset = 0.70
         frame_thickness = 0.08
         frame_height = 0.12
+        # Keep the frame aligned with the actual env footprint instead of an inset box.
+        frame_inset = frame_thickness / 2.0
         palette = self._env_visual_palette()
 
         for env_index in range(self.num_envs):
@@ -962,6 +963,7 @@ class NavigationEnv(IsaacEnv):
         )
 
         terrain_static_obstacle_count = 0 if self.scene_family_profile.get("enabled") else self.cfg.env.num_obstacles
+        terrain_border_width = 0.0 if self.scene_family_profile.get("enabled") else 5.0
         terrain_cfg = TerrainImporterCfg(
             num_envs=1 if self.scene_family_profile.get("enabled") else self.num_envs,
             env_spacing=0.0,  # family backend 启用时地形在模板环境内复制
@@ -971,7 +973,7 @@ class NavigationEnv(IsaacEnv):
             terrain_generator=TerrainGeneratorCfg(
                 seed=0,  # 随机种子（保证可复现）
                 size=(self.map_range[0]*2, self.map_range[1]*2),  # 40m × 40m
-                border_width=5.0,  # 边界宽度
+                border_width=terrain_border_width,
                 num_rows=1,  # 地形块行数
                 num_cols=1,  # 地形块列数
                 horizontal_scale=0.1,  # 水平分辨率（10cm）

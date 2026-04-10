@@ -413,6 +413,42 @@ scene instances rather than one shared scene.
 - `python -m py_compile isaac-training/training/scripts/env.py`
   - passed
 
+## 13. Follow-Up Ground Footprint Alignment (2026-04-10)
+
+This follow-up tightens the visible per-env floor so it matches the actual env
+footprint instead of extending beyond it.
+
+### What changed
+
+- when `scene_family_backend.enabled = true`, the generated terrain ground now
+  uses `border_width = 0.0`
+- the per-env outer frame now sits on the actual env footprint instead of using
+  a visibly inset box
+
+This means the visible floor and the env boundary now line up much more
+closely for multi-env inspection.
+
+### How to validate
+
+```bash
+python -m py_compile isaac-training/training/scripts/env.py
+```
+
+Then run a visible short train with:
+
+- `headless=False`
+- `env.num_envs=4`
+
+and confirm:
+
+- each env ground no longer extends noticeably beyond the boundary frame
+- each env reads as one isolated `15 x 15` workspace
+
+### Validation results
+
+- `python -m py_compile isaac-training/training/scripts/env.py`
+  - passed
+
 ## 12. Follow-Up Ground Isolation (2026-04-10)
 
 This follow-up removes the last visual artifact that could still make multiple

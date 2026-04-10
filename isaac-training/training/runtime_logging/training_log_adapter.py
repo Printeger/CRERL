@@ -272,6 +272,14 @@ def _bool_scalar(value: Any, default: bool = False) -> bool:
     return bool(tensor.reshape(-1)[0].item())
 
 
+def _vector3(value: Any) -> Optional[tuple[float, float, float]]:
+    tensor = _as_tensor(value)
+    if tensor is None or tensor.numel() < 3:
+        return None
+    flat = tensor.reshape(-1)
+    return tuple(float(v.item()) for v in flat[:3])
+
+
 def _select_drone_state(value: Any) -> torch.Tensor:
     tensor = _as_tensor(value)
     if tensor is None:
@@ -307,6 +315,7 @@ class TrainingLogRecord:
     near_violation_flag: bool
     out_of_bounds_flag: bool
     done_type: str
+    target_position: Optional[Sequence[float]] = None
 
 
 @dataclass
@@ -382,6 +391,7 @@ class TrainingRolloutLogger:
 
         drone_state = _ensure_time_env(_get_nested(info, "drone_state"), self.num_envs, batch_shape)
         goal_distance = _ensure_time_env(_get_nested(info, "goal_distance"), self.num_envs, batch_shape)
+        target_position = _ensure_time_env(_get_nested(info, "target_position"), self.num_envs, batch_shape)
         min_distance = _ensure_time_env(_get_nested(info, "min_obstacle_distance"), self.num_envs, batch_shape)
         near_violation = _ensure_time_env(_get_nested(info, "near_violation_flag"), self.num_envs, batch_shape)
         out_of_bounds = _ensure_time_env(_get_nested(info, "out_of_bounds_flag"), self.num_envs, batch_shape)
@@ -420,6 +430,11 @@ class TrainingRolloutLogger:
                 position = tuple(float(v) for v in state[:3])
                 velocity = tuple(float(v) for v in state[7:10])
                 goal_distance_value = None if goal_distance is None else _scalar(goal_distance[time_index, env_index], default=0.0)
+                target_position_value = (
+                    None
+                    if target_position is None
+                    else _vector3(target_position[time_index, env_index])
+                )
                 collision_flag = False if collision is None else _bool_scalar(collision[time_index, env_index])
                 out_of_bounds_flag = False if out_of_bounds is None else _bool_scalar(out_of_bounds[time_index, env_index])
                 success_flag = goal_distance_value is not None and goal_distance_value < 0.5
@@ -459,7 +474,7 @@ class TrainingRolloutLogger:
                     done_type=done_type,
                     source=self.source,
                     scene_cfg_name=effective_scene_cfg_name,
-                    target_position=None,
+                    target_position=target_position_value,
                     scene_tags={
                         **dict(base_scene_tags),
                         "env_index": env_index,
@@ -489,6 +504,7 @@ class TrainingRolloutLogger:
                         near_violation_flag=step_log.near_violation_flag,
                         out_of_bounds_flag=step_log.out_of_bounds_flag,
                         done_type=done_type,
+                        target_position=step_log.target_position,
                     )
                 )
 

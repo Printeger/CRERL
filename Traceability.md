@@ -17,7 +17,7 @@ This file has two jobs:
 | Module | Roadmap Phase | Current Code / Docs | Recommendation |
 | --- | --- | --- | --- |
 | Problem freeze and spec definition | Phase 0 | [doc/roadmap/phase0.md](doc/roadmap/phase0.md), [doc/roadmap/roadmap.md](doc/roadmap/roadmap.md), [doc/CRE_frame_design.pdf](doc/CRE_frame_design.pdf) | `修改`: freeze task, constraints, reward formulas, thresholds, witness definitions, and repair acceptance rules. |
-| Core Isaac navigation environment | Phase 1, 4, 7 | [isaac-training/training/scripts/env.py](isaac-training/training/scripts/env.py), [isaac-training/training/cfg/train.yaml](isaac-training/training/cfg/train.yaml) | `复用 + 修改`: keep the environment core, but expose scenario labels, reward decomposition, min obstacle distance, and explicit constraint logs. |
+| Core Isaac navigation environment | Phase 1, 2, 4, 7 | [isaac-training/training/scripts/env.py](isaac-training/training/scripts/env.py), [isaac-training/training/cfg/train.yaml](isaac-training/training/cfg/train.yaml) | `复用 + 修改`: keep the environment core, but expose scenario labels, reward decomposition, min obstacle distance, target position, GUI goal markers, and explicit constraint logs. |
 | Procedural scenario generation | Phase 1, 2, 3, 10 | [isaac-training/training/envs/env_gen.py](isaac-training/training/envs/env_gen.py), [isaac-training/training/envs/runtime/scene_family_bridge.py](isaac-training/training/envs/runtime/scene_family_bridge.py), [isaac-training/training/cfg/env_cfg/scene_cfg_nominal.yaml](isaac-training/training/cfg/env_cfg/scene_cfg_nominal.yaml) | `复用 + 修改`: keep `env_gen.py` as the main family backend, tune family YAMLs directly, make training consume the same bounded scene-family contract, and keep nominal edge-fill placement controls config-driven. |
 | Sensor realism and sim2real noise | Phase 1, 3, 7 | [isaac-training/training/envs/livox_mid360.py](isaac-training/training/envs/livox_mid360.py), [isaac-training/training/unit_test/README.md](isaac-training/training/unit_test/README.md) | `复用 + 修改`: wire the Livox model into the main env and make noise/randomization ranges configurable for E-R studies. |
 | UAV platform model | Phase 0, 7 | [isaac-training/training/cfg/drone.yaml](isaac-training/training/cfg/drone.yaml), [isaac-training/third_party/OmniDrones/omni_drones/robots/drone/taslab_uav.py](isaac-training/third_party/OmniDrones/omni_drones/robots/drone/taslab_uav.py), [doc/TASLAB_UAV_README.md](doc/TASLAB_UAV_README.md) | `复用 + 修改`: keep the TASLAB airframe assets, then finish env integration and validate sensor mounting and dynamics assumptions. |
@@ -50,17 +50,17 @@ This keeps the workflow inside the current repo and avoids touching files outsid
 ## Latest Staged Change Summary
 
 <!-- TRACEABILITY:BEGIN -->
-_Updated: `2026-04-10T20:55:59`_
+_Updated: `2026-04-10T21:28:27`_
 
 - Scope: `/home/mint/rl_dev/CRERL`
 - Branch: `main`
 - Source: `staged diff`
-- Impacted phases: `Phase 1, Phase 4, Phase 7`
-- Diff stat: 5 files changed, 181 insertions(+), 43 deletions(-)
+- Impacted phases: `Phase 1, Phase 2, Phase 3, Phase 4, Phase 7`
+- Diff stat: 5 files changed, 90 insertions(+), 10 deletions(-)
 
 ### Changed Files
-- `M` [doc/dev_log/p1_dev_status.md](doc/dev_log/p1_dev_status.md) [Project Docs]
-- `M` [isaac-training/training/cfg/env_cfg/scene_cfg_nominal.yaml](isaac-training/training/cfg/env_cfg/scene_cfg_nominal.yaml) [Training Config]
-- `M` [isaac-training/training/envs/env_gen.py](isaac-training/training/envs/env_gen.py) [Procedural Env / Sensors]
-- `M` [isaac-training/training/unit_test/test_env/test_scene_generation.py](isaac-training/training/unit_test/test_env/test_scene_generation.py) [Training Tests]
+- `M` [doc/dev_log/p2_dev_status.md](doc/dev_log/p2_dev_status.md) [Project Docs]
+- `M` [isaac-training/training/runtime_logging/training_log_adapter.py](isaac-training/training/runtime_logging/training_log_adapter.py) [Runtime Logging]
+- `M` [isaac-training/training/scripts/env.py](isaac-training/training/scripts/env.py) [Isaac Env Core]
+- `M` [isaac-training/training/unit_test/test_env/test_training_log_adapter.py](isaac-training/training/unit_test/test_env/test_training_log_adapter.py) [Training Tests]
 <!-- TRACEABILITY:END -->

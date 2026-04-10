@@ -418,6 +418,7 @@ class NavigationEnv(IsaacEnv):
         self.env_scene_seeds = []
         self.use_env_gen_dynamic_runtime = False
         self.env_gen_dynamic_indices = []
+        self.goal_marker_radius = 0.22
         self.dynamic_lidar_refresh_interval = 10
         self.lidar_scan_mesh_path = "/World/LidarScanMesh"
         self.template_ground_prim_path = f"{self.template_env_ns}/ground"
@@ -1023,6 +1024,42 @@ class NavigationEnv(IsaacEnv):
                     translation=translation,
                 )
 
+    def _update_goal_visual_markers(self, env_ids: torch.Tensor):
+        if not self._should_render(0):
+            return
+
+        from omni.isaac.core.prims import XFormPrim
+
+        visuals_root = "/World/EnvVisuals"
+        if not prim_utils.is_prim_path_valid(visuals_root):
+            prim_utils.define_prim(visuals_root, "Xform")
+
+        for env_id in env_ids.tolist():
+            env_root = f"{visuals_root}/env_{int(env_id)}"
+            if not prim_utils.is_prim_path_valid(env_root):
+                prim_utils.define_prim(env_root, "Xform")
+
+            marker_path = f"{env_root}/goal"
+            target = self.target_pos[int(env_id), 0].detach().cpu().tolist()
+            translation = tuple(float(value) for value in target[:3])
+
+            if not prim_utils.is_prim_path_valid(marker_path):
+                marker_cfg = AssetBaseCfg(
+                    prim_path=marker_path,
+                    spawn=sim_utils.SphereCfg(
+                        radius=self.goal_marker_radius,
+                        collision_props=sim_utils.CollisionPropertiesCfg(collision_enabled=False),
+                        visual_material=sim_utils.PreviewSurfaceCfg(
+                            diffuse_color=(0.0, 0.85, 0.18),
+                            emissive_color=(0.0, 0.20, 0.04),
+                            metallic=0.0,
+                        ),
+                    ),
+                )
+                marker_cfg.spawn.func(marker_cfg.prim_path, marker_cfg.spawn, translation=translation)
+            else:
+                XFormPrim(prim_path=marker_path, translation=translation)
+
     def _apply_drone_visual_override(self, drone_prim):
         material_path = "/World/Looks/DroneBodyRed"
         if not prim_utils.is_prim_path_valid(material_path):
@@ -1363,6 +1400,7 @@ class NavigationEnv(IsaacEnv):
             "yaw_rate": UnboundedContinuousTensorSpec(1),
             "speed_norm": UnboundedContinuousTensorSpec(1),
             "done_type": UnboundedContinuousTensorSpec(1),
+            "target_position": UnboundedContinuousTensorSpec((self.drone.n, 3), device=self.device),
             "reward_total": UnboundedContinuousTensorSpec(1),
             "reward_progress": UnboundedContinuousTensorSpec(1),
             "reward_safety_static": UnboundedContinuousTensorSpec(1),
@@ -1448,6 +1486,7 @@ class NavigationEnv(IsaacEnv):
         self.prev_drone_vel_w[env_ids] = 0.
         self.height_range[env_ids, 0, 0] = torch.min(pos[:, 0, 2], self.target_pos[env_ids, 0, 2])
         self.height_range[env_ids, 0, 1] = torch.max(pos[:, 0, 2], self.target_pos[env_ids, 0, 2])
+        self._update_goal_visual_markers(env_ids)
 
         self.stats[env_ids] = 0.  
         
@@ -1729,6 +1768,7 @@ class NavigationEnv(IsaacEnv):
         self.info["yaw_rate"] = yaw_rate
         self.info["speed_norm"] = speed_norm
         self.info["done_type"] = done_type
+        self.info["target_position"] = self.target_pos
         self.info["reward_total"] = self.reward
         self.info["reward_progress"] = reward_vel
         self.info["reward_safety_static"] = reward_safety_static

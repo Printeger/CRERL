@@ -73,6 +73,7 @@ def test_training_rollout_logger_emits_episode_artifacts(tmp_path):
             "info": {
                 "drone_state": drone_state,
                 "goal_distance": torch.tensor([[0.2, 2.0]], dtype=torch.float32),
+                "target_position": torch.tensor([[[[2.0, 0.0, 1.0]], [[3.0, 0.0, 1.2]]]], dtype=torch.float32),
                 "min_obstacle_distance": torch.tensor([[0.6, 0.4]], dtype=torch.float32),
                 "near_violation_flag": torch.tensor([[False, True]], dtype=torch.bool),
                 "out_of_bounds_flag": torch.tensor([[False, False]], dtype=torch.bool),
@@ -112,6 +113,8 @@ def test_training_rollout_logger_emits_episode_artifacts(tmp_path):
     assert len(steps) == 2
     assert all(step["source"] == "train" for step in steps)
     assert all(step["scene_cfg_name"] == "legacy_train_env" for step in steps)
+    assert steps[0]["target_position"] == pytest.approx([2.0, 0.0, 1.0])
+    assert steps[1]["target_position"] == pytest.approx([3.0, 0.0, 1.2])
     assert all(set(STANDARD_REWARD_COMPONENT_KEYS).issubset(step["reward_components"].keys()) for step in steps)
     assert all(step["scene_tags"]["execution_mode"] == "train" for step in steps)
     assert all(

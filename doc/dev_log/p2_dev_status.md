@@ -1,6 +1,6 @@
 # Phase 2 Development Status
 
-Updated: 2026-03-26
+Updated: 2026-04-10
 
 ## 1. Phase Goal
 
@@ -297,3 +297,24 @@ Phase 3 should therefore begin with:
 - directory-level aggregation audit
 - `acceptance.json` generation
 - a common pass/fail gate for run directories
+
+## 8. 2026-04-10 Training Visibility Update
+
+What changed:
+
+- added GUI goal markers for `NavigationEnv` resets when rendering is enabled
+- exposed `target_position` through `env.info`
+- updated the training rollout adapter so `target_position` is written into CRE step logs
+- added training adapter test coverage for `target_position` serialization
+
+How to validate:
+
+- run syntax checks on the touched Python files
+- run `test_training_log_adapter.py` in an environment with `pytest` and `torch`
+- start a short GUI training run and confirm each env shows a green goal marker
+
+Validation results:
+
+- `python -m py_compile isaac-training/training/scripts/env.py isaac-training/training/runtime_logging/training_log_adapter.py isaac-training/training/unit_test/test_env/test_training_log_adapter.py` passed
+- `python -m pytest isaac-training/training/unit_test/test_env/test_training_log_adapter.py -q` could not run in the current shell because `pytest` is not installed
+- a direct synthetic smoke script also could not run in the current shell because `torch` is not installed

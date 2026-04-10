@@ -413,6 +413,36 @@ scene instances rather than one shared scene.
 - `python -m py_compile isaac-training/training/scripts/env.py`
   - passed
 
+## 15. Follow-Up Drone Visual Override (2026-04-10)
+
+This follow-up improves visible RL inspection by making the cloned training
+drone easier to spot against light ground tiles and denser obstacle layouts.
+
+### What changed
+
+- `env.py` now creates one shared red preview-surface material under
+  `/World/Looks/DroneBodyRed`
+- the template drone prim is bound to that material before env cloning, so each
+  cloned env instance inherits the same bright red drone appearance
+
+### How to validate
+
+```bash
+python -m py_compile isaac-training/training/scripts/env.py
+```
+
+Then run a visible short train with:
+
+- `headless=False`
+- `env.num_envs=4`
+
+and confirm each env shows a clearly visible red drone body.
+
+### Validation results
+
+- `python -m py_compile isaac-training/training/scripts/env.py`
+  - passed
+
 ## 14. Follow-Up Per-Env Spawn/Goal Binding (2026-04-10)
 
 This follow-up fixes a reset-coordinate bug that could place drones and goals

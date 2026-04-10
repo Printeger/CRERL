@@ -902,6 +902,17 @@ class NavigationEnv(IsaacEnv):
                     translation=translation,
                 )
 
+    def _apply_drone_visual_override(self, drone_prim):
+        material_path = "/World/Looks/DroneBodyRed"
+        if not prim_utils.is_prim_path_valid(material_path):
+            material_cfg = sim_utils.PreviewSurfaceCfg(
+                diffuse_color=(0.92, 0.10, 0.10),
+                roughness=0.35,
+                metallic=0.05,
+            )
+            material_cfg.func(material_path, material_cfg)
+        sim_utils.bind_visual_material(str(drone_prim.GetPath()), material_path)
+
 
     def _design_scene(self):
         """
@@ -925,6 +936,7 @@ class NavigationEnv(IsaacEnv):
         self.drone = drone_model(cfg=cfg)
         # 生成无人机，初始位置在 z=2.0 米处
         drone_prim = self.drone.spawn(translations=[(0.0, 0.0, 2.0)])[0]
+        self._apply_drone_visual_override(drone_prim)
 
         # ============================================
         # 2. 添加光照（让场景可见）

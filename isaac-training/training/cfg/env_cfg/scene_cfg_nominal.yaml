@@ -10,10 +10,10 @@ workspace:
   flight_height_max: 4.0
 
 primitive_budget:
-  box: [1, 3]
-  cylinder: [2, 6]
-  slab: [0, 1]
-  perforated_slab: [0, 1]
+  box: [3, 6]
+  cylinder: [6, 10]
+  slab: [1, 2]
+  perforated_slab: [1, 2]
   sphere: [0, 0]
   capsule: [0, 0]
 
@@ -24,16 +24,16 @@ distribution_modes:
   boundary_adjacent_bias: 0.10
 
 background_placement:
-  obstacle_obstacle_min_dist: 0.7
-  obstacle_boundary_min_dist: 0.6
+  obstacle_obstacle_min_dist: 0.55
+  obstacle_boundary_min_dist: 0.45
   max_rejection_trials: 240
-  free_space_fraction_min: 0.55
-  free_space_fraction_max: 0.88
+  free_space_fraction_min: 0.38
+  free_space_fraction_max: 0.72
 
 templates:
   enabled: true
   min_templates_per_scene: 1
-  max_templates_per_scene: 1
+  max_templates_per_scene: 2
   candidate_types:
     - bottleneck
     - clutter_cluster
@@ -43,16 +43,16 @@ template_params:
   bottleneck:
     enabled: true
     count: [0, 1]
-    width_range: [1.4, 2.0]
-    length_range: [1.2, 2.4]
+    width_range: [1.2, 1.8]
+    length_range: [1.4, 2.8]
     placement_mode: "route_adjacent"
     traversable_required: true
 
   clutter_cluster:
     enabled: true
     count: [0, 1]
-    cluster_radius_range: [0.8, 1.6]
-    obstacle_count_range: [2, 4]
+    cluster_radius_range: [0.9, 1.8]
+    obstacle_count_range: [3, 6]
     placement_mode: "random_free_region"
     traversable_required: true
 
@@ -60,10 +60,10 @@ template_params:
     enabled: true
     count: [0, 1]
     slab_mode: "vertical"
-    size_x_range: [1.2, 2.2]
-    size_y_range: [1.6, 2.6]
+    size_x_range: [1.4, 2.6]
+    size_y_range: [1.8, 3.0]
     thickness_range: [0.10, 0.16]
-    hole_count_range: [1, 1]
+    hole_count_range: [1, 2]
     hole_shape_candidates:
       - circle
       - rectangle

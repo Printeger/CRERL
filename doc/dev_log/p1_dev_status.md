@@ -106,3 +106,90 @@ The next step should be:
    practice,
 3. and then decide whether `boundary_critical` and `shifted` should also get a
    matching small-workspace variant.
+
+## 6. Follow-Up Density Increase (2026-04-10)
+
+This follow-up increases the realized obstacle density of the `15 x 15`
+`nominal` family so short visible training runs better exercise local obstacle
+avoidance.
+
+### What changed
+
+- raised the `nominal` primitive budgets for:
+  - `box`
+  - `cylinder`
+  - `slab`
+  - `perforated_slab`
+- reduced background spacing and free-space targets so more obstacles can fit
+  into the smaller workspace
+- increased `max_templates_per_scene` from `1` to `2`
+- enlarged the realized clutter load by increasing:
+  - clutter-cluster obstacle count
+  - perforated-barrier panel size / hole count
+  - bottleneck span range
+
+The main changed file is:
+
+- `isaac-training/training/cfg/env_cfg/scene_cfg_nominal.yaml`
+
+### How To Validate
+
+Run a focused pure-Python scene compile and validation check:
+
+```bash
+PYTHONPATH=isaac-training/training python - <<'PY'
+from envs.env_gen import (
+    ArenaConfig,
+    UniversalArenaGenerator,
+    compile_scene_config_from_rules,
+    load_scene_family_config,
+    validate_scene,
+)
+
+rules = load_scene_family_config("nominal")
+for seed in range(5):
+    compiled = compile_scene_config_from_rules(rules, seed=seed, difficulty=0.5)
+    arena_cfg = ArenaConfig(
+        size_x=compiled["workspace"]["size_x"],
+        size_y=compiled["workspace"]["size_y"],
+        size_z=compiled["workspace"]["size_z"],
+        start_pos=tuple(compiled["start"]),
+        goal_pos=tuple(compiled["goal"]),
+        flight_height_min=compiled["workspace"]["flight_height_min"],
+        flight_height_max=compiled["workspace"]["flight_height_max"],
+    )
+    result = UniversalArenaGenerator(arena_cfg, seed=seed).generate_from_scene_family(
+        "nominal",
+        seed=seed,
+        difficulty=0.5,
+        gravity_tilt_enabled=False,
+    )
+    report = validate_scene(result.scene)
+    assert report["valid"], (seed, report)
+    print(seed, report["primitive_counts"], len(result.scene["primitives"]))
+print("nominal dense validation passed for seeds 0-4")
+PY
+```
+
+### Validation Results
+
+- `PYTHONPATH=isaac-training/training python ...`
+  - loaded the denser `nominal` scene-family config
+  - compiled the scene rules at `difficulty=0.5`
+  - generated real scenes through `UniversalArenaGenerator`
+  - validated the generated scenes with `validate_scene(...)`
+- seeds checked:
+  - `0`
+  - `1`
+  - `2`
+  - `3`
+  - `4`
+- result:
+  - all five generated scenes were `valid = true`
+  - all five generated scenes were `strict_valid = true`
+  - realized primitive counts were between `13` and `15`
+  - the realized primitive mix was dominated by:
+    - `cylinder`
+    - `box`
+    - `slab`
+    - occasional `perforated_slab`

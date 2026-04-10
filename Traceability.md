@@ -18,7 +18,7 @@ This file has two jobs:
 | --- | --- | --- | --- |
 | Problem freeze and spec definition | Phase 0 | [doc/roadmap/phase0.md](doc/roadmap/phase0.md), [doc/roadmap/roadmap.md](doc/roadmap/roadmap.md), [doc/CRE_frame_design.pdf](doc/CRE_frame_design.pdf) | `修改`: freeze task, constraints, reward formulas, thresholds, witness definitions, and repair acceptance rules. |
 | Core Isaac navigation environment | Phase 1, 4, 7 | [isaac-training/training/scripts/env.py](isaac-training/training/scripts/env.py), [isaac-training/training/cfg/train.yaml](isaac-training/training/cfg/train.yaml) | `复用 + 修改`: keep the environment core, but expose scenario labels, reward decomposition, min obstacle distance, and explicit constraint logs. |
-| Procedural scenario generation | Phase 1, 2, 3 | [isaac-training/training/envs/universal_generator.py](isaac-training/training/envs/universal_generator.py) | `复用 + 修改`: reuse difficulty/mode/solvability machinery to build nominal, boundary-critical, and shifted scenario families. |
+| Procedural scenario generation | Phase 1, 2, 3, 10 | [isaac-training/training/envs/env_gen.py](isaac-training/training/envs/env_gen.py), [isaac-training/training/envs/runtime/scene_family_bridge.py](isaac-training/training/envs/runtime/scene_family_bridge.py), [isaac-training/training/cfg/env_cfg/scene_cfg_nominal.yaml](isaac-training/training/cfg/env_cfg/scene_cfg_nominal.yaml) | `复用 + 修改`: keep `env_gen.py` as the main family backend, tune family YAMLs directly, and make training consume the same bounded scene-family contract. |
 | Sensor realism and sim2real noise | Phase 1, 3, 7 | [isaac-training/training/envs/livox_mid360.py](isaac-training/training/envs/livox_mid360.py), [isaac-training/training/unit_test/README.md](isaac-training/training/unit_test/README.md) | `复用 + 修改`: wire the Livox model into the main env and make noise/randomization ranges configurable for E-R studies. |
 | UAV platform model | Phase 0, 7 | [isaac-training/training/cfg/drone.yaml](isaac-training/training/cfg/drone.yaml), [isaac-training/third_party/OmniDrones/omni_drones/robots/drone/taslab_uav.py](isaac-training/third_party/OmniDrones/omni_drones/robots/drone/taslab_uav.py), [doc/TASLAB_UAV_README.md](doc/TASLAB_UAV_README.md) | `复用 + 修改`: keep the TASLAB airframe assets, then finish env integration and validate sensor mounting and dynamics assumptions. |
 | Non-RL baselines and adversarial probes | Phase 2, 3 | [isaac-training/training/scripts/command_generator.py](isaac-training/training/scripts/command_generator.py), [isaac-training/training/unit_test/test_adversarial_gen.py](isaac-training/training/unit_test/test_adversarial_gen.py) | `复用 + 新写`: reuse the adversarial command generator, but add explicit random / greedy-to-goal / conservative-avoidance baseline policies and evaluation harnesses. |
@@ -50,15 +50,15 @@ This keeps the workflow inside the current repo and avoids touching files outsid
 ## Latest Staged Change Summary
 
 <!-- TRACEABILITY:BEGIN -->
-_Updated: `2026-04-10T17:01:00`_
+_Updated: `2026-04-10T17:26:35`_
 
 - Scope: `/home/mint/rl_dev/CRERL`
 - Branch: `main`
 - Source: `staged diff`
-- Impacted phases: `Phase 11`
-- Diff stat: 3 files changed, 342 insertions(+), 6 deletions(-)
+- Impacted phases: `Phase 1`
+- Diff stat: 3 files changed, 145 insertions(+), 36 deletions(-)
 
 ### Changed Files
-- `M` [doc/cre_v4_structure_gap_analysis.md](doc/cre_v4_structure_gap_analysis.md) [Project Docs]
-- `M` [doc/dev_log/p11_dev_status.md](doc/dev_log/p11_dev_status.md) [Project Docs]
+- `A` [doc/dev_log/p1_dev_status.md](doc/dev_log/p1_dev_status.md) [Project Docs]
+- `M` [isaac-training/training/cfg/env_cfg/scene_cfg_nominal.yaml](isaac-training/training/cfg/env_cfg/scene_cfg_nominal.yaml) [Training Config]
 <!-- TRACEABILITY:END -->

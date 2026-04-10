@@ -418,3 +418,40 @@ scene instances rather than one shared scene.
 The RL execution stack is now better aligned with the expected vectorized-env
 semantics: each cloned env owns its own scene instance when consuming the
 family-based backend.
+
+## 10. Follow-Up Visualization Isolation (2026-04-10)
+
+This follow-up improves native multi-env visualization clarity.
+
+### What changed
+
+- `env.py` now spawns a non-colliding boundary frame inside the template env
+- the frame is cloned together with the template scene into every env instance
+- the boundary markers sit slightly above the floor and make each env footprint
+  visually explicit even when neighboring floors look contiguous from the
+  camera angle
+
+This keeps the training/runtime semantics unchanged while making it much easier
+to verify:
+
+- where one env ends
+- where the next env begins
+
+### How to validate
+
+```bash
+python -m py_compile isaac-training/training/scripts/env.py
+```
+
+Then run a visible short train with:
+
+- `headless=False`
+- `env.num_envs=4`
+- `env.env_spacing=20`
+
+and confirm each env now shows an isolated colored boundary rectangle.
+
+### Validation results
+
+- `python -m py_compile isaac-training/training/scripts/env.py`
+  - passed

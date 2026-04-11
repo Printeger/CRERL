@@ -457,6 +457,43 @@ and confirm:
   - reason: the current shell Python is missing `hydra`, so `train.py` could
     not be launched here end-to-end
 
+## 18. Follow-Up Eval Env Spacing Parity (2026-04-11)
+
+This follow-up closes a config drift between `train.py` and `eval.py` for
+visible multi-env scene inspection.
+
+### What changed
+
+- `eval.yaml` now uses `env.env_spacing = 20.0`, matching the current
+  train-time spacing default for the `15 x 15` nominal scene family
+- this keeps visible multi-env eval runs from overlapping cloned env instances
+  when `env.num_envs > 1`
+
+### How to validate
+
+Run eval with:
+
+```bash
+python isaac-training/training/scripts/eval.py \
+  headless=False \
+  scene_family_backend.family=nominal \
+  scene_family_backend.difficulty=1.0 \
+  env.num_envs=4 \
+  env.max_episode_length=1024
+```
+
+Then confirm the stage shows four separated env instances rather than
+overlapping clones.
+
+### Validation results
+
+- focused config diff check:
+  - `eval.yaml` now matches the train-time `20.0` env spacing default
+- end-to-end visible eval smoke:
+  - not run in this shell
+  - reason: the user reported the overlap from a local GUI run and requested
+    the config be aligned with the already-fixed train setup
+
 ## 16. Follow-Up Shim Material Binding Fix (2026-04-10)
 
 This follow-up fixes a startup regression introduced by the visible red-drone

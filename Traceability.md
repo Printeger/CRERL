@@ -22,7 +22,7 @@ This file has two jobs:
 | Sensor realism and sim2real noise | Phase 1, 3, 7 | [isaac-training/training/envs/livox_mid360.py](isaac-training/training/envs/livox_mid360.py), [isaac-training/training/unit_test/README.md](isaac-training/training/unit_test/README.md) | `复用 + 修改`: wire the Livox model into the main env and make noise/randomization ranges configurable for E-R studies. |
 | UAV platform model | Phase 0, 7 | [isaac-training/training/cfg/drone.yaml](isaac-training/training/cfg/drone.yaml), [isaac-training/third_party/OmniDrones/omni_drones/robots/drone/taslab_uav.py](isaac-training/third_party/OmniDrones/omni_drones/robots/drone/taslab_uav.py), [doc/TASLAB_UAV_README.md](doc/TASLAB_UAV_README.md) | `复用 + 修改`: keep the TASLAB airframe assets, then finish env integration and validate sensor mounting and dynamics assumptions. |
 | Non-RL baselines and adversarial probes | Phase 2, 3 | [isaac-training/training/scripts/command_generator.py](isaac-training/training/scripts/command_generator.py), [isaac-training/training/unit_test/test_adversarial_gen.py](isaac-training/training/unit_test/test_adversarial_gen.py) | `复用 + 新写`: reuse the adversarial command generator, but add explicit random / greedy-to-goal / conservative-avoidance baseline policies and evaluation harnesses. |
-| RL training and evaluation loop | Phase 4 | [isaac-training/training/scripts/train.py](isaac-training/training/scripts/train.py), [isaac-training/training/scripts/eval.py](isaac-training/training/scripts/eval.py), [isaac-training/training/scripts/ppo.py](isaac-training/training/scripts/ppo.py) | `复用 + 修改`: reuse PPO training infrastructure first, then add constrained metrics and possibly a safe-RL baseline. |
+| RL training and evaluation loop | Phase 4, 10 | [isaac-training/training/scripts/train.py](isaac-training/training/scripts/train.py), [isaac-training/training/scripts/eval.py](isaac-training/training/scripts/eval.py), [isaac-training/training/scripts/ppo.py](isaac-training/training/scripts/ppo.py), [isaac-training/training/cfg/eval.yaml](isaac-training/training/cfg/eval.yaml) | `复用 + 修改`: reuse PPO training infrastructure first, then add constrained metrics, keep train/eval scene-family defaults aligned, and possibly add a safe-RL baseline. |
 | CRE diagnostics and witness computation | Phase 2, 3, 6 | No implementation yet; only design/spec in [doc/roadmap/phase0.md](doc/roadmap/phase0.md) and [doc/CRE_frame_design.pdf](doc/CRE_frame_design.pdf) | `新写`: build IR/spec objects, witness calculators (`W_CR`, `W_EC`, `W_ER`), scoring, and report generation. |
 | Repair engine | Phase 5, 6 | No implementation yet; repair ideas only in [doc/roadmap/roadmap.md](doc/roadmap/roadmap.md) and [doc/CRE_frame_design.pdf](doc/CRE_frame_design.pdf) | `新写`: implement reward reweighting, boundary penalty injection, critical scenario injection, and structured domain randomization. |
 | Deployment validation stack | Phase 7 | [ros1/map_manager](ros1/map_manager), [ros1/onboard_detector](ros1/onboard_detector), [ros2/navigation_runner/scripts/navigation.py](ros2/navigation_runner/scripts/navigation.py) | `复用 + 修改`: reuse the deployment chain for repaired-policy validation and deployment-gap measurements. |
@@ -50,17 +50,15 @@ This keeps the workflow inside the current repo and avoids touching files outsid
 ## Latest Staged Change Summary
 
 <!-- TRACEABILITY:BEGIN -->
-_Updated: `2026-04-10T21:28:27`_
+_Updated: `2026-04-11T12:09:01`_
 
 - Scope: `/home/mint/rl_dev/CRERL`
 - Branch: `main`
 - Source: `staged diff`
-- Impacted phases: `Phase 1, Phase 2, Phase 3, Phase 4, Phase 7`
-- Diff stat: 5 files changed, 90 insertions(+), 10 deletions(-)
+- Impacted phases: `Phase 10`
+- Diff stat: 3 files changed, 39 insertions(+), 2 deletions(-)
 
 ### Changed Files
-- `M` [doc/dev_log/p2_dev_status.md](doc/dev_log/p2_dev_status.md) [Project Docs]
-- `M` [isaac-training/training/runtime_logging/training_log_adapter.py](isaac-training/training/runtime_logging/training_log_adapter.py) [Runtime Logging]
-- `M` [isaac-training/training/scripts/env.py](isaac-training/training/scripts/env.py) [Isaac Env Core]
-- `M` [isaac-training/training/unit_test/test_env/test_training_log_adapter.py](isaac-training/training/unit_test/test_env/test_training_log_adapter.py) [Training Tests]
+- `M` [doc/dev_log/p10_dev_status.md](doc/dev_log/p10_dev_status.md) [Project Docs]
+- `M` [isaac-training/training/cfg/eval.yaml](isaac-training/training/cfg/eval.yaml) [Training Config]
 <!-- TRACEABILITY:END -->

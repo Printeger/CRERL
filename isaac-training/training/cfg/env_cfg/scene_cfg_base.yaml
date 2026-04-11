@@ -83,8 +83,8 @@ template_params:
     traversable_required: true
 
 dynamic_obstacles:
-  enabled: false
-  max_dynamic_count: 0
+  enabled: true
+  max_dynamic_count: 30
 
   sphere:
     motion_type_candidates:

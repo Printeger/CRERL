@@ -10,11 +10,11 @@ workspace:
   flight_height_max: 4.0
 
 primitive_budget:
-  box: [8, 14]
-  cylinder: [16, 24]
-  slab: [3, 5]
-  perforated_slab: [2, 4]
-  sphere: [0, 0]
+  box: [8, 30]
+  cylinder: [16, 30]
+  slab: [3, 15]
+  perforated_slab: [2, 15]
+  sphere: [0, 20]
   capsule: [0, 0]
 
 distribution_modes:

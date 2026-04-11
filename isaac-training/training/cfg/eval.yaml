@@ -45,8 +45,8 @@ viewer:
   resolution: [960, 720]
 
 wandb:
-  project: test_NavRL
+  project: comp6713
   name: navigation_training
-  entity: printeger
+  entity: crerl
   mode: online # online
   run_id: #kw9xf9k9

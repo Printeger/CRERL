@@ -413,6 +413,74 @@ scene instances rather than one shared scene.
 - `python -m py_compile isaac-training/training/scripts/env.py`
   - passed
 
+## 20. Follow-Up Eval Truncation Accounting Fix (2026-04-11)
+
+This follow-up corrects an eval-specific evidence issue where many episodes were
+being logged as `truncated` even when the user expectation was “evaluate this
+checkpoint once and summarize complete episode outcomes as faithfully as
+possible”.
+
+### What changed
+
+- `runtime_logging/training_log_adapter.py` now detects rollout batches that
+  arrive in `[env, time, ...]` layout and normalizes them before episode
+  stitching.
+- this fixes the previous eval-path mismatch where `env.rollout()` output could
+  be interpreted like a one-step batch, which polluted episode lengths and
+  closure behavior.
+- `eval.py` no longer wraps checkpoint evaluation in an outer
+  `SyncDataCollector` loop.
+- `eval.py` now performs one direct checkpoint evaluation per invocation, which
+  keeps `truncated` limited to true horizon cutoffs inside that one eval pass
+  instead of repeatedly flushing fresh open episodes across many redundant
+  outer-loop iterations.
+- `test_training_log_adapter.py` now includes an explicit rollout-layout case
+  for `[env, time, ...]` batches.
+
+### Why `truncated` appeared before
+
+There were two coupled causes:
+
+- `evaluate()` flushes any still-open episode at the end of a rollout as
+  `truncated`, which is reasonable for unfinished horizon-limited episodes.
+- `eval.py` was repeatedly calling `evaluate()` inside an extra collector loop,
+  so the same checkpoint produced many repeated truncated closures.
+
+The resulting run was therefore valid CRE evidence, but the eval episode
+accounting was noisier than intended.
+
+### How to validate
+
+```bash
+python -m py_compile \
+  isaac-training/training/runtime_logging/training_log_adapter.py \
+  isaac-training/training/scripts/eval.py \
+  isaac-training/training/unit_test/test_env/test_training_log_adapter.py
+```
+
+And for a focused adapter check in the Isaac/`NavRL` runtime environment, run a
+small script that feeds a synthetic `[env, time]` rollout batch into
+`TrainingRolloutLogger` and confirm the episode closures are:
+
+- `success` with `num_steps=2`
+- `truncated` with `num_steps=1`
+- `truncated` with `num_steps=3`
+
+### Validation results
+
+- `python -m py_compile ...`
+  - passed
+- direct `TrainingRolloutLogger` rollout-layout check in `NavRL`
+  - passed
+  - observed episode closures:
+    - `('success', 2)`
+    - `('truncated', 1)`
+    - `('truncated', 3)`
+- `pytest -q isaac-training/training/unit_test/test_env/test_training_log_adapter.py`
+  - collection was skipped in this environment due a pytest/plugin-side `torch`
+    import issue, so direct script validation was used as the focused fallback
+    evidence
+
 ## 17. Follow-Up Per-Env Scene Diversity (2026-04-10)
 
 This follow-up removes the last major vectorized-scene shortcut in the native

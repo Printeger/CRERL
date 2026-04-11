@@ -21,6 +21,12 @@ from runtime_logging.training_log_adapter import (
 from runtime_logging.schema import STANDARD_REWARD_COMPONENT_KEYS
 
 
+class _BatchDict(dict):
+    def __init__(self, *args, batch_size=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.batch_size = torch.Size(batch_size or [])
+
+
 def test_done_type_code_to_string_maps_expected_values():
     assert done_type_code_to_string(0) == "running"
     assert done_type_code_to_string(1) == "success"
@@ -123,6 +129,101 @@ def test_training_rollout_logger_emits_episode_artifacts(tmp_path):
     )
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     assert manifest["run_metadata"] == {}
+
+
+def test_training_rollout_logger_handles_env_time_rollout_layout(tmp_path):
+    run_logger = create_run_logger(
+        source="eval",
+        run_name="adapter_rollout_layout",
+        base_dir=tmp_path,
+        use_timestamp=False,
+        near_violation_distance=0.5,
+    )
+    adapter = TrainingRolloutLogger(
+        run_logger,
+        num_envs=2,
+        dt=0.2,
+        source="eval",
+        scenario_type="nominal",
+        scene_cfg_name="scene_cfg_nominal.yaml",
+        scene_id_prefix="nominal_scene",
+        seed=7,
+    )
+
+    drone_state = torch.zeros(2, 3, 1, 13)
+    drone_state[0, :, 0, 0] = torch.tensor([0.0, 0.2, 0.4])
+    drone_state[1, :, 0, 0] = torch.tensor([1.0, 1.2, 1.4])
+    drone_state[:, :, 0, 2] = 1.0
+
+    batch = _BatchDict(
+        {
+            "next": _BatchDict(
+                {
+                    "done": torch.tensor(
+                        [
+                            [False, True, False],
+                            [False, False, False],
+                        ],
+                        dtype=torch.bool,
+                    ),
+                    "truncated": torch.zeros(2, 3, dtype=torch.bool),
+                    "info": _BatchDict(
+                        {
+                            "drone_state": drone_state,
+                            "goal_distance": torch.tensor(
+                                [
+                                    [2.0, 0.3, 1.5],
+                                    [3.0, 2.8, 2.6],
+                                ],
+                                dtype=torch.float32,
+                            ),
+                            "target_position": torch.zeros(2, 3, 1, 3, dtype=torch.float32),
+                            "min_obstacle_distance": torch.full((2, 3), 1.0, dtype=torch.float32),
+                            "near_violation_flag": torch.zeros(2, 3, dtype=torch.bool),
+                            "out_of_bounds_flag": torch.zeros(2, 3, dtype=torch.bool),
+                            "collision_flag": torch.zeros(2, 3, dtype=torch.bool),
+                            "yaw_rate": torch.zeros(2, 3, dtype=torch.float32),
+                            "reward_total": torch.ones(2, 3, dtype=torch.float32),
+                            "reward_progress": torch.zeros(2, 3, dtype=torch.float32),
+                            "reward_safety_static": torch.ones(2, 3, dtype=torch.float32),
+                            "reward_safety_dynamic": torch.zeros(2, 3, dtype=torch.float32),
+                            "penalty_smooth": torch.zeros(2, 3, dtype=torch.float32),
+                            "penalty_height": torch.zeros(2, 3, dtype=torch.float32),
+                            "done_type": torch.tensor(
+                                [
+                                    [0.0, 1.0, 0.0],
+                                    [0.0, 0.0, 0.0],
+                                ],
+                                dtype=torch.float32,
+                            ),
+                        },
+                        batch_size=[2, 3],
+                    ),
+                },
+                batch_size=[2, 3],
+            )
+        },
+        batch_size=[2, 3],
+    )
+
+    records = adapter.process_batch(batch)
+    assert len(records) == 6
+    adapter.flush_open_episodes(done_type="truncated")
+
+    episodes_path = tmp_path / "adapter_rollout_layout" / "episodes.jsonl"
+    episodes = [
+        json.loads(line)
+        for line in episodes_path.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+
+    assert len(episodes) == 3
+    assert episodes[0]["done_type"] == "success"
+    assert episodes[0]["num_steps"] == 2
+    assert episodes[1]["done_type"] == "truncated"
+    assert episodes[1]["num_steps"] == 1
+    assert episodes[2]["done_type"] == "truncated"
+    assert episodes[2]["num_steps"] == 3
 
 
 def test_extract_cre_env_metadata_prefers_env_runtime_metadata():

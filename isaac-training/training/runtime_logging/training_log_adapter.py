@@ -231,14 +231,49 @@ def _infer_batch_shape(tensor: Optional[torch.Tensor], num_envs: int) -> tuple[i
     return 1, num_envs
 
 
-def _ensure_time_env(tensor: Any, num_envs: int, batch_shape: Optional[tuple[int, int]] = None) -> Optional[torch.Tensor]:
+def _infer_batch_layout(
+    container: Any,
+    anchor: Optional[torch.Tensor],
+    num_envs: int,
+) -> tuple[int, int, bool]:
+    batch_size = getattr(container, "batch_size", None)
+    if batch_size is not None:
+        dims = [int(dim) for dim in list(batch_size)]
+        if len(dims) >= 2:
+            if dims[0] == num_envs and dims[1] != num_envs:
+                return dims[1], dims[0], True
+            if dims[1] == num_envs:
+                return dims[0], dims[1], False
+        if len(dims) == 1:
+            if dims[0] == num_envs:
+                return 1, dims[0], False
+            return dims[0], 1, False
+
+    time_dim, env_dim = _infer_batch_shape(anchor, num_envs)
+    env_first = (
+        anchor is not None
+        and anchor.ndim >= 2
+        and int(anchor.shape[0]) == env_dim
+        and int(anchor.shape[1]) == time_dim
+        and env_dim == num_envs
+    )
+    return time_dim, env_dim, env_first
+
+
+def _ensure_time_env(
+    tensor: Any,
+    num_envs: int,
+    batch_layout: Optional[tuple[int, int, bool]] = None,
+) -> Optional[torch.Tensor]:
     tensor = _as_tensor(tensor)
     if tensor is None:
         return None
 
-    if batch_shape is None:
-        batch_shape = _infer_batch_shape(tensor, num_envs)
-    time_dim, env_dim = batch_shape
+    if batch_layout is None:
+        time_dim, env_dim = _infer_batch_shape(tensor, num_envs)
+        env_first = False
+    else:
+        time_dim, env_dim, env_first = batch_layout
 
     if tensor.ndim == 0:
         return tensor.reshape(1, 1)
@@ -249,6 +284,8 @@ def _ensure_time_env(tensor: Any, num_envs: int, batch_shape: Optional[tuple[int
             return tensor.reshape(time_dim, env_dim)
         return tensor.reshape(1, tensor.shape[0])
     if tensor.ndim >= 2:
+        if env_first and tensor.shape[0] == env_dim and tensor.shape[1] == time_dim:
+            return tensor.transpose(0, 1)
         if tensor.shape[0] == env_dim and (tensor.ndim == 2 or tensor.shape[1] != env_dim):
             return tensor.unsqueeze(0)
         if tensor.shape[0] == time_dim and tensor.shape[1] == env_dim:
@@ -387,27 +424,27 @@ class TrainingRolloutLogger:
         batch_anchor = _as_tensor(_get_nested(info, "reward_total"))
         if batch_anchor is None:
             batch_anchor = _as_tensor(done)
-        batch_shape = _infer_batch_shape(batch_anchor, self.num_envs)
+        batch_layout = _infer_batch_layout(next_td, batch_anchor, self.num_envs)
 
-        drone_state = _ensure_time_env(_get_nested(info, "drone_state"), self.num_envs, batch_shape)
-        goal_distance = _ensure_time_env(_get_nested(info, "goal_distance"), self.num_envs, batch_shape)
-        target_position = _ensure_time_env(_get_nested(info, "target_position"), self.num_envs, batch_shape)
-        min_distance = _ensure_time_env(_get_nested(info, "min_obstacle_distance"), self.num_envs, batch_shape)
-        near_violation = _ensure_time_env(_get_nested(info, "near_violation_flag"), self.num_envs, batch_shape)
-        out_of_bounds = _ensure_time_env(_get_nested(info, "out_of_bounds_flag"), self.num_envs, batch_shape)
-        collision = _ensure_time_env(_get_nested(info, "collision_flag"), self.num_envs, batch_shape)
-        yaw_rate = _ensure_time_env(_get_nested(info, "yaw_rate"), self.num_envs, batch_shape)
-        reward_total = _ensure_time_env(_get_nested(info, "reward_total"), self.num_envs, batch_shape)
-        reward_progress = _ensure_time_env(_get_nested(info, "reward_progress"), self.num_envs, batch_shape)
-        reward_safety_static = _ensure_time_env(_get_nested(info, "reward_safety_static"), self.num_envs, batch_shape)
-        reward_safety_dynamic = _ensure_time_env(_get_nested(info, "reward_safety_dynamic"), self.num_envs, batch_shape)
-        penalty_smooth = _ensure_time_env(_get_nested(info, "penalty_smooth"), self.num_envs, batch_shape)
-        penalty_height = _ensure_time_env(_get_nested(info, "penalty_height"), self.num_envs, batch_shape)
-        done_type_code = _ensure_time_env(_get_nested(info, "done_type"), self.num_envs, batch_shape)
-        done = _ensure_time_env(done, self.num_envs, batch_shape)
-        truncated = _ensure_time_env(truncated, self.num_envs, batch_shape)
+        drone_state = _ensure_time_env(_get_nested(info, "drone_state"), self.num_envs, batch_layout)
+        goal_distance = _ensure_time_env(_get_nested(info, "goal_distance"), self.num_envs, batch_layout)
+        target_position = _ensure_time_env(_get_nested(info, "target_position"), self.num_envs, batch_layout)
+        min_distance = _ensure_time_env(_get_nested(info, "min_obstacle_distance"), self.num_envs, batch_layout)
+        near_violation = _ensure_time_env(_get_nested(info, "near_violation_flag"), self.num_envs, batch_layout)
+        out_of_bounds = _ensure_time_env(_get_nested(info, "out_of_bounds_flag"), self.num_envs, batch_layout)
+        collision = _ensure_time_env(_get_nested(info, "collision_flag"), self.num_envs, batch_layout)
+        yaw_rate = _ensure_time_env(_get_nested(info, "yaw_rate"), self.num_envs, batch_layout)
+        reward_total = _ensure_time_env(_get_nested(info, "reward_total"), self.num_envs, batch_layout)
+        reward_progress = _ensure_time_env(_get_nested(info, "reward_progress"), self.num_envs, batch_layout)
+        reward_safety_static = _ensure_time_env(_get_nested(info, "reward_safety_static"), self.num_envs, batch_layout)
+        reward_safety_dynamic = _ensure_time_env(_get_nested(info, "reward_safety_dynamic"), self.num_envs, batch_layout)
+        penalty_smooth = _ensure_time_env(_get_nested(info, "penalty_smooth"), self.num_envs, batch_layout)
+        penalty_height = _ensure_time_env(_get_nested(info, "penalty_height"), self.num_envs, batch_layout)
+        done_type_code = _ensure_time_env(_get_nested(info, "done_type"), self.num_envs, batch_layout)
+        done = _ensure_time_env(done, self.num_envs, batch_layout)
+        truncated = _ensure_time_env(truncated, self.num_envs, batch_layout)
 
-        time_dim, env_dim = batch_shape
+        time_dim, env_dim, _ = batch_layout
         records: list[TrainingLogRecord] = []
         effective_scenario_type = str(scenario_type or self.scenario_type)
         effective_scene_cfg_name = scene_cfg_name or self.scene_cfg_name

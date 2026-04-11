@@ -20,7 +20,6 @@ from omni.isaac.kit import SimulationApp
 from ppo import PPO
 from omni_drones.controllers import LeePositionController
 from omni_drones.utils.torchrl.transforms import VelController, ravel_composite
-from omni_drones.utils.torchrl import SyncDataCollector, EpisodeStats
 from torchrl.envs.transforms import TransformedEnv, Compose
 from utils import evaluate
 from torchrl.envs.utils import ExplorationType
@@ -146,19 +145,6 @@ def main(cfg):
     policy.load_state_dict(torch.load(checkpoint))
     print("[NavRL]: Checkpoint loaded successfully!")
     
-    # ============================================
-    # 第 7 步：创建统计收集器
-    # ============================================
-    # 用于收集每个 episode 的统计信息：
-    #   - return: 累积奖励
-    #   - reach_goal: 是否到达目标
-    #   - collision: 是否碰撞
-    #   - episode_len: episode 长度
-    episode_stats_keys = [
-        k for k in transformed_env.observation_spec.keys(True, True) 
-        if isinstance(k, tuple) and k[0]=="stats"
-    ]
-    episode_stats = EpisodeStats(episode_stats_keys)
     cre_env_metadata = extract_cre_env_metadata(
         env,
         fallback_scenario_type="legacy_navigation_env",
@@ -196,76 +182,27 @@ def main(cfg):
     )
 
     # ============================================
-    # 第 8 步：创建数据收集器
+    # 第 8 步：单次评估 checkpoint
     # ============================================
-    # SyncDataCollector: 负责与环境交互，收集数据
-    # 注意：这里 exploration_type=RANDOM，但后面 evaluate 函数会用 MEAN
-    collector = SyncDataCollector(
-        transformed_env,
-        policy=policy, 
-        frames_per_batch=cfg.env.num_envs * cfg.algo.training_frame_num, 
-        total_frames=cfg.max_frame_num,  # 总共运行多少帧
-        device=cfg.device,
-        return_same_td=True,  # 原地更新，节省内存
-        exploration_type=ExplorationType.RANDOM,  # 采样方式（实际评估时会被覆盖）
+    print("[NavRL]: start evaluating checkpoint policy")
+    env.eval()
+    eval_info = evaluate(
+        env=transformed_env,
+        policy=policy,
+        seed=cfg.seed,
+        cfg=cfg,
+        exploration_type=ExplorationType.MEAN,
+        cre_log_adapter=cre_log_adapter,
     )
+    env.train()
+    env.reset()
 
-    # ============================================
-    # 第 9 步：评估循环（主循环）
-    # ============================================
-    # 与 train.py 的区别：
-    #   - 不调用 policy.train()（不更新网络参数）
-    #   - 每次迭代都进行评估（而非每 N 步）
-    for i, data in enumerate(collector):
-        # data 包含：observation, action, reward, done 等信息
-        
-        # 记录基本信息
-        info = {
-            "env_frames": collector._frames,  # 总帧数
-            "rollout_fps": collector._fps      # 运行速度（帧/秒）
-        }
-
-        # ===== 训练部分（已注释掉） =====
-        # 评估时不需要训练，所以这些代码被注释了
-        # train_loss_stats = policy.train(data)
-        # info.update(train_loss_stats)
-        
-        # ===== 评估部分 ⭐ 核心功能 =====
-        print("[NavRL]: start evaluating policy at training step: ", i)
-        
-        # 设置环境为评估模式
-        env.eval()
-        
-        # 运行评估函数（在 utils.py 中定义）
-        # evaluate() 会：
-        #   1. 运行完整的 episode
-        #   2. 使用确定性策略（ExplorationType.MEAN，不随机）
-        #   3. 统计成功率、碰撞率等指标
-        eval_info = evaluate(
-            env=transformed_env, 
-            policy=policy,
-            seed=cfg.seed, 
-            cfg=cfg,
-            exploration_type=ExplorationType.MEAN,  # 使用平均动作（确定性）
-            cre_log_adapter=cre_log_adapter,
-        )
-        
-        # 恢复训练模式（虽然不训练，但保持一致性）
-        env.train()
-        env.reset()
-        
-        # 更新信息字典
-        info.update(eval_info)
-        print("\n[NavRL]: evaluation done.")
-        
-        # 将评估结果记录到 WandB
-        run.log(info)
-
-        # ===== 模型保存部分（已注释掉） =====
-        # 评估时不保存新模型
-        # if i % cfg.save_interval == 0:
-        #     ckpt_path = os.path.join(run.dir, f"checkpoint_{i}.pt")
-        #     torch.save(policy.state_dict(), ckpt_path)
+    info = {
+        "env_frames": float(cfg.env.num_envs * cfg.env.max_episode_length),
+    }
+    info.update(eval_info)
+    print("\n[NavRL]: evaluation done.")
+    run.log(info)
 
     # ============================================
     # 第 10 步：清理和关闭

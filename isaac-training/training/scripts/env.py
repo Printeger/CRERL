@@ -1417,6 +1417,20 @@ class NavigationEnv(IsaacEnv):
     def _env_world_offsets(self, env_ids: torch.Tensor):
         return self.envs_positions[env_ids].unsqueeze(1)
 
+    def _clamp_local_positions_to_env_bounds(self, positions: torch.Tensor):
+        clamped = positions.clone()
+        xy_margin = 0.25
+        x_low = -self.map_range[0] + xy_margin
+        x_high = self.map_range[0] - xy_margin
+        y_low = -self.map_range[1] + xy_margin
+        y_high = self.map_range[1] - xy_margin
+        z_low = float(self.runtime_height_bounds[0])
+        z_high = float(self.runtime_height_bounds[1])
+        clamped[..., 0] = clamped[..., 0].clamp(min=x_low, max=x_high)
+        clamped[..., 1] = clamped[..., 1].clamp(min=y_low, max=y_high)
+        clamped[..., 2] = clamped[..., 2].clamp(min=z_low, max=z_high)
+        return clamped
+
     def _sample_local_start_goal_uniform(self, env_ids: torch.Tensor):
         count = int(env_ids.numel())
         starts = torch.zeros(count, 1, 3, dtype=torch.float, device=self.device)
@@ -1442,7 +1456,10 @@ class NavigationEnv(IsaacEnv):
                     break
             starts[index, 0] = start
             goals[index, 0] = goal
-        return starts, goals
+        return (
+            self._clamp_local_positions_to_env_bounds(starts),
+            self._clamp_local_positions_to_env_bounds(goals),
+        )
 
     def _sample_scene_family_positions(self, env_ids: torch.Tensor):
         starts = torch.zeros(len(env_ids), 1, 3, dtype=torch.float, device=self.device)
@@ -1456,6 +1473,8 @@ class NavigationEnv(IsaacEnv):
             starts[offset, 0] = torch.tensor(start, dtype=torch.float, device=self.device)
             goals[offset, 0] = torch.tensor(goal, dtype=torch.float, device=self.device)
         self.scene_family_reset_counter += 1
+        starts = self._clamp_local_positions_to_env_bounds(starts)
+        goals = self._clamp_local_positions_to_env_bounds(goals)
         env_offsets = self._env_world_offsets(env_ids)
         return starts + env_offsets, goals + env_offsets
 
@@ -1718,9 +1737,13 @@ class NavigationEnv(IsaacEnv):
         reach_goal = (distance.squeeze(-1) < 0.5)
         
         # 失败：飞出边界或碰撞
+        env_offsets = self.envs_positions.unsqueeze(1)
+        local_pos = self.drone.pos - env_offsets
+        out_of_bounds_x = local_pos[..., 0].abs() > self.map_range[0]
+        out_of_bounds_y = local_pos[..., 1].abs() > self.map_range[1]
         below_bound = self.drone.pos[..., 2] < 0.2  # 低于 0.2m
         above_bound = self.drone.pos[..., 2] > self.runtime_height_bounds[1]
-        out_of_bounds_flag = below_bound | above_bound
+        out_of_bounds_flag = out_of_bounds_x | out_of_bounds_y | below_bound | above_bound
         self.terminated = out_of_bounds_flag | collision
         
         # 截断：达到最大步数（500 步）

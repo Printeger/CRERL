@@ -494,6 +494,54 @@ overlapping clones.
   - reason: the user reported the overlap from a local GUI run and requested
     the config be aligned with the already-fixed train setup
 
+## 19. Follow-Up Env-Local Reset And XY Bounds (2026-04-11)
+
+This follow-up hardens the shared train/eval env so vectorized runs stay inside
+their owning env footprint instead of only respecting altitude bounds.
+
+### What changed
+
+- `env.py` now clamps both sampled spawn points and sampled goals to the local
+  workspace bounds before converting them into world coordinates
+- the shared reset path keeps:
+  - scene-family start/goal sampling
+  - fallback random start/goal sampling
+  aligned to the owning env footprint
+- termination now treats horizontal workspace escape as `out_of_bounds`, using
+  env-local `x/y` coordinates in addition to the existing vertical bounds
+
+### How to validate
+
+```bash
+python -m py_compile isaac-training/training/scripts/env.py
+```
+
+Then run a visible eval or train with:
+
+```bash
+python isaac-training/training/scripts/eval.py \
+  headless=False \
+  scene_family_backend.family=nominal \
+  scene_family_backend.difficulty=1.0 \
+  env.num_envs=4 \
+  env.max_episode_length=1024
+```
+
+Confirm that:
+
+- each drone spawn lies inside its own env
+- each goal marker lies inside the same env
+- horizontal escape into a neighboring env ends the episode as `out_of_bounds`
+
+### Validation results
+
+- `python -m py_compile isaac-training/training/scripts/env.py`
+  - passed
+- visible multi-env smoke:
+  - not run in this shell
+  - reason: the fix was validated statically here and was requested in
+    response to a local GUI repro from the user
+
 ## 16. Follow-Up Shim Material Binding Fix (2026-04-10)
 
 This follow-up fixes a startup regression introduced by the visible red-drone

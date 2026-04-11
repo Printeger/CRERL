@@ -17,7 +17,7 @@ This file has two jobs:
 | Module | Roadmap Phase | Current Code / Docs | Recommendation |
 | --- | --- | --- | --- |
 | Problem freeze and spec definition | Phase 0 | [doc/roadmap/phase0.md](doc/roadmap/phase0.md), [doc/roadmap/roadmap.md](doc/roadmap/roadmap.md), [doc/CRE_frame_design.pdf](doc/CRE_frame_design.pdf) | `修改`: freeze task, constraints, reward formulas, thresholds, witness definitions, and repair acceptance rules. |
-| Core Isaac navigation environment | Phase 1, 2, 4, 7 | [isaac-training/training/scripts/env.py](isaac-training/training/scripts/env.py), [isaac-training/training/cfg/train.yaml](isaac-training/training/cfg/train.yaml) | `复用 + 修改`: keep the environment core, but expose scenario labels, reward decomposition, min obstacle distance, target position, GUI goal markers, and explicit constraint logs. |
+| Core Isaac navigation environment | Phase 1, 2, 4, 7, 10 | [isaac-training/training/scripts/env.py](isaac-training/training/scripts/env.py), [isaac-training/training/cfg/train.yaml](isaac-training/training/cfg/train.yaml), [isaac-training/training/cfg/eval.yaml](isaac-training/training/cfg/eval.yaml) | `复用 + 修改`: keep the environment core, but expose scenario labels, reward decomposition, min obstacle distance, target position, GUI goal markers, explicit constraint logs, and env-local reset/boundary behavior for vectorized train/eval parity. |
 | Procedural scenario generation | Phase 1, 2, 3, 10 | [isaac-training/training/envs/env_gen.py](isaac-training/training/envs/env_gen.py), [isaac-training/training/envs/runtime/scene_family_bridge.py](isaac-training/training/envs/runtime/scene_family_bridge.py), [isaac-training/training/cfg/env_cfg/scene_cfg_nominal.yaml](isaac-training/training/cfg/env_cfg/scene_cfg_nominal.yaml) | `复用 + 修改`: keep `env_gen.py` as the main family backend, tune family YAMLs directly, make training consume the same bounded scene-family contract, and keep nominal edge-fill placement controls config-driven. |
 | Sensor realism and sim2real noise | Phase 1, 3, 7 | [isaac-training/training/envs/livox_mid360.py](isaac-training/training/envs/livox_mid360.py), [isaac-training/training/unit_test/README.md](isaac-training/training/unit_test/README.md) | `复用 + 修改`: wire the Livox model into the main env and make noise/randomization ranges configurable for E-R studies. |
 | UAV platform model | Phase 0, 7 | [isaac-training/training/cfg/drone.yaml](isaac-training/training/cfg/drone.yaml), [isaac-training/third_party/OmniDrones/omni_drones/robots/drone/taslab_uav.py](isaac-training/third_party/OmniDrones/omni_drones/robots/drone/taslab_uav.py), [doc/TASLAB_UAV_README.md](doc/TASLAB_UAV_README.md) | `复用 + 修改`: keep the TASLAB airframe assets, then finish env integration and validate sensor mounting and dynamics assumptions. |
@@ -50,15 +50,15 @@ This keeps the workflow inside the current repo and avoids touching files outsid
 ## Latest Staged Change Summary
 
 <!-- TRACEABILITY:BEGIN -->
-_Updated: `2026-04-11T12:09:01`_
+_Updated: `2026-04-11T12:16:14`_
 
 - Scope: `/home/mint/rl_dev/CRERL`
 - Branch: `main`
 - Source: `staged diff`
-- Impacted phases: `Phase 10`
-- Diff stat: 3 files changed, 39 insertions(+), 2 deletions(-)
+- Impacted phases: `Phase 1, Phase 10, Phase 4, Phase 7`
+- Diff stat: 3 files changed, 74 insertions(+), 3 deletions(-)
 
 ### Changed Files
 - `M` [doc/dev_log/p10_dev_status.md](doc/dev_log/p10_dev_status.md) [Project Docs]
-- `M` [isaac-training/training/cfg/eval.yaml](isaac-training/training/cfg/eval.yaml) [Training Config]
+- `M` [isaac-training/training/scripts/env.py](isaac-training/training/scripts/env.py) [Isaac Env Core]
 <!-- TRACEABILITY:END -->

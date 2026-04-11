@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Figure C — RL-centric CRE Intervention Flow</title>
+  <style>
+    :root {
+      --bg: #f3f6fb;
+      --text: #1e293b;
+      --muted: #64748b;
+      --line: #94a3b8;
+      --blue: #dbeafe;
+      --blue-border: #60a5fa;
+      --amber: #fef3c7;
+      --amber-border: #f59e0b;
+      --green: #dcfce7;
+      --green-border: #22c55e;
+      --purple: #f3e8ff;
+      --purple-border: #a855f7;
+      --red: #fee2e2;
+      --red-border: #ef4444;
+      --slate: #e2e8f0;
+      --slate-border: #94a3b8;
+      --shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+      --radius: 18px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    .wrap {
+      max-width: 1480px;
+      margin: 0 auto;
+      padding: 22px 18px 40px;
+    }
+    .hero {
+      background: white;
+      border: 2px solid var(--blue-border);
+      border-radius: 22px;
+      padding: 18px 20px;
+      box-shadow: var(--shadow);
+      margin-bottom: 16px;
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 24px;
+      line-height: 1.2;
+    }
+    .subtitle {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.55;
+      margin-bottom: 14px;
+    }
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .summary-card {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 14px;
+      padding: 12px 13px;
+    }
+    .summary-card b { display: block; margin-bottom: 5px; }
+    .legend {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+    .pill {
+      font-size: 12px;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-weight: 700;
+      border: 2px solid;
+      white-space: nowrap;
+      background: white;
+    }
+    .pill.blue { border-color: var(--blue-border); background: var(--blue); }
+    .pill.amber { border-color: var(--amber-border); background: var(--amber); }
+    .pill.green { border-color: var(--green-border); background: var(--green); }
+    .pill.purple { border-color: var(--purple-border); background: var(--purple); }
+    .pill.red { border-color: var(--red-border); background: var(--red); }
+
+    .figure {
+      margin-top: 16px;
+      background: white;
+      border: 2px solid #cbd5e1;
+      border-radius: 22px;
+      padding: 18px 14px 20px;
+      box-shadow: var(--shadow);
+    }
+    .cols-title {
+      display: grid;
+      grid-template-columns: 1fr 320px 1fr;
+      gap: 14px;
+      margin-bottom: 8px;
+      align-items: end;
+    }
+    .col-tag {
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      text-align: center;
+    }
+    .col-tag.center { color: #1d4ed8; }
+
+    .flow-row {
+      display: grid;
+      grid-template-columns: 1fr 320px 1fr;
+      gap: 14px;
+      align-items: center;
+      margin: 6px 0;
+    }
+    .trunk {
+      background: var(--blue);
+      border: 2px solid var(--blue-border);
+      border-radius: var(--radius);
+      padding: 14px 14px;
+      min-height: 82px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+    }
+    .step-no {
+      position: absolute;
+      top: 8px;
+      left: 10px;
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      background: #2563eb;
+      color: white;
+      font-weight: 800;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .trunk-title {
+      font-weight: 800;
+      font-size: 15px;
+      margin-left: 30px;
+      margin-bottom: 4px;
+      color: #1e3a8a;
+    }
+    .trunk-body {
+      font-size: 12.8px;
+      line-height: 1.45;
+      color: #334155;
+      margin-left: 30px;
+    }
+    .arrow {
+      width: 320px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 2px 0 4px;
+    }
+    .arrow .shaft {
+      width: 2px;
+      height: 28px;
+      background: var(--line);
+      position: relative;
+    }
+    .arrow .shaft::after {
+      content: "";
+      position: absolute;
+      bottom: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 10px solid var(--line);
+    }
+    .branch {
+      border-radius: 16px;
+      padding: 12px 12px;
+      min-height: 84px;
+      position: relative;
+      box-shadow: 0 6px 14px rgba(15, 23, 42, 0.05);
+    }
+    .branch h3 {
+      margin: 0 0 5px;
+      font-size: 13px;
+      line-height: 1.3;
+    }
+    .branch p {
+      margin: 0;
+      font-size: 12px;
+      line-height: 1.45;
+      color: #334155;
+    }
+    .branch ul {
+      margin: 6px 0 0 16px;
+      padding: 0;
+      font-size: 12px;
+      color: #334155;
+      line-height: 1.4;
+    }
+    .branch .badge {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 4px 7px;
+      border-radius: 999px;
+      background: white;
+      border: 1px solid currentColor;
+      letter-spacing: 0.02em;
+    }
+    .amber-card { background: var(--amber); border: 2px solid var(--amber-border); }
+    .green-card { background: var(--green); border: 2px solid var(--green-border); }
+    .purple-card { background: var(--purple); border: 2px solid var(--purple-border); }
+    .red-card { background: var(--red); border: 2px solid var(--red-border); }
+    .slate-card { background: #f8fafc; border: 2px solid var(--slate-border); }
+
+    .connector-left,
+    .connector-right {
+      position: relative;
+    }
+    .connector-left::after,
+    .connector-right::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      width: 14px;
+      height: 2px;
+      background: var(--line);
+    }
+    .connector-left::after { right: -14px; }
+    .connector-right::after { left: -14px; }
+
+    .decision-box {
+      background: #eff6ff;
+      border: 2px dashed #3b82f6;
+      border-radius: 18px;
+      padding: 14px;
+      text-align: center;
+    }
+    .decision-box .q {
+      font-weight: 800;
+      color: #1d4ed8;
+      font-size: 15px;
+      margin-bottom: 6px;
+    }
+    .decision-box .a {
+      font-size: 12.5px;
+      color: #334155;
+      line-height: 1.45;
+    }
+
+    .footer-grid {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap: 14px;
+    }
+    .note {
+      background: white;
+      border: 2px solid #cbd5e1;
+      border-radius: 18px;
+      padding: 14px 15px;
+      box-shadow: var(--shadow);
+    }
+    .note h2 {
+      margin: 0 0 8px;
+      font-size: 16px;
+    }
+    .note p, .note li {
+      font-size: 13px;
+      line-height: 1.5;
+      color: #334155;
+    }
+    .note ul { margin: 8px 0 0 18px; padding: 0; }
+    .small {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    @media (max-width: 1180px) {
+      .cols-title,
+      .flow-row { grid-template-columns: 1fr; }
+      .arrow { width: 100%; }
+      .trunk { order: 2; }
+      .flow-row > .connector-left,
+      .flow-row > .connector-right { order: 1; }
+      .connector-left::after,
+      .connector-right::after { display: none; }
+      .footer-grid,
+      .summary-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <h1>Figure C — 以强化学习训练主干为中心的 CRE 介入与迭代流程</h1>
+      <div class="subtitle">
+        这张图把 <b>RL 训练流程</b> 作为唯一主干，竖向按时间顺序排列；左右分支只表达 <b>CRE 在哪里读取日志、做诊断、提出修复、以及在什么时间尺度回写 R / C / E / 配置</b>。
+        结论是：<b>CRE 是混合介入方式</b>——<b>日志采集</b>发生在每 step / 每 episode，<b>诊断与结构性修复</b>通常发生在每 <i>K 次 rollout / M 次更新 / 一个 checkpoint gate</i>，而不是每个 step 都改规范。
+      </div>
+      <div class="summary-grid">
+        <div class="summary-card">
+          <b>不是每个 episode 都改 R/C/E</b>
+          训练中的结构性修改通常在阶段性 gate 触发后进行；否则会把 rollout 分布、buffer 统计和优化过程搅乱。
+        </div>
+        <div class="summary-card">
+          <b>每次 Collect rollouts 都会记录日志</b>
+          但默认不会在每个 rollout 结束后立刻修改规范。先累计证据，再决定是否进入 CRE repair loop。
+        </div>
+        <div class="summary-card">
+          <b>典型策略：混合介入</b>
+          per-step / per-episode 做观测与落盘；per-gate 做 CRE 评分与修复；accepted repair 在下一个 rollout window 前生效。
+        </div>
+      </div>
+      <div class="legend">
+        <span class="pill blue">主干：RL training pipeline</span>
+        <span class="pill amber">每 step：runtime logging / raw signals</span>
+        <span class="pill green">每 episode：episode summary / aggregates</span>
+        <span class="pill purple">每 gate：CRE diagnose / score / repair</span>
+        <span class="pill red">写回点：修改 R / C / E / config 并在后续训练窗口生效</span>
+      </div>
+    </section>
+
+    <section class="figure">
+      <div class="cols-title">
+        <div class="col-tag">左侧：训练期日志与证据累积</div>
+        <div class="col-tag center">中间主干：强化学习训练流程</div>
+        <div class="col-tag">右侧：CRE 介入、诊断、修复与回写</div>
+      </div>
+
+      <div class="flow-row">
+        <div class="branch connector-left slate-card">
+          <span class="badge">一次性</span>
+          <h3>训练前解析与预检</h3>
+          <p>把任务设计物转成初始规格 <b>S₀ = (R, C, E, Π)</b>，并登记将来允许被 repair 的字段。</p>
+        </div>
+        <div class="trunk">
+          <div class="step-no">0</div>
+          <div class="trunk-title">定义初始训练规格与训练计划</div>
+          <div class="trunk-body">设定 reward graph、constraint predicates、training env distribution、deployment eval set、PPO/SAC 等训练配置、gate 周期 K / M。</div>
+        </div>
+        <div class="branch connector-right purple-card">
+          <span class="badge">M1 / precheck</span>
+          <h3>CRE 可介入字段先注册</h3>
+          <ul>
+            <li><b>R</b>：term weights、penalty λ、clip bounds、shaping on/off</li>
+            <li><b>C</b>：阈值、hard/soft、tolerance ζ、curriculum schedule</li>
+            <li><b>E</b>：scene mix、obstacle density、spawn rules、noise/domain randomization range</li>
+          </ul>
+        </div>
+      </div>
+      <div class="arrow"><div class="shaft"></div></div>
+
+      <div class="flow-row">
+        <div class="branch connector-left amber-card">
+          <span class="badge">启动</span>
+          <h3>初始化日志面板与缓冲</h3>
+          <p>分出 step-level、episode-level、rollout-window-level 三类日志通道，确保后续 CRE 可以读取。</p>
+        </div>
+        <div class="trunk">
+          <div class="step-no">1</div>
+          <div class="trunk-title">实例化环境、策略、优化器、logger、checkpoint manager</div>
+          <div class="trunk-body">构建当前版本的训练环境 E<sub>tr</sub>、reward/constraint evaluators、policy π<sub>θ</sub>、critic、replay/buffer、日志器与评估器。</div>
+        </div>
+        <div class="branch connector-right red-card">
+          <span class="badge">回写入口</span>
+          <h3>这里是“下轮训练窗口”的装载点</h3>
+          <p>如果上一轮 CRE 已接受 repair，这里会载入最新的 <b>S′</b>、更新的 env sampler、reward DAG、constraint config 与 utility oracle config。</p>
+        </div>
+      </div>
+      <div class="arrow"><div class="shaft"></div></div>
+
+      <div class="flow-row">
+        <div class="branch connector-left amber-card">
+          <span class="badge">每 step</span>
+          <h3>runtime raw logging</h3>
+          <ul>
+            <li>state / action / reward terms rₖ</li>
+            <li>distance-to-obstacle / clearance / near-boundary 信号</li>
+            <li>constraint indicator Oⱼ(s,a)、violation timestamp</li>
+            <li>env params：障碍密度、噪声、风场、地图 seed</li>
+          </ul>
+        </div>
+        <div class="trunk">
+          <div class="step-no">2</div>
+          <div class="trunk-title">Collect rollouts in current training environment</div>
+          <div class="trunk-body">策略在当前 E<sub>tr</sub> 中采样轨迹，填充 rollout buffer / replay buffer。这一步是训练的主采样阶段。</div>
+        </div>
+        <div class="branch connector-right green-card">
+          <span class="badge">每 episode</span>
+          <h3>episode 结束时形成摘要</h3>
+          <ul>
+            <li>success / crash / timeout</li>
+            <li>累计违规次数、首次违规位置、最小安全距离</li>
+            <li>episode return、per-term return、task utility proxy</li>
+          </ul>
+        </div>
+      </div>
+      <div class="arrow"><div class="shaft"></div></div>
+
+      <div class="flow-row">
+        <div class="branch connector-left green-card">
+          <span class="badge">每 episode</span>
+          <h3>更新可复用的统计缓存</h3>
+          <p>把 episode summaries 累积成按约束、按环境 seed、按场景族统计的表，供后续 φ̄<sup>(1)</sup><sub>EC</sub>、φ<sup>(2)</sup><sub>CR</sub> 等读取。</p>
+        </div>
+        <div class="trunk">
+          <div class="step-no">3</div>
+          <div class="trunk-title">完成一个 rollout window / batch buffer</div>
+          <div class="trunk-body">当达到 horizon、episode 数或 sample budget 后，冻结这一批轨迹，形成一次可用于 policy update 与 CRE snapshot 的数据窗口。</div>
+        </div>
+        <div class="branch connector-right slate-card">
+          <span class="badge">说明</span>
+          <h3>此时通常还不直接改 R/C/E</h3>
+          <p>默认策略是：<b>先累计证据，再判断是否达到 CRE gate</b>。单个 episode 或单个 rollout window 通常不足以支撑结构性修改。</p>
+        </div>
+      </div>
+      <div class="arrow"><div class="shaft"></div></div>
+
+      <div class="flow-row">
+        <div class="branch connector-left amber-card">
+          <span class="badge">每 update</span>
+          <h3>附加优化期日志</h3>
+          <ul>
+            <li>policy loss / value loss / entropy</li>
+            <li>critic fit quality、KL drift、gradient norms</li>
+            <li>这些量给 M3 / discrepancy protocol 提供支持</li>
+          </ul>
+        </div>
+        <div class="trunk">
+          <div class="step-no">4</div>
+          <div class="trunk-title">执行优化：PPO/SAC update epochs / minibatches</div>
+          <div class="trunk-body">用当前 rollout buffer 做若干轮 policy / critic 更新。这里是标准 RL 优化主段，通常不在 minibatch 中途插入 CRE 结构性 repair。</div>
+        </div>
+        <div class="branch connector-right purple-card">
+          <span class="badge">M3 候选输入</span>
+          <h3>机制层信号在这里产生</h3>
+          <p>如 reward-gradient drift、critic reliability、gradient conflict 等，不必每步都计算，但在 gate 时可从最近的训练窗口回读。</p>
+        </div>
+      </div>
+      <div class="arrow"><div class="shaft"></div></div>
+
+      <div class="flow-row">
+        <div class="branch connector-left slate-card">
+          <span class="badge">读取</span>
+          <h3>CRE snapshot builder 取数</h3>
+          <ul>
+            <li>当前 spec version</li>
+            <li>最近 K 个 rollout windows 的轨迹与 episode summaries</li>
+            <li>最近 checkpoint、critic 状态、eval logs</li>
+          </ul>
+        </div>
+        <div class="trunk">
+          <div class="step-no">5</div>
+          <div class="trunk-title">到达 CRE gate？（例如每 K 次 collect / 每 M 次 update / 每个 checkpoint）</div>
+          <div class="trunk-body">这是 CRE 是否介入的关键闸门。建议在离散 gate 上运行 CRE，而不是在每个 step 或每个 minibatch 后立刻改规范。</div>
+        </div>
+        <div class="branch connector-right purple-card">
+          <span class="badge">每 gate</span>
+          <h3>离线补充评估</h3>
+          <ul>
+            <li>在 deployment-like envs 上做短评估</li>
+            <li>收集 reward vs utility 的 cross-env 对齐信号</li>
+            <li>必要时触发 utility oracle / semantic evaluator</li>
+          </ul>
+        </div>
+      </div>
+      <div class="arrow"><div class="shaft"></div></div>
+
+      <div class="flow-row">
+        <div class="branch connector-left purple-card">
+          <span class="badge">读取日志</span>
+          <h3>M2 / M3 读取哪些证据</h3>
+          <ul>
+            <li><b>M2</b>：boundary clearance、coverage、activation、reward-utility scores</li>
+            <li><b>M3</b>：gradient conflict、soft coverage similarity、gradient drift</li>
+          </ul>
+        </div>
+        <div class="trunk">
+          <div class="step-no">6</div>
+          <div class="trunk-title">运行 CRE diagnosis：M2 → M3 → DP(M6) → M5</div>
+          <div class="trunk-body">输出 canonical reporters、enhanced reporters、discrepancy flags、Ψ<sub>CRE</sub>、CI、failure modes。这里是训练中期诊断，不是训练完全结束后才做。</div>
+        </div>
+        <div class="branch connector-right purple-card">
+          <span class="badge">输出</span>
+          <h3>产出的训练中期诊断结论</h3>
+          <ul>
+            <li>φ<sup>(2)</sup><sub>CR</sub>, φ̄<sup>(1)</sup><sub>EC</sub>, φ<sup>(3)</sup><sub>ER</sub></li>
+            <li>Ψ<sub>CRE</sub> 与置信区间</li>
+            <li>LATENT_INCONSISTENCY / CRITIC_QUALITY_WARN</li>
+            <li>witness trajectories / failing scenes / active dims</li>
+          </ul>
+        </div>
+      </div>
+      <div class="arrow"><div class="shaft"></div></div>
+
+      <div class="flow-row">
+        <div></div>
+        <div class="decision-box">
+          <div class="q">Decision Gate：Ψ<sub>CRE</sub> 是否低于 alarm threshold？</div>
+          <div class="a">
+            若 <b>未触发告警</b>：训练继续，进入下一轮 collect rollouts。<br />
+            若 <b>触发告警</b>：进入 repair loop，但 repair 的提交仍然发生在“下一个训练窗口开始前”。
+          </div>
+        </div>
+        <div></div>
+      </div>
+      <div class="arrow"><div class="shaft"></div></div>
+
+      <div class="flow-row">
+        <div class="branch connector-left purple-card">
+          <span class="badge">M4 / M7</span>
+          <h3>语义诊断与 repair proposal</h3>
+          <p>LLM 把数值诊断翻译为失败机制，并生成 proposal；不是每 episode 做，而是在告警 gate 上做。</p>
+        </div>
+        <div class="trunk">
+          <div class="step-no">7</div>
+          <div class="trunk-title">若触发告警：M4 → M7(gen / filter / rank) ↔ M8(acceptance loop)</div>
+          <div class="trunk-body">评估 proposals 是否同时满足 diagnostic improvement、safety non-regression、utility non-regression、minimality 与 semantic consistency。</div>
+        </div>
+        <div class="branch connector-right red-card">
+          <span class="badge">可改什么</span>
+          <h3>接受 repair 时允许修改的参数</h3>
+          <ul>
+            <li><b>R</b>：wₖ、clip bounds、InjectPenalty、ModifyShaping</li>
+            <li><b>C</b>：thresholds、severity、ζ、curriculum schedule</li>
+            <li><b>E</b>：critical scene injection、domain rand range、spawn/obstacle mix</li>
+            <li><b>Eval</b>：utility oracle config、E<sub>dep</sub> scene set、aggregation mode</li>
+          </ul>
+        </div>
+      </div>
+      <div class="arrow"><div class="shaft"></div></div>
+
+      <div class="flow-row">
+        <div class="branch connector-left red-card">
+          <span class="badge">写回时机</span>
+          <h3>accepted repair 在哪里生效</h3>
+          <p><b>通常在下一次 collect rollouts 之前</b>：即 window 边界提交，而不是在当前 minibatch update 中途强行换规范。</p>
+        </div>
+        <div class="trunk">
+          <div class="step-no">8</div>
+          <div class="trunk-title">写回 S′，重建或热更新训练部件，然后继续训练</div>
+          <div class="trunk-body">根据 repair 类型执行热更新或冷更新：有些只需刷新 config；有些需要重建 env sampler、reward evaluator、constraint checker，甚至清理部分 buffer。</div>
+        </div>
+        <div class="branch connector-right red-card">
+          <span class="badge">更新模式</span>
+          <h3>典型生效方式</h3>
+          <ul>
+            <li><b>热更新</b>：env distribution range、scene mix、threshold、penalty weight</li>
+            <li><b>部分重置</b>：清空窗口统计、重建 rollout collector</li>
+            <li><b>较重更新</b>：reward graph / oracle 变化大时，从 checkpoint 恢复后继续</li>
+          </ul>
+        </div>
+      </div>
+      <div class="arrow"><div class="shaft"></div></div>
+
+      <div class="flow-row">
+        <div class="branch connector-left green-card">
+          <span class="badge">循环</span>
+          <h3>继续记录“repair 之后”的新证据</h3>
+          <p>repair 生效后，新的 step / episode 日志会形成 repair 前后的对照证据，用于验证是否真的改善。</p>
+        </div>
+        <div class="trunk">
+          <div class="step-no">9</div>
+          <div class="trunk-title">返回训练主循环：继续 collect → update → gate → CRE</div>
+          <div class="trunk-body">训练期 CRE 不是一次性后处理，而是伴随训练阶段反复运行的中期监控与修复闭环。</div>
+        </div>
+        <div class="branch connector-right purple-card">
+          <span class="badge">混合介入</span>
+          <h3>真正的介入节奏</h3>
+          <ul>
+            <li>每 step：采信号，不改规范</li>
+            <li>每 episode：聚合摘要，不改主规范</li>
+            <li>每 gate：诊断、打分、可能 repair</li>
+            <li>accepted repair：在下个 rollout window 前提交</li>
+          </ul>
+        </div>
+      </div>
+      <div class="arrow"><div class="shaft"></div></div>
+
+      <div class="flow-row">
+        <div class="branch connector-left slate-card">
+          <span class="badge">训练结束</span>
+          <h3>全程审计可追溯</h3>
+          <p>保存每个 spec version、每次告警、每轮 proposal、每次 acceptance verdict，便于论文分析与复现实验。</p>
+        </div>
+        <div class="trunk">
+          <div class="step-no">10</div>
+          <div class="trunk-title">训练结束后做 final CRE audit 与 deployment validation</div>
+          <div class="trunk-body">最终输出：最佳 checkpoint、最终 spec version、CRE 演化轨迹、diagnostic history 与 deployment validation 结果。</div>
+        </div>
+        <div class="branch connector-right purple-card">
+          <span class="badge">post-train</span>
+          <h3>训练后仍可再做一次完整 CRE</h3>
+          <p>这不是唯一介入时机，而是对训练中多轮介入结果的最终审计与封板。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="footer-grid">
+      <div class="note">
+        <h2>你最关心的三个问题，图里的答案</h2>
+        <ul>
+          <li><b>“是在每次 Collect rollouts 就更新环境或 constraint 吗？”</b><br />不是默认行为。每次 collect rollouts 会更新日志；只有当达到 CRE gate 且告警成立、repair 被接受时，才会在后续训练窗口前更新。</li>
+          <li><b>“是在每个 episode 之后介入吗？”</b><br />每个 episode 后会做 summary 与聚合，但通常不做结构性 R/C/E 改写。episode 级更多是证据累积层。</li>
+          <li><b>“是在 training 之后介入吗？”</b><br />也不是只在训练后。标准做法是训练中期就周期性介入，训练后再做 final audit。因此是<b>混合式</b>：训练中周期诊断 + 训练后最终验证。</li>
+        </ul>
+      </div>
+      <div class="note">
+        <h2>建议你在代码里对应成的触发粒度</h2>
+        <ul>
+          <li><b>Step hook</b>：记录 reward terms、clearance、constraint indicators、env params。</li>
+          <li><b>Episode hook</b>：写 episode summary、success/crash、violation aggregates。</li>
+          <li><b>Rollout-window hook</b>：冻结最近 K 个 rollout windows，生成 CRE snapshot。</li>
+          <li><b>Checkpoint / eval hook</b>：运行 M2/M3/DP/M5，必要时进入 M4/M7/M8。</li>
+          <li><b>Apply-repair hook</b>：在下一轮 collect rollouts 之前更新 reward / constraint / env sampler / oracle config。</li>
+        </ul>
+        <p class="small">这会让“训练主干”和“CRE 外环”在工程上清楚分离：训练循环高频执行，CRE 诊断低频但更重。</p>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

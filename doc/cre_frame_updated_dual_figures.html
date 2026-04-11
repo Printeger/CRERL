@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CRE Framework Updated Figures</title>
+  <style>
+    :root {
+      --bg: #f1f5f9;
+      --card: #ffffff;
+      --text: #1e293b;
+      --muted: #64748b;
+      --line: #94a3b8;
+      --blue-bg: #eff6ff;
+      --blue-bd: #60a5fa;
+      --blue-tx: #1d4ed8;
+      --green-bg: #f0fdf4;
+      --green-bd: #22c55e;
+      --green-tx: #166534;
+      --amber-bg: #fffbeb;
+      --amber-bd: #f59e0b;
+      --amber-tx: #92400e;
+      --purple-bg: #faf5ff;
+      --purple-bd: #c084fc;
+      --purple-tx: #7e22ce;
+      --gray-bg: #f8fafc;
+      --gray-bd: #cbd5e1;
+      --gray-tx: #475569;
+      --red-bg: #fef2f2;
+      --red-bd: #f87171;
+      --red-tx: #b91c1c;
+      --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.45;
+    }
+
+    .page {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 20px 14px 40px;
+    }
+
+    .hero {
+      text-align: center;
+      margin-bottom: 14px;
+    }
+    .hero h1 {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+    }
+    .hero p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin: 14px 0 18px;
+    }
+    .tab-btn {
+      appearance: none;
+      border: 2px solid var(--blue-bd);
+      background: #fff;
+      color: var(--blue-tx);
+      padding: 10px 14px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      transition: 0.2s ease;
+      box-shadow: var(--shadow);
+    }
+    .tab-btn.active {
+      background: var(--blue-bg);
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+    .legend-item {
+      padding: 4px 9px;
+      border-radius: 999px;
+      font-size: 12px;
+      border: 1px solid transparent;
+      background: #fff;
+    }
+
+    .figure {
+      display: none;
+      animation: fade 0.18s ease;
+    }
+    .figure.active { display: block; }
+    @keyframes fade { from { opacity: 0; transform: translateY(4px);} to { opacity: 1; transform: translateY(0);} }
+
+    .stack {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .box {
+      border-radius: var(--radius);
+      padding: 14px;
+      background: var(--card);
+      box-shadow: var(--shadow);
+      border: 2px solid transparent;
+    }
+    .blue { background: var(--blue-bg); border-color: var(--blue-bd); }
+    .green { background: var(--green-bg); border-color: var(--green-bd); }
+    .purple { background: var(--purple-bg); border-color: var(--purple-bd); }
+    .gray { background: var(--gray-bg); border-color: var(--gray-bd); }
+    .red { background: var(--red-bg); border-color: var(--red-bd); }
+
+    .section-title {
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 10px;
+    }
+    .blue .section-title { color: var(--blue-tx); }
+    .green .section-title { color: var(--green-tx); }
+    .purple .section-title { color: var(--purple-tx); }
+    .gray .section-title { color: var(--gray-tx); }
+    .red .section-title { color: var(--red-tx); }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .mini {
+      background: #fff;
+      border: 1.5px solid rgba(148, 163, 184, 0.35);
+      border-radius: 14px;
+      padding: 10px;
+      min-height: 74px;
+    }
+    .mini h4 {
+      margin: 0 0 4px;
+      font-size: 13px;
+    }
+    .mini p {
+      margin: 0;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .pill-row {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .llm-pill {
+      border: 2px solid var(--amber-bd);
+      background: var(--amber-bg);
+      color: var(--amber-tx);
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+    }
+    .llm-pill.conditional {
+      border-color: var(--red-bd);
+      background: var(--red-bg);
+      color: var(--red-tx);
+    }
+    .badge-num {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #f59e0b;
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 800;
+      flex: 0 0 20px;
+    }
+    .conditional .badge-num { background: #ef4444; }
+
+    .arrow {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+      color: var(--line);
+      margin: 2px 0;
+    }
+    .arrow .shaft {
+      width: 2px;
+      height: 14px;
+      background: var(--line);
+    }
+    .arrow .tip {
+      width: 0;
+      height: 0;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 8px solid var(--line);
+    }
+
+    .formula {
+      background: #fff;
+      border: 2px solid var(--green-bd);
+      border-radius: 16px;
+      padding: 12px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 13px;
+      color: #111827;
+      cursor: pointer;
+    }
+    .formula-note {
+      margin-top: 6px;
+      color: var(--green-tx);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .canonical {
+      border: 2px solid var(--green-bd);
+      background: var(--green-bg);
+      color: var(--green-tx);
+      border-radius: 12px;
+      padding: 7px 9px;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .supp {
+      border: 1.5px solid var(--gray-bd);
+      background: #fff;
+      color: var(--gray-tx);
+      border-radius: 10px;
+      padding: 6px 8px;
+      font-size: 12px;
+      margin-bottom: 5px;
+    }
+    .enh {
+      border: 2px solid var(--purple-bd);
+      background: #fff;
+      color: var(--purple-tx);
+      border-radius: 12px;
+      padding: 8px 9px;
+      font-size: 12px;
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+
+    .inline-note {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .decision-row {
+      display: grid;
+      grid-template-columns: 1.1fr 1.4fr 1.1fr;
+      gap: 10px;
+      align-items: stretch;
+    }
+
+    .outcomes {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .outcome-card {
+      border-radius: 16px;
+      padding: 12px;
+      text-align: center;
+      color: #111827;
+      font-size: 12px;
+      box-shadow: var(--shadow);
+      border: 2px solid transparent;
+      background: #fff;
+    }
+    .outcome-card h3 {
+      margin: 0 0 4px;
+      font-size: 15px;
+    }
+    .ok { border-color: var(--green-bd); background: var(--green-bg); }
+    .warn { border-color: #f59e0b; background: var(--amber-bg); }
+    .fatal { border-color: var(--red-bd); background: var(--red-bg); }
+    .neutral { border-color: var(--blue-bd); background: var(--blue-bg); }
+
+    .detail {
+      margin-top: 16px;
+      background: #0f172a;
+      color: #e2e8f0;
+      border-radius: 20px;
+      padding: 16px;
+      box-shadow: var(--shadow);
+      display: none;
+    }
+    .detail.active { display: block; }
+    .detail h3 {
+      margin: 0 0 8px;
+      font-size: 15px;
+      color: #fbbf24;
+    }
+    .detail p {
+      margin: 0;
+      font-size: 13px;
+      white-space: pre-line;
+    }
+
+    .callout {
+      background: #fff7ed;
+      border: 1.5px solid #fdba74;
+      color: #9a3412;
+      border-radius: 16px;
+      padding: 12px;
+      font-size: 13px;
+    }
+
+    .sys-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 2fr) minmax(280px, 0.95fr);
+      gap: 14px;
+      align-items: start;
+    }
+
+    .flow-column {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .flow-node {
+      position: relative;
+      background: #fff;
+      border-radius: 18px;
+      padding: 12px 14px;
+      border: 2px solid var(--blue-bd);
+      box-shadow: var(--shadow);
+    }
+    .flow-node h3 {
+      margin: 0 0 4px;
+      font-size: 15px;
+      color: var(--blue-tx);
+    }
+    .flow-node p {
+      margin: 0;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .node-tag {
+      position: absolute;
+      right: 12px;
+      top: -11px;
+      font-size: 11px;
+      font-weight: 800;
+      border-radius: 999px;
+      background: #fff;
+      padding: 3px 8px;
+      border: 1.5px solid var(--gray-bd);
+      color: var(--gray-tx);
+    }
+
+    .artifact-col {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      position: sticky;
+      top: 14px;
+    }
+    .artifact {
+      background: #fff;
+      border-radius: 16px;
+      padding: 12px;
+      border: 2px solid var(--gray-bd);
+      box-shadow: var(--shadow);
+      cursor: pointer;
+    }
+    .artifact h4 {
+      margin: 0 0 4px;
+      font-size: 14px;
+      color: var(--gray-tx);
+    }
+    .artifact p {
+      margin: 0;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .branch-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      align-items: stretch;
+    }
+
+    .loop-row {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 10px;
+      align-items: center;
+    }
+    .loop-back {
+      border-radius: 14px;
+      padding: 10px;
+      background: #fff7ed;
+      border: 2px dashed #fb923c;
+      color: #9a3412;
+      font-size: 12px;
+      text-align: center;
+    }
+
+    .footer-note {
+      margin-top: 14px;
+      background: #fefce8;
+      border: 1.5px solid #fde68a;
+      color: #854d0e;
+      border-radius: 18px;
+      padding: 12px;
+      font-size: 13px;
+    }
+
+    .clickable { cursor: pointer; }
+
+    @media (max-width: 900px) {
+      .grid-3, .grid-4, .grid-2, .outcomes, .decision-row, .branch-grid, .loop-row {
+        grid-template-columns: 1fr;
+      }
+      .sys-grid { grid-template-columns: 1fr; }
+      .artifact-col { position: static; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="hero">
+      <h1>Updated CRE Diagnostic & Repair Framework</h1>
+      <p>包含两张更新后的 HTML 流程图：A. Conceptual Figure · B. System Execution Figure</p>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="conceptual">A. Conceptual Figure</button>
+      <button class="tab-btn" data-tab="execution">B. System Execution Figure</button>
+    </div>
+
+    <div class="legend">
+      <span class="legend-item" style="background:var(--blue-bg); border-color:var(--blue-bd); color:var(--blue-tx);">● Pipeline Stage</span>
+      <span class="legend-item" style="background:var(--amber-bg); border-color:var(--amber-bd); color:var(--amber-tx);">● LLM Intervention</span>
+      <span class="legend-item" style="background:var(--green-bg); border-color:var(--green-bd); color:var(--green-tx);">★ Canonical → Ψ_CRE</span>
+      <span class="legend-item" style="background:var(--gray-bg); border-color:var(--gray-bd); color:var(--gray-tx);">● Supplementary</span>
+      <span class="legend-item" style="background:var(--purple-bg); border-color:var(--purple-bd); color:var(--purple-tx);">● Enhanced</span>
+      <span class="legend-item" style="background:var(--red-bg); border-color:var(--red-bd); color:var(--red-tx);">● Conditional Branch</span>
+    </div>
+
+    <section id="conceptual" class="figure active">
+      <div class="stack">
+        <div class="box blue">
+          <div class="section-title">Stage ① — Specification Input (Natural Language)</div>
+          <div class="grid-3">
+            <div class="mini"><h4>R · Reward Function</h4><p>shaping, penalties, bonuses</p></div>
+            <div class="mini"><h4>C · Constraint Set</h4><p>safety rules, thresholds, temporal scope</p></div>
+            <div class="mini"><h4>E · Environment</h4><p>training distribution and deployment shifts</p></div>
+          </div>
+        </div>
+
+        <div class="arrow"><div class="shaft"></div><div class="tip"></div></div>
+
+        <div class="pill-row">
+          <button class="llm-pill clickable" data-detail="llm1"><span class="badge-num">1</span>LLM① · Parse & Ambiguity Detection</button>
+        </div>
+
+        <div class="arrow"><div class="shaft"></div><div class="tip"></div></div>
+
+        <div class="box blue">
+          <div class="section-title">Stage ② — Structured Specification S = (E_tr, E_dep, R, C, Π)</div>
+          <div class="grid-3">
+            <div class="mini"><h4>Reward Repr.</h4><p>typed reward terms, weights, shaping edges, clip bounds</p></div>
+            <div class="mini"><h4>Constraint Repr.</h4><p>hard / soft / info, K_j predicates, scope and tolerance</p></div>
+            <div class="mini"><h4>Env. Repr.</h4><p>scene families, shift operators, reproducible generators</p></div>
+          </div>
+        </div>
+
+        <div class="arrow"><div class="shaft"></div><div class="tip"></div></div>
+
+        <div class="box gray">
+          <div class="section-title">Stage ③ — Estimation Layer</div>
+          <div class="callout clickable" data-detail="axes">
+            <strong>两轴分类：</strong>Axis 1 — 计算层次（behavioral → mechanistic） · Axis 2 — 算法依赖度（agnostic → dependent）
+          </div>
+          <div class="grid-2" style="margin-top:10px;">
+            <div class="box blue" style="margin:0; box-shadow:none;">
+              <div class="section-title">Primary Estimators</div>
+              <div class="inline-note" style="margin-bottom:8px;">behavioral · canonical + supplementary</div>
+              <div class="mini">
+                <h4>C–R</h4>
+                <div class="canonical">★ φ²_CR · Boundary-seeking score</div>
+                <div class="supp">φ¹_CR · Reward-risk correlation</div>
+              </div>
+              <div class="mini" style="margin-top:8px;">
+                <h4>E–C</h4>
+                <div class="canonical">★ φ̄¹_EC · Critical-state coverage</div>
+                <div class="supp">φ²_EC · Activation frequency</div>
+                <div class="supp">φ³_EC · Diversity statistic</div>
+              </div>
+              <div class="mini" style="margin-top:8px;">
+                <h4>E–R</h4>
+                <div class="canonical">★ φ³_ER · Reward–utility decoupling</div>
+                <div class="supp">φ¹_ER · Deployment utility gap</div>
+                <div class="supp">φ²_ER · Deployment reward gap</div>
+              </div>
+            </div>
+            <div class="box purple" style="margin:0; box-shadow:none;">
+              <div class="section-title">Enhanced Estimators</div>
+              <div class="inline-note" style="margin-bottom:8px;">mechanistic · feed Discrepancy Protocol only</div>
+              <div class="mini">
+                <h4>C–R</h4>
+                <div class="enh">κ̃_CR · Gradient conflict score</div>
+                <p class="inline-note">∇R versus ∇C opposition</p>
+              </div>
+              <div class="mini" style="margin-top:8px;">
+                <h4>E–C</h4>
+                <div class="enh">γ̃_EC · Bisimulation soft coverage</div>
+                <p class="inline-note">deployment ↔ critical-set similarity</p>
+              </div>
+              <div class="mini" style="margin-top:8px;">
+                <h4>E–R</h4>
+                <div class="enh">δ̃_ER · Gradient drift score</div>
+                <p class="inline-note">cross-environment reward-gradient deviation</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="arrow"><div class="shaft"></div><div class="tip"></div></div>
+
+        <div class="pill-row">
+          <button class="llm-pill conditional clickable" data-detail="llm3"><span class="badge-num">3</span>LLM③ · Discrepancy Protocol</button>
+        </div>
+        <div class="callout" style="text-align:center;">
+          Δ_d = |φ̂_d − κ̂_d| &gt; η_disc → Case A: <strong>LATENT_INCONSISTENCY</strong> / Case B: <strong>CRITIC_QUALITY_WARN</strong> / No-trigger pass-through
+        </div>
+
+        <div class="arrow"><div class="shaft"></div><div class="tip"></div></div>
+
+        <div class="box blue">
+          <div class="section-title">Stage ④ — Diagnostic Aggregation</div>
+          <div class="decision-row">
+            <div class="mini clickable" data-detail="diagcards">
+              <h4>Diagnostic Products</h4>
+              <p>ranked inconsistency types · witness evidence · flags · uncertainty intervals</p>
+            </div>
+            <div>
+              <div class="formula clickable" data-detail="psi">
+                Ψ_CRE = 1 − [w_CR·f(φ²_CR) + w_EC·f(1 − φ̄¹_EC) + w_ER·f(φ³_ER)]
+              </div>
+              <div class="formula-note">修正点：E–C 项使用 f(1 − φ̄¹_EC)，而不是 f(φ̄¹_EC)</div>
+            </div>
+            <div class="pill-row" style="justify-content:flex-end;">
+              <button class="llm-pill clickable" data-detail="llm2"><span class="badge-num">2</span>LLM② · Semantic Analysis</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="arrow"><div class="shaft"></div><div class="tip"></div></div>
+
+        <div class="box blue">
+          <div class="section-title">Stage ⑤ — Repair Proposal</div>
+          <div class="grid-4">
+            <div class="mini"><h4>Reward-space</h4><p>ReweightTerms · InjectPenalty · ModifyShaping · AdjustClip</p></div>
+            <div class="mini"><h4>Environment-space</h4><p>ExpandDomainRand · InjectCriticalScenes · RescaleShiftOp</p></div>
+            <div class="mini"><h4>Constraint-adjacent</h4><p>AdjustThreshold · ScheduleCurriculum · ReclassifySeverity</p></div>
+            <div class="mini"><h4>Minimality</h4><p>d_spec(S, S′) ≤ η_edit · declare cross-dimensional side-effects</p></div>
+          </div>
+          <div class="pill-row" style="margin-top:10px; justify-content:flex-end;">
+            <button class="llm-pill clickable" data-detail="llm4"><span class="badge-num">4</span>LLM④ · Repair Generation</button>
+          </div>
+        </div>
+
+        <div class="arrow"><div class="shaft"></div><div class="tip"></div></div>
+
+        <div class="box blue">
+          <div class="section-title">Stage ⑥ — Acceptance & Validation</div>
+          <div class="grid-2">
+            <div class="mini">
+              <h4>Acceptance Criteria</h4>
+              <p>① Ψ_CRE(S′) &gt; Ψ_CRE(S)
+② Safety(S′) ≥ Safety(S)
+③ U_nom(S′) ≥ U_nom(S) − ε_perf
+④ d_spec(S, S′) ≤ η_edit</p>
+            </div>
+            <div class="pill-row" style="justify-content:flex-end; align-items:flex-start;">
+              <button class="llm-pill clickable" data-detail="llm5"><span class="badge-num">5</span>LLM⑤ · Semantic Consistency Check</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="arrow"><div class="shaft"></div><div class="tip"></div></div>
+
+        <div class="outcomes">
+          <div class="outcome-card neutral">
+            <h3>CONSISTENT</h3>
+            <div>Ψ_CRE ≥ τ_alarm</div>
+            <div style="color:var(--muted); margin-top:4px;">no repair required</div>
+          </div>
+          <div class="outcome-card ok">
+            <h3>ACCEPT</h3>
+            <div>validated repaired spec S′ adopted</div>
+          </div>
+          <div class="outcome-card fatal">
+            <h3>HARD_REJECT</h3>
+            <div>repair loop exceeds N_max</div>
+            <div style="color:var(--muted); margin-top:4px;">human alert with best-seen proposal</div>
+          </div>
+          <div class="outcome-card warn">
+            <h3>PRECHECK_FAIL</h3>
+            <div>fatal precheck violation before estimation</div>
+          </div>
+        </div>
+
+        <div class="footer-note">
+          <strong>这张 A 图保留了原视觉风格，但已经修正了两处关键逻辑：</strong>
+          一是 Ψ_CRE 里的 E–C 项改为 <code>f(1 − φ̄¹_EC)</code>；二是系统出口不再只有 Accept / Reject，而是补全为 <code>CONSISTENT / ACCEPT / HARD_REJECT / PRECHECK_FAIL</code>。
+        </div>
+      </div>
+    </section>
+
+    <section id="execution" class="figure">
+      <div class="sys-grid">
+        <div class="flow-column">
+          <div class="flow-node clickable" data-detail="po">
+            <span class="node-tag">PO</span>
+            <h3>Pipeline Orchestrator</h3>
+            <p>Validate CFG → sequence all modules → manage audit trail → emit PipelineResult</p>
+          </div>
+
+          <div class="arrow"><div class="shaft"></div><div class="tip"></div></div>
+
+          <div class="flow-node clickable" data-detail="m1">
+            <span class="node-tag">M1</span>
+            <h3>Specification Parsing</h3>
+            <p>parse NL input → detect ambiguities → run symbolic precheck</p>
+          </div>
+
+          <div class="branch-grid">
+            <div class="outcome-card fatal">
+              <h3>PRECHECK_FAIL</h3>
+              <div>M1 precheck halted pipeline</div>
+            </div>
+            <div class="mini">
+              <h4>Continue</h4>
+              <p>typed spec survives ambiguity escalation and precheck</p>
+            </div>
+          </div>
+
+          <div class="arrow"><div class="shaft"></div><div class="tip"></div></div>
+
+          <div class="flow-node clickable" data-detail="m2">
+            <span class="node-tag">M2</span>
+            <h3>Primary Estimators</h3>
+            <p>compute canonical reporters and supplementary diagnostics</p>
+          </div>
+
+          <div class="arrow"><div class="shaft"></div><div class="tip"></div></div>
+
+          <div class="flow-node clickable" data-detail="m3">
+            <span class="node-tag">M3</span>
+            <h3>Enhanced Estimators</h3>
+            <p>compute κ̃_CR, γ̃_EC, δ̃_ER; route only to discrepancy protocol</p>
+          </div>
+
+          <div class="arrow"><div class="shaft"></div><div class="tip"></div></div>
+
+          <div class="flow-node clickable" data-detail="dp">
+            <span class="node-tag">DP(M6)</span>
+            <h3>Discrepancy Protocol</h3>
+            <p>Case A → LATENT_INCONSISTENCY + widened CI + M6 temporal hypothesis; Case B → CRITIC_QUALITY_WARN; else pass-through</p>
+          </div>
+
+          <div class="arrow"><div class="shaft"></div><div class="tip"></div></div>
+
+          <div class="flow-node clickable" data-detail="m5">
+            <span class="node-tag">M5</span>
+            <h3>Composite Scoring</h3>
+            <p>compute Ψ_CRE and bootstrap CI after M2 / M3 / DP</p>
+          </div>
+
+          <div class="branch-grid">
+            <div class="outcome-card neutral">
+              <h3>CONSISTENT</h3>
+              <div>if Ψ_CRE ≥ τ_alarm</div>
+              <div style="color:var(--muted); margin-top:4px;">exit without repair</div>
+            </div>
+            <div class="mini">
+              <h4>Else continue</h4>
+              <p>if Ψ_CRE &lt; τ_alarm, enter semantic analysis and repair loop</p>
+            </div>
+          </div>
+
+          <div class="arrow"><div class="shaft"></div><div class="tip"></div></div>
+
+          <div class="flow-node clickable" data-detail="m4">
+            <span class="node-tag">M4</span>
+            <h3>Semantic Analysis</h3>
+            <p>generate failure hypothesis and repair targets; must not modify numerical fields</p>
+          </div>
+
+          <div class="arrow"><div class="shaft"></div><div class="tip"></div></div>
+
+          <div class="loop-row">
+            <div class="flow-node clickable" data-detail="m7">
+              <span class="node-tag">M7</span>
+              <h3>Repair Generation</h3>
+              <p>generate proposals → minimality filter → rollout-first ranking / llm tiebreaker</p>
+            </div>
+            <div class="loop-back">rejection_feedback ↺</div>
+            <div class="flow-node clickable" data-detail="m8">
+              <span class="node-tag">M8</span>
+              <h3>Acceptance Loop</h3>
+              <p>evaluate C1–C4 + semantic consistency; accept or regenerate next iteration</p>
+            </div>
+          </div>
+
+          <div class="arrow"><div class="shaft"></div><div class="tip"></div></div>
+
+          <div class="branch-grid">
+            <div class="outcome-card ok">
+              <h3>ACCEPT</h3>
+              <div>validated SpecS′ adopted</div>
+            </div>
+            <div class="outcome-card fatal">
+              <h3>HARD_REJECT</h3>
+              <div>loop exceeds N_max</div>
+              <div style="color:var(--muted); margin-top:4px;">emit human alert</div>
+            </div>
+          </div>
+        </div>
+
+        <aside class="artifact-col">
+          <div class="artifact clickable" data-detail="specs">
+            <h4>SpecS</h4>
+            <p>immutable structured specification produced after M1; versioned on accepted repair</p>
+          </div>
+          <div class="artifact clickable" data-detail="diagreport">
+            <h4>DiagReport</h4>
+            <p>canonical + supplementary + enhanced reporters, ψ score, CI, flags, discrepancy, failure hypothesis</p>
+          </div>
+          <div class="artifact clickable" data-detail="repairproposal">
+            <h4>RepairProposal</h4>
+            <p>spec_prime, operator_class, declared_side_effects, semantic justification, predicted / rough delta ψ</p>
+          </div>
+          <div class="artifact clickable" data-detail="audittrail">
+            <h4>AuditTrail</h4>
+            <p>append-only per-module record stream with input/output hashes and iteration metadata</p>
+          </div>
+          <div class="artifact clickable" data-detail="acceptanceverdict">
+            <h4>AcceptanceVerdict</h4>
+            <p>accepted, c1–c4 flags, semantic score, intent preservation, rejection feedback</p>
+          </div>
+        </aside>
+      </div>
+
+      <div class="footer-note">
+        <strong>这张 B 图严格按 Part II 的执行顺序组织：</strong>
+        <code>PO → M1 → M2 → M3 → DP(M6) → M5 → [CONSISTENT?] → M4 → M7 ↔ M8 → ACCEPT / HARD_REJECT</code>，
+        并把 <code>SpecS / DiagReport / RepairProposal / AuditTrail / AcceptanceVerdict</code> 挂在系统侧边，强调“模块流”和“数据流”是两层结构。
+      </div>
+    </section>
+
+    <div id="detail" class="detail"></div>
+  </div>
+
+  <script>
+    const detailContent = {
+      llm1: {
+        title: 'LLM① — Parse & Ambiguity Detection',
+        body: '将自然语言描述的 R、C、E 解析为结构化内部表示，并标记高影响歧义项。\n\n这一层决定后续估计器的上限：如果 K_j、环境范围或 reward term 本身被错解，后续数值再精确也只是精确地算错。'
+      },
+      llm2: {
+        title: 'LLM② — Semantic Analysis',
+        body: '在数值打分完成后，把 DiagReport 翻译为可解释的失效机制与 repair targets。\n\n它只做语义桥接，不允许覆盖任何数值字段。'
+      },
+      llm3: {
+        title: 'LLM③ — Discrepancy Protocol',
+        body: '触发条件：Δ_d = |φ̂_d − κ̂_d| > η_disc。\n\nCase A：Low primary + High enhanced → LATENT_INCONSISTENCY，保持 Ψ_CRE 点估计不变，只扩展不确定性区间，并调用 M6 生成时序假说。\n\nCase B：High primary + Low enhanced → CRITIC_QUALITY_WARN，保持 canonical primary 为准。\n\nNo-trigger：直接 pass-through。'
+      },
+      llm4: {
+        title: 'LLM④ — Repair Generation',
+        body: '生成候选修复提案，并显式声明跨维副作用。\n\n在新版 Part II 中，repair 不是一句“提出修复建议”，而是 proposal generation → minimality filter → ranking 的完整工程链。'
+      },
+      llm5: {
+        title: 'LLM⑤ — Semantic Consistency Check',
+        body: '用语义一致性而不是纯字符串差异，检验修复前后任务意图是否保持。\n\n这是 acceptance 的语义闭环，和数值 edit distance 一起构成最终门槛。'
+      },
+      axes: {
+        title: '估计器两轴分类说明',
+        body: 'Axis 1 — 计算层次：\n• Primary（行为层）回答“发生了什么”\n• Enhanced（机制层）回答“为什么发生”\n\nAxis 2 — 算法依赖度：\n• Canonical primary reporters 应尽量保持算法无关\n• Enhanced estimators 可依赖梯度、critic 或 learned similarity\n\n关键约束：只有 canonical reporters 进入 Ψ_CRE。'
+      },
+      psi: {
+        title: 'Ψ_CRE 修正版公式',
+        body: 'Ψ_CRE = 1 − [w_CR·f(φ²_CR) + w_EC·f(1 − φ̄¹_EC) + w_ER·f(φ³_ER)]\n\n这里最大的修正是 E–C 项必须写成 f(1 − φ̄¹_EC)。\n\n因为 φ̄¹_EC 表示“coverage 好不好”，而进入 penalty 的应该是 “undercoverage 有多严重”。'
+      },
+      diagcards: {
+        title: 'Aggregation 输出内容',
+        body: '新版 Part II 的 aggregation 不只是一个 ψ 分数。\n\n还包括：canonical reporters、CI、flags、discrepancy records，以及后续 M4 要消费的 failure_hypothesis / repair_targets。'
+      },
+      po: {
+        title: 'PO.run_cre_pipeline',
+        body: '顶层 orchestrator 负责：\n1. 校验 CFG\n2. 串联 M1~M8\n3. 管理 audit trail\n4. 在 PRECHECK_FAIL / CONSISTENT / ACCEPT / HARD_REJECT 之间做统一退出。'
+      },
+      m1: {
+        title: 'M1 — parse / ambiguity / precheck',
+        body: 'M1 是唯一自然语言入口。\n\n它先 parse 成 SpecS，再做 ambiguity escalation，最后跑 symbolic precheck。fatal precheck 会直接触发 PRECHECK_FAIL，而不是继续进入估计层。'
+      },
+      m2: {
+        title: 'M2 — Primary Estimators',
+        body: 'M2 负责 canonical reporters 与 supplementary reporters。\n\n它是系统数值主干的第一层，后续 M5 的 ψ 只能吃 canonical reporters。'
+      },
+      m3: {
+        title: 'M3 — Enhanced Estimators',
+        body: 'M3 负责 κ̃_CR、γ̃_EC、δ̃_ER。\n\n它们永远不能直接写进 φ_cr2 / φ_ec_bar / φ_er3；只能流向 DP。'
+      },
+      dp: {
+        title: 'DP(M6) — Discrepancy Protocol',
+        body: 'Stage III 是条件模块。\n\n只有 enhanced estimators 开启且 M3 有输出时才运行。其作用不是改写点估计，而是解释“为什么 primary 与 mechanistic 证据不一致”。'
+      },
+      m5: {
+        title: 'M5 — Composite Scoring',
+        body: 'M5 负责 monotone transform、Ψ_CRE 和 bootstrap CI。\n\n新版 Part II 还规定：如果 ψ 已经高于 alarm 阈值，就直接 CONSISTENT 退出，不再进入 repair。'
+      },
+      m4: {
+        title: 'M4 — Semantic Analysis',
+        body: 'M4 读取完成后的 DiagReport，输出 failure hypothesis 与 repair targets。\n\n它被 diff guard 约束：数值字段不可改。'
+      },
+      m7: {
+        title: 'M7 — generate / filter / rank',
+        body: 'M7 不只是“提案生成器”。\n\n它要：生成 proposals → 用 d_spec 做 minimality filtering → 用 rollout-first 或 llm-only 方式排序。'
+      },
+      m8: {
+        title: 'M8 — Acceptance Loop',
+        body: 'M8 评估 C1–C4，再做 semantic consistency verification。\n\n失败的 proposal 会沉淀 rejection_feedback，回灌给下一轮 M7；超过 N_max 则 HARD_REJECT。'
+      },
+      specs: {
+        title: 'SpecS',
+        body: 'SpecS 是整个系统的核心不可变数据对象。\n\nM1 生成 version=0 的 SpecS；被接受的修复提案会返回新的 SpecS′ 并递增 version。'
+      },
+      diagreport: {
+        title: 'DiagReport',
+        body: 'DiagReport 汇总 canonical / supplementary / enhanced estimators，以及 ψ、CI、flags、discrepancy、failure hypothesis、repair targets。\n\n它是 M4、M7、M8 的主要共享诊断对象。'
+      },
+      repairproposal: {
+        title: 'RepairProposal',
+        body: 'RepairProposal 至少包括：proposal_id、spec_prime、operator_class、declared_side_effects、semantic_justification、predicted_delta_psi、rough_delta_psi。\n\n它是 repair loop 的最小工程单元。'
+      },
+      audittrail: {
+        title: 'AuditTrail',
+        body: 'AuditTrail 是 append-only 的 typed record 流。\n\n每个模块执行后都应记录：module、stage、inputs_hash、outputs_hash、flags、duration_ms、iteration 等元数据。'
+      },
+      acceptanceverdict: {
+        title: 'AcceptanceVerdict',
+        body: 'AcceptanceVerdict 记录：accepted、c1_pass、c2_pass、c3_pass、c4_pass、s_sem、intent_preserved、rejection_feedback。\n\n它把“为什么拒绝 / 为什么接受”结构化了。'
+      }
+    };
+
+    const tabs = document.querySelectorAll('.tab-btn');
+    const figures = document.querySelectorAll('.figure');
+    const detail = document.getElementById('detail');
+
+    tabs.forEach(btn => {
+      btn.addEventListener('click', () => {
+        tabs.forEach(b => b.classList.remove('active'));
+        figures.forEach(f => f.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.tab).classList.add('active');
+      });
+    });
+
+    document.querySelectorAll('[data-detail]').forEach(el => {
+      el.addEventListener('click', () => {
+        const key = el.dataset.detail;
+        const item = detailContent[key];
+        if (!item) return;
+        detail.innerHTML = `<h3>${item.title}</h3><p>${item.body}</p>`;
+        detail.classList.add('active');
+        detail.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      });
+    });
+  </script>
+</body>
+</html>

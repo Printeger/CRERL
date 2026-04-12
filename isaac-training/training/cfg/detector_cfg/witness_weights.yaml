@@ -1,9 +1,0 @@
-# Transitional witness weights for future CRE detectors.
-
-constraint_reward: 1.0
-environment_constraint: 1.0
-environment_reward: 1.0
-near_violation: 0.5
-collision: 2.0
-success: 1.0
-

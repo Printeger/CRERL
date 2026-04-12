@@ -1,0 +1,104 @@
+spec_type: "environment"
+spec_version: "1.0"
+
+E_tr:
+  distribution_id: "train_distribution_v1"
+  description: "Training distribution is anchored on the nominal indoor obstacle field used by the current scene family backend."
+  nominal_family: "nominal"
+  scene_families:
+    - "nominal"
+  shift_operators: []
+  generator_seeds:
+    - 1001
+  env_cfg_refs:
+    - "isaac-training/training/cfg/env_cfg/scene_cfg_nominal.yaml"
+
+E_dep:
+  nominal_env: "nominal"
+  deployment_envs:
+    - env_id: "e0_nominal"
+      scene_family: "nominal"
+      generator_seed: 1001
+      env_cfg_ref: "isaac-training/training/cfg/env_cfg/scene_cfg_nominal.yaml"
+      applied_shift_operators: []
+
+    - env_id: "e1_shifted"
+      scene_family: "shifted"
+      generator_seed: 3001
+      env_cfg_ref: "isaac-training/training/cfg/env_cfg/scene_cfg_shifted.yaml"
+      applied_shift_operators:
+        - "workspace_scale_shift"
+        - "obstacle_density_shift"
+        - "boundary_exposure_shift"
+        - "template_topology_shift"
+
+    - env_id: "e2_boundary_critical"
+      scene_family: "boundary_critical"
+      generator_seed: 2001
+      env_cfg_ref: "isaac-training/training/cfg/env_cfg/scene_cfg_boundary_critical.yaml"
+      applied_shift_operators:
+        - "workspace_scale_shift"
+        - "boundary_exposure_shift"
+        - "route_bottleneck_shift"
+        - "free_space_compression_shift"
+
+scene_families:
+  - "nominal"
+  - "shifted"
+  - "boundary_critical"
+
+shift_operators:
+  - shift_id: "workspace_scale_shift"
+    description: "Workspace expands from 15x15x4.5 m nominal scenes to 40x40x4.5 m deployment scenes."
+    inferred_from:
+      - "scene_cfg_nominal.yaml: workspace.size_x/size_y"
+      - "scene_cfg_shifted.yaml: workspace.size_x/size_y"
+      - "scene_cfg_boundary_critical.yaml: workspace.size_x/size_y"
+
+  - shift_id: "obstacle_density_shift"
+    description: "Primitive budgets and free-space fraction move from dense nominal clutter to sparser shifted scenes."
+    inferred_from:
+      - "scene_cfg_nominal.yaml: primitive_budget, background_placement.free_space_fraction_*"
+      - "scene_cfg_shifted.yaml: primitive_budget, background_placement.free_space_fraction_*"
+
+  - shift_id: "boundary_exposure_shift"
+    description: "Boundary interaction pressure changes through boundary_adjacent_bias and obstacle_boundary_min_dist."
+    inferred_from:
+      - "scene_cfg_nominal.yaml: distribution_modes.boundary_adjacent_bias, background_placement.obstacle_boundary_min_dist"
+      - "scene_cfg_shifted.yaml: distribution_modes.boundary_adjacent_bias, background_placement.obstacle_boundary_min_dist"
+      - "scene_cfg_boundary_critical.yaml: distribution_modes.boundary_adjacent_bias, background_placement.obstacle_boundary_min_dist"
+
+  - shift_id: "template_topology_shift"
+    description: "Deployment introduces template families absent from nominal training scenes, including pillar_field and low_clearance_passage."
+    inferred_from:
+      - "scene_cfg_nominal.yaml: templates.candidate_types"
+      - "scene_cfg_shifted.yaml: templates.candidate_types"
+      - "scene_cfg_boundary_critical.yaml: templates.candidate_types"
+
+  - shift_id: "route_bottleneck_shift"
+    description: "Boundary-critical deployment increases route-adjacent bottleneck pressure via larger route bias and tighter bottleneck widths."
+    inferred_from:
+      - "scene_cfg_nominal.yaml: distribution_modes.route_adjacent_bias, template_params.bottleneck.width_range"
+      - "scene_cfg_boundary_critical.yaml: distribution_modes.route_adjacent_bias, template_params.bottleneck.width_range"
+
+  - shift_id: "free_space_compression_shift"
+    description: "Boundary-critical deployment keeps less traversable slack than the sparse shifted family while preserving large-area workspaces."
+    inferred_from:
+      - "scene_cfg_shifted.yaml: background_placement.free_space_fraction_*"
+      - "scene_cfg_boundary_critical.yaml: background_placement.free_space_fraction_*"
+
+generator_seeds:
+  - cfg_name: "scene_cfg_base"
+    seed: 42
+  - cfg_name: "scene_cfg_nominal"
+    seed: 1001
+  - cfg_name: "scene_cfg_boundary_critical"
+    seed: 2001
+  - cfg_name: "scene_cfg_shifted"
+    seed: 3001
+
+env_cfg_refs:
+  - "isaac-training/training/cfg/env_cfg/scene_cfg_base.yaml"
+  - "isaac-training/training/cfg/env_cfg/scene_cfg_nominal.yaml"
+  - "isaac-training/training/cfg/env_cfg/scene_cfg_shifted.yaml"
+  - "isaac-training/training/cfg/env_cfg/scene_cfg_boundary_critical.yaml"

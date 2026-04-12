@@ -83,17 +83,18 @@ run_acceptance_check(run_dir)                # 验收
 # analyzers/spec_validator.py
 validate_spec_file(spec_path: str) -> ValidationResult
 # 输入：单份 spec YAML 路径
-# 输出：ValidationResult { valid: bool, errors: list[str] }
+# 输出：ValidationResult { valid: bool, errors: list[str], warnings: list[str] }
 
 validate_spec_set(
     reward_spec_path: str,
     constraint_spec_path: str,
     policy_spec_path: str,
+    env_spec_path: str,
 ) -> ValidationResult
-# 输入：三份 spec 路径
-# 输出：跨文件基础一致性检查结果（字段类型、必填项、版本号匹配）
+# 输入：四份 spec 路径
+# 输出：跨文件基础一致性检查结果（字段类型、必填项、版本号匹配、warnings）
 ```
-状态：❌ 待实现（Phase 1 DoD 之一）
+状态：[FROZEN] ✅ 已实现（Phase 1 DoD 之一）
 
 ### Phase 2 — Static Analysis
 ```python
@@ -102,57 +103,264 @@ run_static_analysis(
     reward_spec_path: str,
     constraint_spec_path: str,
     policy_spec_path: str,
-    output_dir: str,
+    env_spec_path: str,
+    output_dir: str | None = None,
 ) -> StaticReport
-# 输入：三份 spec v1 文件
-# 输出：结构化静态分析报告（写入 output_dir，同时返回对象）
+# 输入：四份 spec 路径 + 可选输出目录
+# 输出：StaticReport（同时写入 output_dir/static_report.json，若 output_dir 非 None）
 # 报告须包含：问题列表、类型（C-R/E-C/E-R）、严重等级、可追溯字段
 ```
-状态：❌ 待实现（Phase 2 DoD 之一）；接口签名在 Phase 2 开始前须在此确认
+状态：[FROZEN] ⚠️ 接口已冻结，待实现（Phase 2 DoD 之一）
 
 ### Phase 3 — Dynamic Analysis
+```python
+# analyzers/dynamic_analyzer.py
+run_dynamic_analysis(
+    static_report: StaticReport,
+    log_dir: str,
+    reward_spec_path: str,
+    constraint_spec_path: str,
+    output_dir: str | None = None,
+) -> DynamicReport
+# 输入：StaticReport + 运行日志目录 + reward/constraint spec 路径
+# 输出：DynamicReport（同时写入 output_dir/dynamic_report.json，若 output_dir 非 None）
+
+@dataclass
+class DynamicIssue:
+    issue_id: str
+    issue_type: str
+    severity: str
+    rule_id: str
+    description: str
+    traceable_fields: list[str]
+    evidence: dict
+
+@dataclass
+class DynamicReport:
+    spec_versions: dict[str, str]
+    episode_count: int
+    issues: list[DynamicIssue]
+    summary: dict
+    output_path: str | None
 ```
-待定：需先完成 Phase 2，再根据 CRE_v4.pdf 确定
-输入：static report + 运行日志目录
-输出：dynamic report
-```
-状态：❌ 接口未设计
+状态：[FROZEN] ⚠️ 接口已冻结，待实现
 
 ### Phase 4 — Semantic Analysis
+```python
+# analyzers/semantic_analyzer.py
+
+@dataclass
+class SemanticIssue:
+    issue_id: str          # 格式: SA-001, SA-002, ...
+    issue_type: str        # "C-R" | "E-C" | "E-R" | "composite"
+    severity: str          # "error" | "warning" | "info"
+    rule_id: str
+    description: str
+    traceable_fields: list[str]
+    evidence: dict         # 含 phi 值、阈值、来源 issue_ids
+
+@dataclass
+class SemanticReport:
+    spec_versions: dict[str, str]
+    psi_cre: float                  # Ψ_CRE ∈ [0, 1]
+    phi_cr: float                   # φ²_CR 边界趋近评分
+    phi_ec: float                   # φ̄¹_EC 均值关键态覆盖率
+    phi_er: float | None            # φ³_ER reward-utility 去耦（oracle 不可用时为 None）
+    issues: list[SemanticIssue]
+    summary: dict                   # 含 alarm: bool, psi_cre, by_type, by_severity
+    output_path: str | None
+
+run_semantic_analysis(
+    static_report: StaticReport,
+    dynamic_report: DynamicReport,
+    reward_spec_path: str,
+    constraint_spec_path: str,
+    output_dir: str | None = None,
+) -> SemanticReport
+# 输入：Phase 2 StaticReport + Phase 3 DynamicReport + reward/constraint spec 路径
+# 输出：SemanticReport（同时写入 output_dir/semantic_report.json，若 output_dir 非 None）
+# 计算：φ²_CR、φ̄¹_EC、φ³_ER（oracle 不可用时跳过）、Ψ_CRE
+# 语义分析：rule-based（替代 LLM-β，依据 D-LLM-α）
 ```
-待定
-```
-状态：❌
+状态：[FROZEN] ⚠️ 接口已冻结，待实现
 
 ### Phase 5 — Report Generation
+```python
+# analyzers/report_generator.py
+
+@dataclass
+class CREReport:
+    report_id: str                        # 格式: CRE-<timestamp>
+    spec_versions: dict[str, str]
+    static_issues: list[StaticIssue]
+    dynamic_issues: list[StaticIssue]
+    semantic_issues: list[SemanticIssue]
+    psi_cre: float
+    alarm: bool
+    summary: dict[str, Any]
+    output_path: str | None
+
+def generate_report(
+    static_report: StaticReport,
+    dynamic_report: DynamicReport,
+    semantic_report: SemanticReport,
+    output_dir: str | None = None,
+) -> CREReport:
+# 输入：Phase 2 StaticReport + Phase 3 DynamicReport + Phase 4 SemanticReport
+# 输出：CREReport（同时写入 output_dir/report.json，若 output_dir 非 None）
+# psi_cre 和 alarm 直接从 semantic_report 透传，不重新计算
+# summary 含 total、by_phase、by_severity、alarm、psi_cre
 ```
-待定
-```
-状态：❌
+状态：[FROZEN] ⚠️ 接口已冻结，待实现
 
 ### Phase 6 — Repair
+```python
+# repair/repair_generator.py
+
+@dataclass
+class RepairPatch:
+    patch_id: str                   # 格式: PATCH-001, PATCH-002, ...
+    target_spec: str                # "reward" | "constraint" | "env"
+    target_field: str               # YAML 路径, 如 reward_terms[0].weight
+    operation: str                  # "set" | "add" | "remove"
+    old_value: Any
+    new_value: Any
+    rationale: str
+    source_issue_ids: list[str]
+
+@dataclass
+class RepairResult:
+    report_id: str                  # 透传自 CREReport.report_id
+    patches: list[RepairPatch]
+    summary: dict[str, Any]         # total_patches, by_target_spec, source_issue_count
+    output_path: str | None
+
+def generate_repair(
+    cre_report: CREReport,
+    output_dir: str | None = None,
+) -> RepairResult:
+# 输入：Phase 5 CREReport
+# 输出：RepairResult（同时写入 output_dir/repair_result.json，若 output_dir 非 None）
+# 首版只生成修复建议，不自动写入 spec 文件
+# 规则驱动：每类 issue_type 对应固定修复模板（见实现说明）
 ```
-待定
-```
-状态：❌
+状态：[FROZEN] ⚠️ 接口已冻结，待实现
 
 ### Phase 7 — Validation
+```python
+# repair/validator.py
+
+@dataclass
+class PatchValidationResult:
+    report_id: str                  # 透传自 RepairResult.report_id
+    patches_applied: int
+    issues_before: list[str]        # 修复前 issue_ids
+    issues_after: list[str]         # 修复后 issue_ids
+    issues_resolved: list[str]      # before - after
+    issues_introduced: list[str]    # after - before
+    passed: bool                    # issues_introduced==[] 且有改善或原本干净
+    summary: dict[str, Any]
+    output_path: str | None
+
+def validate_repair(
+    repair_result: RepairResult,
+    static_report: StaticReport,
+    reward_spec_path: str,
+    constraint_spec_path: str,
+    policy_spec_path: str,
+    env_spec_path: str,
+    output_dir: str | None = None,
+) -> PatchValidationResult:
+# 输入：Phase 6 RepairResult + Phase 2 StaticReport（作为 before 基准）+ 四份 spec 路径
+# 输出：PatchValidationResult（同时写入 output_dir/validation_result.json，若非 None）
+# 策略：内存级 patch 应用，不写入真实 spec 文件
+# passed = issues_introduced==[] 且 (issues_resolved != [] 或 issues_before == [])
 ```
-待定
-```
-状态：❌
+状态：[FROZEN] ⚠️ 接口已冻结，待实现
 
 ### Phase 8 — Integration（接入训练主循环）
+```python
+# train.py 收尾区追加（wandb.finish() 之前）
+
+# train.yaml 新增字段组：
+# spec_cfg:
+#   reward: cfg/spec_cfg/reward_spec_v1.yaml
+#   constraint: cfg/spec_cfg/constraint_spec_v1.yaml
+#   policy: cfg/spec_cfg/policy_spec_v1.yaml
+#   env: cfg/spec_cfg/env_spec_v1.yaml
+
+# 接入代码模式：
+try:
+    from analyzers.static_analyzer import run_static_analysis
+    from analyzers.dynamic_analyzer import run_dynamic_analysis
+    from analyzers.semantic_analyzer import run_semantic_analysis
+    from analyzers.report_generator import generate_report
+    from repair.repair_generator import generate_repair
+    from repair.validator import validate_repair
+
+    _static = run_static_analysis(
+        cfg.spec_cfg.reward, cfg.spec_cfg.constraint,
+        cfg.spec_cfg.policy, cfg.spec_cfg.env,
+        output_dir=cre_run_logger.run_dir,
+    )
+    _dynamic = run_dynamic_analysis(
+        _static, cre_run_logger.run_dir,
+        cfg.spec_cfg.reward, cfg.spec_cfg.constraint,
+        output_dir=cre_run_logger.run_dir,
+    )
+    _semantic = run_semantic_analysis(
+        _static, _dynamic,
+        cfg.spec_cfg.reward, cfg.spec_cfg.constraint,
+        output_dir=cre_run_logger.run_dir,
+    )
+    _report = generate_report(_static, _dynamic, _semantic,
+                              output_dir=cre_run_logger.run_dir)
+    _repair = generate_repair(_report, output_dir=cre_run_logger.run_dir)
+    _validation = validate_repair(
+        _repair, _static,
+        cfg.spec_cfg.reward, cfg.spec_cfg.constraint,
+        cfg.spec_cfg.policy, cfg.spec_cfg.env,
+        output_dir=cre_run_logger.run_dir,
+    )
+    wandb.run.log({
+        "cre_v2/psi_cre": _semantic.psi_cre,
+        "cre_v2/alarm": int(_semantic.summary["alarm"]),
+        "cre_v2/total_issues": _report.summary["total"],
+        "cre_v2/patches": len(_repair.patches),
+        "cre_v2/validation_passed": int(_validation.passed),
+    })
+except Exception as _e:
+    import warnings
+    warnings.warn(f"[CRE v2] 分析流水线异常（不影响训练结果）: {_e}")
 ```
-待定：确定新版 CRE logging 如何嵌入 train.py
-```
-状态：❌
+状态：[FROZEN] ⚠️ 接口已冻结，待实现
 
 ### Phase 9 — Benchmark Suite
+```python
+# scripts/run_benchmark.py
+
+def run_benchmark(
+    benchmark_dir: str,
+    output_dir: str | None = None,
+) -> dict[str, dict]:
+# 输入：benchmark_cfg/ 根目录
+# 输出：{case_name: {"alarm": bool, "psi_cre": float, "total_issues": int}}
+# 同时写入 output_dir/benchmark_results.json（若非 None）
+# 对每个 case 子目录跑 run_static_analysis + run_semantic_analysis
+# 期望结果：clean_nominal → alarm=False；injected_* → alarm=True
+
+# cfg/benchmark_cfg/ 目录结构：
+# benchmark_cfg/
+# ├── clean_nominal/
+# │   ├── reward_spec_v1.yaml
+# │   ├── constraint_spec_v1.yaml
+# │   ├── policy_spec_v1.yaml
+# │   └── env_spec_v1.yaml
+# ├── injected_cr/   # reward term weight 与 hard constraint 共享变量
+# ├── injected_ec/   # shift_operators: []
+# └── injected_er/   # E_dep.deployment_envs: []
 ```
-待定
-```
-状态：❌
+状态：[FROZEN] ⚠️ 接口已冻结，待实现
 
 ### Phase 10 — Release Packaging
 ```

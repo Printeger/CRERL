@@ -130,3 +130,4 @@ core.*
 # Local API key notes / secrets
 doc/API_KEY
 doc/API_KEY.md
+release/

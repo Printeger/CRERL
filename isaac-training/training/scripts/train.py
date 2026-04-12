@@ -354,11 +354,11 @@ def main(cfg):
         "cre/acceptance_passed": float(bool(cre_acceptance["passed"])),
         "cre/acceptance_error_count": float(len(cre_acceptance["errors"])),
     })
-    if cre_eval_log_adapter is not None and cre_eval_run_logger is not None:
-        cre_eval_log_adapter.flush_open_episodes(done_type="manual_exit")
-        cre_eval_summary = aggregate_log_directory(cre_eval_run_logger.run_dir)
-        run.log({f"cre_eval/{k}": v for k, v in cre_eval_summary.items() if isinstance(v, (int, float))})
-        cre_eval_acceptance = run_acceptance_check(cre_eval_run_logger.run_dir, write_report=True)
+	    if cre_eval_log_adapter is not None and cre_eval_run_logger is not None:
+	        cre_eval_log_adapter.flush_open_episodes(done_type="manual_exit")
+	        cre_eval_summary = aggregate_log_directory(cre_eval_run_logger.run_dir)
+	        run.log({f"cre_eval/{k}": v for k, v in cre_eval_summary.items() if isinstance(v, (int, float))})
+	        cre_eval_acceptance = run_acceptance_check(cre_eval_run_logger.run_dir, write_report=True)
         print(
             f"[CRE] train_eval run acceptance: {'PASS' if cre_eval_acceptance['passed'] else 'FAIL'} "
             f"| run_dir={cre_eval_run_logger.run_dir}"
@@ -367,14 +367,59 @@ def main(cfg):
             print("[CRE] train_eval acceptance errors:")
             for error in cre_eval_acceptance["errors"]:
                 print(f"  - {error}")
-        run.log({
-            "cre_eval/acceptance_passed": float(bool(cre_eval_acceptance["passed"])),
-            "cre_eval/acceptance_error_count": float(len(cre_eval_acceptance["errors"])),
-        })
-    
-    # 关闭 WandB 和仿真器
-    wandb.finish()
-    sim_app.close()
+	        run.log({
+	            "cre_eval/acceptance_passed": float(bool(cre_eval_acceptance["passed"])),
+	            "cre_eval/acceptance_error_count": float(len(cre_eval_acceptance["errors"])),
+	        })
+
+	    # ── CRE v2 分析流水线（Phase 2-7，追加，不影响旧版 CRE hook）──────────────
+	    try:
+	        from analyzers.static_analyzer import run_static_analysis
+	        from analyzers.dynamic_analyzer import run_dynamic_analysis
+	        from analyzers.semantic_analyzer import run_semantic_analysis
+	        from analyzers.report_generator import generate_report
+	        from repair.repair_generator import generate_repair
+	        from repair.validator import validate_repair
+
+	        _cre_out = cre_run_logger.run_dir
+	        _static = run_static_analysis(
+	            cfg.spec_cfg.reward, cfg.spec_cfg.constraint,
+	            cfg.spec_cfg.policy, cfg.spec_cfg.env,
+	            output_dir=_cre_out,
+	        )
+	        _dynamic = run_dynamic_analysis(
+	            _static, _cre_out,
+	            cfg.spec_cfg.reward, cfg.spec_cfg.constraint,
+	            output_dir=_cre_out,
+	        )
+	        _semantic = run_semantic_analysis(
+	            _static, _dynamic,
+	            cfg.spec_cfg.reward, cfg.spec_cfg.constraint,
+	            output_dir=_cre_out,
+	        )
+	        _report = generate_report(_static, _dynamic, _semantic, output_dir=_cre_out)
+	        _repair = generate_repair(_report, output_dir=_cre_out)
+	        _validation = validate_repair(
+	            _repair, _static,
+	            cfg.spec_cfg.reward, cfg.spec_cfg.constraint,
+	            cfg.spec_cfg.policy, cfg.spec_cfg.env,
+	            output_dir=_cre_out,
+	        )
+	        run.log({
+	            "cre_v2/psi_cre": _semantic.psi_cre,
+	            "cre_v2/alarm": int(_semantic.summary["alarm"]),
+	            "cre_v2/total_issues": _report.summary["total"],
+	            "cre_v2/patches": len(_repair.patches),
+	            "cre_v2/validation_passed": int(_validation.passed),
+	        })
+	    except Exception as _cre_exc:
+	        import warnings
+	        warnings.warn(f"[CRE v2] 分析流水线异常（不影响训练结果）: {_cre_exc}")
+	    # ── CRE v2 end ────────────────────────────────────────────────────────────
+	    
+	    # 关闭 WandB 和仿真器
+	    wandb.finish()
+	    sim_app.close()
 
 if __name__ == "__main__":
     main()

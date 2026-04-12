@@ -1,0 +1,43 @@
+spec_type: "environment"
+spec_version: "1.0"
+
+E_tr:
+  distribution_id: "benchmark_train_distribution_v1"
+  description: "Benchmark E-C injection case with no declared coverage operators."
+  nominal_family: "nominal"
+  scene_families:
+    - "nominal"
+  shift_operators: []
+  generator_seeds:
+    - 1001
+  env_cfg_refs:
+    - "isaac-training/training/cfg/env_cfg/scene_cfg_nominal.yaml"
+
+E_dep:
+  nominal_env: "e0_nominal"
+  deployment_envs:
+    - env_id: "e0_nominal"
+      scene_family: "nominal"
+      generator_seed: 1001
+      env_cfg_ref: "isaac-training/training/cfg/env_cfg/scene_cfg_nominal.yaml"
+      applied_shift_operators: []
+
+    - env_id: "e1_nominal_shifted"
+      scene_family: "nominal"
+      generator_seed: 1002
+      env_cfg_ref: "isaac-training/training/cfg/env_cfg/scene_cfg_nominal.yaml"
+      applied_shift_operators: []
+
+scene_families:
+  - "nominal"
+
+shift_operators: []
+
+generator_seeds:
+  - cfg_name: "scene_cfg_nominal"
+    seed: 1001
+  - cfg_name: "scene_cfg_nominal_benchmark"
+    seed: 1002
+
+env_cfg_refs:
+  - "isaac-training/training/cfg/env_cfg/scene_cfg_nominal.yaml"

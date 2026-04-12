@@ -1,0 +1,14 @@
+spec_type: "reward"
+spec_version: "1.0"
+
+reward_terms:
+  - term_id: "reward_progress"
+    term_expr: "collision_margin_m"
+    weight: 1.0
+    unit: "m"
+    clip_bounds:
+      min: 0.0
+      max: 1.0
+    shaping_flag: false
+
+dag_edges: []

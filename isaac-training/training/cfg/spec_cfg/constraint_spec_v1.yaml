@@ -1,0 +1,43 @@
+spec_type: "constraint"
+spec_version: "1.0"
+
+constraints:
+  - constraint_id: "collision_avoidance"
+    indicator_predicate: "min_obstacle_distance_m <= 0.0 OR done_type == 2"
+    severity: "hard"
+    temporal_scope: "instantaneous"
+    coverage_threshold_delta: 0.90
+    tolerance: null
+    penalty_weight: null
+
+  - constraint_id: "safety_margin"
+    indicator_predicate: "min_obstacle_distance_m < 0.50"
+    severity: "soft"
+    temporal_scope: "instantaneous"
+    coverage_threshold_delta: 0.80
+    tolerance: 0.50
+    penalty_weight: 0.60
+
+  - constraint_id: "workspace_boundary"
+    indicator_predicate: "position_x_m NOT_IN [0.0, workspace_size_x_m] OR position_y_m NOT_IN [0.0, workspace_size_y_m] OR flight_height_m NOT_IN [0.50, 4.50] OR done_type == 3"
+    severity: "hard"
+    temporal_scope: "instantaneous"
+    coverage_threshold_delta: 0.85
+    tolerance: null
+    penalty_weight: null
+
+  - constraint_id: "speed_bound"
+    indicator_predicate: "l2_norm(body_linear_velocity_mps) > 2.00"
+    severity: "soft"
+    temporal_scope: "instantaneous"
+    coverage_threshold_delta: 0.70
+    tolerance: 0.20
+    penalty_weight: 0.35
+
+  - constraint_id: "attitude_turn_rate"
+    indicator_predicate: "abs(body_yaw_rate_radps) > 1.20 OR max(abs(body_roll_rad), abs(body_pitch_rad)) > 0.52"
+    severity: "soft"
+    temporal_scope: "instantaneous"
+    coverage_threshold_delta: 0.65
+    tolerance: 0.10
+    penalty_weight: 0.25

@@ -22,6 +22,12 @@ scene_family_backend:
 repair:
   validation_context_preview: ""
 
+spec_cfg:
+  reward: isaac-training/training/cfg/spec_cfg/reward_spec_v1.yaml
+  constraint: isaac-training/training/cfg/spec_cfg/constraint_spec_v1.yaml
+  policy: isaac-training/training/cfg/spec_cfg/policy_spec_v1.yaml
+  env: isaac-training/training/cfg/spec_cfg/env_spec_v1.yaml
+
 # Total Training Length
 max_frame_num: 10e8  # 12e8 # max frame 
 eval_interval: 1000 # evaluate the policy for every N training steps

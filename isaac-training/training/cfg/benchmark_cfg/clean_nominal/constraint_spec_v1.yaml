@@ -1,0 +1,19 @@
+spec_type: "constraint"
+spec_version: "1.0"
+
+constraints:
+  - constraint_id: "collision_avoidance"
+    indicator_predicate: "collision_margin_m <= 0.0 OR done_type == 2"
+    severity: "hard"
+    temporal_scope: "instantaneous"
+    coverage_threshold_delta: 0.90
+    tolerance: null
+    penalty_weight: null
+
+  - constraint_id: "workspace_boundary"
+    indicator_predicate: "workspace_margin_m <= 0.0 OR done_type == 3"
+    severity: "hard"
+    temporal_scope: "instantaneous"
+    coverage_threshold_delta: 0.85
+    tolerance: null
+    penalty_weight: null

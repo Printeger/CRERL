@@ -1,0 +1,67 @@
+spec_type: "reward"
+spec_version: "1.0"
+
+reward_terms:
+  - term_id: "reward_progress"
+    term_expr: "goal_distance_t_minus_1 - goal_distance_t"
+    weight: 1.00
+    unit: "m"
+    clip_bounds:
+      min: -1.5
+      max: 1.5
+    shaping_flag: true
+
+  - term_id: "reward_safety_static"
+    term_expr: "clamp(min_static_obstacle_distance_m - 0.50, min=0.0, max=2.0)"
+    weight: 0.35
+    unit: "m"
+    clip_bounds:
+      min: 0.0
+      max: 2.0
+    shaping_flag: true
+
+  - term_id: "reward_safety_dynamic"
+    term_expr: "clamp(min_dynamic_obstacle_distance_m - 0.75, min=0.0, max=2.5)"
+    weight: 0.45
+    unit: "m"
+    clip_bounds:
+      min: 0.0
+      max: 2.5
+    shaping_flag: true
+
+  - term_id: "penalty_smooth"
+    term_expr: "l2_norm(action_cmd_world_mps_t - action_cmd_world_mps_t_minus_1)"
+    weight: -0.08
+    unit: "m/s"
+    clip_bounds:
+      min: 0.0
+      max: 4.0
+    shaping_flag: true
+
+  - term_id: "penalty_height"
+    term_expr: "abs(flight_height_m - 2.25)"
+    weight: -0.25
+    unit: "m"
+    clip_bounds:
+      min: 0.0
+      max: 2.0
+    shaping_flag: true
+
+  - term_id: "manual_control"
+    term_expr: "manual_override_active ? 1.0 : 0.0"
+    weight: -2.00
+    unit: "binary_flag"
+    clip_bounds:
+      min: 0.0
+      max: 1.0
+    shaping_flag: false
+
+dag_edges:
+  - from: "reward_progress"
+    to: "reward_safety_static"
+  - from: "reward_progress"
+    to: "reward_safety_dynamic"
+  - from: "reward_progress"
+    to: "penalty_smooth"
+  - from: "reward_progress"
+    to: "penalty_height"

@@ -1,343 +1,134 @@
 import copy
-import json
-import shutil
-import subprocess
 import sys
 from pathlib import Path
+
+import yaml
 
 ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from analyzers.detector_runner import run_static_analysis
-from analyzers.spec_ir import _load_yaml_file, load_spec_ir
-from analyzers.static_checks import (
-    check_constraint_runtime_binding,
-    check_execution_mode_alignment,
-    check_required_runtime_fields,
-    check_reward_constraint_conflicts,
-    check_reward_proxy_suspicion,
-    check_scene_backend_capability,
-    check_scene_family_coverage,
-    check_scene_family_structure,
-)
-
-FIXTURE_ROOT = Path(__file__).resolve().parent / "fixtures" / "static_specs"
-DEFAULT_SPEC_CFG_DIR = ROOT / "cfg" / "spec_cfg"
-DEFAULT_ENV_CFG_DIR = ROOT / "cfg" / "env_cfg"
-DEFAULT_DETECTOR_CFG_DIR = ROOT / "cfg" / "detector_cfg"
+from analyzers.static_analyzer import StaticReport, run_static_analysis
 
 
-def _deep_merge(base, patch):
-    merged = copy.deepcopy(base)
-    for key, value in patch.items():
-        if isinstance(merged.get(key), dict) and isinstance(value, dict):
-            merged[key] = _deep_merge(merged[key], value)
-        else:
-            merged[key] = copy.deepcopy(value)
-    return merged
+SPEC_DIR = ROOT / "cfg" / "spec_cfg"
 
 
-def _materialize_fixture_bundle(tmp_path: Path, fixture_name: str):
-    spec_cfg_dir = tmp_path / "spec_cfg"
-    env_cfg_dir = tmp_path / "env_cfg"
-    detector_cfg_dir = tmp_path / "detector_cfg"
-    shutil.copytree(DEFAULT_SPEC_CFG_DIR, spec_cfg_dir)
-    shutil.copytree(DEFAULT_ENV_CFG_DIR, env_cfg_dir)
-    shutil.copytree(DEFAULT_DETECTOR_CFG_DIR, detector_cfg_dir)
+def _load_yaml(path: Path):
+    with path.open("r", encoding="utf-8") as handle:
+        return yaml.safe_load(handle)
 
-    patch_bundle = _load_yaml_file(FIXTURE_ROOT / fixture_name)
-    root_map = {
-        "spec_cfg": spec_cfg_dir,
-        "env_cfg": env_cfg_dir,
-        "detector_cfg": detector_cfg_dir,
+
+def _write_yaml(path: Path, payload) -> None:
+    with path.open("w", encoding="utf-8") as handle:
+        yaml.safe_dump(payload, handle, sort_keys=False, allow_unicode=False)
+
+
+def _materialize_bundle(tmp_path: Path, overrides=None):
+    overrides = overrides or {}
+    bundle_paths = {}
+    filename_map = {
+        "reward": "reward_spec_v1.yaml",
+        "constraint": "constraint_spec_v1.yaml",
+        "policy": "policy_spec_v1.yaml",
+        "environment": "env_spec_v1.yaml",
     }
-    for root_name, file_patches in patch_bundle.items():
-        target_root = root_map[root_name]
-        for filename, patch in file_patches.items():
-            target_path = target_root / filename
-            base_data = _load_yaml_file(target_path)
-            merged_data = _deep_merge(base_data, patch)
-            target_path.write_text(
-                json.dumps(merged_data, indent=2, sort_keys=True),
-                encoding="utf-8",
-            )
-    return spec_cfg_dir, env_cfg_dir, detector_cfg_dir
+    for spec_name, filename in filename_map.items():
+        data = copy.deepcopy(_load_yaml(SPEC_DIR / filename))
+        if spec_name in overrides:
+            overrides[spec_name](data)
+        target_path = tmp_path / filename
+        _write_yaml(target_path, data)
+        bundle_paths[spec_name] = target_path
+    return bundle_paths
 
 
-def test_run_static_analysis_generates_machine_readable_report(tmp_path):
-    output_path = tmp_path / "static_report.json"
-    report = run_static_analysis(output_path=output_path)
-
-    assert report.report_type == "static_analyzer_report.v1"
-    assert report.spec_version == "v0"
-    assert sorted(report.scene_family_set) == ["boundary_critical", "nominal", "shifted"]
-    assert output_path.exists()
-
-    payload = json.loads(output_path.read_text(encoding="utf-8"))
-    assert payload["spec_version"] == "v0"
-    assert payload["report_type"] == "static_analyzer_report.v1"
-    assert payload["passed"] is True
-    assert payload["num_findings"] == 8
+def _run_bundle(bundle_paths, output_dir=None):
+    return run_static_analysis(
+        str(bundle_paths["reward"]),
+        str(bundle_paths["constraint"]),
+        str(bundle_paths["policy"]),
+        str(bundle_paths["environment"]),
+        output_dir=str(output_dir) if output_dir is not None else None,
+    )
 
 
-def test_constraint_runtime_binding_detects_missing_logged_variable():
-    spec_ir = load_spec_ir()
-    broken = copy.deepcopy(spec_ir)
-    broken.constraints["collision_avoidance"].logged_variable = "missing_collision_field"
+def test_valid_spec_no_errors(tmp_path):
+    bundle_paths = _materialize_bundle(tmp_path)
 
-    result = check_constraint_runtime_binding(broken)
+    report = _run_bundle(bundle_paths)
 
-    assert result.passed is False
-    assert result.severity == "high"
-    assert result.details["missing_logged_variables"][0]["constraint_id"] == "collision_avoidance"
-
-
-def test_reward_constraint_conflict_detects_missing_safety_reward_support():
-    spec_ir = load_spec_ir()
-    broken = copy.deepcopy(spec_ir)
-    broken.reward_spec.components["reward_safety_static"].enabled = False
-    broken.reward_spec.components["reward_safety_dynamic"].enabled = False
-
-    result = check_reward_constraint_conflicts(broken)
-
-    assert result.passed is False
-    assert result.severity == "high"
-    issue_kinds = {issue["kind"] for issue in result.details["issues"]}
-    assert "missing_static_safety_support" in issue_kinds
-    assert "missing_collision_support" in issue_kinds
+    assert isinstance(report, StaticReport)
+    assert not hasattr(report, "valid")
+    assert isinstance(report.issues, list)
+    assert all(issue.severity != "error" for issue in report.issues)
 
 
-def test_reward_proxy_suspicion_returns_warning_for_current_v0_assumptions():
-    spec_ir = load_spec_ir()
+def test_cr_type_compatibility_fires(tmp_path):
+    def patch_reward(data):
+        data["reward_terms"][0]["term_expr"] = "min_obstacle_distance_m - goal_distance_t"
+        data["reward_terms"][0]["weight"] = 1.0
 
-    result = check_reward_proxy_suspicion(spec_ir)
+    bundle_paths = _materialize_bundle(tmp_path, overrides={"reward": patch_reward})
 
-    assert result.passed is False
-    assert result.severity == "warning"
-    warning_kinds = {warning["kind"] for warning in result.details["warnings"]}
-    assert "constant_step_bias" in warning_kinds
-    assert "progress_without_success_bonus" in warning_kinds
+    report = _run_bundle(bundle_paths)
+
+    assert any(
+        issue.issue_type == "C-R" and issue.rule_id == "type_compatibility"
+        for issue in report.issues
+    )
 
 
-def test_scene_family_coverage_detects_undercovered_scene_requirement(tmp_path):
-    spec_cfg_dir, env_cfg_dir, detector_cfg_dir = _materialize_fixture_bundle(
+def test_ec_coverage_prebound_fires(tmp_path):
+    def patch_constraint(data):
+        data["constraints"][0]["constraint_id"] = "xyz_constraint"
+        data["constraints"][0]["severity"] = "hard"
+
+    def patch_environment(data):
+        data["E_tr"]["scene_families"] = ["nominal"]
+
+    bundle_paths = _materialize_bundle(
         tmp_path,
-        "scene_family_undercoverage.yaml",
-    )
-    broken = load_spec_ir(
-        spec_cfg_dir=spec_cfg_dir,
-        env_cfg_dir=env_cfg_dir,
-        detector_cfg_dir=detector_cfg_dir,
+        overrides={
+            "constraint": patch_constraint,
+            "environment": patch_environment,
+        },
     )
 
-    result = check_scene_family_coverage(broken)
+    report = _run_bundle(bundle_paths)
 
-    assert result.passed is False
-    assert result.severity == "high"
-    uncovered = result.details["uncovered_requirements"]
-    assert uncovered[0]["constraint_id"] == "safety_margin"
-    assert uncovered[0]["requirement"] == "dynamic_obstacles"
-
-
-def test_required_runtime_fields_detects_missing_reward_binding(tmp_path):
-    spec_cfg_dir, env_cfg_dir, detector_cfg_dir = _materialize_fixture_bundle(
-        tmp_path,
-        "missing_runtime_field.yaml",
-    )
-    broken = load_spec_ir(
-        spec_cfg_dir=spec_cfg_dir,
-        env_cfg_dir=env_cfg_dir,
-        detector_cfg_dir=detector_cfg_dir,
-    )
-
-    result = check_required_runtime_fields(broken)
-
-    assert result.passed is False
-    assert result.severity == "high"
-    missing = {
-        item["component_key"]: item["expected_logged_key"]
-        for item in result.details["missing_reward_logged_keys"]
-    }
-    assert missing["reward_progress"] == "missing_reward_progress"
-
-
-def test_bad_reward_conflict_fixture_blocks_static_report(tmp_path):
-    spec_cfg_dir, env_cfg_dir, detector_cfg_dir = _materialize_fixture_bundle(
-        tmp_path,
-        "reward_constraint_conflict.yaml",
-    )
-    output_path = tmp_path / "static_report.json"
-    report = run_static_analysis(
-        spec_cfg_dir=spec_cfg_dir,
-        env_cfg_dir=env_cfg_dir,
-        detector_cfg_dir=detector_cfg_dir,
-        output_path=output_path,
-    )
-
-    assert report.passed is False
-    assert report.max_severity == "high"
-    assert output_path.exists()
-    payload = json.loads(output_path.read_text(encoding="utf-8"))
-    failing_checks = {
-        finding["check_id"]
-        for finding in payload["findings"]
-        if not finding["passed"]
-    }
-    assert "reward_constraint_conflicts" in failing_checks
-
-
-def test_scene_family_structure_detects_invalid_template_range(tmp_path):
-    spec_cfg_dir, env_cfg_dir, detector_cfg_dir = _materialize_fixture_bundle(
-        tmp_path,
-        "scene_family_structure_invalid.yaml",
-    )
-    broken = load_spec_ir(
-        spec_cfg_dir=spec_cfg_dir,
-        env_cfg_dir=env_cfg_dir,
-        detector_cfg_dir=detector_cfg_dir,
-    )
-
-    result = check_scene_family_structure(broken)
-
-    assert result.passed is False
-    assert result.severity == "high"
-    issue_kinds = {issue["kind"] for issue in result.details["issues"]}
-    assert "invalid_template_count_range" in issue_kinds
-
-
-def test_execution_mode_alignment_detects_rollout_gap(tmp_path):
-    spec_cfg_dir, env_cfg_dir, detector_cfg_dir = _materialize_fixture_bundle(
-        tmp_path,
-        "execution_mode_misalignment.yaml",
-    )
-    broken = load_spec_ir(
-        spec_cfg_dir=spec_cfg_dir,
-        env_cfg_dir=env_cfg_dir,
-        detector_cfg_dir=detector_cfg_dir,
-    )
-
-    result = check_execution_mode_alignment(broken)
-
-    assert result.passed is False
-    assert result.severity == "high"
-    issue_kinds = {issue["kind"] for issue in result.details["issues"]}
-    assert "rollout_mode_gap" in issue_kinds
-
-
-def test_execution_mode_alignment_detects_static_report_namespace_mismatch(tmp_path):
-    spec_cfg_dir, env_cfg_dir, detector_cfg_dir = _materialize_fixture_bundle(
-        tmp_path,
-        "report_namespace_misalignment.yaml",
-    )
-    broken = load_spec_ir(
-        spec_cfg_dir=spec_cfg_dir,
-        env_cfg_dir=env_cfg_dir,
-        detector_cfg_dir=detector_cfg_dir,
-    )
-
-    result = check_execution_mode_alignment(broken)
-
-    assert result.passed is False
-    assert result.severity == "high"
-    issue_kinds = {issue["kind"] for issue in result.details["issues"]}
-    assert "static_audit_namespace_mismatch" in issue_kinds
-    assert "dynamic_analysis_namespace_mismatch" in issue_kinds
-
-
-def test_scene_backend_capability_detects_unsupported_template_candidate(tmp_path):
-    spec_cfg_dir, env_cfg_dir, detector_cfg_dir = _materialize_fixture_bundle(
-        tmp_path,
-        "scene_backend_capability_gap.yaml",
-    )
-    broken = load_spec_ir(
-        spec_cfg_dir=spec_cfg_dir,
-        env_cfg_dir=env_cfg_dir,
-        detector_cfg_dir=detector_cfg_dir,
-    )
-
-    result = check_scene_backend_capability(broken)
-
-    assert result.passed is False
-    assert result.severity == "high"
-    issue_kinds = {issue["kind"] for issue in result.details["issues"]}
-    assert "unsupported_template_candidates" in issue_kinds
-
-
-def test_scene_backend_capability_detects_dynamic_hazard_profile_gap(tmp_path):
-    spec_cfg_dir, env_cfg_dir, detector_cfg_dir = _materialize_fixture_bundle(
-        tmp_path,
-        "dynamic_hazard_profile_gap.yaml",
-    )
-    broken = load_spec_ir(
-        spec_cfg_dir=spec_cfg_dir,
-        env_cfg_dir=env_cfg_dir,
-        detector_cfg_dir=detector_cfg_dir,
-    )
-
-    result = check_scene_backend_capability(broken)
-
-    assert result.passed is False
-    assert result.severity == "high"
-    issue_kinds = {issue["kind"] for issue in result.details["issues"]}
-    assert "unsupported_dynamic_motion_types" in issue_kinds
-    assert "invalid_dynamic_speed_range" in issue_kinds
-
-
-def test_scene_backend_capability_detects_shifted_distribution_gap(tmp_path):
-    spec_cfg_dir, env_cfg_dir, detector_cfg_dir = _materialize_fixture_bundle(
-        tmp_path,
-        "shifted_distribution_gap.yaml",
-    )
-    broken = load_spec_ir(
-        spec_cfg_dir=spec_cfg_dir,
-        env_cfg_dir=env_cfg_dir,
-        detector_cfg_dir=detector_cfg_dir,
-    )
-
-    result = check_scene_backend_capability(broken)
-
-    assert result.passed is False
-    assert result.severity == "high"
-    issue_kinds = {issue["kind"] for issue in result.details["issues"]}
-    assert "shifted_distribution_not_distinct_from_nominal" in issue_kinds
-
-
-def test_run_static_audit_cli_writes_machine_readable_report(tmp_path):
-    reports_root = tmp_path / "reports_root"
-    report_dir = reports_root / "analysis" / "static" / "cli_bundle"
-    namespace_manifest_path = reports_root / "analysis" / "static" / "namespace_manifest.json"
-    namespace_contract_path = reports_root / "analysis" / "report_namespace_contract.json"
-    output_path = tmp_path / "cli_static_report.json"
-    command = [
-        sys.executable,
-        str(ROOT / "scripts" / "run_static_audit.py"),
-        "--reports-root",
-        str(reports_root),
-        "--bundle-name",
-        "cli_bundle",
-        "--output",
-        str(output_path),
+    matching_issues = [
+        issue
+        for issue in report.issues
+        if issue.issue_type == "E-C" and issue.rule_id == "coverage_prebound"
     ]
-    result = subprocess.run(
-        command,
-        cwd=ROOT.parent,
-        capture_output=True,
-        text=True,
-        check=True,
+    assert matching_issues
+    assert matching_issues[0].evidence["e_tr_family_count"] == 1
+
+
+def test_er_deployment_shift_fires(tmp_path):
+    def patch_environment(data):
+        data["E_tr"]["shift_operators"] = []
+        data["E_dep"]["deployment_envs"][0]["applied_shift_operators"] = ["workspace_scale_shift"]
+
+    bundle_paths = _materialize_bundle(tmp_path, overrides={"environment": patch_environment})
+
+    report = _run_bundle(bundle_paths)
+
+    assert any(
+        issue.issue_type == "E-R" and issue.rule_id == "deployment_shift_coverage"
+        for issue in report.issues
     )
 
-    assert output_path.exists()
-    assert (report_dir / "static_report.json").exists()
-    assert (report_dir / "summary.json").exists()
-    assert (report_dir / "manifest.json").exists()
-    assert namespace_manifest_path.exists()
-    assert namespace_contract_path.exists()
-    stdout_payload = json.loads(result.stdout)
-    file_payload = json.loads(output_path.read_text(encoding="utf-8"))
-    assert stdout_payload["passed"] is True
-    assert stdout_payload["num_findings"] == 8
-    assert stdout_payload["report_dir"] == str(report_dir)
-    assert stdout_payload["namespace_manifest_path"] == str(namespace_manifest_path)
-    assert stdout_payload["namespace_contract_path"] == str(namespace_contract_path)
-    assert file_payload["report_type"] == "static_analyzer_report.v1"
+
+def test_invalid_spec_returns_empty_report():
+    report = run_static_analysis(
+        "missing_reward.yaml",
+        "missing_constraint.yaml",
+        "missing_policy.yaml",
+        "missing_env.yaml",
+    )
+
+    assert isinstance(report, StaticReport)
+    assert report.issues == []
+    assert report.summary["validation_failed"] is True

@@ -1,0 +1,30 @@
+spec_type: "policy"
+spec_version: "1.0"
+
+action_space:
+  tensor_key: ["agents", "action"]
+  shape: [3]
+  dtype: "float32"
+  bounds:
+    min: [-2.0, -2.0, -2.0]
+    max: [2.0, 2.0, 2.0]
+  unit: "m/s"
+
+observation_space:
+  - key: ["agents", "observation", "state"]
+    shape: ["state_dim"]
+    dtype: "float32"
+    unit: "mixed_state_vector"
+
+  - key: ["agents", "observation", "lidar"]
+    shape: [36, 4]
+    dtype: "float32"
+    unit: "m"
+
+  - key: ["agents", "observation", "dynamic_obstacle"]
+    shape: ["N_dynamic_obstacles", "dynamic_obstacle_feature_dim"]
+    dtype: "float32"
+    unit: "mixed_dynamic_obstacle_state"
+
+# Derived from cfg/sim.yaml: sim.dt = 0.016 s and no policy decimation field is frozen in the current Phase 1 documents.
+execution_frequency_hz: 62.5

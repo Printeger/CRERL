@@ -4,9 +4,10 @@ import argparse
 import json
 from pathlib import Path
 
-from analyzers.dynamic_analyzer import DynamicReport
-from analyzers.semantic_analyzer import run_semantic_analysis
-from analyzers.static_analyzer import run_static_analysis
+# Historical benchmark helper against legacy analyzers; not strict PDF canonical.
+from analyzers.legacy.dynamic_analyzer import DynamicReport
+from analyzers.legacy.semantic_analyzer import run_semantic_analysis
+from analyzers.legacy.static_analyzer import run_static_analysis
 
 
 CASE_NAMES = ("clean_nominal", "injected_cr", "injected_ec", "injected_er")

@@ -7,10 +7,11 @@ TRAINING_ROOT = ISAAC_TRAINING_ROOT / "training"
 if str(TRAINING_ROOT) not in sys.path:
     sys.path.insert(0, str(TRAINING_ROOT))
 
-from analyzers.dynamic_analyzer import DynamicReport
-from analyzers.report_generator import generate_report
-from analyzers.semantic_analyzer import SemanticIssue, SemanticReport
-from analyzers.static_analyzer import StaticIssue, StaticReport
+# Historical / legacy pipeline imports.
+from analyzers.legacy.dynamic_analyzer import DynamicReport
+from analyzers.legacy.report_generator import generate_report
+from analyzers.legacy.semantic_analyzer import SemanticIssue, SemanticReport
+from analyzers.legacy.static_analyzer import StaticIssue, StaticReport
 
 
 def _static_issue(issue_id: str, severity: str = "warning") -> StaticIssue:

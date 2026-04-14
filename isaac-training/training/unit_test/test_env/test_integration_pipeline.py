@@ -8,12 +8,13 @@ TRAINING_ROOT = ISAAC_TRAINING_ROOT / "training"
 if str(TRAINING_ROOT) not in sys.path:
     sys.path.insert(0, str(TRAINING_ROOT))
 
-from analyzers.dynamic_analyzer import run_dynamic_analysis
-from analyzers.report_generator import generate_report
-from analyzers.semantic_analyzer import run_semantic_analysis
-from analyzers.static_analyzer import StaticReport, run_static_analysis
-from repair.repair_generator import generate_repair
-from repair.validator import PatchValidationResult, validate_repair
+# Historical / legacy pipeline imports.
+from analyzers.legacy.dynamic_analyzer import run_dynamic_analysis
+from analyzers.legacy.report_generator import generate_report
+from analyzers.legacy.semantic_analyzer import run_semantic_analysis
+from analyzers.legacy.static_analyzer import StaticReport, run_static_analysis
+from repair.legacy.repair_generator import generate_repair
+from repair.legacy.validator import PatchValidationResult, validate_repair
 
 
 SPEC_DIR = TRAINING_ROOT / "cfg" / "spec_cfg"

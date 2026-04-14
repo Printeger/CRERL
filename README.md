@@ -1,13 +1,13 @@
 # CRERL
 
-CRERL 在 Isaac Sim + TorchRL 的无人机避障训练框架中实现 CRE（Constraint-Reward-Environment）预训练诊断流程，用于在训练前或训练后检测三类 specification 不一致：C-R（constraint-reward）、E-C（environment-constraint）、E-R（environment-reward），并输出语义报告、修复建议与验证结果。
+CRERL 在 Isaac Sim + TorchRL 的无人机避障训练框架中推进 CRE（Constraint-Reward-Environment）PDF 对齐重构。当前 canonical 主线处于 strict PDF refactor 阶段，旧版 `static/dynamic/semantic/report/repair/validator` 流水线已降级为 `legacy/` 历史参考，不再代表当前实现目标。
 
 ## 目录结构
 
 `isaac-training/training/` 下与 CRE 相关的关键目录如下：
 
-- `analyzers/`：`spec_validator.py`、`static_analyzer.py`、`dynamic_analyzer.py`、`semantic_analyzer.py`、`report_generator.py`
-- `repair/`：`repair_generator.py`、`validator.py`
+- `analyzers/`：当前 canonical 基础设施位于 `diag_report.py`、`cfg.py`、`errors.py`、`llm_gateway.py`、`m1.py`；旧分析链路位于 `analyzers/legacy/`
+- `repair/`：当前 canonical 目标是未来的 `m7.py` / `m8.py`；旧修复/验收链路位于 `repair/legacy/`
 - `cfg/spec_cfg/`：四份正式 v1 spec，作为静态分析与训练集成输入
 - `cfg/benchmark_cfg/`：Phase 9 的 benchmark suite，含 `clean_nominal`、`injected_cr`、`injected_ec`、`injected_er`
 - `scripts/`：训练与 benchmark 入口，包括 `train.py`、`run_benchmark.py`
@@ -21,14 +21,14 @@ CRERL 在 Isaac Sim + TorchRL 的无人机避障训练框架中实现 CRE（Cons
 conda activate NavRL
 ```
 
-运行静态分析：
+运行旧版静态分析（historical / legacy only）：
 
 ```bash
 cd isaac-training/training
-python -c "from analyzers.static_analyzer import run_static_analysis; import json; report = run_static_analysis('cfg/spec_cfg/reward_spec_v1.yaml', 'cfg/spec_cfg/constraint_spec_v1.yaml', 'cfg/spec_cfg/policy_spec_v1.yaml', 'cfg/spec_cfg/env_spec_v1.yaml'); print(json.dumps(report.summary, ensure_ascii=False, indent=2))"
+python -c "from analyzers.legacy.static_analyzer import run_static_analysis; import json; report = run_static_analysis('cfg/spec_cfg/reward_spec_v1.yaml', 'cfg/spec_cfg/constraint_spec_v1.yaml', 'cfg/spec_cfg/policy_spec_v1.yaml', 'cfg/spec_cfg/env_spec_v1.yaml'); print(json.dumps(report.summary, ensure_ascii=False, indent=2))"
 ```
 
-运行 benchmark：
+运行旧版 benchmark（historical / legacy only）：
 
 ```bash
 cd isaac-training/training
@@ -42,22 +42,23 @@ cd isaac-training/training
 python -m pytest unit_test/test_env/ -v
 ```
 
-## 六阶段流水线
+## Historical Legacy Pipeline
 
 | Phase | 输入 | 输出 |
 |---|---|---|
-| Phase 2 Static Analysis | `reward/constraint/policy/env` 四份 spec | `StaticReport` |
-| Phase 3 Dynamic Analysis | `StaticReport` + 运行日志目录 + `reward/constraint` spec | `DynamicReport` |
-| Phase 4 Semantic Analysis | `StaticReport` + `DynamicReport` + `reward/constraint` spec | `SemanticReport` |
-| Phase 5 Report Generation | `StaticReport` + `DynamicReport` + `SemanticReport` | `CREReport` |
-| Phase 6 Repair | `CREReport` | `RepairResult` |
-| Phase 7 Validation | `RepairResult` + `StaticReport` + 四份 spec | `PatchValidationResult` |
+| Legacy Static Analysis | `reward/constraint/policy/env` 四份 spec | `StaticReport` |
+| Legacy Dynamic Analysis | `StaticReport` + 运行日志目录 + `reward/constraint` spec | `DynamicReport` |
+| Legacy Semantic Analysis | `StaticReport` + `DynamicReport` + `reward/constraint` spec | `SemanticReport` |
+| Legacy Report Generation | `StaticReport` + `DynamicReport` + `SemanticReport` | `CREReport` |
+| Legacy Repair | `CREReport` | `RepairResult` |
+| Legacy Validation | `RepairResult` + `StaticReport` + 四份 spec | `PatchValidationResult` |
 
 ## 已知限制
 
-- `D-BM1`：`phi_er=None`，E-R 维度当前不参与 `Psi_CRE` 与 `alarm` 计算。
-- 因此 `injected_er` benchmark case 当前只保证 `total_issues > 0`，不保证 `alarm=True`。
-- E-R 维度要进入 alarm，需要真实多环境部署数据支持 `phi_er` 的跨环境相关性计算。
+- 以下限制针对 `analyzers/legacy/` 与 `repair/legacy/` 历史链路，而非 strict PDF canonical 目标。
+- `D-BM1`：legacy `phi_er=None`，E-R 维度当前不参与 `Psi_CRE` 与 `alarm` 计算。
+- 因此 legacy `injected_er` benchmark case 当前只保证 `total_issues > 0`，不保证 `alarm=True`。
+- E-R 维度要进入 alarm，需要 canonical M2/M5 落地并接入真实多环境部署数据。
 
 ## 决策记录
 

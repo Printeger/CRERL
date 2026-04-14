@@ -8,8 +8,8 @@ from typing import Any
 
 import yaml
 
-from analyzers.dynamic_analyzer import DynamicReport
-from analyzers.static_analyzer import StaticIssue, StaticReport
+from analyzers.legacy.dynamic_analyzer import DynamicReport
+from analyzers.legacy.static_analyzer import StaticIssue, StaticReport
 
 
 SEVERITIES = ("error", "warning", "info")

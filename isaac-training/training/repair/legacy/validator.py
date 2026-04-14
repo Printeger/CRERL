@@ -10,8 +10,8 @@ import warnings
 
 import yaml
 
-from analyzers.static_analyzer import StaticReport, run_static_analysis
-from repair.repair_generator import RepairPatch, RepairResult
+from analyzers.legacy.static_analyzer import StaticReport, run_static_analysis
+from repair.legacy.repair_generator import RepairPatch, RepairResult
 
 
 _PATH_SEGMENT_RE = re.compile(r"^(?P<key>[A-Za-z_][A-Za-z0-9_]*)(?:\[(?P<index>\*|\d+)\])?$")

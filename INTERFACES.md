@@ -78,6 +78,418 @@ run_acceptance_check(run_dir)                # 验收
 
 > ❌ 以下接口**尚不存在**，需根据 `doc/CRE_v4.pdf` 重新设计。所有签名在实现前须先写入本文件，经确认后再动手编码。
 
+### Phase 0 — Core Data Schemas
+```python
+# analyzers/diag_report.py
+
+@dataclass(frozen=True)
+class NLInput:
+    r_desc: str
+    c_desc: str
+    e_desc: str
+    metadata: dict[str, Any]
+```
+# 输入：无；这是 Part II §1.2 定义的 canonical 原始描述封装
+# 输出：无；作为 strict PDF mode 下 M1 `parse_nl_input` 的 canonical 输入
+# 约束：`r_desc` / `c_desc` / `e_desc` 为必填非空字符串；`metadata` 为 free-form 透传字典
+状态：[FROZEN] ⚠️ NLInput 签名已冻结；strict PDF mode 下不得再裁掉其 `NLInput -> SpecS` 主链路语义
+
+```python
+@dataclass(frozen=True)
+class Constraint:
+    k_id: str
+    predicate: Callable[[State, Action], int]
+    sigma: Literal["hard", "soft", "info"]
+    scope: Literal["instantaneous", "episodic", "cumulative"]
+    zeta: float | None
+    lam: float | None
+    delta: float
+```
+# 输入：无；这是 Part II §1.2 p.22 定义的 canonical 约束数据结构
+# 输出：无；作为 `SpecS.C` 的成员类型，被 M2/M4/M7/M8 只读消费
+# 约束：`k_id` 为唯一约束 ID；`predicate` 满足 `O_j: S×A -> {0,1}`；
+#       `sigma ∈ {"hard","soft","info"}`；`scope ∈ {"instantaneous","episodic","cumulative"}`；
+#       `zeta` 仅在 `sigma=="soft"` 时要求非空；`lam` 为 soft constraint 可选惩罚权重；
+#       `delta` 对应覆盖阈值 `delta_j > 0`
+状态：[FROZEN] ⚠️ Constraint 签名已冻结；当前实现应与该 dataclass 接口保持一致
+
+```python
+@dataclass(frozen=True)
+class RewardDAG:
+    nodes: list[RewardTerm]
+    edges: list[tuple[str, str]]
+```
+# 输入：无；这是 Part II §1.2 p.22 定义的 canonical reward DAG 结构
+# 输出：无；作为 `SpecS.R` 的成员类型，被后续 M2/M5/M7 只读消费
+# 约束：`nodes` 为 `list[RewardTerm]`；`edges` 为 `(parent_id, child_id)` 的字符串二元组列表；
+#       运行时实现需将容器归一化为只读存储，禁止 in-place mutation
+状态：[FROZEN] ⚠️ RewardDAG 签名已冻结；当前实现应与该 dataclass 接口保持一致
+
+```python
+@dataclass(frozen=True)
+class SpecS:
+    spec_id: str
+    E_tr: TrainingEnvDistribution
+    E_dep: list[Environment]   # [e_0, e_1, ..., e_n]; e_0 is nominal
+    R: RewardDAG
+    C: list[Constraint]        # length m
+    Pi: PolicyClass
+    version: int = 0
+```
+# 输入：无；这是跨模块共享的 canonical schema
+# 输出：无；作为后续 M1/M2/M4/M7/M8 的只读输入/输出成员类型
+# 约束：`SpecS` 必须为 `@dataclass(frozen=True)`，repair 流程只能返回新的 `SpecS`
+# 备注：`TrainingEnvDistribution`、`Environment`、`RewardDAG`、`Constraint`、`PolicyClass`
+#       由 `analyzers/diag_report.py` 同文件定义，供 `SpecS` 类型标注直接引用
+状态：[FROZEN] ⚠️ SpecS 签名已冻结，待实现
+
+```python
+@dataclass(frozen=True)
+class AmbiguityFlag:
+    flag_type: Literal[
+        "UNDEFINED_THRESHOLD",
+        "MISSING_ENV_SCOPE",
+        "REWARD_UNDERSPECIFIED",
+        "CONSTRAINT_OVERLAP",
+        "TEMPORAL_AMBIGUITY",
+    ]
+    location: str
+    impact_score: float
+```
+# 输入：无；这是 Part II §1.2 p.22 定义的 canonical ambiguity marker
+# 输出：无；作为 M1 输出中的 `list[AmbiguityFlag]` 成员类型，被后续 `DiagReport.flags`
+#       和追溯流程只读消费
+# 约束：`flag_type` 必须属于 PDF 给出的五个 canonical 枚举值；`location` 为 `SpecS`
+#       内的 dot-separated JSON path；`impact_score` 为估计的 `|DeltaPsiCRE|` reduction，
+#       取值必须在 [0, 1]
+# 备注：虽然 PDF 伪代码写作 `@dataclass`，但本项目按 `REFACTOR_ROADMAP.md` Phase 0
+#       统一冻结所有 core schema，因此 `AmbiguityFlag` 在实现层固定为
+#       `@dataclass(frozen=True)` passive schema
+状态：[FROZEN] ⚠️ AmbiguityFlag 签名已冻结；strict PDF mode 下由 M1 `parse_nl_input` / ambiguity escalation 主链路生成
+
+> 说明：`D-I21` 已恢复 strict PDF canonical path，`NLInput` 与 `AmbiguityFlag`
+> 不再只是被动保留的数据结构，而是 M1 / LLM-α 主链路的 canonical 输入输出。
+
+```python
+@dataclass(frozen=True)
+class DiscrepancyRecord:
+    ...
+```
+# 输入：无；这是 Part II §1.2 pp.22–23 中被 `DiagReport.discrepancy` 引用的依赖类型
+# 输出：无；当前仅保留 passive placeholder schema，不在 Phase 0 推断其内部字段
+# 约束：本 PDF 摘录只给出类型名，未内联字段；因此实现层先冻结类型存在性，
+#       后续若在更完整 PDF 章节中发现字段定义，再通过独立接口决策扩展
+状态：[FROZEN] ⚠️ DiscrepancyRecord 作为 DiagReport 依赖类型已冻结；当前实现为 passive placeholder
+
+```python
+@dataclass(frozen=True)
+class DiagReport:
+    spec_id: str
+    timestamp: str
+    phi_cr2: float
+    phi_ec_bar: float
+    phi_er3: float
+    phi_cr1: float | None
+    phi_ec2: float | None
+    phi_ec3: float | None
+    phi_ec_per_j: list[float] | None
+    phi_er1: float | None
+    phi_er2: float | None
+    kappa_cr: float | None
+    gamma_ec: float | None
+    delta_er: float | None
+    psi_cre: float
+    ci_95: dict[str, tuple[float, float]]
+    flags: list[str]
+    discrepancy: list[DiscrepancyRecord] | None
+    failure_hypothesis: str | None
+    repair_targets: list[str] | None
+```
+# 输入：无；这是 Part II §1.2 pp.22–23 定义的 canonical 诊断报告结构
+# 输出：无；作为后续 M2/M3/M4/M5/M7/M8 的共享只读报告载体
+# 约束：`DiagReport` 必须为 `@dataclass(frozen=True)`；canonical reporters `phi_cr2`、
+#       `phi_ec_bar`、`phi_er3` 与 composite `psi_cre` 在最终实现中必须满足 [0,1]；
+#       supplementary / enhanced reporters 在 computation skipped 时可为 `None`；
+#       `ci_95` 为 `reporter_name -> (lo, hi)` 映射；`flags` 为 error/warning code 列表；
+#       `discrepancy` 在未运行 Stage III 时可为 `None`；`failure_hypothesis` /
+#       `repair_targets` 在未运行 M4 时可为 `None`
+# 备注：`discrepancy`、`failure_hypothesis`、`repair_targets` 虽分别由 Stage III / M4
+#       等后续阶段填充，但仍属于 PDF canonical report schema，必须在 Phase 0 先冻结，
+#       防止后续模块自创替代报告结构
+状态：[FROZEN] ⚠️ DiagReport 签名已冻结；当前实现先冻结字段布局，字段级 contract tests 与校验逻辑待下一步补齐
+
+```python
+@dataclass(frozen=True)
+class RepairProposal:
+    proposal_id: str
+    spec_prime: SpecS
+    operator_class: str
+    declared_side_effects: dict[str, str]
+    semantic_justification: str
+    predicted_delta_psi: float | None
+    rough_delta_psi: float | None
+```
+# 输入：无；这是 Part II §1.2 p.23 定义的 canonical repair proposal schema
+# 输出：无；作为 M7 repair generation 的候选提案数据结构，被 M7/M8/pipeline 只读消费
+# 约束：`RepairProposal` 必须为 `@dataclass(frozen=True)`；`proposal_id` 为 UUID 字符串；
+#       `spec_prime` 必须是修复后候选 `SpecS`；`operator_class` 必须来自 `V_R`
+#       operator vocabulary；`declared_side_effects` 为 `dim -> description` 的字符串映射；
+#       `semantic_justification` 最大 200 tokens；`predicted_delta_psi` 为 LLM 预测改进值，
+#       `rough_delta_psi` 由 M7.rank_proposals Stage 1 回填，二者在未计算时可为 `None`
+状态：[FROZEN] ⚠️ RepairProposal 签名已冻结；下一步可直接进入合约测试与字段级校验
+
+```python
+@dataclass(frozen=True)
+class AcceptanceVerdict:
+    accepted: bool
+    c1_pass: bool
+    c2_pass: bool
+    c3_pass: bool
+    c4_pass: bool
+    s_sem: float
+    intent_preserved: bool
+    rejection_feedback: str | None
+```
+# 输入：无；这是 Part II §1.2 p.23 定义的 canonical acceptance verdict schema
+# 输出：无；作为 M8 acceptance / validation 的标准结果数据结构，被 M8/pipeline 只读消费
+# 约束：`AcceptanceVerdict` 必须为 `@dataclass(frozen=True)`；`accepted`、`c1_pass`、
+#       `c2_pass`、`c3_pass`、`c4_pass`、`intent_preserved` 必须是布尔值；`s_sem`
+#       必须是实数且落在 `[0,1]`；`rejection_feedback` 为 `str | None`，在 rejection
+#       场景下由 M8 填充语义或验收反馈
+状态：[FROZEN] ⚠️ AcceptanceVerdict 签名已冻结；下一步可直接进入合约测试与字段级校验
+
+```python
+# analyzers/cfg.py
+@dataclass(frozen=True)
+class CFGSchema:
+    eta_flag: float = 0.15
+    llm_retry_limit: int = 3
+    delta_j_default: float = 0.50
+    n_ref_traj: int = 500
+    n_mc_kj: int = 1000
+    critical_region_radius: float = 0.10
+    ec_aggregation_mode: Literal["mean", "min"] = "mean"
+    eps_stab: float = 1e-6
+    enhanced_estimators_enabled: bool = True
+    eta_disc: float = 0.15
+    tau_low: float = 0.30
+    tau_high: float = 0.70
+    lambda_expand: float = 0.50
+    n_rechk: int = 1
+    f_steepness: float = 8.0
+    f_inflection: float = 0.50
+    w_cr: float = 0.333
+    w_ec: float = 0.333
+    w_er: float = 0.334
+    b_bootstrap: int = 1000
+    k_detect: float = 1.5
+    k_alarm: float = 3.0
+    tau_alarm_psi: float = 0.75
+    k_proposals: int = 3
+    eta_edit: float = 0.20
+    n_rank_episodes: int = 50
+    eps_rank: float = 0.02
+    ranking_mode: str = "rollout_first"
+    tau_sem: float = 0.80
+    eps_perf: float = 0.05
+    n_max_iterations: int = 5
+
+CFG: CFGSchema
+```
+# 输入：无；这是 Part II §1.3 Table 4 pp.23–24 定义的全局配置常量集合
+# 输出：模块级 singleton `CFG`，在 pipeline 启动时加载；所有字段允许后续被环境变量或 YAML
+#       配置覆盖，但默认值语义必须与 Table 4 保持一致
+# 约束：`CFG` 不得被其他模块用第二套 dataclass / dict / Hydra 子结构替代；M5 与
+#       `pipeline/orchestrator.py` 必须复用这一 singleton；启动时必须验证
+#       `abs(w_cr + w_ec + w_er - 1.0) < 1e-9` 且三者均严格大于 0，违反时抛
+#       `CONFIG_WEIGHT_SUM_ERROR`
+# 备注：字段分组对应 M1 ambiguity detection、M2/M3 estimators、Stage III discrepancy
+#       protocol、M5 composite scoring、M7 repair generation、M8 acceptance；本接口当前只冻结
+#       字段布局与默认值，不在此阶段规定具体覆盖加载机制的实现细节
+状态：[FROZEN] ⚠️ CFG 签名已冻结；后续 `analyzers/m5.py` 与 `pipeline/orchestrator.py` 必须复用同一 `CFG` singleton
+
+```python
+# analyzers/errors.py
+CREErrorSeverity = Literal["HALT", "WARN"]
+
+class CREErrorCode:
+    SPEC_PARSE_FAILURE: ClassVar[str]
+    NULL_REWARD: ClassVar[str]
+    EMPTY_CONSTRAINT_SET: ClassVar[str]
+    EMPTY_ENV_SET: ClassVar[str]
+    AMBIGUITY_UNRESOLVABLE: ClassVar[str]
+    PRECHECK_TYPE_MISMATCH: ClassVar[str]
+    PRECHECK_DOMAIN_TRIVIAL: ClassVar[str]
+    PRECHECK_COVERAGE_INSUFFICIENT: ClassVar[str]
+    PRECHECK_SOFT_NO_TOLERANCE: ClassVar[str]
+    DEGENERATE_CR1_VAR: ClassVar[str]
+    BOUNDARY_BASELINE_DEGENERATE: ClassVar[str]
+    ER_CORRELATION_DEGENERATE: ClassVar[str]
+    NO_HARD_CONSTRAINTS: ClassVar[str]
+    WRONG_SEVERITY: ClassVar[str]
+    EMPTY_KJ_ESTIMATE: ClassVar[str]
+    EMPTY_HARD_CONSTRAINTS: ClassVar[str]
+    INSUFFICIENT_TRAJECTORIES: ClassVar[str]
+    MISSING_NOMINAL_UTILITY: ClassVar[str]
+    MISSING_ENV_SCORES: ClassVar[str]
+    SCORE_OUT_OF_RANGE: ClassVar[str]
+    SINGLE_ENV_WARN: ClassVar[str]
+    SINGLE_CONSTRAINT_DIVERSITY: ClassVar[str]
+    ZERO_CONSTRAINT_ACTIVATIONS: ClassVar[str]
+    KJ_EMPTY_WARN: ClassVar[str]
+    REWARD_OUT_OF_RANGE: ClassVar[str]
+    CANONICAL_VIOLATION_ERROR: ClassVar[str]
+    GRADIENT_UNAVAILABLE: ClassVar[str]
+    SIM_MODEL_NOT_FITTED: ClassVar[str]
+    LATENT_INCONSISTENCY: ClassVar[str]
+    CRITIC_QUALITY_WARN: ClassVar[str]
+    POINT_ESTIMATE_MUTATED: ClassVar[str]
+    M6_HYPOTHESIS_UNAVAILABLE: ClassVar[str]
+    SEMANTIC_OVERWRITE_ERROR: ClassVar[str]
+    EMPTY_REPAIR_TARGETS: ClassVar[str]
+    TRANSFORM_INPUT_OUT_OF_RANGE: ClassVar[str]
+    TRANSFORM_K_NON_POSITIVE: ClassVar[str]
+    TRANSFORM_X0_BOUNDARY: ClassVar[str]
+    REPORTER_OUT_OF_RANGE: ClassVar[str]
+    CONFIG_WEIGHT_SUM_ERROR: ClassVar[str]
+    INSUFFICIENT_BOOTSTRAP_SAMPLES: ClassVar[str]
+    CI_INVERSION_WARN: ClassVar[str]
+    THRESHOLD_ORDER_VIOLATED: ClassVar[str]
+    SMALL_CALIBRATION_CORPUS: ClassVar[str]
+    INVALID_AGGREGATION_MODE: ClassVar[str]
+    UNRELATED_SPECS: ClassVar[str]
+    EDIT_DISTANCE_NEGATIVE: ClassVar[str]
+    UNKNOWN_OPERATOR: ClassVar[str]
+    MISSING_SIDE_EFFECTS_DECLARATION: ClassVar[str]
+    JUSTIFICATION_TRUNCATED: ClassVar[str]
+    NO_PROPOSALS_GENERATED: ClassVar[str]
+    PROPOSAL_REJECTED_MINIMALITY: ClassVar[str]
+    LLM_ONLY_MODE_SAFETY_CRITICAL: ClassVar[str]
+    ROUGH_SCORE_UNAVAILABLE: ClassVar[str]
+    PROPOSAL_REJECTED_DIAGNOSTIC: ClassVar[str]
+    PROPOSAL_REJECTED_SAFETY: ClassVar[str]
+    PROPOSAL_REJECTED_UTILITY: ClassVar[str]
+    SEM_SCORE_OUT_OF_RANGE: ClassVar[str]
+    DEPARSING_FAILURE: ClassVar[str]
+    HARD_REJECT: ClassVar[str]
+    NO_PROPOSALS_AFTER_FILTER: ClassVar[str]
+    LLM_RETRY_EXHAUSTED: ClassVar[str]
+    PRECHECK_FATAL: ClassVar[str]
+
+@dataclass(frozen=True)
+class ErrorDescriptor:
+    error_code: str
+    severity: CREErrorSeverity
+    module: str
+    description: str
+
+class CREError(Exception):
+    error_code: ClassVar[str]
+    severity: ClassVar[CREErrorSeverity]
+    module: ClassVar[str]
+
+class ConfigWeightSumError(CREError): ...
+
+ERROR_REGISTRY: dict[str, ErrorDescriptor]
+```
+# 输入：无；这是 Part II §11 pp.49–51 定义的 canonical error surface
+# 输出：统一的 `CREError` 基类、`CREErrorCode` 字符串常量命名空间、以及供后续模块查询的
+#       `ERROR_REGISTRY`
+# 约束：Table 5 中每个错误码都必须作为 `CREErrorCode.CODE_NAME` 可访问；每个正式错误子类
+#       必须绑定唯一 `error_code`；`CONFIG_WEIGHT_SUM_ERROR` 必须在正式注册表中存在；`cfg.py`
+#       与后续 `pipeline/orchestrator.py` 都必须复用这一错误体系，不得再保留字符串占位错误
+# 备注：本接口冻结的是 Phase 0 的统一错误码格式与扩展面；后续模块不得自创新的错误码命名规则
+#       或绕过 `CREError`
+状态：[FROZEN] ⚠️ CREError 签名已冻结；这是 Phase 0 的 canonical error surface，后续模块不得自创错误码格式
+
+### Phase 0 — LLM Infrastructure
+```python
+# analyzers/llm_gateway.py
+
+@dataclass(frozen=True)
+class LLMConfig:
+    provider: Literal["comp_openai"]
+    base_url: str
+    api_version: str
+    api_key_env: str
+    deployment: str
+    timeout_s: float = 60.0
+    max_retries: int = 3
+    temperature: float = 0.0
+    max_tokens: int = 1024
+
+@dataclass(frozen=True)
+class LLMRequest:
+    messages: tuple[dict[str, Any], ...]
+    response_format: Literal["text", "json"] = "text"
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+@dataclass(frozen=True)
+class LLMResponse:
+    content: str
+    model: str
+    finish_reason: str | None
+    raw_payload: dict[str, Any] = field(default_factory=dict)
+
+class LLMGateway(Protocol):
+    def complete(self, request: LLMRequest, config: LLMConfig) -> LLMResponse: ...
+
+class CompOpenAIGateway(LLMGateway):
+    ...
+```
+# 输入：Hydra `cfg/llm/comp_openai.yaml` 与 module-level deployment 选择
+# 输出：供 M1 / M4 / M7 / M8 复用的统一 completion gateway
+# 约束：strict PDF mode 下 canonical provider 固定为 COMP OpenAI gateway；认证头为 `api-key`；
+#       配置中的 `base_url` 保存 gateway 根地址，实际请求端点在运行时解析为
+#       `https://comp.azure-api.net/azure/openai/deployments/{deployment}`；
+#       真实密钥与 deployment 名只允许来自环境变量，不得写入仓库
+# 备注：本接口冻结的是共享接入面，不替代 `SpecS` / `DiagReport` / `RepairProposal` /
+#       `AcceptanceVerdict` 的 canonical 跨模块 contract
+状态：[FROZEN] ⚠️ LLM access surface 已冻结；M1/M4/M7/M8 必须复用同一 gateway / config 路径
+
+### Phase 1 — M1 Specification Parsing
+```python
+# analyzers/m1.py
+
+parse_nl_input(
+    nl_input: NLInput,
+    cfg: CFGSchema = CFG,
+    llm_client: LLMGateway | None = None,
+) -> tuple[SpecS, list[AmbiguityFlag]]
+# 输入：canonical `NLInput`
+# 输出：canonical `SpecS` 与 `list[AmbiguityFlag]`
+# 约束：这是 Stage I / LLM-α 的 canonical 主链路；`TRACEABILITY.md` 中的 M1 行只能追溯到
+#       本函数，不得由 YAML adapter 顶替
+
+parse_yaml_input(
+    reward_spec_path: str,
+    constraint_spec_path: str,
+    policy_spec_path: str,
+    env_spec_path: str,
+) -> tuple[SpecS, list[AmbiguityFlag]]
+# 输入：四份结构化 YAML spec 路径
+# 输出：canonical `SpecS` 与 `list[AmbiguityFlag]`
+# 约束：这是 compatibility / offline fallback adapter；可以服务于现有 YAML 资产，
+#       但不能作为 `M1.parse_nl_input` 的实现函数，也不能被记录为 canonical PDF 完成项
+
+detect_and_escalate_ambiguities(
+    spec: SpecS,
+    ambiguity_flags: list[AmbiguityFlag],
+    cfg: CFGSchema = CFG,
+    llm_client: LLMGateway | None = None,
+) -> list[AmbiguityFlag]
+# 输入：canonical `SpecS` + `parse_nl_input()` 原始返回的 `ambiguity_flags`
+# 输出：`list[AmbiguityFlag]`
+# 约束：只输出 PDF Part II §1.2 p.22 中定义的五类 canonical flags；若 ambiguity
+#       超过 escalation 阈值，需保留人工确认 / pipeline halt 所需信息
+
+run_symbolic_precheck(spec: SpecS) -> list[str]
+# 输入：canonical `SpecS`
+# 输出：warning / error code 列表
+# 约束：只负责 Part II §2.1.3 的 symbolic pre-check，不替代 schema validation
+```
+状态：[FROZEN] ⚠️ 接口已冻结；`parse_nl_input()` 是 canonical M1，`parse_yaml_input()` 仅为 compatibility adapter（见 `D-I20` / `D-I21`）
+
 ### Phase 1 — Spec 校验器
 ```python
 # analyzers/spec_validator.py
@@ -96,9 +508,9 @@ validate_spec_set(
 ```
 状态：[FROZEN] ✅ 已实现（Phase 1 DoD 之一）
 
-### Phase 2 — Static Analysis
+### Phase 2 — Static Analysis（historical / legacy）
 ```python
-# analyzers/static_analyzer.py
+# analyzers/legacy/static_analyzer.py
 run_static_analysis(
     reward_spec_path: str,
     constraint_spec_path: str,
@@ -110,11 +522,11 @@ run_static_analysis(
 # 输出：StaticReport（同时写入 output_dir/static_report.json，若 output_dir 非 None）
 # 报告须包含：问题列表、类型（C-R/E-C/E-R）、严重等级、可追溯字段
 ```
-状态：[FROZEN] ⚠️ 接口已冻结，待实现（Phase 2 DoD 之一）
+状态：[FROZEN] 🔶 历史接口已迁入 legacy/；不构成 strict PDF canonical phase
 
-### Phase 3 — Dynamic Analysis
+### Phase 3 — Dynamic Analysis（historical / legacy）
 ```python
-# analyzers/dynamic_analyzer.py
+# analyzers/legacy/dynamic_analyzer.py
 run_dynamic_analysis(
     static_report: StaticReport,
     log_dir: str,
@@ -143,197 +555,136 @@ class DynamicReport:
     summary: dict
     output_path: str | None
 ```
-状态：[FROZEN] ⚠️ 接口已冻结，待实现
+状态：[FROZEN] 🔶 历史接口已迁入 legacy/；不构成 strict PDF canonical phase
 
-### Phase 4 — Semantic Analysis
+### Phase 4 — M4 Failure Hypothesis & Repair Target Prioritization
 ```python
-# analyzers/semantic_analyzer.py
+# analyzers/m4.py
 
-@dataclass
-class SemanticIssue:
-    issue_id: str          # 格式: SA-001, SA-002, ...
-    issue_type: str        # "C-R" | "E-C" | "E-R" | "composite"
-    severity: str          # "error" | "warning" | "info"
-    rule_id: str
-    description: str
-    traceable_fields: list[str]
-    evidence: dict         # 含 phi 值、阈值、来源 issue_ids
-
-@dataclass
-class SemanticReport:
-    spec_versions: dict[str, str]
-    psi_cre: float                  # Ψ_CRE ∈ [0, 1]
-    phi_cr: float                   # φ²_CR 边界趋近评分
-    phi_ec: float                   # φ̄¹_EC 均值关键态覆盖率
-    phi_er: float | None            # φ³_ER reward-utility 去耦（oracle 不可用时为 None）
-    issues: list[SemanticIssue]
-    summary: dict                   # 含 alarm: bool, psi_cre, by_type, by_severity
-    output_path: str | None
-
-run_semantic_analysis(
-    static_report: StaticReport,
-    dynamic_report: DynamicReport,
-    reward_spec_path: str,
-    constraint_spec_path: str,
-    output_dir: str | None = None,
-) -> SemanticReport
-# 输入：Phase 2 StaticReport + Phase 3 DynamicReport + reward/constraint spec 路径
-# 输出：SemanticReport（同时写入 output_dir/semantic_report.json，若 output_dir 非 None）
-# 计算：φ²_CR、φ̄¹_EC、φ³_ER（oracle 不可用时跳过）、Ψ_CRE
-# 语义分析：rule-based（替代 LLM-β，依据 D-LLM-α）
+generate_failure_hypothesis(
+    diag_report: DiagReport,
+    spec: SpecS,
+    cfg: CFGSchema = CFG,
+    llm_client: LLMGateway | None = None,
+) -> tuple[str | None, list[str]]
+# 输入：已含 canonical numerical reporters 的 `DiagReport` + read-only `SpecS`
+# 输出：`(failure_hypothesis, repair_targets)`
+# 约束：这是 Part II §7.1.1 的单一 canonical LLM-β 调用；caller 只可在 diff guard
+#       通过后，把返回值写回 `DiagReport.failure_hypothesis` / `DiagReport.repair_targets`；
+#       若调用后任何数值 reporter、`ci_95`、`flags` 或 `discrepancy` 被覆盖，必须抛出
+#       `SEMANTIC_OVERWRITE_ERROR`
 ```
-状态：[FROZEN] ⚠️ 接口已冻结，待实现
+状态：[FROZEN] ⚠️ 接口已冻结；M4 已恢复为 canonical LLM-β 路线
 
-### Phase 5 — Report Generation
+> 若实现层需要把 prompt 组装、target 排序或 diff guard 拆成多个 helper，
+> 这些 helper 只能标记为 non-canonical internal helper，不得出现在 `TRACEABILITY.md`
+> 或跨模块接口契约中。
+
+### Phase 5 — M7 Repair Proposal Generation
 ```python
-# analyzers/report_generator.py
+# repair/m7.py
 
-@dataclass
-class CREReport:
-    report_id: str                        # 格式: CRE-<timestamp>
-    spec_versions: dict[str, str]
-    static_issues: list[StaticIssue]
-    dynamic_issues: list[StaticIssue]
-    semantic_issues: list[SemanticIssue]
-    psi_cre: float
-    alarm: bool
-    summary: dict[str, Any]
-    output_path: str | None
+compute_spec_edit_distance(
+    spec: SpecS,
+    spec_prime: SpecS,
+) -> float
+# 输入：原始 `SpecS` 与候选修复后的 `SpecS'`
+# 输出：`d_spec(S, S')`
 
-def generate_report(
-    static_report: StaticReport,
-    dynamic_report: DynamicReport,
-    semantic_report: SemanticReport,
-    output_dir: str | None = None,
-) -> CREReport:
-# 输入：Phase 2 StaticReport + Phase 3 DynamicReport + Phase 4 SemanticReport
-# 输出：CREReport（同时写入 output_dir/report.json，若 output_dir 非 None）
-# psi_cre 和 alarm 直接从 semantic_report 透传，不重新计算
-# summary 含 total、by_phase、by_severity、alarm、psi_cre
+generate_repair_proposals(
+    spec: SpecS,
+    diag_report: DiagReport,
+    cfg: CFGSchema = CFG,
+    llm_client: LLMGateway | None = None,
+) -> list[RepairProposal]
+# 输入：canonical `SpecS` + `DiagReport`
+# 输出：`list[RepairProposal]`
+# 约束：这是 Part II §8.1.2 的 LLM-δ 主链路；每个 proposal 都必须复用
+#       `diag_report.py` 中冻结的 canonical `RepairProposal`
+
+filter_by_minimality(
+    proposals: list[RepairProposal],
+    spec: SpecS,
+    cfg: CFGSchema = CFG,
+) -> list[RepairProposal]
+# 输入：repair proposal 候选集 + 原始 `SpecS`
+# 输出：满足 `d_spec <= eta_edit` 的 proposal 子集
+
+rank_proposals(
+    proposals: list[RepairProposal],
+    spec: SpecS,
+    diag_report: DiagReport,
+    cfg: CFGSchema = CFG,
+) -> list[RepairProposal]
+# 输入：通过 minimality 的 proposal 列表
+# 输出：按 Stage 1 rollout 估计 + Stage 2 `predicted_delta_psi` 排序后的 proposal 列表
 ```
-状态：[FROZEN] ⚠️ 接口已冻结，待实现
+状态：[FROZEN] ⚠️ 接口已冻结；M7 已恢复为 canonical LLM-δ 路线
 
-### Phase 6 — Repair
+### Phase 6 — M8 Acceptance & Semantic Consistency
 ```python
-# repair/repair_generator.py
+# repair/m8.py
 
-@dataclass
-class RepairPatch:
-    patch_id: str                   # 格式: PATCH-001, PATCH-002, ...
-    target_spec: str                # "reward" | "constraint" | "env"
-    target_field: str               # YAML 路径, 如 reward_terms[0].weight
-    operation: str                  # "set" | "add" | "remove"
-    old_value: Any
-    new_value: Any
-    rationale: str
-    source_issue_ids: list[str]
+evaluate_acceptance_criteria(
+    spec: SpecS,
+    spec_prime: SpecS,
+    diag_orig: DiagReport,
+    diag_prime: DiagReport,
+    cfg: CFGSchema = CFG,
+) -> AcceptanceVerdict
+# 输入：原始 `SpecS` / `DiagReport` 与候选 `SpecS'` / `DiagReport'`
+# 输出：只包含 C1–C4 判定结果的 `AcceptanceVerdict`
+# 约束：C1–C4 与 semantic consistency 分离；`accepted=True` 仅表示 C1–C4 通过，
+#       不能替代 `verify_semantic_consistency()` 的 semantic gate
 
-@dataclass
-class RepairResult:
-    report_id: str                  # 透传自 CREReport.report_id
-    patches: list[RepairPatch]
-    summary: dict[str, Any]         # total_patches, by_target_spec, source_issue_count
-    output_path: str | None
+verify_semantic_consistency(
+    nl_orig: NLInput,
+    spec_prime: SpecS,
+    cfg: CFGSchema = CFG,
+    llm_client: LLMGateway | None = None,
+) -> tuple[float, bool]
+# 输入：原始自然语言输入 `NLInput` + 候选修复后的 `SpecS'`
+# 输出：`(s_sem, intent_preserved)`
+# 约束：这是 Part II §9.1.2 的 canonical LLM-ε 调用；实现层需先将 `spec_prime`
+#       通过 deterministic serializer 反解为 `nl_prime` 再交给 LLM；semantic gate
+#       独立于 C1–C4，最终接受条件为 `(all C1–C4 pass) AND (s_sem >= tau_sem) AND intent_preserved`
 
-def generate_repair(
-    cre_report: CREReport,
-    output_dir: str | None = None,
-) -> RepairResult:
-# 输入：Phase 5 CREReport
-# 输出：RepairResult（同时写入 output_dir/repair_result.json，若 output_dir 非 None）
-# 首版只生成修复建议，不自动写入 spec 文件
-# 规则驱动：每类 issue_type 对应固定修复模板（见实现说明）
+run_acceptance_loop(
+    nl_orig: NLInput,
+    spec: SpecS,
+    proposals: list[RepairProposal],
+    diag_report: DiagReport,
+    cfg: CFGSchema = CFG,
+    llm_client: LLMGateway | None = None,
+) -> tuple[SpecS | None, AcceptanceVerdict, Literal["ACCEPT", "HARD_REJECT"]]
+# 输入：原始 `NLInput` + `SpecS` + 已排序 proposal 列表 + 原始 `DiagReport`
+# 输出：`(accepted_spec, verdict, exit_code)`
+# 约束：必须先评估 C1–C4，再单独调用 `verify_semantic_consistency()` 施加 semantic gate，
+#       并遵守 `N_max` 循环上限；`exit_code ∈ {"ACCEPT","HARD_REJECT"}`；不得再引入
+#       `RepairResult` / `PatchValidationResult` 作为 strict PDF mode 的替代输出
 ```
-状态：[FROZEN] ⚠️ 接口已冻结，待实现
+状态：[FROZEN] ⚠️ 接口已冻结；M8 已恢复为 canonical LLM-ε 路线
 
-### Phase 7 — Validation
+> strict PDF mode 下，以下结构只能保留为 legacy / compatibility / historical artifacts，
+> 不得再作为跨模块 canonical contract：`SemanticReport`、`CREReport`、
+> `RepairPatch`、`RepairResult`、`PatchValidationResult`。
+
+### Phase 7 — Pipeline Orchestrator
 ```python
-# repair/validator.py
+# pipeline/orchestrator.py
 
-@dataclass
-class PatchValidationResult:
-    report_id: str                  # 透传自 RepairResult.report_id
-    patches_applied: int
-    issues_before: list[str]        # 修复前 issue_ids
-    issues_after: list[str]         # 修复后 issue_ids
-    issues_resolved: list[str]      # before - after
-    issues_introduced: list[str]    # after - before
-    passed: bool                    # issues_introduced==[] 且有改善或原本干净
-    summary: dict[str, Any]
-    output_path: str | None
-
-def validate_repair(
-    repair_result: RepairResult,
-    static_report: StaticReport,
-    reward_spec_path: str,
-    constraint_spec_path: str,
-    policy_spec_path: str,
-    env_spec_path: str,
-    output_dir: str | None = None,
-) -> PatchValidationResult:
-# 输入：Phase 6 RepairResult + Phase 2 StaticReport（作为 before 基准）+ 四份 spec 路径
-# 输出：PatchValidationResult（同时写入 output_dir/validation_result.json，若非 None）
-# 策略：内存级 patch 应用，不写入真实 spec 文件
-# passed = issues_introduced==[] 且 (issues_resolved != [] 或 issues_before == [])
+run_cre_pipeline(
+    nl_input: NLInput,
+    cfg: CFGSchema = CFG,
+    llm_client: LLMGateway | None = None,
+) -> tuple[DiagReport, AcceptanceVerdict | None]
+# 输入：canonical `NLInput` + `CFG`
+# 输出：`DiagReport` 与可选 `AcceptanceVerdict`
+# 顺序：M1 -> M2 -> M3 -> [DP] -> M5 -> M4 -> [loop: M7 -> M8]
+# 约束：任何模块执行前都必须先检查 `w_cr + w_ec + w_er = 1.0`；若失败则抛
+#       `CONFIG_WEIGHT_SUM_ERROR` 并停止 pipeline
 ```
-状态：[FROZEN] ⚠️ 接口已冻结，待实现
-
-### Phase 8 — Integration（接入训练主循环）
-```python
-# train.py 收尾区追加（wandb.finish() 之前）
-
-# train.yaml 新增字段组：
-# spec_cfg:
-#   reward: cfg/spec_cfg/reward_spec_v1.yaml
-#   constraint: cfg/spec_cfg/constraint_spec_v1.yaml
-#   policy: cfg/spec_cfg/policy_spec_v1.yaml
-#   env: cfg/spec_cfg/env_spec_v1.yaml
-
-# 接入代码模式：
-try:
-    from analyzers.static_analyzer import run_static_analysis
-    from analyzers.dynamic_analyzer import run_dynamic_analysis
-    from analyzers.semantic_analyzer import run_semantic_analysis
-    from analyzers.report_generator import generate_report
-    from repair.repair_generator import generate_repair
-    from repair.validator import validate_repair
-
-    _static = run_static_analysis(
-        cfg.spec_cfg.reward, cfg.spec_cfg.constraint,
-        cfg.spec_cfg.policy, cfg.spec_cfg.env,
-        output_dir=cre_run_logger.run_dir,
-    )
-    _dynamic = run_dynamic_analysis(
-        _static, cre_run_logger.run_dir,
-        cfg.spec_cfg.reward, cfg.spec_cfg.constraint,
-        output_dir=cre_run_logger.run_dir,
-    )
-    _semantic = run_semantic_analysis(
-        _static, _dynamic,
-        cfg.spec_cfg.reward, cfg.spec_cfg.constraint,
-        output_dir=cre_run_logger.run_dir,
-    )
-    _report = generate_report(_static, _dynamic, _semantic,
-                              output_dir=cre_run_logger.run_dir)
-    _repair = generate_repair(_report, output_dir=cre_run_logger.run_dir)
-    _validation = validate_repair(
-        _repair, _static,
-        cfg.spec_cfg.reward, cfg.spec_cfg.constraint,
-        cfg.spec_cfg.policy, cfg.spec_cfg.env,
-        output_dir=cre_run_logger.run_dir,
-    )
-    wandb.run.log({
-        "cre_v2/psi_cre": _semantic.psi_cre,
-        "cre_v2/alarm": int(_semantic.summary["alarm"]),
-        "cre_v2/total_issues": _report.summary["total"],
-        "cre_v2/patches": len(_repair.patches),
-        "cre_v2/validation_passed": int(_validation.passed),
-    })
-except Exception as _e:
-    import warnings
-    warnings.warn(f"[CRE v2] 分析流水线异常（不影响训练结果）: {_e}")
-```
-状态：[FROZEN] ⚠️ 接口已冻结，待实现
+状态：[FROZEN] ⚠️ 接口已冻结；strict PDF mode 下所有训练/benchmark 接入都应通过 orchestrator，而非旧版 report/repair patch 链路
 
 ### Phase 9 — Benchmark Suite
 ```python

@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from analyzers.report_generator import CREReport
+from analyzers.legacy.report_generator import CREReport
 
 
 TARGET_SPECS = ("reward", "constraint", "env")

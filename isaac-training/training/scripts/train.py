@@ -372,14 +372,14 @@ def main(cfg):
 	            "cre_eval/acceptance_error_count": float(len(cre_eval_acceptance["errors"])),
 	        })
 
-	    # ── CRE v2 分析流水线（Phase 2-7，追加，不影响旧版 CRE hook）──────────────
+	    # ── Historical / legacy CRE v2 分析流水线（非 strict PDF canonical path）─────
 	    try:
-	        from analyzers.static_analyzer import run_static_analysis
-	        from analyzers.dynamic_analyzer import run_dynamic_analysis
-	        from analyzers.semantic_analyzer import run_semantic_analysis
-	        from analyzers.report_generator import generate_report
-	        from repair.repair_generator import generate_repair
-	        from repair.validator import validate_repair
+	        from analyzers.legacy.static_analyzer import run_static_analysis
+	        from analyzers.legacy.dynamic_analyzer import run_dynamic_analysis
+	        from analyzers.legacy.semantic_analyzer import run_semantic_analysis
+	        from analyzers.legacy.report_generator import generate_report
+	        from repair.legacy.repair_generator import generate_repair
+	        from repair.legacy.validator import validate_repair
 
 	        _cre_out = cre_run_logger.run_dir
 	        _static = run_static_analysis(

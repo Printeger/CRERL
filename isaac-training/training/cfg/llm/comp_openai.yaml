@@ -1,0 +1,26 @@
+provider: comp_openai
+base_url: ${oc.env:COMP_OPENAI_BASE_URL,"https://comp.azure-api.net/azure"}
+api_version: ${oc.env:COMP_OPENAI_API_VERSION,"2024-02-01"}
+api_key_env: COMP_OPENAI_API_KEY
+timeout_s: 60
+max_retries: 3
+
+deployments:
+  alpha: ${oc.env:CRE_LLM_ALPHA_DEPLOYMENT,"gpt41-g"}
+  beta: ${oc.env:CRE_LLM_BETA_DEPLOYMENT,"gpt41-g"}
+  delta: ${oc.env:CRE_LLM_DELTA_DEPLOYMENT,"gpt5-g"}
+  epsilon: ${oc.env:CRE_LLM_EPSILON_DEPLOYMENT,"gpt41-g"}
+
+params:
+  m1_alpha:
+    temperature: 0.0
+    max_tokens: 2000
+  m4_beta:
+    temperature: 0.2
+    max_tokens: 1200
+  m7_delta:
+    temperature: 0.4
+    max_tokens: 2500
+  m8_epsilon:
+    temperature: 0.0
+    max_tokens: 1200

@@ -69,6 +69,53 @@ CRERL/
 
 ---
 
+## ⛔ CRE-PDF 强制对齐协议（不可绕过）
+
+> **这是 2026-04-12 审计后追加的强制规则。** 历史实现存在严重偏差（详见 `REFACTOR_ROADMAP.md` 偏差清单），根本原因是 agent 未充分阅读 PDF 即开始编码。以下规则旨在从源头杜绝此类偏差。**任何 agent 在任何 Phase 均必须遵守，优先级高于其他一切规则。**
+
+### 协议 P1：先读 PDF，后动代码
+
+实现任何 CRE 分析模块（M1–M8、DP、PO）前，**必须先读 `doc/CRE_v4.pdf` 中该模块对应的章节**（Part II 对应章节 §2–§10），并在代码注释中标注所依据的 PDF 公式编号（如 `# Eq.(11) Part I §3.3`）。
+
+未标注 PDF 公式编号的函数 = 未完成，不得合并。
+
+### 协议 P2：先定数据结构，后写算法
+
+每个 Phase 开始前，**必须先在 `INTERFACES.md` 中声明该 Phase 所有函数的完整签名**（参数类型、返回类型、错误码），经 commander review 冻结后，才能开始实现。
+
+禁止 agent 自创数据结构替代 PDF 规定的标准结构（`DiagReport`、`SpecS`、`RepairProposal`、`AcceptanceVerdict`）。
+
+### 协议 P3：先写合约测试，后写实现
+
+每个函数实现前，**必须先把 PDF Part II 中对应的 Test Standards（T1–Tn）写成 pytest 用例**（此时预期全部 fail）。实现完成后，所有合约测试必须通过，才能标记为完成。
+
+合约测试必须包含数值精度要求（如 `assert abs(phi_cr2 - 0.0) < 1e-9`），不允许只做"不崩溃"检查。
+
+### 协议 P4：TRACEABILITY.md 是完成的充要条件
+
+每个函数实现完成后，**必须在 `TRACEABILITY.md` 中填写对应行**：
+
+```
+| PDF 章节 | 公式/函数名 | 实现文件 | 实现函数 | 合约测试 | 状态 |
+```
+
+`TRACEABILITY.md` 中未填写 = 未完成，STATUS.md 不得勾选该 DoD 条目。
+
+### 协议 P5：旧版实现移入 legacy/，不得直接修改
+
+历史遗留的 `static_analyzer.py`、`dynamic_analyzer.py`、`semantic_analyzer.py`、`report_generator.py`、`repair_generator.py`、`validator.py` 已被移入 `analyzers/legacy/` 和 `repair/legacy/`（见 `REFACTOR_ROADMAP.md`）。
+
+- **禁止**在 legacy/ 文件上直接修改来"修复偏差"
+- **必须**在正确路径（如 `analyzers/m2.py`）新建符合 PDF 的实现
+- legacy/ 文件只可只读引用，了解旧版思路
+
+### 协议 P6：权重和检验是启动前置条件
+
+任何调用 `compute_psi_cre` 的代码，**必须先验证** `w_cr + w_ec + w_er = 1.0`（误差 < 1e-9）。
+不满足则抛出 `CONFIG_WEIGHT_SUM_ERROR`，管线不得继续。
+
+---
+
 ## 当前 Phase
 
 **Phase 1 — Spec 设计（未开始）**
@@ -95,8 +142,7 @@ CRE 开发进度为零。代码库中不存在任何 CRE 分析模块，旧版 C
 2. `DECISIONS.md` — 所有架构决策及其原因（**启动任何 Phase 前先检查对应阻塞性决策是否存在**）
 3. `INTERFACES.md` — 跨模块接口契约，含接口确认协议和 Phase 串行风险缓解策略（§6）
 4. `STATUS.md` — 当前完成状态和下一步行动（文件级别）
-5. `isaac-training/training/envs/cre_logging.py`（🔶 旧版参考，了解日志字段设计思路）
-6. `isaac-training/training/runtime_logging/training_log_adapter.py`（🔶 旧版参考，了解 TensorDict 适配思路）
+5. `REFACTOR_ROADMAP.md` — ⚠️ **重构路线图**（2026-04-12 起新增）：记录所有已发现的 PDF 偏差、重构阶段计划（Phase 0–8）、每个 Step 的执行协议。**任何与 CRE 分析模块相关的任务，必须先读此文件确认当前重构阶段**。
 
 ## 每次任务结束强制动作
 

@@ -8,7 +8,8 @@ ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from analyzers.static_analyzer import StaticReport, run_static_analysis
+# Historical / legacy pipeline imports.
+from analyzers.legacy.static_analyzer import StaticReport, run_static_analysis
 
 
 SPEC_DIR = ROOT / "cfg" / "spec_cfg"

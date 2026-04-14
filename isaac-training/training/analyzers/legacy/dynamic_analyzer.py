@@ -9,7 +9,7 @@ from typing import Any
 
 import yaml
 
-from analyzers.static_analyzer import ISSUE_TYPE_PREFIX, SEVERITIES, ISSUE_TYPES, StaticIssue, StaticReport
+from analyzers.legacy.static_analyzer import ISSUE_TYPE_PREFIX, SEVERITIES, ISSUE_TYPES, StaticIssue, StaticReport
 
 
 @dataclass

@@ -1,0 +1,15 @@
+defaults:
+  - _self_
+  - llm: comp_openai
+
+strict_pdf_mode: true
+
+llm_gateway:
+  class_path: analyzers.llm_gateway.CompOpenAIGateway
+
+compatibility:
+  parse_yaml_input_adapter_enabled: true
+  offline_fallback_allowed: true
+
+pipeline:
+  canonical_entrypoint: pipeline.orchestrator.run_cre_pipeline

@@ -6,9 +6,9 @@ import json
 from pathlib import Path
 from typing import Any
 
-from analyzers.dynamic_analyzer import DynamicReport
-from analyzers.semantic_analyzer import SemanticIssue, SemanticReport
-from analyzers.static_analyzer import StaticIssue, StaticReport
+from analyzers.legacy.dynamic_analyzer import DynamicReport
+from analyzers.legacy.semantic_analyzer import SemanticIssue, SemanticReport
+from analyzers.legacy.static_analyzer import StaticIssue, StaticReport
 
 
 SEVERITIES = ("error", "warning", "info")

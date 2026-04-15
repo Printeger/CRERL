@@ -50,15 +50,16 @@ This keeps the workflow inside the current repo and avoids touching files outsid
 ## Latest Staged Change Summary
 
 <!-- TRACEABILITY:BEGIN -->
-_Updated: `2026-04-15T17:23:17`_
+_Updated: `2026-04-15T17:33:01`_
 
 - Scope: `/home/mint/rl_dev/crerl_v1`
 - Branch: `main`
 - Source: `staged diff`
 - Impacted phases: `Phase 11`
-- Diff stat: 2 files changed, 766 insertions(+)
+- Diff stat: 3 files changed, 771 insertions(+)
 
 ### Changed Files
-- `A` [cre-demos/README.md](cre-demos/README.md) [cre-demos]
+- `M` [cre-demos/README.md](cre-demos/README.md) [cre-demos]
+- `A` [cre-demos/demo1_cr_boundary_lure/README.md](cre-demos/demo1_cr_boundary_lure/README.md) [cre-demos]
 - `M` [doc/dev_log/p11_dev_status.md](doc/dev_log/p11_dev_status.md) [Project Docs]
 <!-- TRACEABILITY:END -->

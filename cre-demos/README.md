@@ -28,6 +28,8 @@ Recommended future layout:
 ```text
 cre-demos/
   README.md
+  demo1_cr_boundary_lure/
+    README.md
   cfg/
     env_cfg/
     spec_cfg/
@@ -44,6 +46,11 @@ Rules:
 2. do **not** put demo-only scene YAMLs into the main training config tree
 3. do **not** use the main Phase 11 benchmark suite as the first experimental sandbox
 4. once a demo is visually and causally clean, it can later be upstreamed
+
+Current dedicated subplans:
+
+- Demo 1:
+  - [demo1_cr_boundary_lure/README.md](demo1_cr_boundary_lure/README.md)
 
 ## 3. Common Demo Contract
 

@@ -1294,3 +1294,79 @@ Validation results:
   - shared visualization rules
   - anti-drift rules
   - a future isolated folder layout for demo-specific configs/scripts/assets
+
+## 21. Demo-1 Chinese Development-Plan Addendum
+
+The isolated demo-planning workspace was then extended with a dedicated
+Chinese development plan for Demo 1 so implementation can start from a more
+concrete execution checklist instead of only a high-level causal design note.
+
+This update added one new demo-specific planning artifact at:
+
+- `cre-demos/demo1_cr_boundary_lure/README.md`
+
+It also refreshed the root demo plan so it links to that new subplan:
+
+- `cre-demos/README.md`
+
+What this addendum now makes explicit:
+
+1. **a dedicated Demo 1 execution plan**
+   - the new markdown expands Demo 1 from:
+     - a high-level causal sketch
+   - into:
+     - a staged implementation plan
+     - a directory plan
+     - a data-retention plan
+     - a video-retention plan
+     - final acceptance gates
+
+2. **what must be saved during Demo 1 execution**
+   - config snapshots
+   - seed manifests
+   - train/eval outputs
+   - step/episode trajectory logs
+   - metric summaries
+   - screenshots
+   - raw and captioned videos
+
+3. **what makes Demo 1 presentation-ready**
+   - mandatory scene figure
+   - mandatory trajectory overlay
+   - mandatory grouped metric chart
+   - mandatory corridor-choice figure
+   - mandatory clean/injected/repaired video set
+
+Focused validation for this addendum:
+
+```bash
+test -f cre-demos/demo1_cr_boundary_lure/README.md
+```
+
+```bash
+rg -n "^## 6\\.|^## 8\\.|^## 9\\.|^## 10\\.|^## 12\\." \
+  cre-demos/demo1_cr_boundary_lure/README.md
+```
+
+```bash
+rg -n "Current dedicated subplans|demo1_cr_boundary_lure/README.md" \
+  cre-demos/README.md
+```
+
+```bash
+git diff -- \
+  cre-demos/README.md \
+  cre-demos/demo1_cr_boundary_lure/README.md \
+  doc/dev_log/p11_dev_status.md \
+  Traceability.md
+```
+
+Validation results:
+
+- the dedicated Demo 1 markdown now exists under its own isolated subfolder
+- the new plan now explicitly records:
+  - staged development steps
+  - required experiment data
+  - required videos
+  - final acceptance rules
+- the root isolated demo plan now links directly to the Demo 1 subplan

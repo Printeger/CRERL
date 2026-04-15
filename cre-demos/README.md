@@ -30,6 +30,8 @@ cre-demos/
   README.md
   demo1_cr_boundary_lure/
     README.md
+  demo2_ec_hidden_wedge/
+    README.md
   cfg/
     env_cfg/
     spec_cfg/
@@ -51,6 +53,8 @@ Current dedicated subplans:
 
 - Demo 1:
   - [demo1_cr_boundary_lure/README.md](demo1_cr_boundary_lure/README.md)
+- Demo 2:
+  - [demo2_ec_hidden_wedge/README.md](demo2_ec_hidden_wedge/README.md)
 
 ## 3. Common Demo Contract
 
@@ -319,6 +323,10 @@ If that happens, the demo has become:
 - or just a weak broken-training example
 
 ## 6. Demo 2: Class II (E-C) Coverage-Insufficiency Experiment
+
+Detailed Chinese subplan:
+
+- [demo2_ec_hidden_wedge/README.md](demo2_ec_hidden_wedge/README.md)
 
 ### 6.1 Goal
 

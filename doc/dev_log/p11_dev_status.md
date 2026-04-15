@@ -1529,3 +1529,98 @@ Validation results:
   - injected `risky_route_rate = 1.0`
   - injected `W_CR = 0.7180`
   - repaired validation decision = `accepted`
+
+## 23. Demo-2 Chinese Development-Plan Addendum
+
+Date:
+
+- `2026-04-15`
+
+What changed:
+
+1. **added a dedicated Chinese development plan for Demo 2**
+   - added:
+     - `cre-demos/demo2_ec_hidden_wedge/README.md`
+   - this new markdown expands Demo 2 from:
+     - the high-level `E-C` causal sketch in `cre-demos/README.md`
+   - into:
+     - a staged implementation plan
+     - a data-retention plan
+     - a video-retention plan
+     - acceptance and anti-drift rules
+
+2. **refreshed the root isolated demo plan to index Demo 2**
+   - updated:
+     - `cre-demos/README.md`
+   - the root plan now explicitly lists:
+     - the new Demo 2 subplan
+   - and links the Demo 2 section directly to:
+     - `demo2_ec_hidden_wedge/README.md`
+
+Why this was needed:
+
+- the root three-demo plan already defined Demo 2 at the causal-design level
+- but implementation could still drift because Demo 2 did not yet have:
+  - a Chinese execution checklist
+  - a frozen experimental retention contract
+  - a frozen video / figure checklist
+- this addendum closes that gap before environment configs or runners are
+  implemented
+
+What the new Demo 2 plan now makes explicit:
+
+1. **the one-factor causal boundary**
+   - reward must stay fixed
+   - environment coverage is the only primary variable
+   - repair must stay environment-side
+
+2. **the concrete train/eval family story**
+   - train family:
+     - `demo2_ec_open_bias_train`
+   - eval family:
+     - `demo2_ec_hidden_wedge_eval`
+   - the key presentation contrast is now frozen as:
+     - open-bias training coverage vs hidden-wedge critical evaluation
+
+3. **what must be saved for Demo 2**
+   - family/spec snapshots
+   - scene catalogs and template counts
+   - coverage manifests
+   - nominal / critical eval manifests
+   - trajectory and failure artifacts
+   - `W_EC`-oriented reports
+   - raw and captioned demo videos
+
+Focused validation:
+
+```bash
+test -f cre-demos/demo2_ec_hidden_wedge/README.md
+```
+
+```bash
+rg -n "^## 6\\.|^## 8\\.|^## 9\\.|^## 10\\.|^## 12\\.|^## 15\\." \
+  cre-demos/demo2_ec_hidden_wedge/README.md
+```
+
+```bash
+rg -n "demo2_ec_hidden_wedge/README.md|Detailed Chinese subplan|Current dedicated subplans" \
+  cre-demos/README.md
+```
+
+```bash
+git diff -- \
+  cre-demos/README.md \
+  cre-demos/demo2_ec_hidden_wedge/README.md \
+  doc/dev_log/p11_dev_status.md \
+  Traceability.md
+```
+
+Validation results:
+
+- the dedicated Demo 2 markdown now exists under its own isolated subfolder
+- the new plan now explicitly records:
+  - staged development steps
+  - required experiment data
+  - required videos
+  - final acceptance / anti-drift rules
+- the root isolated demo plan now links directly to the Demo 2 subplan

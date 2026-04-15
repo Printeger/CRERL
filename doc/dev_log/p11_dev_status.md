@@ -1127,3 +1127,96 @@ Validation results:
   - collector/evaluation/checkpoint flow
 - the file ownership of the non-CRE RL mainline is now documented directly in
   the comparison note
+
+## 19. Three-Demo HTML Deck Addendum
+
+The repository was then extended with a lightweight English HTML presentation
+deck for the three core CRE demonstration cases:
+
+- Class I (`C-R`)
+- Class II (`E-C`)
+- Class III (`E-R`)
+
+This update added one new presentation artifact at:
+
+- `doc/cre_v1_three_demo_deck.html`
+
+Its purpose is to make the benchmarked demo story presentation-ready without
+requiring a new frontend app or an external slide tool.
+
+What this addendum now makes explicit:
+
+1. **one white-background HTML slide deck**
+   - the new file is a standalone browser-viewable presentation
+   - it keeps a white slide background for export-friendly review and PDF print
+   - it supports:
+     - keyboard navigation
+     - clickable next/previous controls
+     - print-to-PDF output
+
+2. **a consistent five-slide story for all three demo classes**
+   - slide 1:
+     - overall benchmark/release framing
+   - slide 2:
+     - Class I (`C-R`) reward-vs-safety conflict
+   - slide 3:
+     - Class II (`E-C`) critical-scene undercoverage
+   - slide 4:
+     - Class III (`E-R`) nominal-vs-shifted fragility
+   - slide 5:
+     - live-demo guide and operator commands
+
+3. **tight alignment with the existing CRE artifact contracts**
+   - the deck points presenters back to:
+     - benchmark configs
+     - dynamic/semantic/report/validation artifacts
+     - release packaging outputs
+   - the deck therefore stays aligned with the Phase 11 benchmark/release path
+     instead of becoming a disconnected marketing-only asset
+
+Focused validation for this addendum:
+
+```bash
+python3 - <<'PY'
+from html.parser import HTMLParser
+from pathlib import Path
+
+class SlideCounter(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.slide_count = 0
+
+    def handle_starttag(self, tag, attrs):
+        attrs = dict(attrs)
+        if tag == "section" and attrs.get("class", "").startswith("slide"):
+            self.slide_count += 1
+
+path = Path("doc/cre_v1_three_demo_deck.html")
+parser = SlideCounter()
+parser.feed(path.read_text(encoding="utf-8"))
+print({"exists": path.exists(), "slide_count": parser.slide_count})
+PY
+```
+
+```bash
+rg -n "Three benchmarked demos|Class I \\(C-R\\)|Class II \\(E-C\\)|Class III \\(E-R\\)|How to show the three demos live" \
+  doc/cre_v1_three_demo_deck.html
+```
+
+```bash
+git diff -- \
+  doc/cre_v1_three_demo_deck.html \
+  doc/dev_log/p11_dev_status.md \
+  Traceability.md
+```
+
+Validation results:
+
+- the new HTML deck exists and parses successfully as a local HTML document
+- the deck contains:
+  - 5 slides
+  - 3 class-specific demo pages
+  - one final live-demo operator page
+- the deck remains white-background and self-contained:
+  - no external runtime dependency is required to open it in a browser
+  - no separate slide framework is required for local presentation

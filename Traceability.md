@@ -50,20 +50,15 @@ This keeps the workflow inside the current repo and avoids touching files outsid
 ## Latest Staged Change Summary
 
 <!-- TRACEABILITY:BEGIN -->
-_Updated: `2026-04-11T17:15:46`_
+_Updated: `2026-04-15T14:32:00`_
 
-- Scope: `/home/mint/rl_dev/CRERL`
+- Scope: `/home/mint/rl_dev/crerl_v1`
 - Branch: `main`
 - Source: `staged diff`
-- Impacted phases: `unclassified`
-- Diff stat: 7 files changed, 168 insertions(+), 17 deletions(-)
+- Impacted phases: `Phase 11`
+- Diff stat: 2 files changed, 1641 insertions(+)
 
 ### Changed Files
-- `A` [.codex](.codex) [Repo Root]
-- `M` [doc/cre_v4_structure_gap_analysis.md](doc/cre_v4_structure_gap_analysis.md) [Project Docs]
-- `M` [isaac-training/training/cfg/drone.yaml](isaac-training/training/cfg/drone.yaml) [Training Config]
-- `M` [isaac-training/training/cfg/env_cfg/scene_cfg_base.yaml](isaac-training/training/cfg/env_cfg/scene_cfg_base.yaml) [Training Config]
-- `M` [isaac-training/training/cfg/env_cfg/scene_cfg_nominal.yaml](isaac-training/training/cfg/env_cfg/scene_cfg_nominal.yaml) [Training Config]
-- `M` [isaac-training/training/cfg/eval.yaml](isaac-training/training/cfg/eval.yaml) [Training Config]
-- `M` [isaac-training/training/cfg/train.yaml](isaac-training/training/cfg/train.yaml) [Training Config]
+- `A` [doc/cre_v1_three_demo_deck.html](doc/cre_v1_three_demo_deck.html) [Project Docs]
+- `M` [doc/dev_log/p11_dev_status.md](doc/dev_log/p11_dev_status.md) [Project Docs]
 <!-- TRACEABILITY:END -->

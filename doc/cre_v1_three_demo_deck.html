@@ -1,0 +1,1548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CRE-v1 Three Demo Deck</title>
+  <style>
+    :root {
+      --paper: #ffffff;
+      --canvas: #f3f5f9;
+      --ink: #182235;
+      --muted: #5d6678;
+      --line: #dde3ee;
+      --navy: #17345d;
+      --blue: #2f6fed;
+      --teal: #127f74;
+      --orange: #d86b34;
+      --green: #1d8759;
+      --rose: #be4b48;
+      --soft-blue: #edf3ff;
+      --soft-teal: #ecfbf8;
+      --soft-orange: #fff3eb;
+      --soft-green: #ecfaf2;
+      --soft-rose: #fff1f0;
+      --shadow: 0 24px 60px rgba(16, 29, 52, 0.12);
+      --radius: 26px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      background: linear-gradient(180deg, #f7f8fb 0%, #eef2f7 100%);
+      color: var(--ink);
+      font-family: "Avenir Next", "Trebuchet MS", "Gill Sans", "Segoe UI", sans-serif;
+    }
+
+    body {
+      padding: 24px;
+    }
+
+    .shell {
+      max-width: 1480px;
+      margin: 0 auto;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 18px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-mark {
+      width: 52px;
+      height: 52px;
+      border-radius: 18px;
+      background:
+        radial-gradient(circle at 30% 30%, #ffffff 0%, #ffffff 14%, transparent 15%),
+        linear-gradient(135deg, #17345d 0%, #2f6fed 54%, #39aeb2 100%);
+      box-shadow: 0 10px 22px rgba(33, 86, 179, 0.24);
+    }
+
+    .eyebrow {
+      font-size: 12px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+
+    .brand h1,
+    h2,
+    h3,
+    p {
+      margin: 0;
+    }
+
+    .brand h1 {
+      font-size: 28px;
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+    }
+
+    .brand p {
+      color: var(--muted);
+      max-width: 720px;
+      line-height: 1.45;
+      margin-top: 4px;
+      font-size: 15px;
+    }
+
+    .navbox {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid var(--line);
+      padding: 8px 10px;
+      border-radius: 999px;
+      box-shadow: 0 10px 24px rgba(17, 29, 49, 0.08);
+    }
+
+    .navbox button {
+      border: 0;
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      cursor: pointer;
+      color: var(--navy);
+      background: var(--soft-blue);
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .navbox button:hover {
+      background: #dfeaff;
+    }
+
+    .navbox button:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    .page-pill {
+      min-width: 92px;
+      padding: 0 14px;
+      height: 40px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 700;
+      background: #ffffff;
+      border: 1px solid var(--line);
+    }
+
+    .deck {
+      position: relative;
+    }
+
+    .slide {
+      display: none;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background:
+        linear-gradient(140deg, rgba(244, 246, 251, 0.8) 0%, rgba(255, 255, 255, 0) 34%),
+        linear-gradient(180deg, #ffffff 0%, #fdfefe 100%);
+      border: 1px solid rgba(210, 219, 234, 0.8);
+      border-radius: 34px;
+      box-shadow: var(--shadow);
+      padding: 36px 42px 32px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .slide::before,
+    .slide::after {
+      content: "";
+      position: absolute;
+      border-radius: 999px;
+      pointer-events: none;
+    }
+
+    .slide::before {
+      width: 340px;
+      height: 340px;
+      right: -150px;
+      top: -170px;
+      background: radial-gradient(circle, rgba(47, 111, 237, 0.09) 0%, rgba(47, 111, 237, 0) 68%);
+    }
+
+    .slide::after {
+      width: 260px;
+      height: 260px;
+      left: -120px;
+      bottom: -160px;
+      background: radial-gradient(circle, rgba(18, 127, 116, 0.08) 0%, rgba(18, 127, 116, 0) 70%);
+    }
+
+    .slide.is-active {
+      display: grid;
+    }
+
+    .slide-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 22px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .slide-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--navy);
+      background: var(--soft-blue);
+      border: 1px solid #dbe7ff;
+    }
+
+    .slide-title {
+      font-size: 42px;
+      line-height: 0.96;
+      letter-spacing: -0.045em;
+      max-width: 860px;
+    }
+
+    .slide-subtitle {
+      color: var(--muted);
+      margin-top: 10px;
+      font-size: 17px;
+      line-height: 1.5;
+      max-width: 860px;
+    }
+
+    .slide-id {
+      font-size: 86px;
+      line-height: 0.88;
+      letter-spacing: -0.08em;
+      color: rgba(23, 52, 93, 0.08);
+      font-weight: 800;
+      text-align: right;
+      min-width: 120px;
+      user-select: none;
+    }
+
+    .grid-hero {
+      display: grid;
+      grid-template-columns: 1.25fr 0.95fr;
+      gap: 22px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .grid-demo {
+      display: grid;
+      grid-template-columns: 1fr 1.08fr 0.92fr;
+      gap: 20px;
+      position: relative;
+      z-index: 1;
+      align-items: start;
+    }
+
+    .grid-final {
+      display: grid;
+      grid-template-columns: 1.08fr 0.92fr;
+      gap: 22px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .panel {
+      background: rgba(255, 255, 255, 0.96);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: 0 14px 34px rgba(15, 26, 44, 0.06);
+      min-height: 0;
+    }
+
+    .panel h3 {
+      font-size: 18px;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+
+    .panel p,
+    .panel li,
+    .panel span,
+    .panel td,
+    .panel th,
+    .panel code {
+      font-size: 14px;
+      line-height: 1.52;
+    }
+
+    .panel p + p {
+      margin-top: 10px;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .pill-row,
+    .metric-strip,
+    .triplet,
+    .artifact-row,
+    .card-grid,
+    .tiny-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .metric-strip {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      margin-top: 16px;
+    }
+
+    .stat-card {
+      padding: 14px 16px;
+      border-radius: 20px;
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, #ffffff 0%, #f9fbff 100%);
+    }
+
+    .stat-card .value {
+      font-size: 34px;
+      line-height: 1;
+      letter-spacing: -0.06em;
+      margin-bottom: 6px;
+      color: var(--navy);
+      font-weight: 800;
+    }
+
+    .stat-card .label {
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .tiny-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin-top: 14px;
+    }
+
+    .mini-card {
+      border-radius: 20px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      background: #ffffff;
+    }
+
+    .mini-card h4 {
+      margin: 0 0 8px;
+      font-size: 14px;
+      letter-spacing: -0.01em;
+    }
+
+    .mini-card ul {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+    }
+
+    .demo-card {
+      border-radius: 24px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      background: #ffffff;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .demo-card::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto auto 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, var(--blue), var(--teal));
+    }
+
+    .demo-card .class-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: #f6f8fc;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .demo-card h4 {
+      margin: 0;
+      font-size: 22px;
+      letter-spacing: -0.03em;
+    }
+
+    .demo-card p {
+      margin-top: 10px;
+      color: var(--muted);
+    }
+
+    .scene-box {
+      border-radius: 24px;
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, #ffffff 0%, #f9fbfe 100%);
+      padding: 18px;
+    }
+
+    .scene-frame {
+      height: 260px;
+      border-radius: 22px;
+      border: 1px solid var(--line);
+      overflow: hidden;
+      background:
+        linear-gradient(180deg, rgba(23, 52, 93, 0.05) 0%, rgba(23, 52, 93, 0.02) 100%),
+        #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px;
+      margin-top: 14px;
+    }
+
+    .scene-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .scene-legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #f6f8fc;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      display: inline-block;
+    }
+
+    .dot.uav { background: var(--navy); }
+    .dot.goal { background: var(--rose); }
+    .dot.safe { background: var(--green); }
+    .dot.alert { background: var(--orange); }
+    .dot.shift { background: var(--teal); }
+
+    .scene-meta {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .meta-line {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 11px 0;
+      border-bottom: 1px solid #edf1f7;
+    }
+
+    .meta-line:last-child {
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .meta-line strong {
+      font-size: 12px;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: var(--muted);
+      min-width: 124px;
+    }
+
+    .evidence-board {
+      padding: 18px;
+      border-radius: 24px;
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    }
+
+    .board-top {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 14px;
+    }
+
+    .board-top h3 {
+      margin-bottom: 0;
+    }
+
+    .board-note {
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--navy);
+      background: var(--soft-blue);
+      border: 1px solid #dbe7ff;
+    }
+
+    .metric-table {
+      display: grid;
+      gap: 14px;
+    }
+
+    .metric-row {
+      display: grid;
+      grid-template-columns: 152px 1fr;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .metric-name {
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .metric-bars {
+      display: grid;
+      gap: 10px;
+    }
+
+    .bar-item {
+      display: grid;
+      grid-template-columns: 82px 1fr 104px;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .bar-item label {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+    }
+
+    .track {
+      position: relative;
+      height: 12px;
+      border-radius: 999px;
+      background: #eef3fb;
+      overflow: hidden;
+    }
+
+    .fill {
+      position: absolute;
+      inset: 0 auto 0 0;
+      border-radius: inherit;
+    }
+
+    .fill.clean { background: linear-gradient(90deg, #5d93ff, #2f6fed); }
+    .fill.injected { background: linear-gradient(90deg, #ffb56d, #d86b34); }
+    .fill.repaired { background: linear-gradient(90deg, #5dc28f, #1d8759); }
+
+    .trend {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+    }
+
+    .right-stack {
+      display: grid;
+      gap: 14px;
+    }
+
+    .callout {
+      border-radius: 22px;
+      padding: 16px 18px;
+      border: 1px solid var(--line);
+      background: #ffffff;
+    }
+
+    .callout .key {
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .callout .big {
+      font-size: 25px;
+      line-height: 1.05;
+      letter-spacing: -0.04em;
+      font-weight: 800;
+      color: var(--navy);
+    }
+
+    .callout p {
+      color: var(--muted);
+      margin-top: 8px;
+    }
+
+    .artifact-box {
+      border-radius: 20px;
+      padding: 16px 18px;
+      background: #fbfcfe;
+      border: 1px solid var(--line);
+    }
+
+    .artifact-box code {
+      display: block;
+      background: #f2f5fa;
+      border: 1px solid #e2e8f2;
+      color: var(--navy);
+      border-radius: 14px;
+      padding: 10px 12px;
+      margin-top: 8px;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .footer-band {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      align-items: center;
+      margin-top: 16px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .flow-band {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .flow-band span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 7px 11px;
+      border-radius: 999px;
+      background: #ffffff;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .flow-band span.arrow {
+      background: transparent;
+      border: 0;
+      padding: 0 2px;
+      color: #95a0b4;
+    }
+
+    .source-note {
+      color: var(--muted);
+      font-size: 13px;
+      text-align: right;
+    }
+
+    .matrix-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    .matrix-table th,
+    .matrix-table td {
+      text-align: left;
+      border-bottom: 1px solid #edf1f7;
+      vertical-align: top;
+      padding: 12px 10px;
+    }
+
+    .matrix-table th {
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .matrix-table td strong {
+      display: inline-block;
+      margin-bottom: 6px;
+      color: var(--ink);
+    }
+
+    .timeline {
+      display: grid;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .timeline-step {
+      display: grid;
+      grid-template-columns: 52px 1fr;
+      gap: 14px;
+      align-items: start;
+    }
+
+    .timeline-step .num {
+      width: 52px;
+      height: 52px;
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--navy);
+      background: var(--soft-blue);
+      border: 1px solid #dbe7ff;
+    }
+
+    .timeline-step .body {
+      padding-top: 4px;
+    }
+
+    .timeline-step .body h4 {
+      margin: 0;
+      font-size: 17px;
+      letter-spacing: -0.02em;
+    }
+
+    .timeline-step .body p {
+      margin-top: 6px;
+      color: var(--muted);
+    }
+
+    .command-list {
+      display: grid;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .command-item {
+      border-radius: 20px;
+      border: 1px solid var(--line);
+      background: #fbfcfe;
+      padding: 14px 16px;
+    }
+
+    .command-item strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+      letter-spacing: -0.01em;
+    }
+
+    .command-item code {
+      display: block;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      color: var(--navy);
+      white-space: pre-wrap;
+      word-break: break-word;
+      background: #f2f5fa;
+      border: 1px solid #e2e8f2;
+      border-radius: 14px;
+      padding: 10px 12px;
+    }
+
+    .kbd-hint {
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .kbd-hint kbd {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      background: #ffffff;
+      border: 1px solid var(--line);
+      border-bottom-width: 2px;
+      border-radius: 8px;
+      padding: 2px 6px;
+      font-size: 11px;
+      color: var(--navy);
+    }
+
+    svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .print-note {
+      margin-top: 14px;
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    @media (max-width: 1280px) {
+      body {
+        padding: 14px;
+      }
+
+      .slide {
+        padding: 28px;
+      }
+
+      .slide-title {
+        font-size: 36px;
+      }
+    }
+
+    @media (max-width: 980px) {
+      .topbar,
+      .slide-head,
+      .footer-band {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .grid-hero,
+      .grid-demo,
+      .grid-final {
+        grid-template-columns: 1fr;
+      }
+
+      .slide {
+        aspect-ratio: auto;
+      }
+
+      .slide-id {
+        font-size: 54px;
+        min-width: 0;
+      }
+    }
+
+    @media print {
+      body {
+        background: #ffffff;
+        padding: 0;
+      }
+
+      .topbar,
+      .print-note {
+        display: none;
+      }
+
+      .slide,
+      .slide.is-active {
+        display: grid !important;
+        width: 100%;
+        min-height: 100vh;
+        aspect-ratio: auto;
+        border-radius: 0;
+        border: 0;
+        box-shadow: none;
+        page-break-after: always;
+        break-after: page;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true"></div>
+        <div>
+          <div class="eyebrow">White Background HTML Deck</div>
+          <h1>CRE-v1 Three Demo Cases</h1>
+          <p>Indoor UAV obstacle-avoidance consistency auditing and repair. Built as a lightweight presentation deck for browser viewing, keyboard navigation, and print-to-PDF export.</p>
+        </div>
+      </div>
+      <div class="navbox" aria-label="Slide navigation">
+        <button id="prevBtn" type="button" aria-label="Previous slide">&#8592;</button>
+        <div class="page-pill"><span id="pageLabel">1 / 5</span></div>
+        <button id="nextBtn" type="button" aria-label="Next slide">&#8594;</button>
+      </div>
+    </div>
+
+    <main class="deck" id="deck">
+      <section class="slide is-active" data-title="Overview">
+        <div class="slide-head">
+          <div>
+            <div class="slide-tag">Slide 1 | Overview</div>
+            <h2 class="slide-title">Three benchmarked demos, one evidence pipeline</h2>
+            <p class="slide-subtitle">This deck explains how CRE-v1 packages the three core inconsistency classes for indoor UAV obstacle avoidance: Class I (C-R), Class II (E-C), and Class III (E-R). Each demo follows the same logic: Clean -> Injected -> Repaired.</p>
+          </div>
+          <div class="slide-id">01</div>
+        </div>
+
+        <div class="grid-hero">
+          <div class="panel">
+            <div class="eyebrow">What Every Demo Page Shows</div>
+            <h3>Consistent presentation grammar</h3>
+            <p class="muted">Every case uses the same storytelling frame so the audience can compare the three failure modes without re-learning the slide layout.</p>
+            <div class="tiny-grid">
+              <div class="mini-card">
+                <h4>Input</h4>
+                <ul>
+                  <li>Scene family</li>
+                  <li>Injected patch target</li>
+                  <li>UAV task context</li>
+                </ul>
+              </div>
+              <div class="mini-card">
+                <h4>Evidence</h4>
+                <ul>
+                  <li>Main witness</li>
+                  <li>Safety metrics</li>
+                  <li>Claim direction</li>
+                </ul>
+              </div>
+              <div class="mini-card">
+                <h4>Decision</h4>
+                <ul>
+                  <li>Repair family</li>
+                  <li>Validation targets</li>
+                  <li>Artifacts to inspect</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="metric-strip">
+              <div class="stat-card">
+                <div class="value">4 / 4</div>
+                <div class="label">Benchmark cases ready</div>
+              </div>
+              <div class="stat-card">
+                <div class="value">3 / 3</div>
+                <div class="label">Demo pairs ready</div>
+              </div>
+              <div class="stat-card">
+                <div class="value">True</div>
+                <div class="label">Phase 11 exit ready</div>
+              </div>
+              <div class="stat-card">
+                <div class="value">No</div>
+                <div class="label">API key required by default</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="eyebrow">Current Package Shape</div>
+            <h3>Release-grade demo path already exists</h3>
+            <p class="muted">The repository now contains a minimal benchmark suite with one clean case and one injected case for each inconsistency type, plus an integration-aware release bundle.</p>
+            <div class="card-grid">
+              <div class="demo-card">
+                <div class="class-tag">Class I</div>
+                <h4>C-R</h4>
+                <p>Reward-constraint conflict on the nominal scene family. Best explained through reward terms, margin-seeking behavior, and reduced obstacle clearance.</p>
+              </div>
+              <div class="demo-card">
+                <div class="class-tag">Class II</div>
+                <h4>E-C</h4>
+                <p>Coverage mismatch on boundary-critical scenes. Best explained through failure on hard edge cases that were underrepresented during normal operation.</p>
+              </div>
+              <div class="demo-card">
+                <div class="class-tag">Class III</div>
+                <h4>E-R</h4>
+                <p>Shift fragility between nominal and shifted families. Best explained through a transfer gap in success rate and obstacle clearance.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="footer-band">
+          <div class="flow-band" aria-label="Pipeline steps">
+            <span>Spec</span>
+            <span class="arrow">-></span>
+            <span>Scene</span>
+            <span class="arrow">-></span>
+            <span>Execution</span>
+            <span class="arrow">-></span>
+            <span>Analysis</span>
+            <span class="arrow">-></span>
+            <span>Repair</span>
+            <span class="arrow">-></span>
+            <span>Validation</span>
+            <span class="arrow">-></span>
+            <span>Release</span>
+          </div>
+          <div class="source-note">Sources: benchmark_summary.json, release_summary.json, demo_consumer.json</div>
+        </div>
+      </section>
+
+      <section class="slide" data-title="Class I">
+        <div class="slide-head">
+          <div>
+            <div class="slide-tag">Slide 2 | Demo 1</div>
+            <h2 class="slide-title">Class I (C-R): reward pressure conflicts with safety intent</h2>
+            <p class="slide-subtitle">Use this page to explain how a UAV can still pursue the goal, yet do so with a reward structure that over-emphasizes progress and under-protects clearance margins.</p>
+          </div>
+          <div class="slide-id">02</div>
+        </div>
+
+        <div class="grid-demo">
+          <div class="scene-box">
+            <div class="eyebrow">Scene panel</div>
+            <h3>Nominal obstacle field with a risky corridor choice</h3>
+            <div class="scene-meta">
+              <div class="meta-line"><strong>Scene family</strong><span>nominal</span></div>
+              <div class="meta-line"><strong>Injected change</strong><span>reward_progress.weight and reward_safety_static.weight</span></div>
+              <div class="meta-line"><strong>UAV reading</strong><span>Fast path selection starts to dominate over margin preservation</span></div>
+            </div>
+            <div class="scene-frame" aria-label="Nominal scene concept drawing">
+              <svg viewBox="0 0 520 280" role="img" aria-label="Nominal scene with goal, UAV, and obstacle corridor">
+                <rect x="8" y="8" width="504" height="264" rx="28" fill="#f7faff" stroke="#dbe4f0"/>
+                <rect x="86" y="48" width="82" height="164" rx="22" fill="#dbe8ff"/>
+                <rect x="222" y="88" width="72" height="134" rx="20" fill="#dbe8ff"/>
+                <rect x="336" y="44" width="78" height="170" rx="22" fill="#dbe8ff"/>
+                <circle cx="66" cy="202" r="16" fill="#17345d"/>
+                <circle cx="460" cy="72" r="18" fill="#be4b48"/>
+                <path d="M66 202 C140 176, 168 144, 228 136 S322 154, 382 104 S430 86, 460 72" fill="none" stroke="#1d8759" stroke-width="7" stroke-linecap="round"/>
+                <path d="M66 202 C130 168, 188 150, 246 122 S340 92, 398 76 S440 72, 460 72" fill="none" stroke="#d86b34" stroke-width="5" stroke-dasharray="12 10" stroke-linecap="round"/>
+                <text x="44" y="230" font-size="14" fill="#17345d" font-weight="700">UAV</text>
+                <text x="438" y="48" font-size="14" fill="#be4b48" font-weight="700">Goal</text>
+              </svg>
+            </div>
+            <div class="scene-legend">
+              <span><i class="dot uav"></i>UAV start</span>
+              <span><i class="dot goal"></i>Goal</span>
+              <span><i class="dot safe"></i>Safe path</span>
+              <span><i class="dot alert"></i>Reward-biased path</span>
+            </div>
+          </div>
+
+          <div class="evidence-board">
+            <div class="board-top">
+              <div>
+                <div class="eyebrow">Figure to show</div>
+                <h3>Expected evidence trend</h3>
+              </div>
+              <div class="board-note">Clean vs Injected vs Repaired</div>
+            </div>
+            <div class="metric-table">
+              <div class="metric-row">
+                <div class="metric-name">W_CR</div>
+                <div class="metric-bars">
+                  <div class="bar-item"><label>Clean</label><div class="track"><div class="fill clean" style="width: 26%;"></div></div><div class="trend">low baseline</div></div>
+                  <div class="bar-item"><label>Injected</label><div class="track"><div class="fill injected" style="width: 84%;"></div></div><div class="trend">risk rises</div></div>
+                  <div class="bar-item"><label>Repaired</label><div class="track"><div class="fill repaired" style="width: 34%;"></div></div><div class="trend">back down</div></div>
+                </div>
+              </div>
+              <div class="metric-row">
+                <div class="metric-name">Min distance</div>
+                <div class="metric-bars">
+                  <div class="bar-item"><label>Clean</label><div class="track"><div class="fill clean" style="width: 70%;"></div></div><div class="trend">healthy clearance</div></div>
+                  <div class="bar-item"><label>Injected</label><div class="track"><div class="fill injected" style="width: 34%;"></div></div><div class="trend">drops</div></div>
+                  <div class="bar-item"><label>Repaired</label><div class="track"><div class="fill repaired" style="width: 66%;"></div></div><div class="trend">recovers</div></div>
+                </div>
+              </div>
+              <div class="metric-row">
+                <div class="metric-name">Near-violation ratio</div>
+                <div class="metric-bars">
+                  <div class="bar-item"><label>Clean</label><div class="track"><div class="fill clean" style="width: 24%;"></div></div><div class="trend">low</div></div>
+                  <div class="bar-item"><label>Injected</label><div class="track"><div class="fill injected" style="width: 80%;"></div></div><div class="trend">high</div></div>
+                  <div class="bar-item"><label>Repaired</label><div class="track"><div class="fill repaired" style="width: 30%;"></div></div><div class="trend">bounded again</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="right-stack">
+            <div class="callout">
+              <div class="key">Primary claim</div>
+              <div class="big">C-R</div>
+              <p>Reward logic starts to approve behavior that the safety constraint never intended to favor.</p>
+            </div>
+            <div class="callout">
+              <div class="key">Repair direction</div>
+              <div class="big">Reward reweighting</div>
+              <p>Reduce progress bias, restore static safety pressure, and re-check whether the UAV remains goal-directed.</p>
+            </div>
+            <div class="artifact-box">
+              <div class="eyebrow">Artifacts to inspect</div>
+              <code>cfg/benchmark_cfg/injected_cr.yaml</code>
+              <code>analysis/dynamic/&lt;bundle&gt;/dynamic_report.json</code>
+              <code>analysis/validation/&lt;bundle&gt;/validation_decision.json</code>
+            </div>
+          </div>
+        </div>
+
+        <div class="footer-band">
+          <div class="flow-band">
+            <span>nominal family</span>
+            <span class="arrow">-></span>
+            <span>reward patch</span>
+            <span class="arrow">-></span>
+            <span>W_CR focus</span>
+            <span class="arrow">-></span>
+            <span>reward-side repair</span>
+          </div>
+          <div class="source-note">Validation targets: W_CR, min_distance, near_violation_ratio</div>
+        </div>
+      </section>
+
+      <section class="slide" data-title="Class II">
+        <div class="slide-head">
+          <div>
+            <div class="slide-tag">Slide 3 | Demo 2</div>
+            <h2 class="slide-title">Class II (E-C): hard boundary states are under-covered</h2>
+            <p class="slide-subtitle">Use this page to show that the UAV can look acceptable on common scenes while still failing to encounter the critical geometries that truly exercise the constraint design.</p>
+          </div>
+          <div class="slide-id">03</div>
+        </div>
+
+        <div class="grid-demo">
+          <div class="scene-box">
+            <div class="eyebrow">Scene comparison</div>
+            <h3>Nominal replay is not enough for edge-heavy geometry</h3>
+            <div class="scene-meta">
+              <div class="meta-line"><strong>Scene family</strong><span>boundary_critical</span></div>
+              <div class="meta-line"><strong>Injected change</strong><span>required_templates and route_adjacent_bias</span></div>
+              <div class="meta-line"><strong>UAV reading</strong><span>Failures cluster near narrow and boundary-adjacent routes</span></div>
+            </div>
+            <div class="scene-frame" aria-label="Boundary critical comparison drawing">
+              <svg viewBox="0 0 520 280" role="img" aria-label="Boundary critical scenes compared with nominal scenes">
+                <rect x="18" y="18" width="220" height="244" rx="24" fill="#f8fbff" stroke="#dbe4f0"/>
+                <rect x="282" y="18" width="220" height="244" rx="24" fill="#fff8f3" stroke="#f0dccd"/>
+                <text x="38" y="44" font-size="16" fill="#17345d" font-weight="700">Nominal</text>
+                <text x="302" y="44" font-size="16" fill="#d86b34" font-weight="700">Boundary-critical</text>
+                <rect x="74" y="74" width="52" height="120" rx="16" fill="#dbe8ff"/>
+                <rect x="142" y="108" width="42" height="92" rx="16" fill="#dbe8ff"/>
+                <path d="M52 216 C82 176, 110 150, 136 140 S178 112, 206 92" fill="none" stroke="#1d8759" stroke-width="6" stroke-linecap="round"/>
+                <circle cx="46" cy="220" r="12" fill="#17345d"/>
+                <circle cx="212" cy="86" r="14" fill="#be4b48"/>
+                <rect x="320" y="58" width="38" height="164" rx="16" fill="#ffd7be"/>
+                <rect x="372" y="48" width="32" height="182" rx="16" fill="#ffd7be"/>
+                <rect x="420" y="74" width="26" height="150" rx="14" fill="#ffd7be"/>
+                <path d="M302 220 C332 186, 348 170, 360 158 S388 122, 434 98" fill="none" stroke="#d86b34" stroke-width="6" stroke-linecap="round"/>
+                <circle cx="298" cy="222" r="12" fill="#17345d"/>
+                <circle cx="450" cy="92" r="14" fill="#be4b48"/>
+                <path d="M298 222 C322 196, 342 188, 352 172 S372 136, 404 118" fill="none" stroke="#be4b48" stroke-width="5" stroke-dasharray="10 8" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="scene-legend">
+              <span><i class="dot safe"></i>nominal route</span>
+              <span><i class="dot alert"></i>critical route</span>
+              <span><i class="dot goal"></i>failure-prone zone</span>
+            </div>
+          </div>
+
+          <div class="evidence-board">
+            <div class="board-top">
+              <div>
+                <div class="eyebrow">Figure to show</div>
+                <h3>Coverage-gap evidence</h3>
+              </div>
+              <div class="board-note">Nominal vs Critical</div>
+            </div>
+            <div class="metric-table">
+              <div class="metric-row">
+                <div class="metric-name">W_EC</div>
+                <div class="metric-bars">
+                  <div class="bar-item"><label>Clean</label><div class="track"><div class="fill clean" style="width: 34%;"></div></div><div class="trend">moderate</div></div>
+                  <div class="bar-item"><label>Injected</label><div class="track"><div class="fill injected" style="width: 82%;"></div></div><div class="trend">coverage gap</div></div>
+                  <div class="bar-item"><label>Repaired</label><div class="track"><div class="fill repaired" style="width: 42%;"></div></div><div class="trend">rebalanced</div></div>
+                </div>
+              </div>
+              <div class="metric-row">
+                <div class="metric-name">Success gap</div>
+                <div class="metric-bars">
+                  <div class="bar-item"><label>Nominal</label><div class="track"><div class="fill clean" style="width: 74%;"></div></div><div class="trend">stable</div></div>
+                  <div class="bar-item"><label>Critical</label><div class="track"><div class="fill injected" style="width: 30%;"></div></div><div class="trend">drops hard</div></div>
+                  <div class="bar-item"><label>After repair</label><div class="track"><div class="fill repaired" style="width: 60%;"></div></div><div class="trend">partially closes</div></div>
+                </div>
+              </div>
+              <div class="metric-row">
+                <div class="metric-name">Min-distance gap</div>
+                <div class="metric-bars">
+                  <div class="bar-item"><label>Nominal</label><div class="track"><div class="fill clean" style="width: 70%;"></div></div><div class="trend">acceptable</div></div>
+                  <div class="bar-item"><label>Critical</label><div class="track"><div class="fill injected" style="width: 28%;"></div></div><div class="trend">too tight</div></div>
+                  <div class="bar-item"><label>After repair</label><div class="track"><div class="fill repaired" style="width: 55%;"></div></div><div class="trend">improves</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="right-stack">
+            <div class="callout">
+              <div class="key">Primary claim</div>
+              <div class="big">E-C</div>
+              <p>The environment family fails to expose the very cases that define whether the constraint logic is complete.</p>
+            </div>
+            <div class="callout">
+              <div class="key">Repair direction</div>
+              <div class="big">Critical scenario injection</div>
+              <p>Increase high-risk templates, route-adjacent pressure, and curriculum weight on the boundary-critical family.</p>
+            </div>
+            <div class="artifact-box">
+              <div class="eyebrow">Artifacts to inspect</div>
+              <code>cfg/benchmark_cfg/injected_ec.yaml</code>
+              <code>analysis/report/&lt;bundle&gt;/report.json</code>
+              <code>analysis/repair/&lt;bundle&gt;/repair_plan.json</code>
+            </div>
+          </div>
+        </div>
+
+        <div class="footer-band">
+          <div class="flow-band">
+            <span>boundary-critical family</span>
+            <span class="arrow">-></span>
+            <span>coverage mismatch</span>
+            <span class="arrow">-></span>
+            <span>W_EC focus</span>
+            <span class="arrow">-></span>
+            <span>environment-side repair</span>
+          </div>
+          <div class="source-note">Validation targets: boundary_critical_vs_nominal_success_gap and min_distance_gap</div>
+        </div>
+      </section>
+
+      <section class="slide" data-title="Class III">
+        <div class="slide-head">
+          <div>
+            <div class="slide-tag">Slide 4 | Demo 3</div>
+            <h2 class="slide-title">Class III (E-R): nominal reward alignment does not survive environment shift</h2>
+            <p class="slide-subtitle">Use this page to demonstrate that the UAV policy can look reward-aligned in nominal scenes while still losing both utility and safety when the environment distribution shifts.</p>
+          </div>
+          <div class="slide-id">04</div>
+        </div>
+
+        <div class="grid-demo">
+          <div class="scene-box">
+            <div class="eyebrow">Shift panel</div>
+            <h3>Nominal and shifted families expose robustness differently</h3>
+            <div class="scene-meta">
+              <div class="meta-line"><strong>Scene family</strong><span>shifted</span></div>
+              <div class="meta-line"><strong>Injected change</strong><span>shifted_distribution_bias and require_shifted_semantics</span></div>
+              <div class="meta-line"><strong>UAV reading</strong><span>Reward remains high in easy scenes but transfer quality decouples under shift</span></div>
+            </div>
+            <div class="scene-frame" aria-label="Shifted environment concept drawing">
+              <svg viewBox="0 0 520 280" role="img" aria-label="Nominal and shifted scene comparison">
+                <rect x="18" y="18" width="220" height="244" rx="24" fill="#f8fbff" stroke="#dbe4f0"/>
+                <rect x="282" y="18" width="220" height="244" rx="24" fill="#effcf9" stroke="#d9f0ea"/>
+                <text x="38" y="44" font-size="16" fill="#17345d" font-weight="700">Nominal</text>
+                <text x="302" y="44" font-size="16" fill="#127f74" font-weight="700">Shifted</text>
+                <rect x="64" y="64" width="40" height="140" rx="16" fill="#dbe8ff"/>
+                <rect x="134" y="90" width="46" height="126" rx="16" fill="#dbe8ff"/>
+                <rect x="194" y="60" width="26" height="152" rx="16" fill="#dbe8ff"/>
+                <path d="M42 222 C78 180, 124 164, 158 130 S206 86, 220 74" fill="none" stroke="#1d8759" stroke-width="6" stroke-linecap="round"/>
+                <circle cx="38" cy="226" r="12" fill="#17345d"/>
+                <circle cx="224" cy="68" r="14" fill="#be4b48"/>
+                <rect x="318" y="52" width="42" height="156" rx="16" fill="#ccf1ea"/>
+                <rect x="382" y="96" width="44" height="120" rx="16" fill="#ccf1ea"/>
+                <rect x="438" y="44" width="28" height="182" rx="16" fill="#ccf1ea"/>
+                <path d="M298 226 C332 198, 354 166, 382 150 S426 128, 450 70" fill="none" stroke="#127f74" stroke-width="6" stroke-linecap="round"/>
+                <path d="M298 226 C336 212, 364 202, 392 182 S430 146, 448 116" fill="none" stroke="#be4b48" stroke-width="5" stroke-dasharray="10 8" stroke-linecap="round"/>
+                <circle cx="294" cy="228" r="12" fill="#17345d"/>
+                <circle cx="452" cy="64" r="14" fill="#be4b48"/>
+                <circle cx="430" cy="148" r="10" fill="#127f74" opacity="0.32"/>
+                <circle cx="392" cy="88" r="8" fill="#127f74" opacity="0.22"/>
+                <circle cx="468" cy="184" r="7" fill="#127f74" opacity="0.28"/>
+              </svg>
+            </div>
+            <div class="scene-legend">
+              <span><i class="dot safe"></i>nominal success path</span>
+              <span><i class="dot shift"></i>shifted geometry</span>
+              <span><i class="dot goal"></i>transfer failure cue</span>
+            </div>
+          </div>
+
+          <div class="evidence-board">
+            <div class="board-top">
+              <div>
+                <div class="eyebrow">Figure to show</div>
+                <h3>Transfer-gap evidence</h3>
+              </div>
+              <div class="board-note">Nominal vs Shifted</div>
+            </div>
+            <div class="metric-table">
+              <div class="metric-row">
+                <div class="metric-name">W_ER</div>
+                <div class="metric-bars">
+                  <div class="bar-item"><label>Clean</label><div class="track"><div class="fill clean" style="width: 24%;"></div></div><div class="trend">low</div></div>
+                  <div class="bar-item"><label>Injected</label><div class="track"><div class="fill injected" style="width: 78%;"></div></div><div class="trend">fragility exposed</div></div>
+                  <div class="bar-item"><label>Repaired</label><div class="track"><div class="fill repaired" style="width: 40%;"></div></div><div class="trend">robustness returns</div></div>
+                </div>
+              </div>
+              <div class="metric-row">
+                <div class="metric-name">Success gap</div>
+                <div class="metric-bars">
+                  <div class="bar-item"><label>Nominal</label><div class="track"><div class="fill clean" style="width: 76%;"></div></div><div class="trend">stable</div></div>
+                  <div class="bar-item"><label>Shifted</label><div class="track"><div class="fill injected" style="width: 36%;"></div></div><div class="trend">drops</div></div>
+                  <div class="bar-item"><label>After repair</label><div class="track"><div class="fill repaired" style="width: 62%;"></div></div><div class="trend">narrows gap</div></div>
+                </div>
+              </div>
+              <div class="metric-row">
+                <div class="metric-name">Min-distance gap</div>
+                <div class="metric-bars">
+                  <div class="bar-item"><label>Nominal</label><div class="track"><div class="fill clean" style="width: 68%;"></div></div><div class="trend">safe</div></div>
+                  <div class="bar-item"><label>Shifted</label><div class="track"><div class="fill injected" style="width: 30%;"></div></div><div class="trend">fragile</div></div>
+                  <div class="bar-item"><label>After repair</label><div class="track"><div class="fill repaired" style="width: 56%;"></div></div><div class="trend">improves</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="right-stack">
+            <div class="callout">
+              <div class="key">Primary claim</div>
+              <div class="big">E-R</div>
+              <p>The environment distribution changes faster than the reward logic can preserve useful behavior under transfer.</p>
+            </div>
+            <div class="callout">
+              <div class="key">Repair direction</div>
+              <div class="big">Structured domain randomization</div>
+              <p>Increase shifted-scene realism, strengthen robustness coverage, and validate on nominal-vs-shifted comparisons.</p>
+            </div>
+            <div class="artifact-box">
+              <div class="eyebrow">Artifacts to inspect</div>
+              <code>cfg/benchmark_cfg/injected_er.yaml</code>
+              <code>analysis/semantic/&lt;bundle&gt;/semantic_report.json</code>
+              <code>analysis/release/&lt;bundle&gt;/demo_consumer.json</code>
+            </div>
+          </div>
+        </div>
+
+        <div class="footer-band">
+          <div class="flow-band">
+            <span>shifted family</span>
+            <span class="arrow">-></span>
+            <span>transfer gap</span>
+            <span class="arrow">-></span>
+            <span>W_ER focus</span>
+            <span class="arrow">-></span>
+            <span>robustness-side repair</span>
+          </div>
+          <div class="source-note">Validation targets: nominal_vs_shifted_success_gap and min_distance_gap</div>
+        </div>
+      </section>
+
+      <section class="slide" data-title="Live Use">
+        <div class="slide-head">
+          <div>
+            <div class="slide-tag">Slide 5 | Live Demo Guide</div>
+            <h2 class="slide-title">How to show the three demos live</h2>
+            <p class="slide-subtitle">This final page turns the deck into an operator guide: what to show in the simulator, what to show in the dashboard, and which artifacts close the story for reviewers.</p>
+          </div>
+          <div class="slide-id">05</div>
+        </div>
+
+        <div class="grid-final">
+          <div class="panel">
+            <div class="eyebrow">Presentation matrix</div>
+            <h3>One slide logic across all three classes</h3>
+            <table class="matrix-table">
+              <thead>
+                <tr>
+                  <th>Class</th>
+                  <th>Scene cue</th>
+                  <th>Main witness</th>
+                  <th>Repair family</th>
+                  <th>Validation target</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>C-R</strong><br>Nominal corridor</td>
+                  <td>Reward-biased short path</td>
+                  <td>W_CR</td>
+                  <td>Reward reweighting</td>
+                  <td>Clearance recovers while goal progress stays acceptable</td>
+                </tr>
+                <tr>
+                  <td><strong>E-C</strong><br>Boundary-critical scenes</td>
+                  <td>Hard templates were under-sampled</td>
+                  <td>W_EC</td>
+                  <td>Critical scenario injection</td>
+                  <td>Critical-family gap shrinks</td>
+                </tr>
+                <tr>
+                  <td><strong>E-R</strong><br>Shifted scenes</td>
+                  <td>Nominal success does not transfer</td>
+                  <td>W_ER</td>
+                  <td>Domain randomization</td>
+                  <td>Nominal-vs-shifted gap narrows</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="timeline">
+              <div class="timeline-step">
+                <div class="num">1</div>
+                <div class="body">
+                  <h4>Open with the scene</h4>
+                  <p>Use <code>test_flight.py</code> in GUI mode to show the UAV, start-goal markers, and the scene family. This anchors the audience in indoor obstacle avoidance before any metrics appear.</p>
+                </div>
+              </div>
+              <div class="timeline-step">
+                <div class="num">2</div>
+                <div class="body">
+                  <h4>Move to the metrics</h4>
+                  <p>Use the local dashboard to display success rate, collision rate, min distance, near-violation ratio, and the relevant witness: W_CR, W_EC, or W_ER.</p>
+                </div>
+              </div>
+              <div class="timeline-step">
+                <div class="num">3</div>
+                <div class="body">
+                  <h4>Close with the artifact bundle</h4>
+                  <p>Show the report, repair, and validation outputs to prove that the pipeline did not stop at detection. The final release bundle provides the clean-vs-injected demo contract.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="eyebrow">Operator commands</div>
+            <h3>Fastest way to collect visuals</h3>
+            <div class="command-list">
+              <div class="command-item">
+                <strong>1. Scene visual for the UAV and LiDAR</strong>
+                <code>python3 isaac-training/training/unit_test/test_flight.py headless=False</code>
+              </div>
+              <div class="command-item">
+                <strong>2. Benchmark package and release package</strong>
+                <code>python3 isaac-training/training/scripts/run_benchmark_suite.py --reports-root /tmp/crerl_demo
+python3 isaac-training/training/scripts/run_integration_audit.py --scene-family nominal --reports-root /tmp/crerl_demo
+python3 isaac-training/training/scripts/run_release_packaging.py --reports-root /tmp/crerl_demo --benchmark-bundle-dir /tmp/crerl_demo/analysis/benchmark/benchmark_suite_latest --integration-bundle-dir /tmp/crerl_demo/analysis/integration/integration_latest</code>
+              </div>
+              <div class="command-item">
+                <strong>3. Dashboard for figures and KPI cards</strong>
+                <code>python3 isaac-training/training/scripts/run_dashboard.py --reports-root /tmp/crerl_demo --watch-root /tmp/crerl_demo --host 127.0.0.1 --port 8765</code>
+              </div>
+            </div>
+            <p class="kbd-hint">Browser controls: <kbd>&larr;</kbd> <kbd>&rarr;</kbd> <kbd>Space</kbd> <kbd>Home</kbd> <kbd>End</kbd>. Print this HTML file to export a white-background PDF deck.</p>
+          </div>
+        </div>
+
+        <div class="footer-band">
+          <div class="flow-band">
+            <span>scene visual</span>
+            <span class="arrow">-></span>
+            <span>dashboard evidence</span>
+            <span class="arrow">-></span>
+            <span>report / repair</span>
+            <span class="arrow">-></span>
+            <span>release bundle</span>
+          </div>
+          <div class="source-note">Suggested live order: scene first, evidence second, bundle last</div>
+        </div>
+      </section>
+    </main>
+
+    <div class="print-note">Open in a browser for live navigation, or print to PDF for a lightweight English presentation deck.</div>
+  </div>
+
+  <script>
+    (function () {
+      const slides = Array.from(document.querySelectorAll(".slide"));
+      const prevBtn = document.getElementById("prevBtn");
+      const nextBtn = document.getElementById("nextBtn");
+      const pageLabel = document.getElementById("pageLabel");
+      const total = slides.length;
+      let index = 0;
+
+      function clamp(value) {
+        return Math.max(0, Math.min(total - 1, value));
+      }
+
+      function updateHash() {
+        window.location.hash = "slide-" + (index + 1);
+      }
+
+      function render() {
+        slides.forEach((slide, slideIndex) => {
+          slide.classList.toggle("is-active", slideIndex === index);
+        });
+        prevBtn.disabled = index === 0;
+        nextBtn.disabled = index === total - 1;
+        pageLabel.textContent = (index + 1) + " / " + total;
+        document.title = "CRE-v1 Three Demo Deck - " + slides[index].dataset.title;
+      }
+
+      function goTo(targetIndex, syncHash) {
+        index = clamp(targetIndex);
+        render();
+        if (syncHash) {
+          updateHash();
+        }
+      }
+
+      function fromHash() {
+        const match = window.location.hash.match(/slide-(\d+)/);
+        if (!match) {
+          return 0;
+        }
+        return clamp(parseInt(match[1], 10) - 1);
+      }
+
+      prevBtn.addEventListener("click", function () {
+        goTo(index - 1, true);
+      });
+
+      nextBtn.addEventListener("click", function () {
+        goTo(index + 1, true);
+      });
+
+      window.addEventListener("keydown", function (event) {
+        const key = event.key;
+        if (key === "ArrowRight" || key === "PageDown" || key === " ") {
+          event.preventDefault();
+          goTo(index + 1, true);
+        } else if (key === "ArrowLeft" || key === "PageUp") {
+          event.preventDefault();
+          goTo(index - 1, true);
+        } else if (key === "Home") {
+          event.preventDefault();
+          goTo(0, true);
+        } else if (key === "End") {
+          event.preventDefault();
+          goTo(total - 1, true);
+        }
+      });
+
+      window.addEventListener("hashchange", function () {
+        goTo(fromHash(), false);
+      });
+
+      index = fromHash();
+      render();
+      if (!window.location.hash) {
+        updateHash();
+      }
+    })();
+  </script>
+</body>
+</html>

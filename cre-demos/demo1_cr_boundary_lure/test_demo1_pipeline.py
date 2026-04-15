@@ -30,3 +30,26 @@ def test_demo1_pipeline_reaches_goal(tmp_path):
     assert verification["checks"]["injected_prefers_risky_route"]["passed"] is True
     assert verification["checks"]["injected_elevates_W_CR"]["passed"] is True
     assert verification["checks"]["repair_validation_accepted"]["passed"] is True
+
+
+def test_demo1_pipeline_is_rerun_safe(tmp_path):
+    module = _load_module()
+    output_root = tmp_path / "reports"
+    asset_root = tmp_path / "assets"
+
+    first_verification = module.run_demo1_pipeline(
+        output_root=output_root,
+        asset_root=asset_root,
+        clean_output=True,
+    )
+    second_verification = module.run_demo1_pipeline(
+        output_root=output_root,
+        asset_root=asset_root,
+        clean_output=False,
+    )
+
+    assert first_verification["goal_achieved"] is True
+    assert second_verification["goal_achieved"] is True
+    assert second_verification["checks"]["injected_prefers_risky_route"]["passed"] is True
+    assert second_verification["checks"]["injected_elevates_W_CR"]["passed"] is True
+    assert second_verification["checks"]["repair_validation_accepted"]["passed"] is True

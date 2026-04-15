@@ -726,6 +726,15 @@ Demo 1 只有同时满足以下条件，才算完成：
 python3 cre-demos/demo1_cr_boundary_lure/scripts/run_demo1.py --clean-output
 ```
 
+如果只是想在同一个输出目录下重新生成最新结果，也可以直接运行：
+
+```bash
+python3 cre-demos/demo1_cr_boundary_lure/scripts/run_demo1.py
+```
+
+当前 runner 会在每个 variant 开始前清理对应的固定日志目录，因此不会再因为
+旧的 `episodes.jsonl` / `steps.jsonl` 追加到新结果上而触发 acceptance mismatch。
+
 ### 15.3 当前验证结论
 
 最新 `verification_summary.json` 已经给出：
@@ -776,3 +785,13 @@ python3 cre-demos/demo1_cr_boundary_lure/scripts/run_demo1.py --clean-output
 2. 把同样的 clean / injected / repaired reward 配置接到真实训练入口
 3. 让训练结果继续输出同样的 step / episode / analysis 证据
 4. 用当前 demo 的指标和图作为 native 版本的验收模板
+
+### 15.6 当前运行稳定性补丁
+
+2026-04-15 增补：
+
+- `scripts/run_demo1.py` 现在支持在同一个 `reports/latest/` 目录下重复执行
+- 每次运行时会先清理 `demo1_clean` / `demo1_injected` / `demo1_repaired`
+  的旧日志目录
+- 因此 `summary.json`、`episodes.jsonl`、`steps.jsonl` 会保持同一次运行的一致性
+- `test_demo1_pipeline.py` 也新增了同目录连续执行两次的回归测试

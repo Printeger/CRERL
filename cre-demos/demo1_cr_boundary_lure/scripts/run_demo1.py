@@ -314,6 +314,9 @@ def _simulate_variant(
 
     variant_root = output_root / spec.name
     logs_root = variant_root / "logs"
+    run_dir = logs_root / f"demo1_{spec.name}"
+    if run_dir.exists():
+        shutil.rmtree(run_dir)
     run_logger = create_run_logger(
         source="demo_boundary_lure",
         run_name=f"demo1_{spec.name}",

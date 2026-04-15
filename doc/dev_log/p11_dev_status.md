@@ -1465,3 +1465,67 @@ Validation results:
   - `C-R`
 - the generated validation path now resolves to:
   - `accepted`
+
+## 13. Demo 1 Rerun Robustness Fix
+
+Date:
+
+- `2026-04-15`
+
+What changed:
+
+1. **made the isolated Demo 1 runner safe for repeated execution**
+   - updated `cre-demos/demo1_cr_boundary_lure/scripts/run_demo1.py`
+   - before creating each fixed-name run logger, the runner now removes the
+     previous per-variant log directory:
+     - `demo1_clean`
+     - `demo1_injected`
+     - `demo1_repaired`
+
+2. **added a rerun regression test**
+   - updated `cre-demos/demo1_cr_boundary_lure/test_demo1_pipeline.py`
+   - the new test executes the same pipeline twice against the same temp
+     output root and asserts that the second run still succeeds
+
+Why this was needed:
+
+- the previous implementation reused the same fixed `run_name`
+- `episodes.jsonl` and `steps.jsonl` were appended across reruns
+- `summary.json` was regenerated for only the latest six episodes
+- this caused `run_acceptance_check(...)` to fail with an
+  `episode_count` mismatch on a plain rerun of:
+  - `python3 cre-demos/demo1_cr_boundary_lure/scripts/run_demo1.py`
+
+Focused validation:
+
+```bash
+python3 -m py_compile \
+  cre-demos/demo1_cr_boundary_lure/scripts/run_demo1.py \
+  cre-demos/demo1_cr_boundary_lure/test_demo1_pipeline.py
+```
+
+```bash
+pytest -q cre-demos/demo1_cr_boundary_lure/test_demo1_pipeline.py
+```
+
+```bash
+python3 cre-demos/demo1_cr_boundary_lure/scripts/run_demo1.py --clean-output
+```
+
+```bash
+python3 cre-demos/demo1_cr_boundary_lure/scripts/run_demo1.py
+```
+
+Validation results:
+
+- `py_compile` passed
+- focused pytest passed:
+  - `2 passed`
+- the clean rerun path completed successfully
+- the default rerun path completed successfully
+- the verification result stayed stable:
+  - `goal_achieved = true`
+- the demo still supports the intended claim:
+  - injected `risky_route_rate = 1.0`
+  - injected `W_CR = 0.7180`
+  - repaired validation decision = `accepted`

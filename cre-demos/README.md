@@ -60,6 +60,17 @@ Current dedicated subplans:
 - Demo 3:
   - [demo3_er_shifted_gate/README.md](demo3_er_shifted_gate/README.md)
 
+Current presentation materials:
+
+- Detailed Chinese HTML deck:
+  - [presentations/cre_three_demo_report.html](presentations/cre_three_demo_report.html)
+- Per-slide speaker notes:
+  - [presentations/cre_three_demo_report_notes.md](presentations/cre_three_demo_report_notes.md)
+- Presentation bundle README:
+  - [presentations/README.md](presentations/README.md)
+- Regeneration script:
+  - [presentations/build_cre_demo_report.py](presentations/build_cre_demo_report.py)
+
 ## 3. Common Demo Contract
 
 All three demos should use the same presentation grammar:

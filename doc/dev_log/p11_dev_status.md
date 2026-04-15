@@ -1803,3 +1803,113 @@ Validation results:
 - the selected repair operator is `increase_shifted_boundary_bias`
 - post-repair validation is accepted
 - the isolated pytest target passes: `2 passed`
+
+## 22. Three-Demo Chinese Presentation Bundle Addendum
+
+The repository was then extended with a detailed Chinese presentation bundle for
+the three isolated CRE demos under:
+
+- `cre-demos/presentations/`
+
+This update added a new presentation-facing artifact set at:
+
+- `cre-demos/presentations/cre_three_demo_report.html`
+- `cre-demos/presentations/cre_three_demo_report_notes.md`
+- `cre-demos/presentations/README.md`
+- `cre-demos/presentations/build_cre_demo_report.py`
+
+Its purpose is to turn the three demo result bundles into a presentation-ready,
+browser-native report package that is:
+
+- suitable for formal Chinese-language reporting,
+- backed by per-slide speaker notes,
+- and still aligned with the underlying demo evidence artifacts.
+
+What this addendum now makes explicit:
+
+1. **one detailed HTML deck for all three demos**
+   - the new file is a standalone browser-viewable presentation
+   - it contains:
+     - `12` slides
+     - cross-demo framing
+     - per-demo design pages
+     - per-demo result pages
+     - artifact / support-material pages
+     - a closing synthesis page
+   - it supports:
+     - keyboard navigation
+     - slide hash navigation
+     - in-page speaker-note viewing
+     - print-to-PDF export
+
+2. **one slide-by-slide Chinese script bundle**
+   - the new markdown notes file provides one section per slide
+   - each section records:
+     - suggested duration
+     - speaking script
+     - transition sentence
+   - this turns the deck into a repeatable reporting asset instead of a
+     picture-only slide file
+
+3. **presentation evidence stays tied to demo artifacts**
+   - the HTML deck embeds representative visuals from:
+     - `demo1_cr_boundary_lure`
+     - `demo2_ec_hidden_wedge`
+     - `demo3_er_shifted_gate`
+   - the deck also links presenters back to:
+     - README files
+     - replay pages
+     - verification summaries
+     - report / repair / validation JSONs
+   - this preserves the evidence-first reporting style required by the repo
+
+4. **repeatable generation path**
+   - the new generator script can rebuild the deck, notes, and local README in
+     one command
+   - this reduces manual slide drift when the presentation bundle is refreshed
+
+Focused validation for this addendum:
+
+```bash
+python3 cre-demos/presentations/build_cre_demo_report.py
+```
+
+```bash
+python3 - <<'PY'
+from html.parser import HTMLParser
+from pathlib import Path
+
+class SlideCounter(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.slide_count = 0
+        self.titles = []
+
+    def handle_starttag(self, tag, attrs):
+        attrs = dict(attrs)
+        if tag == "section" and attrs.get("class") == "slide":
+            self.slide_count += 1
+            self.titles.append(attrs.get("data-title", ""))
+
+path = Path("cre-demos/presentations/cre_three_demo_report.html")
+parser = SlideCounter()
+parser.feed(path.read_text(encoding="utf-8"))
+print({"exists": path.exists(), "slide_count": parser.slide_count, "titles": parser.titles})
+PY
+```
+
+```bash
+rg -n "Slide 01|Slide 12|reward 仍然像回事|汇报支撑材料如何组织" \
+  cre-demos/presentations/cre_three_demo_report.html \
+  cre-demos/presentations/cre_three_demo_report_notes.md
+```
+
+Validation results:
+
+- the new Chinese presentation bundle is present under `cre-demos/presentations/`
+- the deck parses successfully as HTML and contains `12` slides
+- the notes file contains the full per-slide script set from slide `01` to
+  slide `12`
+- the deck now provides a Chinese, presentation-grade companion to the earlier
+  lightweight English deck at:
+  - `doc/cre_v1_three_demo_deck.html`

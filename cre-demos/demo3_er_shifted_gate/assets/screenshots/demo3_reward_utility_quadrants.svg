@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="760" viewBox="0 0 980 760">
+<rect x="0" y="0" width="100%" height="100%" fill="#f7f4ee"/>
+<text x="58" y="66" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="30" fill="#1f2933">Retention Quadrants</text>
+<text x="58" y="100" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="18" fill="#5f6b76">Healthy variants stay near the diagonal. Injected falls into the misleading high-reward / low-utility quadrant.</text>
+<rect x="122.0" y="152.0" width="700.0" height="500.0" rx="28" fill="#fffdfa" stroke="#d8d0c4" stroke-width="2"/>
+<line x1="440.2" y1="152.0" x2="440.2" y2="652.0" stroke="#d6c0ae" stroke-width="2" stroke-dasharray="9 8"/>
+<line x1="122.0" y1="424.7" x2="822.0" y2="424.7" stroke="#d6c0ae" stroke-width="2" stroke-dasharray="9 8"/>
+<text x="838" y="186" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="16" fill="#374151">High reward</text>
+<text x="838" y="624" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="16" fill="#9a3412">Misleading region</text>
+<text x="292" y="706" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="18" fill="#374151">x: reward retention under shift</text>
+<text x="26" y="450" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="18" fill="#374151" transform="rotate(-90 26 450)">y: utility retention under shift</text>
+<circle cx="561.7" cy="308.8" r="16" fill="#1d4ed8" opacity="0.88"/>
+<text x="585.7" y="314.8" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="18" fill="#374151">Clean</text>
+<circle cx="714.9" cy="541.2" r="16" fill="#d9481c" opacity="0.88"/>
+<text x="738.9" y="547.2" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="18" fill="#374151">Injected</text>
+<circle cx="737.6" cy="295.0" r="16" fill="#2b8a3e" opacity="0.88"/>
+<text x="761.6" y="301.0" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="18" fill="#374151">Repaired</text>
+</svg>

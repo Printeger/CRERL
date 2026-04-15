@@ -1,0 +1,1773 @@
+{
+  "summary": {
+    "episode_index": 8,
+    "seed": 97,
+    "scene_id": "demo3_nominal_gate_v0",
+    "scenario_type": "nominal",
+    "num_steps": 34,
+    "trajectory_length": 13.154234791583573,
+    "return_total": 22.34001357435282,
+    "reward_components_total": {
+      "reward_progress": 8.148007488106886,
+      "reward_safety_static": 13.897067172712772,
+      "reward_safety_dynamic": 0.0,
+      "penalty_smooth": 2.0843514411139656,
+      "penalty_height": 0.0,
+      "manual_control": 0.0
+    },
+    "success_flag": true,
+    "collision_flag": false,
+    "out_of_bounds_flag": false,
+    "min_obstacle_distance": 0.7561687759644533,
+    "near_violation_steps": 0,
+    "near_violation_ratio": 0.0,
+    "final_goal_distance": 0.007413411496812896,
+    "done_type": "success",
+    "source": "demo_shifted_gate_train",
+    "scene_cfg_name": "scene_cfg_nominal.yaml",
+    "scene_tags": {
+      "family": "nominal",
+      "variant": "injected",
+      "run_kind": "train",
+      "behavior_id": "train_nominal_reference",
+      "phase": "train",
+      "demo_id": "demo3_er_shifted_gate"
+    }
+  },
+  "steps": [
+    {
+      "episode_index": 8,
+      "step_idx": 0,
+      "sim_time": 0.0,
+      "scene_id": "demo3_nominal_gate_v0",
+      "scenario_type": "nominal",
+      "position": [
+        1.3048284691665033,
+        1.4985400677209448,
+        1.2
+      ],
+      "velocity": [
+        4.470068368135074,
+        1.1800577515553279,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 12.946074573237047,
+      "reward_total": 0.7686219856546873,
+      "reward_components": {
+        "reward_progress": 0.1,
+        "reward_safety_static": 0.6716219856546873,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.05,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 3.36392092110078,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_train",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "variant": "injected",
+        "run_kind": "train",
+        "behavior_id": "train_nominal_reference",
+        "phase": "train",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 4.623207491861854,
+        "proxy_alignment": 0.0,
+        "scene_cfg_name": "scene_cfg_nominal.yaml"
+      }
+    },
+    {
+      "episode_index": 8,
+      "step_idx": 1,
+      "sim_time": 0.08333333333333333,
+      "scene_id": "demo3_nominal_gate_v0",
+      "scenario_type": "nominal",
+      "position": [
+        1.6773341665110928,
+        1.5968782136838888,
+        1.2
+      ],
+      "velocity": [
+        4.470068368135074,
+        1.1800577515553279,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 12.574977707883388,
+      "reward_total": 0.8286752962490335,
+      "reward_components": {
+        "reward_progress": 0.2261729342202439,
+        "reward_safety_static": 0.6055023620287896,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.05,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 3.0002629911583427,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_train",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "variant": "injected",
+        "run_kind": "train",
+        "behavior_id": "train_nominal_reference",
+        "phase": "train",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 4.623207491861854,
+        "proxy_alignment": 0.0,
+        "scene_cfg_name": "scene_cfg_nominal.yaml"
+      }
+    },
+    {
+      "episode_index": 8,
+      "step_idx": 2,
+      "sim_time": 0.16666666666666666,
+      "scene_id": "demo3_nominal_gate_v0",
+      "scenario_type": "nominal",
+      "position": [
+        2.0801576704034335,
+        1.7108061242317991,
+        1.2
+      ],
+      "velocity": [
+        4.833882046708088,
+        1.3671349265749235,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 12.170746640229293,
+      "reward_total": 0.7695323815940867,
+      "reward_components": {
+        "reward_progress": 0.2374385630023923,
+        "reward_safety_static": 0.5353040852664012,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.05350444457844688,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 2.6141724689652066,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_train",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "variant": "injected",
+        "run_kind": "train",
+        "behavior_id": "train_nominal_reference",
+        "phase": "train",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 5.02349216670513,
+        "proxy_alignment": 0.0,
+        "scene_cfg_name": "scene_cfg_nominal.yaml"
+      }
+    },
+    {
+      "episode_index": 8,
+      "step_idx": 3,
+      "sim_time": 0.25,
+      "scene_id": "demo3_nominal_gate_v0",
+      "scenario_type": "nominal",
+      "position": [
+        2.4528126507844115,
+        1.8408346518758851,
+        1.2
+      ],
+      "velocity": [
+        4.471859764571736,
+        1.5603423317290321,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 11.784790681881907,
+      "reward_total": 0.6981619903167656,
+      "reward_components": {
+        "reward_progress": 0.23122502583811136,
+        "reward_safety_static": 0.4706580641194549,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.06201832734667624,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 2.2586193526570018,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_train",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "variant": "injected",
+        "run_kind": "train",
+        "behavior_id": "train_nominal_reference",
+        "phase": "train",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 4.736264133911999,
+        "proxy_alignment": 0.0,
+        "scene_cfg_name": "scene_cfg_nominal.yaml"
+      }
+    },
+    {
+      "episode_index": 8,
+      "step_idx": 4,
+      "sim_time": 0.3333333333333333,
+      "scene_id": "demo3_nominal_gate_v0",
+      "scenario_type": "nominal",
+      "position": [
+        2.84000180714323,
+        1.973402252399918,
+        1.2
+      ],
+      "velocity": [
+        4.646269876305823,
+        1.590811206288394,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 11.3857562549606,
+      "reward_total": 0.6436725531481089,
+      "reward_components": {
+        "reward_progress": 0.23567170515324395,
+        "reward_safety_static": 0.41107095321499654,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.05116842033552757,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 1.9308902426824812,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_train",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "variant": "injected",
+        "run_kind": "train",
+        "behavior_id": "train_nominal_reference",
+        "phase": "train",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 4.9110593620439635,
+        "proxy_alignment": 0.0,
+        "scene_cfg_name": "scene_cfg_nominal.yaml"
+      }
+    },
+    {
+      "episode_index": 8,
+      "step_idx": 5,
+      "sim_time": 0.41666666666666663,
+      "scene_id": "demo3_nominal_gate_v0",
+      "scenario_type": "nominal",
+      "position": [
+        3.2112827488863767,
+        2.1258669499219605,
+        1.2
+      ],
+      "velocity": [
+        4.45537130091776,
+        1.82957637026451,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 10.990255104462088,
+      "reward_total": 0.5987772830623178,
+      "reward_components": {
+        "reward_progress": 0.23447039116949428,
+        "reward_safety_static": 0.36802419092328,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.06195498384094107,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 1.6941330500780398,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_train",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "variant": "injected",
+        "run_kind": "train",
+        "behavior_id": "train_nominal_reference",
+        "phase": "train",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 4.816397317878984,
+        "proxy_alignment": 0.0,
+        "scene_cfg_name": "scene_cfg_nominal.yaml"
+      }
+    },
+    {
+      "episode_index": 8,
+      "step_idx": 6,
+      "sim_time": 0.5,
+      "scene_id": "demo3_nominal_gate_v0",
+      "scenario_type": "nominal",
+      "position": [
+        3.578801156027366,
+        2.2399763733959097,
+        1.2
+      ],
+      "velocity": [
+        4.4102208856918725,
+        1.369313081687391,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 10.619117712537893,
+      "reward_total": 0.5694005349505024,
+      "reward_components": {
+        "reward_progress": 0.2261867132542264,
+        "reward_safety_static": 0.34727702301892555,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.0677200220441607,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 1.5800236266040906,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_train",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "variant": "injected",
+        "run_kind": "train",
+        "behavior_id": "train_nominal_reference",
+        "phase": "train",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 4.617907164102915,
+        "proxy_alignment": 0.0,
+        "scene_cfg_name": "scene_cfg_nominal.yaml"
+      }
+    },
+    {
+      "episode_index": 8,
+      "step_idx": 7,
+      "sim_time": 0.5833333333333333,
+      "scene_id": "demo3_nominal_gate_v0",
+      "scenario_type": "nominal",
+      "position": [
+        3.942506394876989,
+        2.4173186174053813,
+        1.2
+      ],
+      "velocity": [
+        4.364462866195478,
+        2.1281069281136595,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 10.217486394475394,
+      "reward_total": 0.5467560874475119,
+      "reward_components": {
+        "reward_progress": 0.23655464814124968,
+        "reward_safety_static": 0.31503297865356705,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.08052565578841464,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 1.402681382594619,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_train",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "variant": "injected",
+        "run_kind": "train",
+        "behavior_id": "train_nominal_reference",
+        "phase": "train",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 4.855653942352626,
+        "proxy_alignment": 0.0,
+        "scene_cfg_name": "scene_cfg_nominal.yaml"
+      }
+    },
+    {
+      "episode_index": 8,
+      "step_idx": 8,
+      "sim_time": 0.6666666666666666,
+      "scene_id": "demo3_nominal_gate_v0",
+      "scenario_type": "nominal",
+      "position": [
+        4.252300880241257,
+        2.641665658637099,
+        1.2
+      ],
+      "velocity": [
+        3.717533824371211,
+        2.6921644947806094,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 9.835460725553132,
+      "reward_total": 0.5181007597347572,
+      "reward_components": {
+        "reward_progress": 0.22988872743356908,
+        "reward_safety_static": 0.2932891496632649,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.08461862270128037,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 1.283090323147957,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_train",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "variant": "injected",
+        "run_kind": "train",
+        "behavior_id": "train_nominal_reference",
+        "phase": "train",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 4.589968126501684,
+        "proxy_alignment": 0.0,
+        "scene_cfg_name": "scene_cfg_nominal.yaml"
+      }
+    },
+    {
+      "episode_index": 8,
+      "step_idx": 9,
+      "sim_time": 0.75,
+      "scene_id": "demo3_nominal_gate_v0",
+      "scenario_type": "nominal",
+      "position": [
+        4.5944499715939076,
+        2.874985466969769,
+        1.2
+      ],
+      "velocity": [
+        4.10578909623181,
+        2.799837699992045,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 9.421438065147095,
+      "reward_total": 0.5949479640490938,
+      "reward_components": {
+        "reward_progress": 0.24475095668769992,
+        "reward_safety_static": 0.35353635847161946,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.05565585183709272,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 1.6144499715939071,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_train",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "variant": "injected",
+        "run_kind": "train",
+        "behavior_id": "train_nominal_reference",
+        "phase": "train",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 4.969566907591925,
+        "proxy_alignment": 0.07966504299294991,
+        "scene_cfg_name": "scene_cfg_nominal.yaml"
+      }
+    },
+    {
+      "episode_index": 8,
+      "step_idx": 10,
+      "sim_time": 0.8333333333333333,
+      "scene_id": "demo3_nominal_gate_v0",
+      "scenario_type": "nominal",
+      "position": [
+        4.930350210309369,
+        3.109220443366407,
+        1.2
+      ],
+      "velocity": [
+        4.030802864585535,
+        2.810819716759651,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 9.012176352588119,
+      "reward_total": 0.6615979751213356,
+      "reward_components": {
+        "reward_progress": 0.2501141705113158,
+        "reward_safety_static": 0.41460912914715786,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.05208874228563576,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 1.9503502103093684,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_train",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "variant": "injected",
+        "run_kind": "train",
+        "behavior_id": "train_nominal_reference",
+        "phase": "train",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 4.914069516528613,
+        "proxy_alignment": 0.21930376482527833,
+        "scene_cfg_name": "scene_cfg_nominal.yaml"
+      }
+    },
+    {
+      "episode_index": 8,
+      "step_idx": 11,
+      "sim_time": 0.9166666666666666,
+      "scene_id": "demo3_nominal_gate_v0",
+      "scenario_type": "nominal",
+      "position": [
+        5.217159733142928,
+        3.3654436123718448,
+        1.2
+      ],
+      "velocity": [
+        3.441714274002713,
+        3.0746780280652555,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 8.632431596176115,
+      "reward_total": 0.6485724867816871,
+      "reward_components": {
+        "reward_progress": 0.24704389851053146,
+        "reward_safety_static": 0.4059709576103767,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.07403948898701673,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 1.9028402668570719,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_train",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "variant": "injected",
+        "run_kind": "train",
+        "behavior_id": "train_nominal_reference",
+        "phase": "train",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 4.6150885278769325,
+        "proxy_alignment": 0.3586136266090042,
+        "scene_cfg_name": "scene_cfg_nominal.yaml"
+      }
+    },
+    {
+      "episode_index": 8,
+      "step_idx": 12,
+      "sim_time": 1.0,
+      "scene_id": "demo3_nominal_gate_v0",
+      "scenario_type": "nominal",
+      "position": [
+        5.504479356819306,
+        3.6562434651275413,
+        1.2
+      ],
+      "velocity": [
+        3.4478354841165277,
+        3.4895982330683584,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 8.234411327072168,
+      "reward_total": 0.6108283580662575,
+      "reward_components": {
+        "reward_progress": 0.26084475753658987,
+        "reward_safety_static": 0.35373102603285356,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.062457091719766746,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 1.6155206431806945,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_train",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "variant": "injected",
+        "run_kind": "train",
+        "behavior_id": "train_nominal_reference",
+        "phase": "train",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 4.905595310843207,
+        "proxy_alignment": 0.5103573208249587,
+        "scene_cfg_name": "scene_cfg_nominal.yaml"
+      }
+    },
+    {
+      "episode_index": 8,
+      "step_idx": 13,
+      "sim_time": 1.0833333333333333,
+      "scene_id": "demo3_nominal_gate_v0",
+      "scenario_type": "nominal",
+      "position": [
+        5.7644178603488845,
+        3.9433928709969304,
+        1.2
+      ],
+      "velocity": [
+        3.119262042354947,
+        3.445792870432669,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 7.862832069875689,
+      "reward_total": 0.569404623314413,
+      "reward_components": {
+        "reward_progress": 0.2591486356460839,
+        "reward_safety_static": 0.3137801107149937,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.05873538411107615,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 1.3957906089324652,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_train",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "variant": "injected",
+        "run_kind": "train",
+        "behavior_id": "train_nominal_reference",
+        "phase": "train",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 4.647933325124293,
+        "proxy_alignment": 0.6562337639856227,
+        "scene_cfg_name": "scene_cfg_nominal.yaml"
+      }
+    },
+    {
+      "episode_index": 8,
+      "step_idx": 14,
+      "sim_time": 1.1666666666666665,
+      "scene_id": "demo3_nominal_gate_v0",
+      "scenario_type": "nominal",
+      "position": [
+        6.04651586422523,
+        4.235380096884678,
+        1.2
+      ],
+      "velocity": [
+        3.3851760465161504,
+        3.503846710652974,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 7.471266325438322,
+      "reward_total": 0.6129156279121867,
+      "reward_components": {
+        "reward_progress": 0.2735089156120941,
+        "reward_safety_static": 0.34279638125175965,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.056494482527785286,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 1.555380096884678,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_train",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "variant": "injected",
+        "run_kind": "train",
+        "behavior_id": "train_nominal_reference",
+        "phase": "train",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 4.871997397131938,
+        "proxy_alignment": 0.8075312500677808,
+        "scene_cfg_name": "scene_cfg_nominal.yaml"
+      }
+    },
+    {
+      "episode_index": 8,
+      "step_idx": 15,
+      "sim_time": 1.25,
+      "scene_id": "demo3_nominal_gate_v0",
+      "scenario_type": "nominal",
+      "position": [
+        6.3159755722028725,
+        4.5267242235507545,
+        1.2
+      ],
+      "velocity": [
+        3.233516495731706,
+        3.496129519992916,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 7.092658369247789,
+      "reward_total": 0.6690580295248703,
+      "reward_components": {
+        "reward_progress": 0.2765513388651162,
+        "reward_safety_static": 0.3957680406455917,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.054355833097292465,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 1.8467242235507544,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_train",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "variant": "injected",
+        "run_kind": "train",
+        "behavior_id": "train_nominal_reference",
+        "phase": "train",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 4.762200179406043,
+        "proxy_alignment": 0.9564926752067007,
+        "scene_cfg_name": "scene_cfg_nominal.yaml"
+      }
+    },
+    {
+      "episode_index": 8,
+      "step_idx": 16,
+      "sim_time": 1.3333333333333333,
+      "scene_id": "demo3_nominal_gate_v0",
+      "scenario_type": "nominal",
+      "position": [
+        6.582493134031173,
+        4.775281792870568,
+        1.2
+      ],
+      "velocity": [
+        3.198210741939608,
+        2.982690831837761,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 6.739116783687627,
+      "reward_total": 0.6390551928962211,
+      "reward_components": {
+        "reward_progress": 0.26571999762464943,
+        "reward_safety_static": 0.3772214922053514,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.0647716155629942,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 1.7447182071294325,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_train",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "variant": "injected",
+        "run_kind": "train",
+        "behavior_id": "train_nominal_reference",
+        "phase": "train",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 4.37321352647992,
+        "proxy_alignment": 0.9103171706838872,
+        "scene_cfg_name": "scene_cfg_nominal.yaml"
+      }
+    },
+    {
+      "episode_index": 8,
+      "step_idx": 17,
+      "sim_time": 1.4166666666666665,
+      "scene_id": "demo3_nominal_gate_v0",
+      "scenario_type": "nominal",
+      "position": [
+        6.884120442416035,
+        5.044901432680688,
+        1.2
+      ],
+      "velocity": [
+        3.619527700618338,
+        3.2354356777214406,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 6.345920795902051,
+      "reward_total": 0.5971179831284436,
+      "reward_components": {
+        "reward_progress": 0.27187429705290217,
+        "reward_safety_static": 0.3284971037393508,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.05422362773015568,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 1.4767340705664294,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_train",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "variant": "injected",
+        "run_kind": "train",
+        "behavior_id": "train_nominal_reference",
+        "phase": "train",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 4.854794001831207,
+        "proxy_alignment": 0.7637532241161293,
+        "scene_cfg_name": "scene_cfg_nominal.yaml"
+      }
+    },
+    {
+      "episode_index": 8,
+      "step_idx": 18,
+      "sim_time": 1.5,
+      "scene_id": "demo3_nominal_gate_v0",
+      "scenario_type": "nominal",
+      "position": [
+        7.1707316741342755,
+        5.323248843594866,
+        1.2
+      ],
+      "velocity": [
+        3.439334780618889,
+        3.3401689309701403,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 5.963731855339565,
+      "reward_total": 0.5808744860759916,
+      "reward_components": {
+        "reward_progress": 0.2607729845854563,
+        "reward_safety_static": 0.3235976588115926,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.05826928868428749,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 1.4497871234637592,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_train",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "variant": "injected",
+        "run_kind": "train",
+        "behavior_id": "train_nominal_reference",
+        "phase": "train",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 4.794345859509198,
+        "proxy_alignment": 0.616574895884216,
+        "scene_cfg_name": "scene_cfg_nominal.yaml"
+      }
+    },
+    {
+      "episode_index": 8,
+      "step_idx": 19,
+      "sim_time": 1.5833333333333333,
+      "scene_id": "demo3_nominal_gate_v0",
+      "scenario_type": "nominal",
+      "position": [
+        7.4646290433727955,
+        5.61347186146406,
+        1.2
+      ],
+      "velocity": [
+        3.5267684308622407,
+        3.4826762144303203,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 5.57229550785568,
+      "reward_total": 0.6285724718043397,
+      "reward_components": {
+        "reward_progress": 0.25628540430455604,
+        "reward_safety_static": 0.37538709879505383,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.051667188254503164,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 1.734629043372796,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_train",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "variant": "injected",
+        "run_kind": "train",
+        "behavior_id": "train_nominal_reference",
+        "phase": "train",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 4.956523900828605,
+        "proxy_alignment": 0.463940923200703,
+        "scene_cfg_name": "scene_cfg_nominal.yaml"
+      }
+    },
+    {
+      "episode_index": 8,
+      "step_idx": 20,
+      "sim_time": 1.6666666666666665,
+      "scene_id": "demo3_nominal_gate_v0",
+      "scenario_type": "nominal",
+      "position": [
+        7.79963131613142,
+        5.822898596289973,
+        1.2
+      ],
+      "velocity": [
+        4.020027273103498,
+        2.5131208179109628,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 5.180080721989631,
+      "reward_total": 0.6806704211403816,
+      "reward_components": {
+        "reward_progress": 0.25001862462627855,
+        "reward_safety_static": 0.43629660293298556,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.09408010698137538,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 2.069631316131421,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_train",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "variant": "injected",
+        "run_kind": "train",
+        "behavior_id": "train_nominal_reference",
+        "phase": "train",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 4.740927706885374,
+        "proxy_alignment": 0.3333119486364392,
+        "scene_cfg_name": "scene_cfg_nominal.yaml"
+      }
+    },
+    {
+      "episode_index": 8,
+      "step_idx": 21,
+      "sim_time": 1.75,
+      "scene_id": "demo3_nominal_gate_v0",
+      "scenario_type": "nominal",
+      "position": [
+        8.129113655452715,
+        6.006589913153257,
+        1.2
+      ],
+      "velocity": [
+        3.9537880718555307,
+        2.204295802359404,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 4.803991175188842,
+      "reward_total": 0.6932517731250653,
+      "reward_components": {
+        "reward_progress": 0.23851015509623508,
+        "reward_safety_static": 0.4583429717358699,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.0600225617839949,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 2.190886344547285,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_train",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "variant": "injected",
+        "run_kind": "train",
+        "behavior_id": "train_nominal_reference",
+        "phase": "train",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 4.5267383513349175,
+        "proxy_alignment": 0.2127941836793366,
+        "scene_cfg_name": "scene_cfg_nominal.yaml"
+      }
+    },
+    {
+      "episode_index": 8,
+      "step_idx": 22,
+      "sim_time": 1.8333333333333333,
+      "scene_id": "demo3_nominal_gate_v0",
+      "scenario_type": "nominal",
+      "position": [
+        8.500968661045336,
+        6.181461891056945,
+        1.2
+      ],
+      "velocity": [
+        4.462260067111458,
+        2.098463734844259,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 4.393100556966539,
+      "reward_total": 0.6310258273427992,
+      "reward_components": {
+        "reward_progress": 0.24412101377514064,
+        "reward_safety_static": 0.3907329707190297,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.06380261918951866,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 1.8190313389546633,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_train",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "variant": "injected",
+        "run_kind": "train",
+        "behavior_id": "train_nominal_reference",
+        "phase": "train",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 4.931056170131717,
+        "proxy_alignment": 0.08836407159115384,
+        "scene_cfg_name": "scene_cfg_nominal.yaml"
+      }
+    },
+    {
+      "episode_index": 8,
+      "step_idx": 23,
+      "sim_time": 1.9166666666666665,
+      "scene_id": "demo3_nominal_gate_v0",
+      "scenario_type": "nominal",
+      "position": [
+        8.849129892817382,
+        6.366105046531755,
+        1.2
+      ],
+      "velocity": [
+        4.177934781264554,
+        2.2157178656977123,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 3.9998081527104046,
+      "reward_total": 0.5575738532107294,
+      "reward_components": {
+        "reward_progress": 0.23371941744708574,
+        "reward_safety_static": 0.32743092857865763,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.059608213583567674,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 1.4708701071826171,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_train",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "variant": "injected",
+        "run_kind": "train",
+        "behavior_id": "train_nominal_reference",
+        "phase": "train",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 4.729116693091018,
+        "proxy_alignment": 0.0,
+        "scene_cfg_name": "scene_cfg_nominal.yaml"
+      }
+    },
+    {
+      "episode_index": 8,
+      "step_idx": 24,
+      "sim_time": 2.0,
+      "scene_id": "demo3_nominal_gate_v0",
+      "scenario_type": "nominal",
+      "position": [
+        9.1851919699485,
+        6.551095133345826,
+        1.2
+      ],
+      "velocity": [
+        4.032744925573411,
+        2.2198810417688577,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 3.6176342530316767,
+      "reward_total": 0.4930809354443542,
+      "reward_components": {
+        "reward_progress": 0.22993912589076745,
+        "reward_safety_static": 0.26632873273663626,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.05311538638415835,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 1.1348080300514995,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_train",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "variant": "injected",
+        "run_kind": "train",
+        "behavior_id": "train_nominal_reference",
+        "phase": "train",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 4.603357847739288,
+        "proxy_alignment": 0.0,
+        "scene_cfg_name": "scene_cfg_nominal.yaml"
+      }
+    },
+    {
+      "episode_index": 8,
+      "step_idx": 25,
+      "sim_time": 2.083333333333333,
+      "scene_id": "demo3_nominal_gate_v0",
+      "scenario_type": "nominal",
+      "position": [
+        9.563831224035546,
+        6.698039310551392,
+        1.2
+      ],
+      "velocity": [
+        4.543671049044555,
+        1.7633301264667942,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 3.2118824259019965,
+      "reward_total": 0.4308447730924449,
+      "reward_components": {
+        "reward_progress": 0.23795562122409128,
+        "reward_safety_static": 0.19748523199353696,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.07660133541972258,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 0.7561687759644533,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_train",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "variant": "injected",
+        "run_kind": "train",
+        "behavior_id": "train_nominal_reference",
+        "phase": "train",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 4.87383624435937,
+        "proxy_alignment": 0.0,
+        "scene_cfg_name": "scene_cfg_nominal.yaml"
+      }
+    },
+    {
+      "episode_index": 8,
+      "step_idx": 26,
+      "sim_time": 2.1666666666666665,
+      "scene_id": "demo3_nominal_gate_v0",
+      "scenario_type": "nominal",
+      "position": [
+        9.92325814681913,
+        6.87442285055408,
+        1.2
+      ],
+      "velocity": [
+        4.3131230734030055,
+        2.116602480032249,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 2.8118539253113397,
+      "reward_total": 0.4725698906225493,
+      "reward_components": {
+        "reward_progress": 0.2360096902008233,
+        "reward_safety_static": 0.24059239033075108,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.06720316515041812,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 0.993258146819131,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_train",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "variant": "injected",
+        "run_kind": "train",
+        "behavior_id": "train_nominal_reference",
+        "phase": "train",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 4.804480898577916,
+        "proxy_alignment": 0.0,
+        "scene_cfg_name": "scene_cfg_nominal.yaml"
+      }
+    },
+    {
+      "episode_index": 8,
+      "step_idx": 27,
+      "sim_time": 2.25,
+      "scene_id": "demo3_nominal_gate_v0",
+      "scenario_type": "nominal",
+      "position": [
+        10.313428498924651,
+        7.012453082548627,
+        1.2
+      ],
+      "velocity": [
+        4.682044225266253,
+        1.656362783934572,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 2.399238179815129,
+      "reward_total": 0.5474276493088218,
+      "reward_components": {
+        "reward_progress": 0.24028935346871164,
+        "reward_safety_static": 0.31153245434993676,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.07323597516377676,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 1.3834284989246521,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_train",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "variant": "injected",
+        "run_kind": "train",
+        "behavior_id": "train_nominal_reference",
+        "phase": "train",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 4.966394647966728,
+        "proxy_alignment": 0.0,
+        "scene_cfg_name": "scene_cfg_nominal.yaml"
+      }
+    },
+    {
+      "episode_index": 8,
+      "step_idx": 28,
+      "sim_time": 2.333333333333333,
+      "scene_id": "demo3_nominal_gate_v0",
+      "scenario_type": "nominal",
+      "position": [
+        10.678449890470377,
+        7.165172455657838,
+        1.2
+      ],
+      "velocity": [
+        4.380256698548713,
+        1.8326324773105256,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 2.003741957019353,
+      "reward_total": 0.608693990409167,
+      "reward_components": {
+        "reward_progress": 0.23446871575056386,
+        "reward_safety_static": 0.3778999800855233,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.061245090448668306,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 1.7484498904703782,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_train",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "variant": "injected",
+        "run_kind": "train",
+        "behavior_id": "train_nominal_reference",
+        "phase": "train",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 4.748177602204259,
+        "proxy_alignment": 0.0,
+        "scene_cfg_name": "scene_cfg_nominal.yaml"
+      }
+    },
+    {
+      "episode_index": 8,
+      "step_idx": 29,
+      "sim_time": 2.4166666666666665,
+      "scene_id": "demo3_nominal_gate_v0",
+      "scenario_type": "nominal",
+      "position": [
+        11.046917258649907,
+        7.329746839716009,
+        1.2
+      ],
+      "velocity": [
+        4.421608418154364,
+        1.9748926086980525,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 1.6002152205500915,
+      "reward_total": 0.6788074546267278,
+      "reward_components": {
+        "reward_progress": 0.23719909039954887,
+        "reward_safety_static": 0.4448940470272561,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.05476138000128808,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 2.1169172586499085,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_train",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "variant": "injected",
+        "run_kind": "train",
+        "behavior_id": "train_nominal_reference",
+        "phase": "train",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 4.842604858893996,
+        "proxy_alignment": 0.0,
+        "scene_cfg_name": "scene_cfg_nominal.yaml"
+      }
+    },
+    {
+      "episode_index": 8,
+      "step_idx": 30,
+      "sim_time": 2.5,
+      "scene_id": "demo3_nominal_gate_v0",
+      "scenario_type": "nominal",
+      "position": [
+        11.410914182688726,
+        7.504172835617652,
+        1.2
+      ],
+      "velocity": [
+        4.367963088465828,
+        2.0931119508197185,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 1.196642174757352,
+      "reward_total": 0.7449684746155374,
+      "reward_components": {
+        "reward_progress": 0.23721483556953143,
+        "reward_safety_static": 0.511075305943405,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.055361114956649554,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 2.4809141826887275,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_train",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "variant": "injected",
+        "run_kind": "train",
+        "behavior_id": "train_nominal_reference",
+        "phase": "train",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 4.843575041316513,
+        "proxy_alignment": 0.0,
+        "scene_cfg_name": "scene_cfg_nominal.yaml"
+      }
+    },
+    {
+      "episode_index": 8,
+      "step_idx": 31,
+      "sim_time": 2.583333333333333,
+      "scene_id": "demo3_nominal_gate_v0",
+      "scenario_type": "nominal",
+      "position": [
+        11.781739417118539,
+        7.6683342466772135,
+        1.2
+      ],
+      "velocity": [
+        4.449902813157749,
+        1.969936932714738,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 0.7911386963411585,
+      "reward_total": 0.8130079804520971,
+      "reward_components": {
+        "reward_progress": 0.23787118266150573,
+        "reward_safety_static": 0.5784980758397346,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.05602130081905374,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 2.85173941711854,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_train",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "variant": "injected",
+        "run_kind": "train",
+        "behavior_id": "train_nominal_reference",
+        "phase": "train",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 4.866444961717208,
+        "proxy_alignment": 0.0,
+        "scene_cfg_name": "scene_cfg_nominal.yaml"
+      }
+    },
+    {
+      "episode_index": 8,
+      "step_idx": 32,
+      "sim_time": 2.6666666666666665,
+      "scene_id": "demo3_nominal_gate_v0",
+      "scenario_type": "nominal",
+      "position": [
+        12.140366063678155,
+        7.837701286576872,
+        1.2
+      ],
+      "velocity": [
+        4.303519758715389,
+        2.032404478795897,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 0.3945598060283738,
+      "reward_total": 0.8752462848972102,
+      "reward_components": {
+        "reward_progress": 0.2348368227063468,
+        "reward_safety_static": 0.6437029206687556,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.05489097463153402,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 3.2103660636781557,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_train",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "variant": "injected",
+        "run_kind": "train",
+        "behavior_id": "train_nominal_reference",
+        "phase": "train",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 4.759301448645944,
+        "proxy_alignment": 0.0,
+        "scene_cfg_name": "scene_cfg_nominal.yaml"
+      }
+    },
+    {
+      "episode_index": 8,
+      "step_idx": 33,
+      "sim_time": 2.75,
+      "scene_id": "demo3_nominal_gate_v0",
+      "scenario_type": "nominal",
+      "position": [
+        12.500328397499702,
+        8.007406134288768,
+        1.2
+      ],
+      "velocity": [
+        4.319548005858572,
+        2.0364581725427584,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 0.007413411496812896,
+      "reward_total": 1.3582001952323246,
+      "reward_components": {
+        "reward_progress": 0.2316297741407307,
+        "reward_safety_static": 0.709578409801625,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.050133145167185436,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 3.572681253908938,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "success",
+      "source": "demo_shifted_gate_train",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "variant": "injected",
+        "run_kind": "train",
+        "behavior_id": "train_nominal_reference",
+        "phase": "train",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 4.775526867627587,
+        "proxy_alignment": 0.0,
+        "scene_cfg_name": "scene_cfg_nominal.yaml"
+      }
+    }
+  ]
+}

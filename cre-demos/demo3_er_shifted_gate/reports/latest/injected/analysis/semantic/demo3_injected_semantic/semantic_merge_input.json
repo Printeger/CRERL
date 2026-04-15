@@ -1,0 +1,94 @@
+{
+  "claim_overview": {
+    "claim_type_breakdown": {
+      "E-C": 1,
+      "E-R": 1
+    },
+    "rejected_count": 0,
+    "supported_count": 1,
+    "weak_count": 1
+  },
+  "consumer_contract": {
+    "claim_consumer_type": "phase7_claim_consumer.v1",
+    "consumer_contract_type": "phase7_claim_consumer_contract.v1",
+    "repair_ready_claim_schema": "phase7_claim_record.v1"
+  },
+  "dynamic_bundle_name": "demo3_injected_dynamic",
+  "evidence_overview": {
+    "dynamic_finding_count": 3,
+    "evidence_object_count": 9,
+    "failure_hotspot_count": 6,
+    "static_finding_count": 8,
+    "witness_count": 3
+  },
+  "human_summary": {
+    "most_likely_claim_summary": "Transfer fragility under environment shift is elevated.",
+    "most_likely_claim_type": "E-R",
+    "next_check_or_repair_direction": "review shifted-family robustness and environment-reward alignment",
+    "strongest_supported_claim_id": "mock_semantic_provider.v1:claim:001",
+    "strongest_uncertainty_claim_id": "mock_semantic_provider.v1:claim:002"
+  },
+  "max_severity": "warning",
+  "merge_input_type": "phase7_semantic_report_merge_input.v1",
+  "metadata": {
+    "merge_target": "phase7_unified_report_generation",
+    "repair_target": "phase8_repair_engine"
+  },
+  "passed": true,
+  "semantic_bundle_name": "demo3_injected_semantic",
+  "spec_version": "demo3-v0",
+  "static_bundle_name": "demo3_injected_static",
+  "top_claim": {
+    "affected_families": [
+      "shifted"
+    ],
+    "affected_scene_cfg_names": [
+      "scene_cfg_shifted.yaml"
+    ],
+    "affected_sources": [
+      "demo_shifted_gate_eval_shifted"
+    ],
+    "claim_id": "mock_semantic_provider.v1:claim:001",
+    "claim_type": "E-R",
+    "confidence": 0.57412215311759,
+    "provider_metadata": {
+      "comparison_run_ids": [
+        "demo3_injected_eval_shifted"
+      ],
+      "crosscheck_messages": [
+        "Claim type 'E-R' is allowed by the semantic contract.",
+        "Claim cites 4 known evidence object(s).",
+        "Claim cites 2 known finding id(s).",
+        "Claim cites 1 known witness id(s).",
+        "Claim is aligned with witness id(s): W_ER.",
+        "Matched families: shifted",
+        "Matched sources: demo_shifted_gate_eval_shifted",
+        "Matched scene configs: scene_cfg_shifted.yaml"
+      ],
+      "crosscheck_passed": true,
+      "generation_mode": "deterministic_mock",
+      "primary_run_ids": [
+        "demo3_injected_eval_nominal"
+      ],
+      "provider_name": "mock_semantic_provider.v1"
+    },
+    "rationale": "Generated from witness W_ER with score 0.574 and real runtime evidence from accepted bundles.",
+    "repair_direction_hint": "review shifted-family robustness and environment-reward alignment",
+    "severity": "warning",
+    "status": "supported",
+    "summary": "Transfer fragility under environment shift is elevated.",
+    "supporting_evidence_ids": [
+      "failure:comparison:scenario_type:shifted",
+      "failure:comparison:scene_cfg_name:scene_cfg_shifted.yaml",
+      "failure:comparison:source:demo_shifted_gate_eval_shifted",
+      "witness:W_ER"
+    ],
+    "supporting_finding_ids": [
+      "W_CR:1",
+      "W_EC:2"
+    ],
+    "supporting_witness_ids": [
+      "W_ER"
+    ]
+  }
+}

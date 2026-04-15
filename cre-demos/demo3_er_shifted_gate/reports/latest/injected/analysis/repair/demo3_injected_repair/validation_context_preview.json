@@ -1,0 +1,244 @@
+{
+  "file_previews": [
+    {
+      "document_type": "yaml",
+      "operation_count": 1,
+      "operations": [
+        {
+          "after": 0.16,
+          "before": 0.04,
+          "metadata": {},
+          "operation": "set",
+          "operation_id": "repair_handoff:scene_backend_capability:6:increase_shifted_boundary_bias:1",
+          "rationale": "Make shifted scenes place more structure near boundary regions to better represent robustness stress.",
+          "target_file": "cre-demos/demo3_er_shifted_gate/cfg/env_injected/scene_cfg_shifted.yaml",
+          "target_path": "distribution_modes.boundary_adjacent_bias",
+          "would_change": true
+        }
+      ],
+      "original_document": {
+        "background_placement": {
+          "free_space_fraction_max": 0.62,
+          "free_space_fraction_min": 0.36,
+          "max_rejection_trials": 1,
+          "obstacle_boundary_min_dist": 0.22,
+          "obstacle_obstacle_min_dist": 0.28
+        },
+        "demo_layout": {
+          "family_scene_key": "shifted",
+          "layout_id": "demo3_er_shifted_gate",
+          "scene_intent": "Injected variant under-prepares the policy for the shifted gate and makes reward-utility decoupling easy to surface.",
+          "scene_layout_file": "scene_layout.yaml"
+        },
+        "distribution_modes": {
+          "background": "fixed_demo_layout",
+          "boundary_adjacent_bias": 0.04,
+          "route_adjacent_bias": 0.28,
+          "shifted_distribution_bias": 0.06,
+          "structure": "template_driven"
+        },
+        "dynamic_obstacles": {
+          "enabled": false,
+          "max_dynamic_count": 0
+        },
+        "logging": {
+          "save_scene_json": true,
+          "save_scene_stats": true,
+          "save_validation_report": true
+        },
+        "primitive_budget": {
+          "box": [
+            3,
+            5
+          ],
+          "capsule": [
+            0,
+            0
+          ],
+          "cylinder": [
+            0,
+            0
+          ],
+          "perforated_slab": [
+            0,
+            0
+          ],
+          "slab": [
+            0,
+            0
+          ],
+          "sphere": [
+            0,
+            0
+          ]
+        },
+        "scene_family": "shifted",
+        "scene_id": "demo3_shifted_gate_v0",
+        "seed": 3403,
+        "start_goal": {
+          "goal_boundary_clearance_min": 0.35,
+          "goal_clearance_min": 0.35,
+          "goal_sampling_mode": "fixed_demo_anchor",
+          "heading_random": false,
+          "start_band_max": 0.0,
+          "start_band_min": 0.0,
+          "start_clearance_min": 0.35,
+          "start_goal_distance_max": 12.5,
+          "start_goal_distance_min": 9.0,
+          "start_sampling_mode": "fixed_demo_anchor"
+        },
+        "templates": {
+          "candidate_types": [
+            "blind_offset_gate",
+            "late_exit_post",
+            "route_squeeze"
+          ],
+          "enabled": true,
+          "max_templates_per_scene": 1,
+          "min_templates_per_scene": 1
+        },
+        "validation": {
+          "allow_failure_analysis_only": false,
+          "enforce_connectivity": true,
+          "max_overlap_tolerance": 0.0,
+          "require_start_goal_valid": true,
+          "require_template_presence": false,
+          "require_traversable_perforation": false,
+          "validate_dynamic_spawn": false
+        },
+        "validation_rules": {
+          "require_shifted_semantics": false
+        },
+        "workspace": {
+          "flight_height_max": 1.6,
+          "flight_height_min": 0.8,
+          "size_x": 14.0,
+          "size_y": 10.0,
+          "size_z": 3.0
+        }
+      },
+      "patched_document": {
+        "background_placement": {
+          "free_space_fraction_max": 0.62,
+          "free_space_fraction_min": 0.36,
+          "max_rejection_trials": 1,
+          "obstacle_boundary_min_dist": 0.22,
+          "obstacle_obstacle_min_dist": 0.28
+        },
+        "demo_layout": {
+          "family_scene_key": "shifted",
+          "layout_id": "demo3_er_shifted_gate",
+          "scene_intent": "Injected variant under-prepares the policy for the shifted gate and makes reward-utility decoupling easy to surface.",
+          "scene_layout_file": "scene_layout.yaml"
+        },
+        "distribution_modes": {
+          "background": "fixed_demo_layout",
+          "boundary_adjacent_bias": 0.16,
+          "route_adjacent_bias": 0.28,
+          "shifted_distribution_bias": 0.06,
+          "structure": "template_driven"
+        },
+        "dynamic_obstacles": {
+          "enabled": false,
+          "max_dynamic_count": 0
+        },
+        "logging": {
+          "save_scene_json": true,
+          "save_scene_stats": true,
+          "save_validation_report": true
+        },
+        "primitive_budget": {
+          "box": [
+            3,
+            5
+          ],
+          "capsule": [
+            0,
+            0
+          ],
+          "cylinder": [
+            0,
+            0
+          ],
+          "perforated_slab": [
+            0,
+            0
+          ],
+          "slab": [
+            0,
+            0
+          ],
+          "sphere": [
+            0,
+            0
+          ]
+        },
+        "scene_family": "shifted",
+        "scene_id": "demo3_shifted_gate_v0",
+        "seed": 3403,
+        "start_goal": {
+          "goal_boundary_clearance_min": 0.35,
+          "goal_clearance_min": 0.35,
+          "goal_sampling_mode": "fixed_demo_anchor",
+          "heading_random": false,
+          "start_band_max": 0.0,
+          "start_band_min": 0.0,
+          "start_clearance_min": 0.35,
+          "start_goal_distance_max": 12.5,
+          "start_goal_distance_min": 9.0,
+          "start_sampling_mode": "fixed_demo_anchor"
+        },
+        "templates": {
+          "candidate_types": [
+            "blind_offset_gate",
+            "late_exit_post",
+            "route_squeeze"
+          ],
+          "enabled": true,
+          "max_templates_per_scene": 1,
+          "min_templates_per_scene": 1
+        },
+        "validation": {
+          "allow_failure_analysis_only": false,
+          "enforce_connectivity": true,
+          "max_overlap_tolerance": 0.0,
+          "require_start_goal_valid": true,
+          "require_template_presence": false,
+          "require_traversable_perforation": false,
+          "validate_dynamic_spawn": false
+        },
+        "validation_rules": {
+          "require_shifted_semantics": false
+        },
+        "workspace": {
+          "flight_height_max": 1.6,
+          "flight_height_min": 0.8,
+          "size_x": 14.0,
+          "size_y": 10.0,
+          "size_z": 3.0
+        }
+      },
+      "resolved_target_file": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/env_injected/scene_cfg_shifted.yaml",
+      "target_file": "cre-demos/demo3_er_shifted_gate/cfg/env_injected/scene_cfg_shifted.yaml"
+    }
+  ],
+  "phase9_entrypoint": "repair_validation_loop.v1",
+  "preferred_execution_modes": [
+    "baseline",
+    "eval"
+  ],
+  "preview_mode": "non_destructive_validation_context",
+  "preview_type": "phase9_validation_context_preview.v1",
+  "repair_bundle_name": "demo3_injected_repair",
+  "scene_family_scope": [
+    "nominal",
+    "shifted"
+  ],
+  "source_mutation_performed": false,
+  "target_file_count": 1,
+  "validation_targets": [
+    "W_ER",
+    "nominal_vs_shifted_success_gap",
+    "shifted_min_distance"
+  ]
+}

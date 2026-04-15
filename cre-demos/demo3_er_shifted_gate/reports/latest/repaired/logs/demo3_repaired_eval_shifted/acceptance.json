@@ -1,0 +1,45 @@
+{
+  "passed": true,
+  "run_dir": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/reports/latest/repaired/logs/demo3_repaired_eval_shifted",
+  "source": "demo_shifted_gate_eval_shifted",
+  "metrics": {
+    "episode_count": 12,
+    "success_rate": 0.8333333333333334,
+    "collision_rate": 0.0,
+    "out_of_bounds_rate": 0.0,
+    "min_distance": -0.015522971820007725,
+    "average_return": 27.36357163761619,
+    "near_violation_ratio": 0.09420289855072464,
+    "done_type_counts": {
+      "success": 10,
+      "truncated": 2
+    }
+  },
+  "checks": {
+    "artifact_completeness": {
+      "passed": true,
+      "errors": []
+    },
+    "step_schema": {
+      "passed": true,
+      "errors": []
+    },
+    "episode_schema": {
+      "passed": true,
+      "errors": []
+    },
+    "summary_consistency": {
+      "passed": true,
+      "errors": []
+    },
+    "cross_file_consistency": {
+      "passed": true,
+      "errors": []
+    },
+    "run_metric_sufficiency": {
+      "passed": true,
+      "errors": []
+    }
+  },
+  "errors": []
+}

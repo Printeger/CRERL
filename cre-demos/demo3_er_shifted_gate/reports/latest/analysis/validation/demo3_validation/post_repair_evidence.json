@@ -1,0 +1,396 @@
+{
+  "accepted": true,
+  "blocked_by": [],
+  "comparison_mode": "",
+  "consumer_contract": {
+    "consumer_expectations": {
+      "bounded_rerun_adapter_metadata_required": true,
+      "decision_must_be_machine_readable": true,
+      "post_repair_bundle_is_namespaced": true,
+      "scenario_conditioned_summaries_required": true
+    },
+    "contract_type": "phase10_post_repair_evidence_consumer.v2",
+    "phase10_entrypoint": "post_repair_validation_consumer.v1",
+    "required_metric_delta_fields": [
+      "metric_name",
+      "category",
+      "direction",
+      "original",
+      "repaired",
+      "delta_raw",
+      "improvement"
+    ],
+    "required_rerun_task_fields": [
+      "task_id",
+      "execution_mode",
+      "adapter_type",
+      "supports_real_execution",
+      "fallback_runner_mode",
+      "script_path",
+      "hydra_overrides",
+      "command_preview",
+      "bounded_limits"
+    ],
+    "required_run_ref_fields": [
+      "run_dir",
+      "run_id",
+      "source",
+      "scenario_type",
+      "scene_cfg_name"
+    ],
+    "required_top_level_fields": [
+      "primary_claim_type",
+      "decision_status",
+      "accepted",
+      "metric_deltas",
+      "original_run_refs",
+      "repaired_run_refs",
+      "rerun_tasks",
+      "triggered_rerun_results"
+    ],
+    "required_triggered_result_fields": [
+      "task_id",
+      "runner_mode",
+      "status",
+      "run_dir",
+      "run_id",
+      "scenario_type",
+      "scene_cfg_name",
+      "source"
+    ]
+  },
+  "decision_status": "accepted",
+  "evidence_schema_version": "phase10_post_repair_evidence.v2",
+  "evidence_type": "phase10_post_repair_evidence.v1",
+  "metric_deltas": {
+    "U_task_v1_mean": {
+      "category": "auxiliary",
+      "delta_raw": 0.1814319034898088,
+      "direction": "higher_better",
+      "improvement": 0.1814319034898088,
+      "metric_name": "U_task_v1_mean",
+      "original": 0.41089794655587203,
+      "repaired": 0.5923298500456808,
+      "source_metric_name": "U_task_v1_mean"
+    },
+    "average_return": {
+      "category": "performance",
+      "delta_raw": 1.206657244275764,
+      "direction": "higher_better",
+      "improvement": 1.206657244275764,
+      "metric_name": "average_return",
+      "original": 26.61832601818973,
+      "repaired": 27.824983262465494,
+      "source_metric_name": "average_return"
+    },
+    "clearance_score_mean": {
+      "category": "auxiliary",
+      "delta_raw": 0.1306061427593943,
+      "direction": "higher_better",
+      "improvement": 0.1306061427593943,
+      "metric_name": "clearance_score_mean",
+      "original": 0.31218583045206744,
+      "repaired": 0.44279197321146174,
+      "source_metric_name": "clearance_score_mean"
+    },
+    "collision_rate": {
+      "category": "safety",
+      "delta_raw": -0.125,
+      "direction": "lower_better",
+      "improvement": 0.125,
+      "metric_name": "collision_rate",
+      "original": 0.125,
+      "repaired": 0.0,
+      "source_metric_name": "collision_rate"
+    },
+    "critical_region_entry_rate": {
+      "category": "auxiliary",
+      "delta_raw": 0.20833333333333331,
+      "direction": "higher_better",
+      "improvement": 0.20833333333333331,
+      "metric_name": "critical_region_entry_rate",
+      "original": 0.2916666666666667,
+      "repaired": 0.5,
+      "source_metric_name": "critical_region_entry_rate"
+    },
+    "episode_count": {
+      "category": "auxiliary",
+      "delta_raw": 0.0,
+      "direction": "higher_better",
+      "improvement": 0.0,
+      "metric_name": "episode_count",
+      "original": 12.0,
+      "repaired": 12.0,
+      "source_metric_name": "episode_count"
+    },
+    "min_distance": {
+      "category": "safety",
+      "delta_raw": 0.2736456280879428,
+      "direction": "higher_better",
+      "improvement": 0.2736456280879428,
+      "metric_name": "min_distance",
+      "original": 0.09302546143575302,
+      "repaired": 0.3666710895236958,
+      "source_metric_name": "min_distance"
+    },
+    "near_violation_distance": {
+      "category": "auxiliary",
+      "delta_raw": 0.0,
+      "direction": "higher_better",
+      "improvement": 0.0,
+      "metric_name": "near_violation_distance",
+      "original": 0.55,
+      "repaired": 0.55,
+      "source_metric_name": "near_violation_distance"
+    },
+    "near_violation_ratio": {
+      "category": "safety",
+      "delta_raw": -0.2346014492753623,
+      "direction": "lower_better",
+      "improvement": 0.2346014492753623,
+      "metric_name": "near_violation_ratio",
+      "original": 0.2817028985507246,
+      "repaired": 0.04710144927536232,
+      "source_metric_name": "near_violation_ratio"
+    },
+    "nominal_vs_shifted_collision_gap": {
+      "category": "auxiliary",
+      "delta_raw": -0.25,
+      "direction": "lower_better",
+      "improvement": 0.25,
+      "metric_name": "nominal_vs_shifted_collision_gap",
+      "original": 0.25,
+      "repaired": 0.0,
+      "source_metric_name": "abs(nominal.collision_rate-shifted.collision_rate)"
+    },
+    "nominal_vs_shifted_min_distance_gap": {
+      "category": "auxiliary",
+      "delta_raw": -0.35665425824388397,
+      "direction": "lower_better",
+      "improvement": 0.35665425824388397,
+      "metric_name": "nominal_vs_shifted_min_distance_gap",
+      "original": 1.121042380931291,
+      "repaired": 0.7643881226874071,
+      "source_metric_name": "abs(nominal.min_distance-shifted.min_distance)"
+    },
+    "nominal_vs_shifted_near_violation_gap": {
+      "category": "auxiliary",
+      "delta_raw": -0.4692028985507246,
+      "direction": "lower_better",
+      "improvement": 0.4692028985507246,
+      "metric_name": "nominal_vs_shifted_near_violation_gap",
+      "original": 0.5634057971014492,
+      "repaired": 0.09420289855072464,
+      "source_metric_name": "abs(nominal.near_violation_ratio-shifted.near_violation_ratio)"
+    },
+    "nominal_vs_shifted_return_gap": {
+      "category": "auxiliary",
+      "delta_raw": -0.9607713678474177,
+      "direction": "lower_better",
+      "improvement": 0.9607713678474177,
+      "metric_name": "nominal_vs_shifted_return_gap",
+      "original": 1.8835946175460236,
+      "repaired": 0.922823249698606,
+      "source_metric_name": "abs(nominal.average_return-shifted.average_return)"
+    },
+    "nominal_vs_shifted_success_gap": {
+      "category": "auxiliary",
+      "delta_raw": -0.5000000000000001,
+      "direction": "lower_better",
+      "improvement": 0.5000000000000001,
+      "metric_name": "nominal_vs_shifted_success_gap",
+      "original": 0.6666666666666667,
+      "repaired": 0.16666666666666663,
+      "source_metric_name": "abs(nominal.success_rate-shifted.success_rate)"
+    },
+    "out_of_bounds_rate": {
+      "category": "auxiliary",
+      "delta_raw": 0.0,
+      "direction": "higher_better",
+      "improvement": 0.0,
+      "metric_name": "out_of_bounds_rate",
+      "original": 0.0,
+      "repaired": 0.0,
+      "source_metric_name": "out_of_bounds_rate"
+    },
+    "path_efficiency_score_mean": {
+      "category": "auxiliary",
+      "delta_raw": 0.040324791343771094,
+      "direction": "higher_better",
+      "improvement": 0.040324791343771094,
+      "metric_name": "path_efficiency_score_mean",
+      "original": 0.9281905810318831,
+      "repaired": 0.9685153723756542,
+      "source_metric_name": "path_efficiency_score_mean"
+    },
+    "reward_utility_correlation": {
+      "category": "auxiliary",
+      "delta_raw": -0.2796123854506831,
+      "direction": "higher_better",
+      "improvement": -0.2796123854506831,
+      "metric_name": "reward_utility_correlation",
+      "original": 0.9563385842114138,
+      "repaired": 0.6767261987607307,
+      "source_metric_name": "reward_utility_correlation"
+    },
+    "shifted_min_distance": {
+      "category": "auxiliary",
+      "delta_raw": 0.45197275720988483,
+      "direction": "higher_better",
+      "improvement": 0.45197275720988483,
+      "metric_name": "shifted_min_distance",
+      "original": -0.46749572902989256,
+      "repaired": -0.015522971820007725,
+      "source_metric_name": "shifted.min_distance"
+    },
+    "success_rate": {
+      "category": "performance",
+      "delta_raw": 0.2500000000000001,
+      "direction": "higher_better",
+      "improvement": 0.2500000000000001,
+      "metric_name": "success_rate",
+      "original": 0.6666666666666666,
+      "repaired": 0.9166666666666667,
+      "source_metric_name": "success_rate"
+    },
+    "time_efficiency_score_mean": {
+      "category": "auxiliary",
+      "delta_raw": 0.14338810079492348,
+      "direction": "higher_better",
+      "improvement": 0.14338810079492348,
+      "metric_name": "time_efficiency_score_mean",
+      "original": 0.8269363874081026,
+      "repaired": 0.9703244882030261,
+      "source_metric_name": "time_efficiency_score_mean"
+    },
+    "timeout_rate": {
+      "category": "auxiliary",
+      "delta_raw": -0.125,
+      "direction": "higher_better",
+      "improvement": -0.125,
+      "metric_name": "timeout_rate",
+      "original": 0.20833333333333334,
+      "repaired": 0.08333333333333333,
+      "source_metric_name": "timeout_rate"
+    }
+  },
+  "original_by_scenario": {
+    "nominal": {
+      "U_task_v1_mean": 0.6607557041229147,
+      "average_return": 27.560123326962742,
+      "clearance_score_mean": 0.6243716609041349,
+      "collision_rate": 0.0,
+      "critical_region_entry_rate": 0.0,
+      "episode_count": 12.0,
+      "min_distance": 0.6535466519013986,
+      "near_violation_distance": 0.55,
+      "near_violation_ratio": 0.0,
+      "out_of_bounds_rate": 0.0,
+      "path_efficiency_score_mean": 0.9840423310613812,
+      "reward_utility_correlation": 0.9561402486301371,
+      "success_rate": 1.0,
+      "time_efficiency_score_mean": 0.9991430492636311,
+      "timeout_rate": 0.0
+    },
+    "shifted": {
+      "U_task_v1_mean": 0.1610401889888293,
+      "average_return": 25.67652870941672,
+      "clearance_score_mean": 0.0,
+      "collision_rate": 0.25,
+      "critical_region_entry_rate": 0.5833333333333334,
+      "episode_count": 12.0,
+      "min_distance": -0.46749572902989256,
+      "near_violation_distance": 0.55,
+      "near_violation_ratio": 0.5634057971014492,
+      "out_of_bounds_rate": 0.0,
+      "path_efficiency_score_mean": 0.8723388310023852,
+      "reward_utility_correlation": 0.9565369197926904,
+      "success_rate": 0.3333333333333333,
+      "time_efficiency_score_mean": 0.6547297255525741,
+      "timeout_rate": 0.4166666666666667
+    }
+  },
+  "original_run_refs": [
+    {
+      "run_dir": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/reports/latest/injected/logs/demo3_injected_eval_nominal",
+      "run_id": "demo3_injected_eval_nominal",
+      "scenario_type": "nominal",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "source": "demo_shifted_gate_eval_nominal"
+    },
+    {
+      "run_dir": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/reports/latest/injected/logs/demo3_injected_eval_shifted",
+      "run_id": "demo3_injected_eval_shifted",
+      "scenario_type": "shifted",
+      "scene_cfg_name": "scene_cfg_shifted.yaml",
+      "source": "demo_shifted_gate_eval_shifted"
+    }
+  ],
+  "phase10_ready": false,
+  "primary_claim_type": "E-R",
+  "repair_bundle_name": "demo3_injected_repair",
+  "repaired_by_scenario": {
+    "nominal": {
+      "U_task_v1_mean": 0.6635046478138967,
+      "average_return": 28.286394887314795,
+      "clearance_score_mean": 0.6519218709851996,
+      "collision_rate": 0.0,
+      "critical_region_entry_rate": 0.0,
+      "episode_count": 12.0,
+      "min_distance": 0.7488651508673994,
+      "near_violation_distance": 0.55,
+      "near_violation_ratio": 0.0,
+      "out_of_bounds_rate": 0.0,
+      "path_efficiency_score_mean": 0.983921529574315,
+      "reward_utility_correlation": 0.467047124085232,
+      "success_rate": 1.0,
+      "time_efficiency_score_mean": 0.9992030775794524,
+      "timeout_rate": 0.0
+    },
+    "shifted": {
+      "U_task_v1_mean": 0.5211550522774651,
+      "average_return": 27.36357163761619,
+      "clearance_score_mean": 0.2336620754377239,
+      "collision_rate": 0.0,
+      "critical_region_entry_rate": 1.0,
+      "episode_count": 12.0,
+      "min_distance": -0.015522971820007725,
+      "near_violation_distance": 0.55,
+      "near_violation_ratio": 0.09420289855072464,
+      "out_of_bounds_rate": 0.0,
+      "path_efficiency_score_mean": 0.9531092151769934,
+      "reward_utility_correlation": 0.8864052734362294,
+      "success_rate": 0.8333333333333334,
+      "time_efficiency_score_mean": 0.9414458988265998,
+      "timeout_rate": 0.16666666666666666
+    }
+  },
+  "repaired_run_refs": [
+    {
+      "run_dir": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/reports/latest/repaired/logs/demo3_repaired_eval_nominal",
+      "run_id": "demo3_repaired_eval_nominal",
+      "scenario_type": "nominal",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "source": "demo_shifted_gate_eval_nominal"
+    },
+    {
+      "run_dir": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/reports/latest/repaired/logs/demo3_repaired_eval_shifted",
+      "run_id": "demo3_repaired_eval_shifted",
+      "scenario_type": "shifted",
+      "scene_cfg_name": "scene_cfg_shifted.yaml",
+      "source": "demo_shifted_gate_eval_shifted"
+    }
+  ],
+  "requested_rerun_mode": "not_requested",
+  "rerun_tasks": [],
+  "triggered_rerun_results": {},
+  "validation_targets": [
+    "W_ER",
+    "shifted_min_distance",
+    "nominal_vs_shifted_success_gap",
+    "nominal_vs_shifted_min_distance_gap",
+    "nominal_vs_shifted_collision_gap",
+    "nominal_vs_shifted_near_violation_gap",
+    "nominal_vs_shifted_return_gap"
+  ]
+}

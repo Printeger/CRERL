@@ -1,0 +1,154 @@
+{
+  "claim_set_type": "semantic_claim_set.v1",
+  "cross_checks": [
+    {
+      "claim_id": "mock_semantic_provider.v1:claim:001",
+      "matched_evidence_ids": [
+        "failure:comparison:scenario_type:shifted",
+        "failure:comparison:scene_cfg_name:scene_cfg_shifted.yaml",
+        "failure:comparison:source:demo_shifted_gate_eval_shifted",
+        "witness:W_ER"
+      ],
+      "matched_witness_ids": [
+        "W_ER"
+      ],
+      "messages": [
+        "Claim type 'E-R' is allowed by the semantic contract.",
+        "Claim cites 4 known evidence object(s).",
+        "Claim cites 2 known finding id(s).",
+        "Claim cites 1 known witness id(s).",
+        "Claim is aligned with witness id(s): W_ER.",
+        "Matched families: shifted",
+        "Matched sources: demo_shifted_gate_eval_shifted",
+        "Matched scene configs: scene_cfg_shifted.yaml"
+      ],
+      "passed": true,
+      "support_status": "supported"
+    },
+    {
+      "claim_id": "mock_semantic_provider.v1:claim:002",
+      "matched_evidence_ids": [
+        "witness:W_EC"
+      ],
+      "matched_witness_ids": [
+        "W_EC"
+      ],
+      "messages": [
+        "Claim type 'E-C' is allowed by the semantic contract.",
+        "Claim cites 1 known evidence object(s).",
+        "Claim cites 2 known finding id(s).",
+        "Claim cites 1 known witness id(s).",
+        "Claim is aligned with witness id(s): W_EC.",
+        "Matched sources: <none>"
+      ],
+      "passed": false,
+      "support_status": "weak"
+    }
+  ],
+  "metadata": {
+    "semantic_contract_type": "phase6_dynamic_semantic_contract.v1",
+    "semantic_input_type": "semantic_analysis_input.v1"
+  },
+  "rejected_claims": [],
+  "supported_claims": [
+    {
+      "affected_families": [
+        "shifted"
+      ],
+      "affected_scene_cfg_names": [
+        "scene_cfg_shifted.yaml"
+      ],
+      "affected_sources": [
+        "demo_shifted_gate_eval_shifted"
+      ],
+      "claim_id": "mock_semantic_provider.v1:claim:001",
+      "claim_type": "E-R",
+      "confidence": 0.57412215311759,
+      "provider_metadata": {
+        "comparison_run_ids": [
+          "demo3_injected_eval_shifted"
+        ],
+        "crosscheck_messages": [
+          "Claim type 'E-R' is allowed by the semantic contract.",
+          "Claim cites 4 known evidence object(s).",
+          "Claim cites 2 known finding id(s).",
+          "Claim cites 1 known witness id(s).",
+          "Claim is aligned with witness id(s): W_ER.",
+          "Matched families: shifted",
+          "Matched sources: demo_shifted_gate_eval_shifted",
+          "Matched scene configs: scene_cfg_shifted.yaml"
+        ],
+        "crosscheck_passed": true,
+        "generation_mode": "deterministic_mock",
+        "primary_run_ids": [
+          "demo3_injected_eval_nominal"
+        ],
+        "provider_name": "mock_semantic_provider.v1"
+      },
+      "rationale": "Generated from witness W_ER with score 0.574 and real runtime evidence from accepted bundles.",
+      "repair_direction_hint": "review shifted-family robustness and environment-reward alignment",
+      "severity": "warning",
+      "status": "supported",
+      "summary": "Transfer fragility under environment shift is elevated.",
+      "supporting_evidence_ids": [
+        "failure:comparison:scenario_type:shifted",
+        "failure:comparison:scene_cfg_name:scene_cfg_shifted.yaml",
+        "failure:comparison:source:demo_shifted_gate_eval_shifted",
+        "witness:W_ER"
+      ],
+      "supporting_finding_ids": [
+        "W_CR:1",
+        "W_EC:2"
+      ],
+      "supporting_witness_ids": [
+        "W_ER"
+      ]
+    }
+  ],
+  "weak_claims": [
+    {
+      "affected_families": [],
+      "affected_scene_cfg_names": [],
+      "affected_sources": [
+        "unknown"
+      ],
+      "claim_id": "mock_semantic_provider.v1:claim:002",
+      "claim_type": "E-C",
+      "confidence": 0.4333333333333334,
+      "provider_metadata": {
+        "comparison_run_ids": [
+          "demo3_injected_eval_shifted"
+        ],
+        "crosscheck_messages": [
+          "Claim type 'E-C' is allowed by the semantic contract.",
+          "Claim cites 1 known evidence object(s).",
+          "Claim cites 2 known finding id(s).",
+          "Claim cites 1 known witness id(s).",
+          "Claim is aligned with witness id(s): W_EC.",
+          "Matched sources: <none>"
+        ],
+        "crosscheck_passed": false,
+        "generation_mode": "deterministic_mock",
+        "primary_run_ids": [
+          "demo3_injected_eval_nominal"
+        ],
+        "provider_name": "mock_semantic_provider.v1"
+      },
+      "rationale": "Generated from witness W_EC with score 0.433 and real runtime evidence from accepted bundles.",
+      "repair_direction_hint": "review family coverage and critical scenario exposure",
+      "severity": "warning",
+      "status": "weak",
+      "summary": "Critical-state coverage appears acceptable.",
+      "supporting_evidence_ids": [
+        "witness:W_EC"
+      ],
+      "supporting_finding_ids": [
+        "W_CR:1",
+        "W_EC:2"
+      ],
+      "supporting_witness_ids": [
+        "W_EC"
+      ]
+    }
+  ]
+}

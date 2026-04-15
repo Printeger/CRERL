@@ -1,0 +1,1281 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <title>Demo 3 Nominal Replay</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 28px;
+      font-family: "Trebuchet MS", "Avenir Next", sans-serif;
+      background: linear-gradient(135deg, #f6f0e7, #eef5f7);
+      color: #1f2933;
+    }
+    h1 {
+      margin: 0 0 12px;
+      font-size: 30px;
+      font-weight: 700;
+    }
+    p {
+      margin: 0 0 24px;
+      font-size: 17px;
+      line-height: 1.6;
+      color: #55616d;
+      max-width: 980px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 18px;
+    }
+    .panel {
+      background: rgba(255,255,255,0.9);
+      border: 1px solid #d8d0c4;
+      border-radius: 18px;
+      padding: 14px;
+      box-shadow: 0 12px 28px rgba(36, 42, 48, 0.08);
+    }
+    .label {
+      font-size: 19px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .meta {
+      margin-top: 8px;
+      font-size: 14px;
+      color: #5f6b76;
+    }
+    svg {
+      width: 100%;
+      display: block;
+      border-radius: 14px;
+      background: #fffdfa;
+    }
+  </style>
+</head>
+<body>
+  <h1>Demo 3 Nominal Replay</h1>
+  <p>Nominal scenes keep reward and utility mostly aligned across variants.</p>
+  <div class="grid" id="grid"></div>
+  <script>
+    const payload = {
+  "workspace": {
+    "xmin": 0.0,
+    "ymin": 0.0,
+    "xmax": 14.0,
+    "ymax": 10.0,
+    "flight_z": 1.2
+  },
+  "start": [
+    1.3,
+    1.5
+  ],
+  "goal": [
+    12.5,
+    8.0
+  ],
+  "panels": [
+    {
+      "id": "nominal-clean",
+      "label": "Clean nominal",
+      "color": "#1d4ed8",
+      "family_layout": {
+        "scene_id": "demo3_nominal_gate_v0",
+        "scene_cfg_name": "scene_cfg_nominal.yaml",
+        "label": "Nominal Centered Gate",
+        "scene_intent": "Centered gate crossing where reward and mission utility are mostly aligned.",
+        "gate": {
+          "center": [
+            6.42,
+            4.6
+          ],
+          "width": 1.6,
+          "height": 1.6
+        },
+        "obstacles": [
+          {
+            "id": "nominal_entry_block",
+            "kind": "rect",
+            "x": 3.2,
+            "y": 2.7,
+            "width": 0.9,
+            "height": 2.0
+          },
+          {
+            "id": "nominal_gate_lower_pillar",
+            "kind": "rect",
+            "x": 6.0,
+            "y": 2.2,
+            "width": 0.85,
+            "height": 1.6
+          },
+          {
+            "id": "nominal_gate_upper_pillar",
+            "kind": "rect",
+            "x": 6.0,
+            "y": 5.4,
+            "width": 0.85,
+            "height": 1.8
+          },
+          {
+            "id": "nominal_exit_block",
+            "kind": "rect",
+            "x": 9.2,
+            "y": 6.0,
+            "width": 0.85,
+            "height": 1.9
+          }
+        ],
+        "reference_paths": {
+          "nominal_centerline": {
+            "label": "Centered nominal route",
+            "waypoints": [
+              [
+                1.3,
+                1.5
+              ],
+              [
+                2.4,
+                1.8
+              ],
+              [
+                3.8,
+                2.3
+              ],
+              [
+                5.1,
+                3.2
+              ],
+              [
+                6.35,
+                4.55
+              ],
+              [
+                7.55,
+                5.7
+              ],
+              [
+                9.1,
+                6.55
+              ],
+              [
+                10.8,
+                7.25
+              ],
+              [
+                12.5,
+                8.0
+              ]
+            ]
+          },
+          "nominal_buffered": {
+            "label": "Nominal route with extra gate margin",
+            "waypoints": [
+              [
+                1.3,
+                1.5
+              ],
+              [
+                2.2,
+                1.9
+              ],
+              [
+                3.5,
+                2.6
+              ],
+              [
+                4.8,
+                3.5
+              ],
+              [
+                5.8,
+                4.2
+              ],
+              [
+                6.25,
+                4.95
+              ],
+              [
+                7.2,
+                5.9
+              ],
+              [
+                8.8,
+                6.7
+              ],
+              [
+                10.6,
+                7.4
+              ],
+              [
+                12.5,
+                8.0
+              ]
+            ]
+          },
+          "nominal_slow": {
+            "label": "Nominal slow but safe route",
+            "waypoints": [
+              [
+                1.3,
+                1.5
+              ],
+              [
+                2.2,
+                1.8
+              ],
+              [
+                3.4,
+                2.4
+              ],
+              [
+                4.6,
+                3.1
+              ],
+              [
+                5.6,
+                3.9
+              ],
+              [
+                6.2,
+                4.55
+              ],
+              [
+                6.9,
+                5.2
+              ],
+              [
+                7.8,
+                5.9
+              ],
+              [
+                9.0,
+                6.6
+              ],
+              [
+                10.6,
+                7.3
+              ],
+              [
+                12.5,
+                8.0
+              ]
+            ]
+          }
+        }
+      },
+      "trajectory": [
+        [
+          1.3102760754604925,
+          1.5084706411061388
+        ],
+        [
+          1.5963819034006523,
+          1.5692746827412947
+        ],
+        [
+          1.8560580905363424,
+          1.6498875937371158
+        ],
+        [
+          2.15617275502708,
+          1.7445968454124152
+        ],
+        [
+          2.4290807045588734,
+          1.8380670446224676
+        ],
+        [
+          2.712829717311421,
+          1.9361582382779075
+        ],
+        [
+          2.991441405449141,
+          2.0307208680705524
+        ],
+        [
+          3.2578905393262176,
+          2.1350500607070413
+        ],
+        [
+          3.521464183144262,
+          2.234802763008154
+        ],
+        [
+          3.8073113978999875,
+          2.3343197032412015
+        ],
+        [
+          4.042680711475852,
+          2.5044594601090466
+        ],
+        [
+          4.291791485746749,
+          2.653980238105325
+        ],
+        [
+          4.52199782279736,
+          2.8356542401205034
+        ],
+        [
+          4.755500858400907,
+          2.998805903319761
+        ],
+        [
+          5.010929148191703,
+          3.168494735410781
+        ],
+        [
+          5.221770835370545,
+          3.368305087712047
+        ],
+        [
+          5.424680857377847,
+          3.578084778094364
+        ],
+        [
+          5.620763492306301,
+          3.78919876899184
+        ],
+        [
+          5.810162063963405,
+          4.010441002955627
+        ],
+        [
+          6.011806701799764,
+          4.195763619178949
+        ],
+        [
+          6.225899088172602,
+          4.405686218746051
+        ],
+        [
+          6.424114582844093,
+          4.621292689311478
+        ],
+        [
+          6.622822375994311,
+          4.82432719143682
+        ],
+        [
+          6.834699936806839,
+          5.0168147952954145
+        ],
+        [
+          7.051312875842787,
+          5.226956251551234
+        ],
+        [
+          7.269158808986081,
+          5.421361706719926
+        ],
+        [
+          7.471000574154531,
+          5.620472034487262
+        ],
+        [
+          7.73451841178839,
+          5.787590850382401
+        ],
+        [
+          7.988812872569701,
+          5.920883487692254
+        ],
+        [
+          8.236011401991389,
+          6.045294867193443
+        ],
+        [
+          8.497443556766655,
+          6.200540055301101
+        ],
+        [
+          8.744207344947355,
+          6.340156228333865
+        ],
+        [
+          8.99100435450116,
+          6.479064296841892
+        ],
+        [
+          9.269608065488265,
+          6.57636944884272
+        ],
+        [
+          9.53694368655287,
+          6.702385480289353
+        ],
+        [
+          9.804676155368465,
+          6.816763995638734
+        ],
+        [
+          10.073035074063315,
+          6.924115777385337
+        ],
+        [
+          10.341567808833068,
+          7.041072896177934
+        ],
+        [
+          10.635051449688818,
+          7.1433077973420485
+        ],
+        [
+          10.901954817224253,
+          7.261485856253189
+        ],
+        [
+          11.170122300058585,
+          7.388837703763784
+        ],
+        [
+          11.430342336643529,
+          7.50963094322923
+        ],
+        [
+          11.694175155066848,
+          7.6343768773613325
+        ],
+        [
+          11.95492158993097,
+          7.7476462781125965
+        ],
+        [
+          12.234382005804369,
+          7.88468449131203
+        ],
+        [
+          12.493085423275655,
+          8.006116679694419
+        ]
+      ],
+      "meta": {
+        "outcome": "success",
+        "return_total": 27.838138651715298,
+        "utility_score": 0.6617253008106051
+      }
+    },
+    {
+      "id": "nominal-injected",
+      "label": "Injected nominal",
+      "color": "#d9481c",
+      "family_layout": {
+        "scene_id": "demo3_nominal_gate_v0",
+        "scene_cfg_name": "scene_cfg_nominal.yaml",
+        "label": "Nominal Centered Gate",
+        "scene_intent": "Centered gate crossing where reward and mission utility are mostly aligned.",
+        "gate": {
+          "center": [
+            6.42,
+            4.6
+          ],
+          "width": 1.6,
+          "height": 1.6
+        },
+        "obstacles": [
+          {
+            "id": "nominal_entry_block",
+            "kind": "rect",
+            "x": 3.2,
+            "y": 2.7,
+            "width": 0.9,
+            "height": 2.0
+          },
+          {
+            "id": "nominal_gate_lower_pillar",
+            "kind": "rect",
+            "x": 6.0,
+            "y": 2.2,
+            "width": 0.85,
+            "height": 1.6
+          },
+          {
+            "id": "nominal_gate_upper_pillar",
+            "kind": "rect",
+            "x": 6.0,
+            "y": 5.4,
+            "width": 0.85,
+            "height": 1.8
+          },
+          {
+            "id": "nominal_exit_block",
+            "kind": "rect",
+            "x": 9.2,
+            "y": 6.0,
+            "width": 0.85,
+            "height": 1.9
+          }
+        ],
+        "reference_paths": {
+          "nominal_centerline": {
+            "label": "Centered nominal route",
+            "waypoints": [
+              [
+                1.3,
+                1.5
+              ],
+              [
+                2.4,
+                1.8
+              ],
+              [
+                3.8,
+                2.3
+              ],
+              [
+                5.1,
+                3.2
+              ],
+              [
+                6.35,
+                4.55
+              ],
+              [
+                7.55,
+                5.7
+              ],
+              [
+                9.1,
+                6.55
+              ],
+              [
+                10.8,
+                7.25
+              ],
+              [
+                12.5,
+                8.0
+              ]
+            ]
+          },
+          "nominal_buffered": {
+            "label": "Nominal route with extra gate margin",
+            "waypoints": [
+              [
+                1.3,
+                1.5
+              ],
+              [
+                2.2,
+                1.9
+              ],
+              [
+                3.5,
+                2.6
+              ],
+              [
+                4.8,
+                3.5
+              ],
+              [
+                5.8,
+                4.2
+              ],
+              [
+                6.25,
+                4.95
+              ],
+              [
+                7.2,
+                5.9
+              ],
+              [
+                8.8,
+                6.7
+              ],
+              [
+                10.6,
+                7.4
+              ],
+              [
+                12.5,
+                8.0
+              ]
+            ]
+          },
+          "nominal_slow": {
+            "label": "Nominal slow but safe route",
+            "waypoints": [
+              [
+                1.3,
+                1.5
+              ],
+              [
+                2.2,
+                1.8
+              ],
+              [
+                3.4,
+                2.4
+              ],
+              [
+                4.6,
+                3.1
+              ],
+              [
+                5.6,
+                3.9
+              ],
+              [
+                6.2,
+                4.55
+              ],
+              [
+                6.9,
+                5.2
+              ],
+              [
+                7.8,
+                5.9
+              ],
+              [
+                9.0,
+                6.6
+              ],
+              [
+                10.6,
+                7.3
+              ],
+              [
+                12.5,
+                8.0
+              ]
+            ]
+          }
+        }
+      },
+      "trajectory": [
+        [
+          1.3102760754604925,
+          1.5084706411061388
+        ],
+        [
+          1.5963819034006523,
+          1.5692746827412947
+        ],
+        [
+          1.8560580905363424,
+          1.6498875937371158
+        ],
+        [
+          2.15617275502708,
+          1.7445968454124152
+        ],
+        [
+          2.4290807045588734,
+          1.8380670446224676
+        ],
+        [
+          2.712829717311421,
+          1.9361582382779075
+        ],
+        [
+          2.991441405449141,
+          2.0307208680705524
+        ],
+        [
+          3.2578905393262176,
+          2.1350500607070413
+        ],
+        [
+          3.521464183144262,
+          2.234802763008154
+        ],
+        [
+          3.8073113978999875,
+          2.3343197032412015
+        ],
+        [
+          4.042680711475852,
+          2.5044594601090466
+        ],
+        [
+          4.291791485746749,
+          2.653980238105325
+        ],
+        [
+          4.52199782279736,
+          2.8356542401205034
+        ],
+        [
+          4.755500858400907,
+          2.998805903319761
+        ],
+        [
+          5.010929148191703,
+          3.168494735410781
+        ],
+        [
+          5.221770835370545,
+          3.368305087712047
+        ],
+        [
+          5.424680857377847,
+          3.578084778094364
+        ],
+        [
+          5.620763492306301,
+          3.78919876899184
+        ],
+        [
+          5.810162063963405,
+          4.010441002955627
+        ],
+        [
+          6.011806701799764,
+          4.195763619178949
+        ],
+        [
+          6.225899088172602,
+          4.405686218746051
+        ],
+        [
+          6.424114582844093,
+          4.621292689311478
+        ],
+        [
+          6.622822375994311,
+          4.82432719143682
+        ],
+        [
+          6.834699936806839,
+          5.0168147952954145
+        ],
+        [
+          7.051312875842787,
+          5.226956251551234
+        ],
+        [
+          7.269158808986081,
+          5.421361706719926
+        ],
+        [
+          7.471000574154531,
+          5.620472034487262
+        ],
+        [
+          7.73451841178839,
+          5.787590850382401
+        ],
+        [
+          7.988812872569701,
+          5.920883487692254
+        ],
+        [
+          8.236011401991389,
+          6.045294867193443
+        ],
+        [
+          8.497443556766655,
+          6.200540055301101
+        ],
+        [
+          8.744207344947355,
+          6.340156228333865
+        ],
+        [
+          8.99100435450116,
+          6.479064296841892
+        ],
+        [
+          9.269608065488265,
+          6.57636944884272
+        ],
+        [
+          9.53694368655287,
+          6.702385480289353
+        ],
+        [
+          9.804676155368465,
+          6.816763995638734
+        ],
+        [
+          10.073035074063315,
+          6.924115777385337
+        ],
+        [
+          10.341567808833068,
+          7.041072896177934
+        ],
+        [
+          10.635051449688818,
+          7.1433077973420485
+        ],
+        [
+          10.901954817224253,
+          7.261485856253189
+        ],
+        [
+          11.170122300058585,
+          7.388837703763784
+        ],
+        [
+          11.430342336643529,
+          7.50963094322923
+        ],
+        [
+          11.694175155066848,
+          7.6343768773613325
+        ],
+        [
+          11.95492158993097,
+          7.7476462781125965
+        ],
+        [
+          12.234382005804369,
+          7.88468449131203
+        ],
+        [
+          12.493085423275655,
+          8.006116679694419
+        ]
+      ],
+      "meta": {
+        "outcome": "success",
+        "return_total": 27.838138651715298,
+        "utility_score": 0.6617253008106051
+      }
+    },
+    {
+      "id": "nominal-repaired",
+      "label": "Repaired nominal",
+      "color": "#2b8a3e",
+      "family_layout": {
+        "scene_id": "demo3_nominal_gate_v0",
+        "scene_cfg_name": "scene_cfg_nominal.yaml",
+        "label": "Nominal Centered Gate",
+        "scene_intent": "Centered gate crossing where reward and mission utility are mostly aligned.",
+        "gate": {
+          "center": [
+            6.42,
+            4.6
+          ],
+          "width": 1.6,
+          "height": 1.6
+        },
+        "obstacles": [
+          {
+            "id": "nominal_entry_block",
+            "kind": "rect",
+            "x": 3.2,
+            "y": 2.7,
+            "width": 0.9,
+            "height": 2.0
+          },
+          {
+            "id": "nominal_gate_lower_pillar",
+            "kind": "rect",
+            "x": 6.0,
+            "y": 2.2,
+            "width": 0.85,
+            "height": 1.6
+          },
+          {
+            "id": "nominal_gate_upper_pillar",
+            "kind": "rect",
+            "x": 6.0,
+            "y": 5.4,
+            "width": 0.85,
+            "height": 1.8
+          },
+          {
+            "id": "nominal_exit_block",
+            "kind": "rect",
+            "x": 9.2,
+            "y": 6.0,
+            "width": 0.85,
+            "height": 1.9
+          }
+        ],
+        "reference_paths": {
+          "nominal_centerline": {
+            "label": "Centered nominal route",
+            "waypoints": [
+              [
+                1.3,
+                1.5
+              ],
+              [
+                2.4,
+                1.8
+              ],
+              [
+                3.8,
+                2.3
+              ],
+              [
+                5.1,
+                3.2
+              ],
+              [
+                6.35,
+                4.55
+              ],
+              [
+                7.55,
+                5.7
+              ],
+              [
+                9.1,
+                6.55
+              ],
+              [
+                10.8,
+                7.25
+              ],
+              [
+                12.5,
+                8.0
+              ]
+            ]
+          },
+          "nominal_buffered": {
+            "label": "Nominal route with extra gate margin",
+            "waypoints": [
+              [
+                1.3,
+                1.5
+              ],
+              [
+                2.2,
+                1.9
+              ],
+              [
+                3.5,
+                2.6
+              ],
+              [
+                4.8,
+                3.5
+              ],
+              [
+                5.8,
+                4.2
+              ],
+              [
+                6.25,
+                4.95
+              ],
+              [
+                7.2,
+                5.9
+              ],
+              [
+                8.8,
+                6.7
+              ],
+              [
+                10.6,
+                7.4
+              ],
+              [
+                12.5,
+                8.0
+              ]
+            ]
+          },
+          "nominal_slow": {
+            "label": "Nominal slow but safe route",
+            "waypoints": [
+              [
+                1.3,
+                1.5
+              ],
+              [
+                2.2,
+                1.8
+              ],
+              [
+                3.4,
+                2.4
+              ],
+              [
+                4.6,
+                3.1
+              ],
+              [
+                5.6,
+                3.9
+              ],
+              [
+                6.2,
+                4.55
+              ],
+              [
+                6.9,
+                5.2
+              ],
+              [
+                7.8,
+                5.9
+              ],
+              [
+                9.0,
+                6.6
+              ],
+              [
+                10.6,
+                7.3
+              ],
+              [
+                12.5,
+                8.0
+              ]
+            ]
+          }
+        }
+      },
+      "trajectory": [
+        [
+          1.3014638915871317,
+          1.4891165166966578
+        ],
+        [
+          1.5942735087902147,
+          1.5686642603415304
+        ],
+        [
+          1.8743635638133749,
+          1.6496786039049447
+        ],
+        [
+          2.1419424756242154,
+          1.7490658847997367
+        ],
+        [
+          2.4402359954079,
+          1.8241135143454315
+        ],
+        [
+          2.69913260709618,
+          1.936585946791516
+        ],
+        [
+          2.977163909604371,
+          2.017767581362089
+        ],
+        [
+          3.261201134597072,
+          2.139696110147442
+        ],
+        [
+          3.5362787327223537,
+          2.222711237988365
+        ],
+        [
+          3.8064844020239534,
+          2.3331569414994626
+        ],
+        [
+          4.041626742275957,
+          2.489550430288456
+        ],
+        [
+          4.279329530238333,
+          2.669704738645687
+        ],
+        [
+          4.539870583902712,
+          2.8300318708731536
+        ],
+        [
+          4.756495337658507,
+          3.0041432725824513
+        ],
+        [
+          5.0027850423562645,
+          3.1651814304951476
+        ],
+        [
+          5.221536015474596,
+          3.355853954002831
+        ],
+        [
+          5.41184545742157,
+          3.581931337773293
+        ],
+        [
+          5.62800835612189,
+          3.78191082812369
+        ],
+        [
+          5.83311324662081,
+          4.009582003755564
+        ],
+        [
+          6.014711976905469,
+          4.213650965910363
+        ],
+        [
+          6.208411766564751,
+          4.422034779136711
+        ],
+        [
+          6.417321126336707,
+          4.6284786556285855
+        ],
+        [
+          6.627056767602842,
+          4.8134421222094455
+        ],
+        [
+          6.8426939171168675,
+          5.024043114970073
+        ],
+        [
+          7.066819282532071,
+          5.22260457845373
+        ],
+        [
+          7.262558828298636,
+          5.426786886167146
+        ],
+        [
+          7.490116664360792,
+          5.612029004221353
+        ],
+        [
+          7.720008137578203,
+          5.76938042799423
+        ],
+        [
+          7.981025472186794,
+          5.908276461684462
+        ],
+        [
+          8.236120167340118,
+          6.039536469279535
+        ],
+        [
+          8.494715375138728,
+          6.181364704714746
+        ],
+        [
+          8.734578848607923,
+          6.338985377176419
+        ],
+        [
+          8.992925872839429,
+          6.476352826408887
+        ],
+        [
+          9.261967503618433,
+          6.590215301939435
+        ],
+        [
+          9.543059843026395,
+          6.697709973331226
+        ],
+        [
+          9.81483935605125,
+          6.816276563439452
+        ],
+        [
+          10.087275652309494,
+          6.921963293192687
+        ],
+        [
+          10.346646084952244,
+          7.028179883905089
+        ],
+        [
+          10.61810566820954,
+          7.156978524205927
+        ],
+        [
+          10.884473935899512,
+          7.269250280323796
+        ],
+        [
+          11.172671599570744,
+          7.395992128510855
+        ],
+        [
+          11.42625905787672,
+          7.511822747739428
+        ],
+        [
+          11.699375882986404,
+          7.624381481642202
+        ],
+        [
+          11.97087179569275,
+          7.744175358265324
+        ],
+        [
+          12.224471151270693,
+          7.887714533604977
+        ],
+        [
+          12.509417613675318,
+          8.006722302196028
+        ]
+      ],
+      "meta": {
+        "outcome": "success",
+        "return_total": 28.299414796154704,
+        "utility_score": 0.6633943942218067
+      }
+    }
+  ]
+};
+    const width = 360;
+    const height = 260;
+    const margin = 18;
+    const workspace = payload.workspace;
+    const scaleX = value => margin + (value - workspace.xmin) / (workspace.xmax - workspace.xmin) * (width - margin * 2);
+    const scaleY = value => margin + (workspace.ymax - value) / (workspace.ymax - workspace.ymin) * (height - margin * 2);
+
+    function renderPanel(panel) {
+      const obstacleMarkup = (panel.family_layout.obstacles || []).map(item => {
+        const x = scaleX(item.x);
+        const y = scaleY(item.y + item.height);
+        const w = item.width / (workspace.xmax - workspace.xmin) * (width - margin * 2);
+        const h = item.height / (workspace.ymax - workspace.ymin) * (height - margin * 2);
+        return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="#ddd6ce" stroke="#7d766d" stroke-width="1.2"/>`;
+      }).join("");
+      const gate = panel.family_layout.gate || {};
+      const gateX = scaleX(gate.center[0] - gate.width / 2);
+      const gateY = scaleY(gate.center[1] + gate.height / 2);
+      const gateW = gate.width / (workspace.xmax - workspace.xmin) * (width - margin * 2);
+      const gateH = gate.height / (workspace.ymax - workspace.ymin) * (height - margin * 2);
+      const criticalPolygon = (panel.family_layout.critical_region?.polygon || []).map(point => `${scaleX(point[0]).toFixed(2)},${scaleY(point[1]).toFixed(2)}`).join(" ");
+      const polyline = panel.trajectory.map(point => `${scaleX(point[0]).toFixed(2)},${scaleY(point[1]).toFixed(2)}`).join(" ");
+      const endMeta = panel.meta || {};
+      return `
+        <div class="panel">
+          <div class="label" style="color:${panel.color}">${panel.label}</div>
+          <svg viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
+            <rect x="0" y="0" width="${width}" height="${height}" rx="16" fill="#fffdfa"/>
+            <rect x="${margin}" y="${margin}" width="${width - margin * 2}" height="${height - margin * 2}" rx="14" fill="#fffdfa" stroke="#cfc6b9" stroke-width="2"/>
+            ${obstacleMarkup}
+            <rect x="${gateX}" y="${gateY}" width="${gateW}" height="${gateH}" rx="10" fill="#bfe6ff" opacity="0.65" stroke="#2f7ea1" stroke-width="2"/>
+            ${criticalPolygon ? `<polygon points="${criticalPolygon}" fill="#ff9a62" opacity="0.20" stroke="#d85f25" stroke-width="2" stroke-dasharray="8 6"/>` : ""}
+            <polyline points="${polyline}" fill="none" stroke="${panel.color}" stroke-width="4" opacity="0.28" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle id="dot-${panel.id}" cx="${scaleX(panel.trajectory[0][0])}" cy="${scaleY(panel.trajectory[0][1])}" r="6" fill="${panel.color}"/>
+          </svg>
+          <div class="meta">outcome=${endMeta.outcome || ""} | reward=${(endMeta.return_total || 0).toFixed ? endMeta.return_total.toFixed(2) : endMeta.return_total} | utility=${(endMeta.utility_score || 0).toFixed ? endMeta.utility_score.toFixed(2) : endMeta.utility_score}</div>
+        </div>`;
+    }
+
+    const grid = document.getElementById("grid");
+    payload.panels.forEach(panel => grid.insertAdjacentHTML("beforeend", renderPanel(panel)));
+    let frame = 0;
+    const frameCount = Math.max(...payload.panels.map(panel => panel.trajectory.length));
+    function tick() {
+      payload.panels.forEach(panel => {
+        const point = panel.trajectory[Math.min(frame, panel.trajectory.length - 1)];
+        const dot = document.getElementById(`dot-${panel.id}`);
+        if (dot && point) {
+          dot.setAttribute("cx", scaleX(point[0]));
+          dot.setAttribute("cy", scaleY(point[1]));
+        }
+      });
+      frame = (frame + 1) % frameCount;
+      window.requestAnimationFrame(tick);
+    }
+    window.requestAnimationFrame(tick);
+  </script>
+</body>
+</html>

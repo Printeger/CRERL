@@ -1,0 +1,49 @@
+{
+  "scene_layout": {
+    "path": "cre-demos/demo3_er_shifted_gate/cfg/scene_layout.yaml",
+    "sha256": "90d82c8236b076e8960bba5069004bed4c0c551187e5912f1c5628fb3bd9caed"
+  },
+  "spec_shared": {
+    "constraint_spec": {
+      "path": "cre-demos/demo3_er_shifted_gate/cfg/spec_shared/constraint_spec_v0.yaml",
+      "sha256": "a2ed1a8eef1f80804fed3a9b55fd2c086e04db8d79245f99381fc7b4a97d1e15"
+    },
+    "policy_spec": {
+      "path": "cre-demos/demo3_er_shifted_gate/cfg/spec_shared/policy_spec_v0.yaml",
+      "sha256": "8b903163102318bad74c4d8f95417731eb3104928da8c0d0e583c09554bebf20"
+    },
+    "reward_spec": {
+      "path": "cre-demos/demo3_er_shifted_gate/cfg/spec_shared/reward_spec_v0.yaml",
+      "sha256": "0e045e49d210da8448e432b5d8d0d726c258081846d01ec6421bf8ca53530ce7"
+    }
+  },
+  "utility_metric": {
+    "id": "U_task_v1",
+    "sha256": "58752338d4a4966a2b86b4269148a9447d75361e26b9f2b48186b0010b7bc383",
+    "weights": {
+      "clearance_score": 0.1,
+      "collision_flag": -0.25,
+      "path_efficiency_score": 0.1,
+      "success_flag": 0.4,
+      "time_efficiency_score": 0.1,
+      "timeout_flag": -0.15
+    }
+  },
+  "variants": {
+    "clean": {
+      "env_cfg_dir": "cre-demos/demo3_er_shifted_gate/cfg/env_clean",
+      "scene_cfg_nominal_sha256": "3f6fd473d879388c90e38fd5218dd38f104e42ddaf3eeaa9b762c3ee9270643a",
+      "scene_cfg_shifted_sha256": "1cb6ecc335d5ae7b2030dfa707f3056c2eabcbfb3b6f39e77429d6dd657174d4"
+    },
+    "injected": {
+      "env_cfg_dir": "cre-demos/demo3_er_shifted_gate/cfg/env_injected",
+      "scene_cfg_nominal_sha256": "755988dc68302485185f7f856ded9875022c055e1cec781c90164e37dc6940db",
+      "scene_cfg_shifted_sha256": "7227dc620686d7ba467a308baa2b205907ec1402482dbc63ae2c415501c7e5dd"
+    },
+    "repaired": {
+      "env_cfg_dir": "cre-demos/demo3_er_shifted_gate/cfg/env_repaired",
+      "scene_cfg_nominal_sha256": "fff267274aaabf9f54c845c5abd1dcdfa8fbafd913efc45e9a9130da2a7a716a",
+      "scene_cfg_shifted_sha256": "fcf37822c2c520fc29532d96a5ee5a3e868b9d77e1fd93e6261370634f98b8a8"
+    }
+  }
+}

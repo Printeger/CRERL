@@ -1,0 +1,334 @@
+[
+  {
+    "claim_type": "E-R",
+    "confidence": 0.8,
+    "evidence_refs": [
+      "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/env_injected/scene_cfg_nominal.yaml",
+      "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/env_injected/scene_cfg_shifted.yaml",
+      "/home/mint/rl_dev/crerl_v1/isaac-training/training/envs/env_gen.py"
+    ],
+    "finding_id": "report:static:scene_backend_capability:6",
+    "impacted_components": [
+      "E",
+      "R"
+    ],
+    "metadata": {
+      "check_id": "scene_backend_capability",
+      "passed": false,
+      "recommended_action": "Align scene-family declarations with the actual env_gen backend capabilities, or extend the backend to express the missing cases."
+    },
+    "rank_score": 0.8775,
+    "repair_direction": "mixed",
+    "severity": "high",
+    "source_namespace": "analysis/static",
+    "source_record_id": "scene_backend_capability:6",
+    "summary": "Some scene family requirements are not expressible by the current scene backend.",
+    "support_status": "machine_direct"
+  },
+  {
+    "claim_type": "E-C",
+    "confidence": 0.8,
+    "evidence_refs": [
+      "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/env_injected/scene_cfg_nominal.yaml",
+      "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/env_injected/scene_cfg_shifted.yaml"
+    ],
+    "finding_id": "report:static:scene_family_structure:5",
+    "impacted_components": [
+      "E",
+      "C"
+    ],
+    "metadata": {
+      "check_id": "scene_family_structure",
+      "passed": false,
+      "recommended_action": "Repair scene-family config structure so workspace, start-goal, template, and validation settings remain internally consistent."
+    },
+    "rank_score": 0.865,
+    "repair_direction": "environment",
+    "severity": "high",
+    "source_namespace": "analysis/static",
+    "source_record_id": "scene_family_structure:5",
+    "summary": "Some scene family configs violate required structural validation rules.",
+    "support_status": "machine_direct"
+  },
+  {
+    "claim_type": "E-R",
+    "confidence": 0.57412215311759,
+    "evidence_refs": [
+      "demo3_injected_eval_nominal",
+      "demo3_injected_eval_shifted"
+    ],
+    "finding_id": "report:dynamic:W_ER:3",
+    "impacted_components": [
+      "E",
+      "R"
+    ],
+    "metadata": {
+      "score": 0.57412215311759,
+      "witness_id": "W_ER"
+    },
+    "rank_score": 0.681118,
+    "repair_direction": "mixed",
+    "severity": "medium",
+    "source_namespace": "analysis/dynamic",
+    "source_record_id": "W_ER:3",
+    "summary": "Transfer fragility under environment shift is elevated.",
+    "support_status": "machine_derived"
+  },
+  {
+    "claim_type": "C-R",
+    "confidence": 0.4,
+    "evidence_refs": [
+      "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/spec_shared/reward_spec_v0.yaml",
+      "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/spec_shared/policy_spec_v0.yaml"
+    ],
+    "finding_id": "report:static:reward_proxy_suspicion:3",
+    "impacted_components": [
+      "C",
+      "R"
+    ],
+    "metadata": {
+      "check_id": "reward_proxy_suspicion",
+      "passed": false,
+      "recommended_action": "Review whether progress shaping, step bias, and success/collision signals reflect the intended task objective instead of only an easy proxy."
+    },
+    "rank_score": 0.645,
+    "repair_direction": "reward",
+    "severity": "warning",
+    "source_namespace": "analysis/static",
+    "source_record_id": "reward_proxy_suspicion:3",
+    "summary": "The reward specification contains proxy patterns that may deserve review.",
+    "support_status": "machine_direct"
+  },
+  {
+    "claim_type": "E-C",
+    "confidence": 0.35,
+    "evidence_refs": [
+      "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/env_injected/scene_cfg_nominal.yaml",
+      "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/env_injected/scene_cfg_shifted.yaml",
+      "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/spec_shared/constraint_spec_v0.yaml"
+    ],
+    "finding_id": "report:static:scene_family_coverage:4",
+    "impacted_components": [
+      "E",
+      "C"
+    ],
+    "metadata": {
+      "check_id": "scene_family_coverage",
+      "passed": true,
+      "recommended_action": "Add or adjust scene-family capabilities so every declared constraint activation requirement is covered by at least one family."
+    },
+    "rank_score": 0.57,
+    "repair_direction": "environment",
+    "severity": "info",
+    "source_namespace": "analysis/static",
+    "source_record_id": "scene_family_coverage:4",
+    "summary": "Scene families cover the current constraint activation requirements.",
+    "support_status": "machine_direct"
+  },
+  {
+    "claim_type": "E-C",
+    "confidence": 0.4333333333333334,
+    "evidence_refs": [
+      "demo3_injected_eval_nominal"
+    ],
+    "finding_id": "report:dynamic:W_EC:2",
+    "impacted_components": [
+      "E",
+      "C"
+    ],
+    "metadata": {
+      "score": 0.4333333333333334,
+      "witness_id": "W_EC"
+    },
+    "rank_score": 0.5675,
+    "repair_direction": "environment",
+    "severity": "warning",
+    "source_namespace": "analysis/dynamic",
+    "source_record_id": "W_EC:2",
+    "summary": "Critical-state coverage appears acceptable.",
+    "support_status": "machine_derived"
+  },
+  {
+    "claim_type": "E-R",
+    "confidence": 0.57412215311759,
+    "evidence_refs": [
+      "failure:comparison:scenario_type:shifted",
+      "failure:comparison:scene_cfg_name:scene_cfg_shifted.yaml",
+      "failure:comparison:source:demo_shifted_gate_eval_shifted",
+      "witness:W_ER"
+    ],
+    "finding_id": "report:semantic:mock_semantic_provider.v1:claim:001",
+    "impacted_components": [
+      "E",
+      "R"
+    ],
+    "metadata": {
+      "affected_families": [
+        "shifted"
+      ],
+      "affected_scene_cfg_names": [
+        "scene_cfg_shifted.yaml"
+      ],
+      "affected_sources": [
+        "demo_shifted_gate_eval_shifted"
+      ],
+      "semantic_bundle_name": "demo3_injected_semantic"
+    },
+    "rank_score": 0.566118,
+    "repair_direction": "review shifted-family robustness and environment-reward alignment",
+    "severity": "warning",
+    "source_namespace": "analysis/semantic",
+    "source_record_id": "mock_semantic_provider.v1:claim:001",
+    "summary": "Transfer fragility under environment shift is elevated.",
+    "support_status": "semantic_supported"
+  },
+  {
+    "claim_type": "C-R",
+    "confidence": 0.35,
+    "evidence_refs": [
+      "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/spec_shared/reward_spec_v0.yaml",
+      "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/spec_shared/constraint_spec_v0.yaml"
+    ],
+    "finding_id": "report:static:reward_constraint_conflicts:2",
+    "impacted_components": [
+      "C",
+      "R"
+    ],
+    "metadata": {
+      "check_id": "reward_constraint_conflicts",
+      "passed": true,
+      "recommended_action": "Rebalance reward components or constraint support terms so each declared safety requirement has an explicit behavioral counterweight."
+    },
+    "rank_score": 0.5575,
+    "repair_direction": "reward",
+    "severity": "info",
+    "source_namespace": "analysis/static",
+    "source_record_id": "reward_constraint_conflicts:2",
+    "summary": "No obvious reward/constraint direct conflicts were detected.",
+    "support_status": "machine_direct"
+  },
+  {
+    "claim_type": "C-R",
+    "confidence": 0.35,
+    "evidence_refs": [
+      "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/spec_shared/reward_spec_v0.yaml",
+      "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/spec_shared/policy_spec_v0.yaml"
+    ],
+    "finding_id": "report:static:required_runtime_fields:8",
+    "impacted_components": [
+      "C",
+      "R"
+    ],
+    "metadata": {
+      "check_id": "required_runtime_fields",
+      "passed": true,
+      "recommended_action": "Align the runtime schema with the declared reward and policy expectations so all required fields are emitted and named consistently."
+    },
+    "rank_score": 0.5575,
+    "repair_direction": "reward",
+    "severity": "info",
+    "source_namespace": "analysis/static",
+    "source_record_id": "required_runtime_fields:8",
+    "summary": "The runtime schema provides the required core fields and reward bindings.",
+    "support_status": "machine_direct"
+  },
+  {
+    "claim_type": "E-R",
+    "confidence": 0.35,
+    "evidence_refs": [
+      "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/spec_shared/reward_spec_v0.yaml",
+      "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/spec_shared/policy_spec_v0.yaml"
+    ],
+    "finding_id": "report:static:execution_mode_alignment:7",
+    "impacted_components": [
+      "E",
+      "R"
+    ],
+    "metadata": {
+      "check_id": "execution_mode_alignment",
+      "passed": true,
+      "recommended_action": "Align reward component execution_modes with the supported manual, train, eval, and baseline execution paths."
+    },
+    "rank_score": 0.5575,
+    "repair_direction": "mixed",
+    "severity": "info",
+    "source_namespace": "analysis/static",
+    "source_record_id": "execution_mode_alignment:7",
+    "summary": "Reward component execution modes align with the supported execution paths.",
+    "support_status": "machine_direct"
+  },
+  {
+    "claim_type": "C-R",
+    "confidence": 0.35,
+    "evidence_refs": [
+      "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/spec_shared/constraint_spec_v0.yaml"
+    ],
+    "finding_id": "report:static:constraint_runtime_binding:1",
+    "impacted_components": [
+      "C",
+      "R"
+    ],
+    "metadata": {
+      "check_id": "constraint_runtime_binding",
+      "passed": true,
+      "recommended_action": "Update the constraint spec or runtime schema so every required constraint has a valid logged_variable and threshold_ref."
+    },
+    "rank_score": 0.545,
+    "repair_direction": "reward",
+    "severity": "info",
+    "source_namespace": "analysis/static",
+    "source_record_id": "constraint_runtime_binding:1",
+    "summary": "All required constraints map to runtime fields and threshold references.",
+    "support_status": "machine_direct"
+  },
+  {
+    "claim_type": "C-R",
+    "confidence": 0.0,
+    "evidence_refs": [
+      "demo3_injected_eval_nominal"
+    ],
+    "finding_id": "report:dynamic:W_CR:1",
+    "impacted_components": [
+      "C",
+      "R"
+    ],
+    "metadata": {
+      "score": 0.0,
+      "witness_id": "W_CR"
+    },
+    "rank_score": 0.4225,
+    "repair_direction": "reward",
+    "severity": "info",
+    "source_namespace": "analysis/dynamic",
+    "source_record_id": "W_CR:1",
+    "summary": "Reward-boundary coupling is limited.",
+    "support_status": "machine_derived"
+  },
+  {
+    "claim_type": "E-C",
+    "confidence": 0.4333333333333334,
+    "evidence_refs": [
+      "witness:W_EC"
+    ],
+    "finding_id": "report:semantic:mock_semantic_provider.v1:claim:002",
+    "impacted_components": [
+      "E",
+      "C"
+    ],
+    "metadata": {
+      "affected_families": [],
+      "affected_scene_cfg_names": [],
+      "affected_sources": [
+        "unknown"
+      ],
+      "semantic_bundle_name": "demo3_injected_semantic"
+    },
+    "rank_score": 0.3875,
+    "repair_direction": "review family coverage and critical scenario exposure",
+    "severity": "warning",
+    "source_namespace": "analysis/semantic",
+    "source_record_id": "mock_semantic_provider.v1:claim:002",
+    "summary": "Critical-state coverage appears acceptable.",
+    "support_status": "semantic_weak"
+  }
+]

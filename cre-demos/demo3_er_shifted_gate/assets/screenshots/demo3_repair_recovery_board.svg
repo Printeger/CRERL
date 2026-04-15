@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="760" viewBox="0 0 1320 760">
+<rect x="0" y="0" width="100%" height="100%" fill="#f6f3ec"/>
+<text x="62" y="66" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="32" fill="#1f2933">Repair Recovery Board</text>
+<text x="62" y="102" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="18" fill="#5f6b76">Same shifted seed 101: repair raises the trajectory before the squeeze zone and reduces late hesitation.</text>
+<rect x="58.0" y="150.0" width="586.0" height="470.0" rx="30" fill="#fffdf8" stroke="#d6cfc5" stroke-width="2"/>
+<rect x="70.0" y="162.0" width="562.0" height="446.0" rx="24" fill="#fbf7ef" stroke="none"/>
+<polygon points="301.0,376.6 374.1,380.8 397.1,338.6 370.2,292.2 308.7,300.6 289.5,347.0" fill="#ff9a62" opacity="0.22" stroke="#d85f25" stroke-width="2.5" stroke-dasharray="10 8"/>
+<rect x="251.1" y="376.6" width="30.7" height="80.2" rx="10" fill="#d8d3cc" stroke="#7d766d" stroke-width="1.8"/>
+<rect x="327.9" y="380.8" width="34.6" height="88.6" rx="10" fill="#d8d3cc" stroke="#7d766d" stroke-width="1.8"/>
+<rect x="327.9" y="241.5" width="34.6" height="84.4" rx="10" fill="#d8d3cc" stroke="#7d766d" stroke-width="1.8"/>
+<rect x="395.2" y="309.0" width="38.4" height="84.4" rx="10" fill="#d8d3cc" stroke="#7d766d" stroke-width="1.8"/>
+<rect x="474.0" y="241.5" width="30.7" height="63.3" rx="10" fill="#d8d3cc" stroke="#7d766d" stroke-width="1.8"/>
+<rect x="321.6" y="324.7" width="48.0" height="54.9" rx="12" fill="#d6f0ff" opacity="0.75" stroke="#2f7ea1" stroke-width="2.4"/>
+<circle cx="132.0" cy="532.7" r="8" fill="#2f9e44"/>
+<circle cx="562.4" cy="258.4" r="8" fill="#f08c00"/>
+<text x="86.0" y="188.0" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="24" fill="#d9481c">Injected</text>
+<polyline points="131.2,533.2 141.1,531.1 151.7,529.3 162.6,524.9 173.3,523.9 183.8,520.2 195.1,514.6 206.2,511.7 216.2,506.2 226.5,501.3 237.0,497.9 244.6,489.1 253.6,481.4 260.6,471.4 268.2,462.5 277.7,453.0 283.9,444.5 291.6,434.0 297.6,425.5 305.9,413.9 312.0,403.7 317.3,394.9 326.2,384.7 333.5,375.5 339.7,367.2 348.2,359.0 357.3,351.4 366.8,346.2 377.0,341.3 387.4,337.2 397.2,333.3 407.8,329.1 417.5,323.5 427.5,318.9 437.9,312.3 448.3,308.7 458.9,302.5 468.2,298.7 479.8,294.0 490.6,288.4 500.7,283.6 511.4,279.1 522.0,272.6 533.6,267.5 544.3,263.0 496.2,295.5" fill="none" stroke="#d9481c" stroke-width="6" opacity="0.78" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="86.0" y="658.0" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="18" fill="#374151">Outcome: collision</text>
+<text x="276.0" y="658.0" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="18" fill="#374151">Reward: 24.83</text>
+<text x="452.0" y="658.0" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="18" fill="#374151">Utility: -0.09</text>
+<rect x="676.0" y="150.0" width="586.0" height="470.0" rx="30" fill="#fffdf8" stroke="#d6cfc5" stroke-width="2"/>
+<rect x="688.0" y="162.0" width="562.0" height="446.0" rx="24" fill="#fbf7ef" stroke="none"/>
+<polygon points="919.0,376.6 992.1,380.8 1015.1,338.6 988.2,292.2 926.7,300.6 907.5,347.0" fill="#ff9a62" opacity="0.22" stroke="#d85f25" stroke-width="2.5" stroke-dasharray="10 8"/>
+<rect x="869.1" y="376.6" width="30.7" height="80.2" rx="10" fill="#d8d3cc" stroke="#7d766d" stroke-width="1.8"/>
+<rect x="945.9" y="380.8" width="34.6" height="88.6" rx="10" fill="#d8d3cc" stroke="#7d766d" stroke-width="1.8"/>
+<rect x="945.9" y="241.5" width="34.6" height="84.4" rx="10" fill="#d8d3cc" stroke="#7d766d" stroke-width="1.8"/>
+<rect x="1013.2" y="309.0" width="38.4" height="84.4" rx="10" fill="#d8d3cc" stroke="#7d766d" stroke-width="1.8"/>
+<rect x="1092.0" y="241.5" width="30.7" height="63.3" rx="10" fill="#d8d3cc" stroke="#7d766d" stroke-width="1.8"/>
+<rect x="939.6" y="324.7" width="48.0" height="54.9" rx="12" fill="#d6f0ff" opacity="0.75" stroke="#2f7ea1" stroke-width="2.4"/>
+<circle cx="750.0" cy="532.7" r="8" fill="#2f9e44"/>
+<circle cx="1180.4" cy="258.4" r="8" fill="#f08c00"/>
+<text x="704.0" y="188.0" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="24" fill="#2b8a3e">Repaired</text>
+<polyline points="748.6,534.8 759.5,528.7 769.0,524.0 779.5,519.1 789.6,512.7 800.0,505.7 809.6,499.2 820.1,493.1 830.4,486.3 840.1,480.3 847.4,470.6 855.9,461.6 863.9,452.2 872.7,444.3 881.8,434.1 888.1,425.4 896.2,415.1 902.9,404.2 910.1,394.9 917.1,384.5 924.5,373.8 930.8,364.4 938.7,353.3 945.2,343.2 953.0,334.1 962.5,325.4 970.9,317.3 980.0,310.0 989.8,304.5 1001.0,299.1 1011.5,295.8 1022.3,291.6 1033.6,287.0 1045.1,284.5 1057.1,281.4 1067.9,280.0 1079.4,276.2 1091.7,273.8 1101.9,272.6 1113.5,269.4 1125.9,267.7 1137.0,265.5 1148.5,264.0 1159.6,261.9 1170.6,260.1 1183.2,257.0" fill="none" stroke="#2b8a3e" stroke-width="6" opacity="0.78" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="704.0" y="658.0" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="18" fill="#374151">Outcome: success</text>
+<text x="894.0" y="658.0" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="18" fill="#374151">Reward: 23.51</text>
+<text x="1070.0" y="658.0" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="18" fill="#374151">Utility: 0.60</text>
+</svg>

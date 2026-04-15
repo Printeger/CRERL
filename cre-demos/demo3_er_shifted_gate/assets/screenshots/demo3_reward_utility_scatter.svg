@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1220" height="720" viewBox="0 0 1220 720">
+<rect x="0" y="0" width="100%" height="100%" fill="#f8f6f0"/>
+<text x="58" y="64" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="32" fill="#1f2933">Reward vs Utility Scatter</text>
+<text x="58" y="100" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="18" fill="#5f6b76">Shifted injected episodes cluster in the misleading region: reward remains middling while utility collapses.</text>
+<rect x="84.0" y="128.0" width="1020.0" height="500.0" rx="26" fill="#fffdfa" stroke="#d8d0c4" stroke-width="2"/>
+<line x1="84.0" y1="128.0" x2="1104.0" y2="128.0" stroke="#ece4d7" stroke-width="1"/>
+<line x1="84.0" y1="128.0" x2="84.0" y2="628.0" stroke="#ece4d7" stroke-width="1"/>
+<line x1="84.0" y1="228.0" x2="1104.0" y2="228.0" stroke="#ece4d7" stroke-width="1"/>
+<line x1="288.0" y1="128.0" x2="288.0" y2="628.0" stroke="#ece4d7" stroke-width="1"/>
+<line x1="84.0" y1="328.0" x2="1104.0" y2="328.0" stroke="#ece4d7" stroke-width="1"/>
+<line x1="492.0" y1="128.0" x2="492.0" y2="628.0" stroke="#ece4d7" stroke-width="1"/>
+<line x1="84.0" y1="428.0" x2="1104.0" y2="428.0" stroke="#ece4d7" stroke-width="1"/>
+<line x1="696.0" y1="128.0" x2="696.0" y2="628.0" stroke="#ece4d7" stroke-width="1"/>
+<line x1="84.0" y1="528.0" x2="1104.0" y2="528.0" stroke="#ece4d7" stroke-width="1"/>
+<line x1="900.0" y1="128.0" x2="900.0" y2="628.0" stroke="#ece4d7" stroke-width="1"/>
+<line x1="84.0" y1="628.0" x2="1104.0" y2="628.0" stroke="#ece4d7" stroke-width="1"/>
+<line x1="1104.0" y1="128.0" x2="1104.0" y2="628.0" stroke="#ece4d7" stroke-width="1"/>
+<line x1="594.0" y1="128.0" x2="594.0" y2="628.0" stroke="#d6c0ae" stroke-width="2" stroke-dasharray="9 8"/>
+<line x1="84.0" y1="378.0" x2="1104.0" y2="378.0" stroke="#d6c0ae" stroke-width="2" stroke-dasharray="9 8"/>
+<circle cx="953.5" cy="141.0" r="7" fill="#ffffff" stroke="#1d4ed8" stroke-width="2.2" opacity="0.62"/>
+<circle cx="954.8" cy="140.8" r="7" fill="#ffffff" stroke="#1d4ed8" stroke-width="2.2" opacity="0.62"/>
+<circle cx="953.4" cy="142.1" r="7" fill="#ffffff" stroke="#1d4ed8" stroke-width="2.2" opacity="0.62"/>
+<circle cx="952.7" cy="141.4" r="7" fill="#ffffff" stroke="#1d4ed8" stroke-width="2.2" opacity="0.62"/>
+<circle cx="953.6" cy="141.8" r="7" fill="#ffffff" stroke="#1d4ed8" stroke-width="2.2" opacity="0.62"/>
+<circle cx="953.3" cy="141.9" r="7" fill="#ffffff" stroke="#1d4ed8" stroke-width="2.2" opacity="0.62"/>
+<circle cx="954.3" cy="140.3" r="7" fill="#ffffff" stroke="#1d4ed8" stroke-width="2.2" opacity="0.62"/>
+<circle cx="953.6" cy="140.9" r="7" fill="#ffffff" stroke="#1d4ed8" stroke-width="2.2" opacity="0.62"/>
+<circle cx="954.2" cy="140.2" r="7" fill="#ffffff" stroke="#1d4ed8" stroke-width="2.2" opacity="0.62"/>
+<circle cx="955.1" cy="140.4" r="7" fill="#ffffff" stroke="#1d4ed8" stroke-width="2.2" opacity="0.62"/>
+<circle cx="1015.6" cy="128.0" r="7" fill="#ffffff" stroke="#1d4ed8" stroke-width="2.2" opacity="0.62"/>
+<circle cx="1015.1" cy="128.3" r="7" fill="#ffffff" stroke="#1d4ed8" stroke-width="2.2" opacity="0.62"/>
+<circle cx="694.6" cy="172.5" r="7" fill="#1d4ed8" stroke="#1d4ed8" stroke-width="2.2" opacity="0.82"/>
+<circle cx="696.1" cy="172.2" r="7" fill="#1d4ed8" stroke="#1d4ed8" stroke-width="2.2" opacity="0.82"/>
+<circle cx="696.5" cy="172.3" r="7" fill="#1d4ed8" stroke="#1d4ed8" stroke-width="2.2" opacity="0.82"/>
+<circle cx="696.1" cy="174.0" r="7" fill="#1d4ed8" stroke="#1d4ed8" stroke-width="2.2" opacity="0.82"/>
+<circle cx="694.8" cy="174.1" r="7" fill="#1d4ed8" stroke="#1d4ed8" stroke-width="2.2" opacity="0.82"/>
+<circle cx="695.1" cy="171.8" r="7" fill="#1d4ed8" stroke="#1d4ed8" stroke-width="2.2" opacity="0.82"/>
+<circle cx="695.1" cy="173.1" r="7" fill="#1d4ed8" stroke="#1d4ed8" stroke-width="2.2" opacity="0.82"/>
+<circle cx="696.3" cy="173.2" r="7" fill="#1d4ed8" stroke="#1d4ed8" stroke-width="2.2" opacity="0.82"/>
+<circle cx="331.7" cy="183.6" r="7" fill="#1d4ed8" stroke="#1d4ed8" stroke-width="2.2" opacity="0.82"/>
+<circle cx="334.3" cy="183.8" r="7" fill="#1d4ed8" stroke="#1d4ed8" stroke-width="2.2" opacity="0.82"/>
+<circle cx="84.0" cy="588.3" r="7" fill="#1d4ed8" stroke="#1d4ed8" stroke-width="2.2" opacity="0.82"/>
+<circle cx="85.2" cy="588.6" r="7" fill="#1d4ed8" stroke="#1d4ed8" stroke-width="2.2" opacity="0.82"/>
+<circle cx="953.5" cy="141.0" r="7" fill="#ffffff" stroke="#d9481c" stroke-width="2.2" opacity="0.62"/>
+<circle cx="954.8" cy="140.8" r="7" fill="#ffffff" stroke="#d9481c" stroke-width="2.2" opacity="0.62"/>
+<circle cx="953.4" cy="142.1" r="7" fill="#ffffff" stroke="#d9481c" stroke-width="2.2" opacity="0.62"/>
+<circle cx="952.7" cy="141.4" r="7" fill="#ffffff" stroke="#d9481c" stroke-width="2.2" opacity="0.62"/>
+<circle cx="953.6" cy="141.8" r="7" fill="#ffffff" stroke="#d9481c" stroke-width="2.2" opacity="0.62"/>
+<circle cx="953.3" cy="141.9" r="7" fill="#ffffff" stroke="#d9481c" stroke-width="2.2" opacity="0.62"/>
+<circle cx="954.3" cy="140.3" r="7" fill="#ffffff" stroke="#d9481c" stroke-width="2.2" opacity="0.62"/>
+<circle cx="953.6" cy="140.9" r="7" fill="#ffffff" stroke="#d9481c" stroke-width="2.2" opacity="0.62"/>
+<circle cx="954.2" cy="140.2" r="7" fill="#ffffff" stroke="#d9481c" stroke-width="2.2" opacity="0.62"/>
+<circle cx="955.1" cy="140.4" r="7" fill="#ffffff" stroke="#d9481c" stroke-width="2.2" opacity="0.62"/>
+<circle cx="954.0" cy="141.0" r="7" fill="#ffffff" stroke="#d9481c" stroke-width="2.2" opacity="0.62"/>
+<circle cx="784.0" cy="147.7" r="7" fill="#ffffff" stroke="#d9481c" stroke-width="2.2" opacity="0.62"/>
+<circle cx="1011.5" cy="182.6" r="7" fill="#d9481c" stroke="#d9481c" stroke-width="2.2" opacity="0.82"/>
+<circle cx="1011.6" cy="182.6" r="7" fill="#d9481c" stroke="#d9481c" stroke-width="2.2" opacity="0.82"/>
+<circle cx="1011.0" cy="182.6" r="7" fill="#d9481c" stroke="#d9481c" stroke-width="2.2" opacity="0.82"/>
+<circle cx="1011.8" cy="182.6" r="7" fill="#d9481c" stroke="#d9481c" stroke-width="2.2" opacity="0.82"/>
+<circle cx="739.0" cy="590.4" r="7" fill="#d9481c" stroke="#d9481c" stroke-width="2.2" opacity="0.82"/>
+<circle cx="736.5" cy="590.3" r="7" fill="#d9481c" stroke="#d9481c" stroke-width="2.2" opacity="0.82"/>
+<circle cx="738.9" cy="590.2" r="7" fill="#d9481c" stroke="#d9481c" stroke-width="2.2" opacity="0.82"/>
+<circle cx="737.7" cy="590.3" r="7" fill="#d9481c" stroke="#d9481c" stroke-width="2.2" opacity="0.82"/>
+<circle cx="740.1" cy="590.7" r="7" fill="#d9481c" stroke="#d9481c" stroke-width="2.2" opacity="0.82"/>
+<circle cx="804.0" cy="627.8" r="7" fill="#d9481c" stroke="#d9481c" stroke-width="2.2" opacity="0.82"/>
+<circle cx="804.3" cy="628.0" r="7" fill="#d9481c" stroke="#d9481c" stroke-width="2.2" opacity="0.82"/>
+<circle cx="806.6" cy="628.0" r="7" fill="#d9481c" stroke="#d9481c" stroke-width="2.2" opacity="0.82"/>
+<circle cx="976.4" cy="139.9" r="7" fill="#ffffff" stroke="#2b8a3e" stroke-width="2.2" opacity="0.62"/>
+<circle cx="975.7" cy="140.4" r="7" fill="#ffffff" stroke="#2b8a3e" stroke-width="2.2" opacity="0.62"/>
+<circle cx="975.8" cy="140.3" r="7" fill="#ffffff" stroke="#2b8a3e" stroke-width="2.2" opacity="0.62"/>
+<circle cx="975.8" cy="140.4" r="7" fill="#ffffff" stroke="#2b8a3e" stroke-width="2.2" opacity="0.62"/>
+<circle cx="976.4" cy="139.0" r="7" fill="#ffffff" stroke="#2b8a3e" stroke-width="2.2" opacity="0.62"/>
+<circle cx="975.5" cy="140.6" r="7" fill="#ffffff" stroke="#2b8a3e" stroke-width="2.2" opacity="0.62"/>
+<circle cx="975.6" cy="140.4" r="7" fill="#ffffff" stroke="#2b8a3e" stroke-width="2.2" opacity="0.62"/>
+<circle cx="975.8" cy="139.3" r="7" fill="#ffffff" stroke="#2b8a3e" stroke-width="2.2" opacity="0.62"/>
+<circle cx="976.0" cy="138.7" r="7" fill="#ffffff" stroke="#2b8a3e" stroke-width="2.2" opacity="0.62"/>
+<circle cx="975.9" cy="139.8" r="7" fill="#ffffff" stroke="#2b8a3e" stroke-width="2.2" opacity="0.62"/>
+<circle cx="975.2" cy="140.0" r="7" fill="#ffffff" stroke="#2b8a3e" stroke-width="2.2" opacity="0.62"/>
+<circle cx="975.6" cy="139.5" r="7" fill="#ffffff" stroke="#2b8a3e" stroke-width="2.2" opacity="0.62"/>
+<circle cx="1102.3" cy="161.1" r="7" fill="#2b8a3e" stroke="#2b8a3e" stroke-width="2.2" opacity="0.82"/>
+<circle cx="1102.3" cy="160.6" r="7" fill="#2b8a3e" stroke="#2b8a3e" stroke-width="2.2" opacity="0.82"/>
+<circle cx="1104.0" cy="161.7" r="7" fill="#2b8a3e" stroke="#2b8a3e" stroke-width="2.2" opacity="0.82"/>
+<circle cx="1102.8" cy="161.6" r="7" fill="#2b8a3e" stroke="#2b8a3e" stroke-width="2.2" opacity="0.82"/>
+<circle cx="1102.6" cy="160.2" r="7" fill="#2b8a3e" stroke="#2b8a3e" stroke-width="2.2" opacity="0.82"/>
+<circle cx="1102.6" cy="162.1" r="7" fill="#2b8a3e" stroke="#2b8a3e" stroke-width="2.2" opacity="0.82"/>
+<circle cx="1102.0" cy="160.6" r="7" fill="#2b8a3e" stroke="#2b8a3e" stroke-width="2.2" opacity="0.82"/>
+<circle cx="1103.5" cy="161.3" r="7" fill="#2b8a3e" stroke="#2b8a3e" stroke-width="2.2" opacity="0.82"/>
+<circle cx="737.7" cy="183.9" r="7" fill="#2b8a3e" stroke="#2b8a3e" stroke-width="2.2" opacity="0.82"/>
+<circle cx="738.5" cy="183.9" r="7" fill="#2b8a3e" stroke="#2b8a3e" stroke-width="2.2" opacity="0.82"/>
+<circle cx="427.9" cy="561.4" r="7" fill="#2b8a3e" stroke="#2b8a3e" stroke-width="2.2" opacity="0.82"/>
+<circle cx="432.9" cy="561.3" r="7" fill="#2b8a3e" stroke="#2b8a3e" stroke-width="2.2" opacity="0.82"/>
+<text x="940" y="172" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="17" fill="#4b5563">Top-right: reward and utility aligned</text>
+<text x="944" y="606" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="17" fill="#9a3412">Bottom-right: misleading high reward / low utility</text>
+<text x="82" y="664" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="18" fill="#374151">x: episode return</text>
+<text x="18" y="382" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="18" fill="#374151" transform="rotate(-90 18 382)">y: U_task_v1</text>
+<circle cx="86.0" cy="154.0" r="7" fill="#1d4ed8" stroke="#1d4ed8" stroke-width="2"/>
+<text x="102.0" y="160.0" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="16" fill="#374151">Clean shifted</text>
+<circle cx="266.0" cy="154.0" r="7" fill="#ffffff" stroke="#1d4ed8" stroke-width="2"/>
+<text x="282.0" y="160.0" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="16" fill="#374151">Clean nominal</text>
+<circle cx="86.0" cy="182.0" r="7" fill="#d9481c" stroke="#d9481c" stroke-width="2"/>
+<text x="102.0" y="188.0" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="16" fill="#374151">Injected shifted</text>
+<circle cx="266.0" cy="182.0" r="7" fill="#ffffff" stroke="#d9481c" stroke-width="2"/>
+<text x="282.0" y="188.0" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="16" fill="#374151">Injected nominal</text>
+<circle cx="86.0" cy="210.0" r="7" fill="#2b8a3e" stroke="#2b8a3e" stroke-width="2"/>
+<text x="102.0" y="216.0" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="16" fill="#374151">Repaired shifted</text>
+<circle cx="266.0" cy="210.0" r="7" fill="#ffffff" stroke="#2b8a3e" stroke-width="2"/>
+<text x="282.0" y="216.0" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="16" fill="#374151">Repaired nominal</text>
+</svg>

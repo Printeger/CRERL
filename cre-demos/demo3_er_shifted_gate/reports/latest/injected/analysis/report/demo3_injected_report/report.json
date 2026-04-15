@@ -1,0 +1,1203 @@
+{
+  "input_bundles": {
+    "dynamic": {
+      "bundle_dir": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/reports/latest/injected/analysis/dynamic/demo3_injected_dynamic",
+      "bundle_name": "demo3_injected_dynamic"
+    },
+    "semantic": {
+      "bundle_dir": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/reports/latest/injected/analysis/semantic/demo3_injected_semantic",
+      "bundle_name": "demo3_injected_semantic"
+    },
+    "static": {
+      "bundle_dir": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/reports/latest/injected/analysis/static/demo3_injected_static",
+      "bundle_name": "demo3_injected_static"
+    }
+  },
+  "max_severity": "high",
+  "metadata": {
+    "namespace_contract": {
+      "contract_type": "report_namespace_contract.v1",
+      "generated_at_utc": "2026-04-15T11:55:31.756735+00:00",
+      "report_mode_artifacts": {
+        "benchmark_suite": [
+          "benchmark_manifest.json",
+          "benchmark_cases.json",
+          "benchmark_matrix.json",
+          "benchmark_summary.json",
+          "benchmark_summary.md",
+          "manifest.json",
+          "namespace_manifest.json"
+        ],
+        "dynamic_analysis": [
+          "dynamic_report.json",
+          "dynamic_evidence.json",
+          "semantic_inputs.json",
+          "summary.json",
+          "manifest.json",
+          "namespace_manifest.json"
+        ],
+        "integration_audit": [
+          "integration_plan.json",
+          "execution_matrix.json",
+          "run_binding.json",
+          "native_execution_consumer.json",
+          "integration_acceptance.json",
+          "integration_summary.json",
+          "integration_summary.md",
+          "manifest.json",
+          "namespace_manifest.json"
+        ],
+        "release_packaging": [
+          "release_plan.json",
+          "release_artifacts.json",
+          "demo_matrix.json",
+          "demo_consumer.json",
+          "release_acceptance.json",
+          "release_summary.json",
+          "release_summary.md",
+          "manifest.json",
+          "namespace_manifest.json"
+        ],
+        "repair_generation": [
+          "repair_plan.json",
+          "repair_candidates.json",
+          "spec_patch.json",
+          "spec_patch_preview.json",
+          "validation_context_preview.json",
+          "repair_summary.json",
+          "repair_summary.md",
+          "acceptance.json",
+          "repair_validation.json",
+          "validation_request.json",
+          "manifest.json",
+          "namespace_manifest.json"
+        ],
+        "report_generation": [
+          "report.json",
+          "ranked_findings.json",
+          "repair_handoff.json",
+          "report_summary.md",
+          "summary.json",
+          "manifest.json",
+          "namespace_manifest.json"
+        ],
+        "semantic_analysis": [
+          "semantic_report.json",
+          "semantic_claims.json",
+          "semantic_input.json",
+          "semantic_summary.md",
+          "semantic_merge_input.json",
+          "claim_consumer.json",
+          "summary.json",
+          "manifest.json",
+          "namespace_manifest.json"
+        ],
+        "static_audit": [
+          "static_report.json",
+          "summary.json",
+          "manifest.json",
+          "namespace_manifest.json"
+        ],
+        "validation_generation": [
+          "validation_plan.json",
+          "validation_runs.json",
+          "comparison.json",
+          "validation_decision.json",
+          "post_repair_evidence.json",
+          "validation_summary.json",
+          "validation_summary.md",
+          "manifest.json",
+          "namespace_manifest.json"
+        ]
+      },
+      "report_namespaces": {
+        "benchmark_suite": "analysis/benchmark",
+        "dynamic_analysis": "analysis/dynamic",
+        "integration_audit": "analysis/integration",
+        "release_packaging": "analysis/release",
+        "repair_generation": "analysis/repair",
+        "report_generation": "analysis/report",
+        "semantic_analysis": "analysis/semantic",
+        "static_audit": "analysis/static",
+        "validation_generation": "analysis/validation"
+      }
+    },
+    "report_artifacts": [
+      "report.json",
+      "ranked_findings.json",
+      "repair_handoff.json",
+      "report_summary.md",
+      "summary.json",
+      "manifest.json",
+      "namespace_manifest.json"
+    ],
+    "report_namespace": "analysis/report",
+    "semantic_merge_input": {
+      "claim_overview": {
+        "claim_type_breakdown": {
+          "E-C": 1,
+          "E-R": 1
+        },
+        "rejected_count": 0,
+        "supported_count": 1,
+        "weak_count": 1
+      },
+      "consumer_contract": {
+        "claim_consumer_type": "phase7_claim_consumer.v1",
+        "consumer_contract_type": "phase7_claim_consumer_contract.v1",
+        "repair_ready_claim_schema": "phase7_claim_record.v1"
+      },
+      "dynamic_bundle_name": "demo3_injected_dynamic",
+      "evidence_overview": {
+        "dynamic_finding_count": 3,
+        "evidence_object_count": 9,
+        "failure_hotspot_count": 6,
+        "static_finding_count": 8,
+        "witness_count": 3
+      },
+      "human_summary": {
+        "most_likely_claim_summary": "Transfer fragility under environment shift is elevated.",
+        "most_likely_claim_type": "E-R",
+        "next_check_or_repair_direction": "review shifted-family robustness and environment-reward alignment",
+        "strongest_supported_claim_id": "mock_semantic_provider.v1:claim:001",
+        "strongest_uncertainty_claim_id": "mock_semantic_provider.v1:claim:002"
+      },
+      "max_severity": "warning",
+      "merge_input_type": "phase7_semantic_report_merge_input.v1",
+      "metadata": {
+        "merge_target": "phase7_unified_report_generation",
+        "repair_target": "phase8_repair_engine"
+      },
+      "passed": true,
+      "semantic_bundle_name": "demo3_injected_semantic",
+      "spec_version": "demo3-v0",
+      "static_bundle_name": "demo3_injected_static",
+      "top_claim": {
+        "affected_families": [
+          "shifted"
+        ],
+        "affected_scene_cfg_names": [
+          "scene_cfg_shifted.yaml"
+        ],
+        "affected_sources": [
+          "demo_shifted_gate_eval_shifted"
+        ],
+        "claim_id": "mock_semantic_provider.v1:claim:001",
+        "claim_type": "E-R",
+        "confidence": 0.57412215311759,
+        "provider_metadata": {
+          "comparison_run_ids": [
+            "demo3_injected_eval_shifted"
+          ],
+          "crosscheck_messages": [
+            "Claim type 'E-R' is allowed by the semantic contract.",
+            "Claim cites 4 known evidence object(s).",
+            "Claim cites 2 known finding id(s).",
+            "Claim cites 1 known witness id(s).",
+            "Claim is aligned with witness id(s): W_ER.",
+            "Matched families: shifted",
+            "Matched sources: demo_shifted_gate_eval_shifted",
+            "Matched scene configs: scene_cfg_shifted.yaml"
+          ],
+          "crosscheck_passed": true,
+          "generation_mode": "deterministic_mock",
+          "primary_run_ids": [
+            "demo3_injected_eval_nominal"
+          ],
+          "provider_name": "mock_semantic_provider.v1"
+        },
+        "rationale": "Generated from witness W_ER with score 0.574 and real runtime evidence from accepted bundles.",
+        "repair_direction_hint": "review shifted-family robustness and environment-reward alignment",
+        "severity": "warning",
+        "status": "supported",
+        "summary": "Transfer fragility under environment shift is elevated.",
+        "supporting_evidence_ids": [
+          "failure:comparison:scenario_type:shifted",
+          "failure:comparison:scene_cfg_name:scene_cfg_shifted.yaml",
+          "failure:comparison:source:demo_shifted_gate_eval_shifted",
+          "witness:W_ER"
+        ],
+        "supporting_finding_ids": [
+          "W_CR:1",
+          "W_EC:2"
+        ],
+        "supporting_witness_ids": [
+          "W_ER"
+        ]
+      }
+    },
+    "source_namespaces": [
+      "analysis/static",
+      "analysis/dynamic",
+      "analysis/semantic"
+    ],
+    "source_paths": {
+      "constraint_spec": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/spec_shared/constraint_spec_v0.yaml",
+      "detector_thresholds": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/detector_cfg/detector_thresholds.yaml",
+      "policy_spec": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/spec_shared/policy_spec_v0.yaml",
+      "reward_spec": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/spec_shared/reward_spec_v0.yaml",
+      "scene_cfg_base": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/env_injected/scene_cfg_base.yaml",
+      "scene_family:nominal": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/env_injected/scene_cfg_nominal.yaml",
+      "scene_family:shifted": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/env_injected/scene_cfg_shifted.yaml",
+      "witness_weights": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/detector_cfg/witness_weights.yaml"
+    }
+  },
+  "num_ranked_findings": 13,
+  "passed": false,
+  "ranked_findings": [
+    {
+      "claim_type": "E-R",
+      "confidence": 0.8,
+      "evidence_refs": [
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/env_injected/scene_cfg_nominal.yaml",
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/env_injected/scene_cfg_shifted.yaml",
+        "/home/mint/rl_dev/crerl_v1/isaac-training/training/envs/env_gen.py"
+      ],
+      "finding_id": "report:static:scene_backend_capability:6",
+      "impacted_components": [
+        "E",
+        "R"
+      ],
+      "metadata": {
+        "check_id": "scene_backend_capability",
+        "passed": false,
+        "recommended_action": "Align scene-family declarations with the actual env_gen backend capabilities, or extend the backend to express the missing cases."
+      },
+      "rank_score": 0.8775,
+      "repair_direction": "mixed",
+      "severity": "high",
+      "source_namespace": "analysis/static",
+      "source_record_id": "scene_backend_capability:6",
+      "summary": "Some scene family requirements are not expressible by the current scene backend.",
+      "support_status": "machine_direct"
+    },
+    {
+      "claim_type": "E-C",
+      "confidence": 0.8,
+      "evidence_refs": [
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/env_injected/scene_cfg_nominal.yaml",
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/env_injected/scene_cfg_shifted.yaml"
+      ],
+      "finding_id": "report:static:scene_family_structure:5",
+      "impacted_components": [
+        "E",
+        "C"
+      ],
+      "metadata": {
+        "check_id": "scene_family_structure",
+        "passed": false,
+        "recommended_action": "Repair scene-family config structure so workspace, start-goal, template, and validation settings remain internally consistent."
+      },
+      "rank_score": 0.865,
+      "repair_direction": "environment",
+      "severity": "high",
+      "source_namespace": "analysis/static",
+      "source_record_id": "scene_family_structure:5",
+      "summary": "Some scene family configs violate required structural validation rules.",
+      "support_status": "machine_direct"
+    },
+    {
+      "claim_type": "E-R",
+      "confidence": 0.57412215311759,
+      "evidence_refs": [
+        "demo3_injected_eval_nominal",
+        "demo3_injected_eval_shifted"
+      ],
+      "finding_id": "report:dynamic:W_ER:3",
+      "impacted_components": [
+        "E",
+        "R"
+      ],
+      "metadata": {
+        "score": 0.57412215311759,
+        "witness_id": "W_ER"
+      },
+      "rank_score": 0.681118,
+      "repair_direction": "mixed",
+      "severity": "medium",
+      "source_namespace": "analysis/dynamic",
+      "source_record_id": "W_ER:3",
+      "summary": "Transfer fragility under environment shift is elevated.",
+      "support_status": "machine_derived"
+    },
+    {
+      "claim_type": "C-R",
+      "confidence": 0.4,
+      "evidence_refs": [
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/spec_shared/reward_spec_v0.yaml",
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/spec_shared/policy_spec_v0.yaml"
+      ],
+      "finding_id": "report:static:reward_proxy_suspicion:3",
+      "impacted_components": [
+        "C",
+        "R"
+      ],
+      "metadata": {
+        "check_id": "reward_proxy_suspicion",
+        "passed": false,
+        "recommended_action": "Review whether progress shaping, step bias, and success/collision signals reflect the intended task objective instead of only an easy proxy."
+      },
+      "rank_score": 0.645,
+      "repair_direction": "reward",
+      "severity": "warning",
+      "source_namespace": "analysis/static",
+      "source_record_id": "reward_proxy_suspicion:3",
+      "summary": "The reward specification contains proxy patterns that may deserve review.",
+      "support_status": "machine_direct"
+    },
+    {
+      "claim_type": "E-C",
+      "confidence": 0.35,
+      "evidence_refs": [
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/env_injected/scene_cfg_nominal.yaml",
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/env_injected/scene_cfg_shifted.yaml",
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/spec_shared/constraint_spec_v0.yaml"
+      ],
+      "finding_id": "report:static:scene_family_coverage:4",
+      "impacted_components": [
+        "E",
+        "C"
+      ],
+      "metadata": {
+        "check_id": "scene_family_coverage",
+        "passed": true,
+        "recommended_action": "Add or adjust scene-family capabilities so every declared constraint activation requirement is covered by at least one family."
+      },
+      "rank_score": 0.57,
+      "repair_direction": "environment",
+      "severity": "info",
+      "source_namespace": "analysis/static",
+      "source_record_id": "scene_family_coverage:4",
+      "summary": "Scene families cover the current constraint activation requirements.",
+      "support_status": "machine_direct"
+    },
+    {
+      "claim_type": "E-C",
+      "confidence": 0.4333333333333334,
+      "evidence_refs": [
+        "demo3_injected_eval_nominal"
+      ],
+      "finding_id": "report:dynamic:W_EC:2",
+      "impacted_components": [
+        "E",
+        "C"
+      ],
+      "metadata": {
+        "score": 0.4333333333333334,
+        "witness_id": "W_EC"
+      },
+      "rank_score": 0.5675,
+      "repair_direction": "environment",
+      "severity": "warning",
+      "source_namespace": "analysis/dynamic",
+      "source_record_id": "W_EC:2",
+      "summary": "Critical-state coverage appears acceptable.",
+      "support_status": "machine_derived"
+    },
+    {
+      "claim_type": "E-R",
+      "confidence": 0.57412215311759,
+      "evidence_refs": [
+        "failure:comparison:scenario_type:shifted",
+        "failure:comparison:scene_cfg_name:scene_cfg_shifted.yaml",
+        "failure:comparison:source:demo_shifted_gate_eval_shifted",
+        "witness:W_ER"
+      ],
+      "finding_id": "report:semantic:mock_semantic_provider.v1:claim:001",
+      "impacted_components": [
+        "E",
+        "R"
+      ],
+      "metadata": {
+        "affected_families": [
+          "shifted"
+        ],
+        "affected_scene_cfg_names": [
+          "scene_cfg_shifted.yaml"
+        ],
+        "affected_sources": [
+          "demo_shifted_gate_eval_shifted"
+        ],
+        "semantic_bundle_name": "demo3_injected_semantic"
+      },
+      "rank_score": 0.566118,
+      "repair_direction": "review shifted-family robustness and environment-reward alignment",
+      "severity": "warning",
+      "source_namespace": "analysis/semantic",
+      "source_record_id": "mock_semantic_provider.v1:claim:001",
+      "summary": "Transfer fragility under environment shift is elevated.",
+      "support_status": "semantic_supported"
+    },
+    {
+      "claim_type": "C-R",
+      "confidence": 0.35,
+      "evidence_refs": [
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/spec_shared/reward_spec_v0.yaml",
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/spec_shared/constraint_spec_v0.yaml"
+      ],
+      "finding_id": "report:static:reward_constraint_conflicts:2",
+      "impacted_components": [
+        "C",
+        "R"
+      ],
+      "metadata": {
+        "check_id": "reward_constraint_conflicts",
+        "passed": true,
+        "recommended_action": "Rebalance reward components or constraint support terms so each declared safety requirement has an explicit behavioral counterweight."
+      },
+      "rank_score": 0.5575,
+      "repair_direction": "reward",
+      "severity": "info",
+      "source_namespace": "analysis/static",
+      "source_record_id": "reward_constraint_conflicts:2",
+      "summary": "No obvious reward/constraint direct conflicts were detected.",
+      "support_status": "machine_direct"
+    },
+    {
+      "claim_type": "C-R",
+      "confidence": 0.35,
+      "evidence_refs": [
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/spec_shared/reward_spec_v0.yaml",
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/spec_shared/policy_spec_v0.yaml"
+      ],
+      "finding_id": "report:static:required_runtime_fields:8",
+      "impacted_components": [
+        "C",
+        "R"
+      ],
+      "metadata": {
+        "check_id": "required_runtime_fields",
+        "passed": true,
+        "recommended_action": "Align the runtime schema with the declared reward and policy expectations so all required fields are emitted and named consistently."
+      },
+      "rank_score": 0.5575,
+      "repair_direction": "reward",
+      "severity": "info",
+      "source_namespace": "analysis/static",
+      "source_record_id": "required_runtime_fields:8",
+      "summary": "The runtime schema provides the required core fields and reward bindings.",
+      "support_status": "machine_direct"
+    },
+    {
+      "claim_type": "E-R",
+      "confidence": 0.35,
+      "evidence_refs": [
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/spec_shared/reward_spec_v0.yaml",
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/spec_shared/policy_spec_v0.yaml"
+      ],
+      "finding_id": "report:static:execution_mode_alignment:7",
+      "impacted_components": [
+        "E",
+        "R"
+      ],
+      "metadata": {
+        "check_id": "execution_mode_alignment",
+        "passed": true,
+        "recommended_action": "Align reward component execution_modes with the supported manual, train, eval, and baseline execution paths."
+      },
+      "rank_score": 0.5575,
+      "repair_direction": "mixed",
+      "severity": "info",
+      "source_namespace": "analysis/static",
+      "source_record_id": "execution_mode_alignment:7",
+      "summary": "Reward component execution modes align with the supported execution paths.",
+      "support_status": "machine_direct"
+    },
+    {
+      "claim_type": "C-R",
+      "confidence": 0.35,
+      "evidence_refs": [
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/spec_shared/constraint_spec_v0.yaml"
+      ],
+      "finding_id": "report:static:constraint_runtime_binding:1",
+      "impacted_components": [
+        "C",
+        "R"
+      ],
+      "metadata": {
+        "check_id": "constraint_runtime_binding",
+        "passed": true,
+        "recommended_action": "Update the constraint spec or runtime schema so every required constraint has a valid logged_variable and threshold_ref."
+      },
+      "rank_score": 0.545,
+      "repair_direction": "reward",
+      "severity": "info",
+      "source_namespace": "analysis/static",
+      "source_record_id": "constraint_runtime_binding:1",
+      "summary": "All required constraints map to runtime fields and threshold references.",
+      "support_status": "machine_direct"
+    },
+    {
+      "claim_type": "C-R",
+      "confidence": 0.0,
+      "evidence_refs": [
+        "demo3_injected_eval_nominal"
+      ],
+      "finding_id": "report:dynamic:W_CR:1",
+      "impacted_components": [
+        "C",
+        "R"
+      ],
+      "metadata": {
+        "score": 0.0,
+        "witness_id": "W_CR"
+      },
+      "rank_score": 0.4225,
+      "repair_direction": "reward",
+      "severity": "info",
+      "source_namespace": "analysis/dynamic",
+      "source_record_id": "W_CR:1",
+      "summary": "Reward-boundary coupling is limited.",
+      "support_status": "machine_derived"
+    },
+    {
+      "claim_type": "E-C",
+      "confidence": 0.4333333333333334,
+      "evidence_refs": [
+        "witness:W_EC"
+      ],
+      "finding_id": "report:semantic:mock_semantic_provider.v1:claim:002",
+      "impacted_components": [
+        "E",
+        "C"
+      ],
+      "metadata": {
+        "affected_families": [],
+        "affected_scene_cfg_names": [],
+        "affected_sources": [
+          "unknown"
+        ],
+        "semantic_bundle_name": "demo3_injected_semantic"
+      },
+      "rank_score": 0.3875,
+      "repair_direction": "review family coverage and critical scenario exposure",
+      "severity": "warning",
+      "source_namespace": "analysis/semantic",
+      "source_record_id": "mock_semantic_provider.v1:claim:002",
+      "summary": "Critical-state coverage appears acceptable.",
+      "support_status": "semantic_weak"
+    }
+  ],
+  "repair_handoff": {
+    "claim_record_schema": "phase7_repair_ready_claim.v1",
+    "handoff_type": "phase8_repair_handoff.v1",
+    "impacted_components_union": [
+      "C",
+      "E",
+      "R"
+    ],
+    "metadata": {
+      "max_selected_claims": 6,
+      "phase8_ready": true
+    },
+    "primary_claim_type": "E-R",
+    "primary_repair_direction": "environment",
+    "repair_order": [
+      {
+        "claim_type": "E-R",
+        "handoff_id": "repair_handoff:scene_backend_capability:6",
+        "order": 1,
+        "selected_from": "analysis/static",
+        "selection_basis": "ranked_finding_backfill",
+        "suggested_repair_direction": "mixed"
+      },
+      {
+        "claim_type": "E-R",
+        "handoff_id": "repair_handoff:execution_mode_alignment:7",
+        "order": 2,
+        "selected_from": "analysis/static",
+        "selection_basis": "ranked_finding_backfill",
+        "suggested_repair_direction": "mixed"
+      },
+      {
+        "claim_type": "E-R",
+        "handoff_id": "repair_handoff:W_ER:3",
+        "order": 3,
+        "selected_from": "analysis/dynamic",
+        "selection_basis": "ranked_finding_backfill",
+        "suggested_repair_direction": "mixed"
+      },
+      {
+        "claim_type": "E-R",
+        "handoff_id": "repair_handoff:mock_semantic_provider.v1:claim:001",
+        "order": 4,
+        "selected_from": "analysis/semantic",
+        "selection_basis": "semantic_supported_claim_consumer",
+        "suggested_repair_direction": "mixed"
+      },
+      {
+        "claim_type": "E-C",
+        "handoff_id": "repair_handoff:scene_family_structure:5",
+        "order": 5,
+        "selected_from": "analysis/static",
+        "selection_basis": "ranked_finding_backfill",
+        "suggested_repair_direction": "environment"
+      },
+      {
+        "claim_type": "C-R",
+        "handoff_id": "repair_handoff:reward_proxy_suspicion:3",
+        "order": 6,
+        "selected_from": "analysis/static",
+        "selection_basis": "ranked_finding_backfill",
+        "suggested_repair_direction": "reward"
+      }
+    ],
+    "required_evidence_contract": {
+      "required_claim_fields": [
+        "claim_type",
+        "support_status",
+        "impacted_components",
+        "suggested_repair_direction",
+        "required_evidence_refs"
+      ],
+      "required_support_statuses": [
+        "machine_direct",
+        "machine_derived",
+        "semantic_supported",
+        "semantic_weak"
+      ]
+    },
+    "selected_claims": [
+      {
+        "claim_type": "E-R",
+        "confidence": 0.8,
+        "handoff_id": "repair_handoff:scene_backend_capability:6",
+        "impacted_components": [
+          "E",
+          "R"
+        ],
+        "required_evidence_refs": [
+          "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/env_injected/scene_cfg_nominal.yaml",
+          "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/env_injected/scene_cfg_shifted.yaml",
+          "/home/mint/rl_dev/crerl_v1/isaac-training/training/envs/env_gen.py"
+        ],
+        "selected_from": "analysis/static",
+        "selected_from_rank": 1,
+        "selection_basis": "ranked_finding_backfill",
+        "severity": "high",
+        "source_record_ids": [
+          "scene_backend_capability:6"
+        ],
+        "suggested_repair_direction": "mixed",
+        "summary": "Some scene family requirements are not expressible by the current scene backend.",
+        "support_status": "machine_direct"
+      },
+      {
+        "claim_type": "E-R",
+        "confidence": 0.57412215311759,
+        "handoff_id": "repair_handoff:W_ER:3",
+        "impacted_components": [
+          "E",
+          "R"
+        ],
+        "required_evidence_refs": [
+          "demo3_injected_eval_nominal",
+          "demo3_injected_eval_shifted"
+        ],
+        "selected_from": "analysis/dynamic",
+        "selected_from_rank": 3,
+        "selection_basis": "ranked_finding_backfill",
+        "severity": "medium",
+        "source_record_ids": [
+          "W_ER:3"
+        ],
+        "suggested_repair_direction": "mixed",
+        "summary": "Transfer fragility under environment shift is elevated.",
+        "support_status": "machine_derived"
+      },
+      {
+        "claim_type": "E-R",
+        "confidence": 0.57412215311759,
+        "handoff_id": "repair_handoff:mock_semantic_provider.v1:claim:001",
+        "impacted_components": [
+          "E",
+          "R"
+        ],
+        "required_evidence_refs": [
+          "failure:comparison:scenario_type:shifted",
+          "failure:comparison:scene_cfg_name:scene_cfg_shifted.yaml",
+          "failure:comparison:source:demo_shifted_gate_eval_shifted",
+          "witness:W_ER"
+        ],
+        "selected_from": "analysis/semantic",
+        "selected_from_rank": 7,
+        "selection_basis": "semantic_supported_claim_consumer",
+        "severity": "warning",
+        "source_record_ids": [
+          "mock_semantic_provider.v1:claim:001"
+        ],
+        "suggested_repair_direction": "mixed",
+        "summary": "Transfer fragility under environment shift is elevated.",
+        "support_status": "supported"
+      },
+      {
+        "claim_type": "E-R",
+        "confidence": 0.35,
+        "handoff_id": "repair_handoff:execution_mode_alignment:7",
+        "impacted_components": [
+          "E",
+          "R"
+        ],
+        "required_evidence_refs": [
+          "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/spec_shared/reward_spec_v0.yaml",
+          "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/spec_shared/policy_spec_v0.yaml"
+        ],
+        "selected_from": "analysis/static",
+        "selected_from_rank": 10,
+        "selection_basis": "ranked_finding_backfill",
+        "severity": "info",
+        "source_record_ids": [
+          "execution_mode_alignment:7"
+        ],
+        "suggested_repair_direction": "mixed",
+        "summary": "Reward component execution modes align with the supported execution paths.",
+        "support_status": "machine_direct"
+      },
+      {
+        "claim_type": "E-C",
+        "confidence": 0.8,
+        "handoff_id": "repair_handoff:scene_family_structure:5",
+        "impacted_components": [
+          "E",
+          "C"
+        ],
+        "required_evidence_refs": [
+          "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/env_injected/scene_cfg_nominal.yaml",
+          "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/env_injected/scene_cfg_shifted.yaml"
+        ],
+        "selected_from": "analysis/static",
+        "selected_from_rank": 2,
+        "selection_basis": "ranked_finding_backfill",
+        "severity": "high",
+        "source_record_ids": [
+          "scene_family_structure:5"
+        ],
+        "suggested_repair_direction": "environment",
+        "summary": "Some scene family configs violate required structural validation rules.",
+        "support_status": "machine_direct"
+      },
+      {
+        "claim_type": "C-R",
+        "confidence": 0.4,
+        "handoff_id": "repair_handoff:reward_proxy_suspicion:3",
+        "impacted_components": [
+          "C",
+          "R"
+        ],
+        "required_evidence_refs": [
+          "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/spec_shared/reward_spec_v0.yaml",
+          "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/spec_shared/policy_spec_v0.yaml"
+        ],
+        "selected_from": "analysis/static",
+        "selected_from_rank": 4,
+        "selection_basis": "ranked_finding_backfill",
+        "severity": "warning",
+        "source_record_ids": [
+          "reward_proxy_suspicion:3"
+        ],
+        "suggested_repair_direction": "reward",
+        "summary": "The reward specification contains proxy patterns that may deserve review.",
+        "support_status": "machine_direct"
+      }
+    ],
+    "selection_policy": "phase7_ranked_claim_selection.v3",
+    "selection_summary": {
+      "primary_claim_type": "E-R",
+      "selected_claim_count": 6,
+      "selection_focus_order": [
+        "E-R",
+        "E-C",
+        "C-R"
+      ]
+    }
+  },
+  "report_type": "phase7_unified_report.v1",
+  "root_cause_summary": {
+    "claim_type_breakdown": {
+      "C-R": 5,
+      "E-C": 4,
+      "E-R": 4
+    },
+    "claim_type_ordering": [
+      {
+        "aggregate_score": 2.438539,
+        "claim_type": "E-R",
+        "finding_count": 4
+      },
+      {
+        "aggregate_score": 2.664125,
+        "claim_type": "C-R",
+        "finding_count": 5
+      },
+      {
+        "aggregate_score": 2.053,
+        "claim_type": "E-C",
+        "finding_count": 4
+      }
+    ],
+    "claim_type_scores": {
+      "C-R": 2.664125,
+      "E-C": 2.053,
+      "E-R": 2.438539
+    },
+    "conflicts": [],
+    "primary_claim_type": "E-R",
+    "primary_summary": "Some scene family requirements are not expressible by the current scene backend.",
+    "primary_support_status": "machine_direct",
+    "selection_mode": "demo_er_override",
+    "selection_reason": "Demo 3 promotes E-R because W_ER is the dominant runtime witness and the semantic bundle centers reward-utility decoupling under shifted evaluation.",
+    "source_breakdown": {
+      "analysis/dynamic": 3,
+      "analysis/semantic": 2,
+      "analysis/static": 8
+    },
+    "top_by_namespace": {
+      "analysis/dynamic": {
+        "claim_type": "E-R",
+        "rank_score": 0.681118,
+        "severity": "medium",
+        "summary": "Transfer fragility under environment shift is elevated.",
+        "support_status": "machine_derived"
+      },
+      "analysis/semantic": {
+        "claim_type": "E-R",
+        "rank_score": 0.566118,
+        "severity": "warning",
+        "summary": "Transfer fragility under environment shift is elevated.",
+        "support_status": "semantic_supported"
+      },
+      "analysis/static": {
+        "claim_type": "E-R",
+        "rank_score": 0.8775,
+        "severity": "high",
+        "summary": "Some scene family requirements are not expressible by the current scene backend.",
+        "support_status": "machine_direct"
+      }
+    }
+  },
+  "semantic_claim_summary": {
+    "most_likely_claim_summary": "Transfer fragility under environment shift is elevated.",
+    "most_likely_claim_type": "E-R",
+    "next_check_or_repair_direction": "review shifted-family robustness and environment-reward alignment",
+    "rejected_claims": 0,
+    "supported_claims": 1,
+    "weak_claims": 1
+  },
+  "spec_version": "demo3-v0",
+  "witness_summary": {
+    "failure_summaries": {
+      "comparison": {
+        "by_scenario_type": {
+          "shifted": {
+            "average_return": 25.67652870941672,
+            "collision_rate": 0.25,
+            "episode_count": 12,
+            "failure_pressure": 0.736892048199502,
+            "min_distance": -0.46749572902989256,
+            "near_violation_ratio": 0.5634057971014492,
+            "run_count": 1,
+            "run_ids": [
+              "demo3_injected_eval_shifted"
+            ],
+            "scenario_types": [
+              "shifted"
+            ],
+            "scene_cfg_names": [
+              "scene_cfg_shifted.yaml"
+            ],
+            "sources": [
+              "demo_shifted_gate_eval_shifted"
+            ],
+            "success_rate": 0.3333333333333333
+          }
+        },
+        "by_scene_cfg_name": {
+          "scene_cfg_shifted.yaml": {
+            "average_return": 25.67652870941672,
+            "collision_rate": 0.25,
+            "episode_count": 12,
+            "failure_pressure": 0.736892048199502,
+            "min_distance": -0.46749572902989256,
+            "near_violation_ratio": 0.5634057971014492,
+            "run_count": 1,
+            "run_ids": [
+              "demo3_injected_eval_shifted"
+            ],
+            "scenario_types": [
+              "shifted"
+            ],
+            "scene_cfg_names": [
+              "scene_cfg_shifted.yaml"
+            ],
+            "sources": [
+              "demo_shifted_gate_eval_shifted"
+            ],
+            "success_rate": 0.3333333333333333
+          }
+        },
+        "by_source": {
+          "demo_shifted_gate_eval_shifted": {
+            "average_return": 25.67652870941672,
+            "collision_rate": 0.25,
+            "episode_count": 12,
+            "failure_pressure": 0.736892048199502,
+            "min_distance": -0.46749572902989256,
+            "near_violation_ratio": 0.5634057971014492,
+            "run_count": 1,
+            "run_ids": [
+              "demo3_injected_eval_shifted"
+            ],
+            "scenario_types": [
+              "shifted"
+            ],
+            "scene_cfg_names": [
+              "scene_cfg_shifted.yaml"
+            ],
+            "sources": [
+              "demo_shifted_gate_eval_shifted"
+            ],
+            "success_rate": 0.3333333333333333
+          }
+        }
+      },
+      "grouping_keys": [
+        "source",
+        "scenario_type",
+        "scene_cfg_name"
+      ],
+      "primary": {
+        "by_scenario_type": {
+          "nominal": {
+            "average_return": 27.560123326962742,
+            "collision_rate": 0.0,
+            "episode_count": 12,
+            "failure_pressure": 0.08661333702465035,
+            "min_distance": 0.6535466519013986,
+            "near_violation_ratio": 0.0,
+            "run_count": 1,
+            "run_ids": [
+              "demo3_injected_eval_nominal"
+            ],
+            "scenario_types": [
+              "nominal"
+            ],
+            "scene_cfg_names": [
+              "scene_cfg_nominal.yaml"
+            ],
+            "sources": [
+              "demo_shifted_gate_eval_nominal"
+            ],
+            "success_rate": 1.0
+          }
+        },
+        "by_scene_cfg_name": {
+          "scene_cfg_nominal.yaml": {
+            "average_return": 27.560123326962742,
+            "collision_rate": 0.0,
+            "episode_count": 12,
+            "failure_pressure": 0.08661333702465035,
+            "min_distance": 0.6535466519013986,
+            "near_violation_ratio": 0.0,
+            "run_count": 1,
+            "run_ids": [
+              "demo3_injected_eval_nominal"
+            ],
+            "scenario_types": [
+              "nominal"
+            ],
+            "scene_cfg_names": [
+              "scene_cfg_nominal.yaml"
+            ],
+            "sources": [
+              "demo_shifted_gate_eval_nominal"
+            ],
+            "success_rate": 1.0
+          }
+        },
+        "by_source": {
+          "demo_shifted_gate_eval_nominal": {
+            "average_return": 27.560123326962742,
+            "collision_rate": 0.0,
+            "episode_count": 12,
+            "failure_pressure": 0.08661333702465035,
+            "min_distance": 0.6535466519013986,
+            "near_violation_ratio": 0.0,
+            "run_count": 1,
+            "run_ids": [
+              "demo3_injected_eval_nominal"
+            ],
+            "scenario_types": [
+              "nominal"
+            ],
+            "scene_cfg_names": [
+              "scene_cfg_nominal.yaml"
+            ],
+            "sources": [
+              "demo_shifted_gate_eval_nominal"
+            ],
+            "success_rate": 1.0
+          }
+        }
+      }
+    },
+    "group_summaries": {
+      "comparison": {
+        "by_scenario_type": {
+          "shifted": {
+            "average_return": 25.67652870941672,
+            "collision_rate": 0.25,
+            "episode_count": 12,
+            "min_distance": -0.46749572902989256,
+            "near_violation_ratio": 0.5634057971014492,
+            "run_count": 1,
+            "run_ids": [
+              "demo3_injected_eval_shifted"
+            ],
+            "scenario_types": [
+              "shifted"
+            ],
+            "scene_cfg_names": [
+              "scene_cfg_shifted.yaml"
+            ],
+            "sources": [
+              "demo_shifted_gate_eval_shifted"
+            ],
+            "success_rate": 0.3333333333333333
+          }
+        },
+        "by_scene_cfg_name": {
+          "scene_cfg_shifted.yaml": {
+            "average_return": 25.67652870941672,
+            "collision_rate": 0.25,
+            "episode_count": 12,
+            "min_distance": -0.46749572902989256,
+            "near_violation_ratio": 0.5634057971014492,
+            "run_count": 1,
+            "run_ids": [
+              "demo3_injected_eval_shifted"
+            ],
+            "scenario_types": [
+              "shifted"
+            ],
+            "scene_cfg_names": [
+              "scene_cfg_shifted.yaml"
+            ],
+            "sources": [
+              "demo_shifted_gate_eval_shifted"
+            ],
+            "success_rate": 0.3333333333333333
+          }
+        },
+        "by_source": {
+          "demo_shifted_gate_eval_shifted": {
+            "average_return": 25.67652870941672,
+            "collision_rate": 0.25,
+            "episode_count": 12,
+            "min_distance": -0.46749572902989256,
+            "near_violation_ratio": 0.5634057971014492,
+            "run_count": 1,
+            "run_ids": [
+              "demo3_injected_eval_shifted"
+            ],
+            "scenario_types": [
+              "shifted"
+            ],
+            "scene_cfg_names": [
+              "scene_cfg_shifted.yaml"
+            ],
+            "sources": [
+              "demo_shifted_gate_eval_shifted"
+            ],
+            "success_rate": 0.3333333333333333
+          }
+        }
+      },
+      "grouping_keys": [
+        "source",
+        "scenario_type",
+        "scene_cfg_name"
+      ],
+      "primary": {
+        "by_scenario_type": {
+          "nominal": {
+            "average_return": 27.560123326962742,
+            "collision_rate": 0.0,
+            "episode_count": 12,
+            "min_distance": 0.6535466519013986,
+            "near_violation_ratio": 0.0,
+            "run_count": 1,
+            "run_ids": [
+              "demo3_injected_eval_nominal"
+            ],
+            "scenario_types": [
+              "nominal"
+            ],
+            "scene_cfg_names": [
+              "scene_cfg_nominal.yaml"
+            ],
+            "sources": [
+              "demo_shifted_gate_eval_nominal"
+            ],
+            "success_rate": 1.0
+          }
+        },
+        "by_scene_cfg_name": {
+          "scene_cfg_nominal.yaml": {
+            "average_return": 27.560123326962742,
+            "collision_rate": 0.0,
+            "episode_count": 12,
+            "min_distance": 0.6535466519013986,
+            "near_violation_ratio": 0.0,
+            "run_count": 1,
+            "run_ids": [
+              "demo3_injected_eval_nominal"
+            ],
+            "scenario_types": [
+              "nominal"
+            ],
+            "scene_cfg_names": [
+              "scene_cfg_nominal.yaml"
+            ],
+            "sources": [
+              "demo_shifted_gate_eval_nominal"
+            ],
+            "success_rate": 1.0
+          }
+        },
+        "by_source": {
+          "demo_shifted_gate_eval_nominal": {
+            "average_return": 27.560123326962742,
+            "collision_rate": 0.0,
+            "episode_count": 12,
+            "min_distance": 0.6535466519013986,
+            "near_violation_ratio": 0.0,
+            "run_count": 1,
+            "run_ids": [
+              "demo3_injected_eval_nominal"
+            ],
+            "scenario_types": [
+              "nominal"
+            ],
+            "scene_cfg_names": [
+              "scene_cfg_nominal.yaml"
+            ],
+            "sources": [
+              "demo_shifted_gate_eval_nominal"
+            ],
+            "success_rate": 1.0
+          }
+        }
+      }
+    },
+    "witness_scores": {
+      "W_CR": 0.0,
+      "W_EC": 0.4333333333333334,
+      "W_ER": 0.57412215311759
+    },
+    "witness_severities": {
+      "W_CR": "info",
+      "W_EC": "warning",
+      "W_ER": "medium"
+    }
+  }
+}

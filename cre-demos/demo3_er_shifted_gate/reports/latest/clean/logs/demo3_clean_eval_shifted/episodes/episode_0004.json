@@ -1,0 +1,2385 @@
+{
+  "summary": {
+    "episode_index": 4,
+    "seed": 47,
+    "scene_id": "demo3_shifted_gate_v0",
+    "scenario_type": "shifted",
+    "num_steps": 46,
+    "trajectory_length": 13.52621702756735,
+    "return_total": 22.631938063035726,
+    "reward_components_total": {
+      "reward_progress": 9.177023812048978,
+      "reward_safety_static": 13.223442304385621,
+      "reward_safety_dynamic": 0.0,
+      "penalty_smooth": 3.1421342233146508,
+      "penalty_height": 0.0,
+      "manual_control": 0.0
+    },
+    "success_flag": true,
+    "collision_flag": false,
+    "out_of_bounds_flag": false,
+    "min_obstacle_distance": 0.345670739744248,
+    "near_violation_steps": 4,
+    "near_violation_ratio": 0.08695652173913043,
+    "final_goal_distance": 0.017985282067554766,
+    "done_type": "success",
+    "source": "demo_shifted_gate_eval_shifted",
+    "scene_cfg_name": "scene_cfg_shifted.yaml",
+    "scene_tags": {
+      "family": "shifted",
+      "variant": "clean",
+      "run_kind": "eval_shifted",
+      "behavior_id": "shifted_eval_clean_success",
+      "phase": "eval_shifted",
+      "demo_id": "demo3_er_shifted_gate"
+    }
+  },
+  "steps": [
+    {
+      "episode_index": 4,
+      "step_idx": 0,
+      "sim_time": 0.0,
+      "scene_id": "demo3_shifted_gate_v0",
+      "scenario_type": "shifted",
+      "position": [
+        1.287089137869702,
+        1.5003334285610652,
+        1.2
+      ],
+      "velocity": [
+        3.6986760430432213,
+        1.4924529820498815,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 12.960518336160803,
+      "reward_total": 0.9003079611223749,
+      "reward_components": {
+        "reward_progress": 0.095,
+        "reward_safety_static": 0.8083079611223749,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.05,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 4.335693786173062,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_eval_shifted",
+      "scene_cfg_name": "scene_cfg_shifted.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "shifted",
+        "variant": "clean",
+        "run_kind": "eval_shifted",
+        "behavior_id": "shifted_eval_clean_success",
+        "phase": "eval_shifted",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 3.988435830624763,
+        "proxy_alignment": 0.0,
+        "scene_cfg_name": "scene_cfg_shifted.yaml"
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 1,
+      "sim_time": 0.08333333333333333,
+      "scene_id": "demo3_shifted_gate_v0",
+      "scenario_type": "shifted",
+      "position": [
+        1.5953121414566371,
+        1.6247045103985553,
+        1.2
+      ],
+      "velocity": [
+        3.6986760430432213,
+        1.4924529820498815,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 12.631571947782096,
+      "reward_total": 0.9523760948244799,
+      "reward_components": {
+        "reward_progress": 0.20684177204876042,
+        "reward_safety_static": 0.7485343227757195,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.05,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 4.006938775266457,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_eval_shifted",
+      "scene_cfg_name": "scene_cfg_shifted.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "shifted",
+        "variant": "clean",
+        "run_kind": "eval_shifted",
+        "behavior_id": "shifted_eval_clean_success",
+        "phase": "eval_shifted",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 3.988435830624763,
+        "proxy_alignment": 0.0,
+        "scene_cfg_name": "scene_cfg_shifted.yaml"
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 2,
+      "sim_time": 0.16666666666666666,
+      "scene_id": "demo3_shifted_gate_v0",
+      "scenario_type": "shifted",
+      "position": [
+        1.8637741376709573,
+        1.7330700077341419,
+        1.2
+      ],
+      "velocity": [
+        3.2215439545718425,
+        1.3003859680270384,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 12.345189837440271,
+      "reward_total": 0.885955071871185,
+      "reward_components": {
+        "reward_progress": 0.19236991751622023,
+        "reward_safety_static": 0.6965866296887364,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.05002458889619399,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 3.7212264632880503,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_eval_shifted",
+      "scene_cfg_name": "scene_cfg_shifted.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "shifted",
+        "variant": "clean",
+        "run_kind": "eval_shifted",
+        "behavior_id": "shifted_eval_clean_success",
+        "phase": "eval_shifted",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 3.474096877906545,
+        "proxy_alignment": 0.0,
+        "scene_cfg_name": "scene_cfg_shifted.yaml"
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 3,
+      "sim_time": 0.25,
+      "scene_id": "demo3_shifted_gate_v0",
+      "scenario_type": "shifted",
+      "position": [
+        2.1478649783538724,
+        1.838143647032695,
+        1.2
+      ],
+      "velocity": [
+        3.40909008819498,
+        1.2608836715826381,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 12.047206033807,
+      "reward_total": 0.8356860128146631,
+      "reward_components": {
+        "reward_progress": 0.19631449323531194,
+        "reward_safety_static": 0.6427242645052356,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.0558790820980725,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 3.424983454778795,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_eval_shifted",
+      "scene_cfg_name": "scene_cfg_shifted.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "shifted",
+        "variant": "clean",
+        "run_kind": "eval_shifted",
+        "behavior_id": "shifted_eval_clean_success",
+        "phase": "eval_shifted",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 3.634793372764533,
+        "proxy_alignment": 0.0,
+        "scene_cfg_name": "scene_cfg_shifted.yaml"
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 4,
+      "sim_time": 0.3333333333333333,
+      "scene_id": "demo3_shifted_gate_v0",
+      "scenario_type": "shifted",
+      "position": [
+        2.3889241293596895,
+        1.9754776261346036,
+        1.2
+      ],
+      "velocity": [
+        2.892709812069805,
+        1.648007749222903,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 11.769822645012518,
+      "reward_total": 0.776723004682228,
+      "reward_components": {
+        "reward_progress": 0.18931035219012426,
+        "reward_safety_static": 0.5923757804243618,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.08271879887096839,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 3.1480667923339896,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_eval_shifted",
+      "scene_cfg_name": "scene_cfg_shifted.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "shifted",
+        "variant": "clean",
+        "run_kind": "eval_shifted",
+        "behavior_id": "shifted_eval_clean_success",
+        "phase": "eval_shifted",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 3.3292190673405178,
+        "proxy_alignment": 0.0,
+        "scene_cfg_name": "scene_cfg_shifted.yaml"
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 5,
+      "sim_time": 0.41666666666666663,
+      "scene_id": "demo3_shifted_gate_v0",
+      "scenario_type": "shifted",
+      "position": [
+        2.6464240372106005,
+        2.0916304166085555,
+        1.2
+      ],
+      "velocity": [
+        3.0899988942109324,
+        1.3938334856874226,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 11.489203209466105,
+      "reward_total": 0.7280264245551518,
+      "reward_components": {
+        "reward_progress": 0.19041060808578036,
+        "reward_safety_static": 0.5417450083384144,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.06881986448405042,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 2.8695975458612795,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_eval_shifted",
+      "scene_cfg_name": "scene_cfg_shifted.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "shifted",
+        "variant": "clean",
+        "run_kind": "eval_shifted",
+        "behavior_id": "shifted_eval_clean_success",
+        "phase": "eval_shifted",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 3.3898178346407253,
+        "proxy_alignment": 0.0,
+        "scene_cfg_name": "scene_cfg_shifted.yaml"
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 6,
+      "sim_time": 0.5,
+      "scene_id": "demo3_shifted_gate_v0",
+      "scenario_type": "shifted",
+      "position": [
+        2.9152353988554167,
+        2.2657517417549564,
+        1.2
+      ],
+      "velocity": [
+        3.2257363397377947,
+        2.0894559017568106,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 11.169123311457376,
+      "reward_total": 0.68255539988294,
+      "reward_components": {
+        "reward_progress": 0.20382716532296768,
+        "reward_safety_static": 0.48354068827690927,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.0802075619489498,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 2.549473785523001,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_eval_shifted",
+      "scene_cfg_name": "scene_cfg_shifted.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "shifted",
+        "variant": "clean",
+        "run_kind": "eval_shifted",
+        "behavior_id": "shifted_eval_clean_success",
+        "phase": "eval_shifted",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 3.8433320047702555,
+        "proxy_alignment": 0.0,
+        "scene_cfg_name": "scene_cfg_shifted.yaml"
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 7,
+      "sim_time": 0.5833333333333333,
+      "scene_id": "demo3_shifted_gate_v0",
+      "scenario_type": "shifted",
+      "position": [
+        3.1763356842621615,
+        2.3994633060534483,
+        1.2
+      ],
+      "velocity": [
+        3.1332034248809375,
+        1.6045387715819022,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 10.876429907502043,
+      "reward_total": 0.6210824412398331,
+      "reward_components": {
+        "reward_progress": 0.19451575734481322,
+        "reward_safety_static": 0.43078470255456586,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.07030031099243338,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 2.2593158640501123,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_eval_shifted",
+      "scene_cfg_name": "scene_cfg_shifted.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "shifted",
+        "variant": "clean",
+        "run_kind": "eval_shifted",
+        "behavior_id": "shifted_eval_clean_success",
+        "phase": "eval_shifted",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 3.520157435569494,
+        "proxy_alignment": 0.0,
+        "scene_cfg_name": "scene_cfg_shifted.yaml"
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 8,
+      "sim_time": 0.6666666666666666,
+      "scene_id": "demo3_shifted_gate_v0",
+      "scenario_type": "shifted",
+      "position": [
+        3.4615682467614857,
+        2.562285890596509,
+        1.2
+      ],
+      "velocity": [
+        3.42279074999189,
+        1.9538710145167304,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 10.548079602162474,
+      "reward_total": 0.5746726183340858,
+      "reward_components": {
+        "reward_progress": 0.20663910381545347,
+        "reward_safety_static": 0.371578510846216,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.05908327212639685,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 1.9336818096541883,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_eval_shifted",
+      "scene_cfg_name": "scene_cfg_shifted.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "shifted",
+        "variant": "clean",
+        "run_kind": "eval_shifted",
+        "behavior_id": "shifted_eval_clean_success",
+        "phase": "eval_shifted",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 3.941206472591696,
+        "proxy_alignment": 0.0,
+        "scene_cfg_name": "scene_cfg_shifted.yaml"
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 9,
+      "sim_time": 0.75,
+      "scene_id": "demo3_shifted_gate_v0",
+      "scenario_type": "shifted",
+      "position": [
+        3.683422232020302,
+        2.7313908989910503,
+        1.2
+      ],
+      "velocity": [
+        2.662247823105794,
+        2.0292601007344935,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 10.270846381777318,
+      "reward_total": 0.5055351647300914,
+      "reward_components": {
+        "reward_progress": 0.1892592949309531,
+        "reward_safety_static": 0.3208668607417302,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.07651651570986409,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 1.6547677340795162,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_eval_shifted",
+      "scene_cfg_name": "scene_cfg_shifted.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "shifted",
+        "variant": "clean",
+        "run_kind": "eval_shifted",
+        "behavior_id": "shifted_eval_clean_success",
+        "phase": "eval_shifted",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 3.3474557544595727,
+        "proxy_alignment": 0.0,
+        "scene_cfg_name": "scene_cfg_shifted.yaml"
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 10,
+      "sim_time": 0.8333333333333333,
+      "scene_id": "demo3_shifted_gate_v0",
+      "scenario_type": "shifted",
+      "position": [
+        3.911548193494865,
+        2.9358896204083225,
+        1.2
+      ],
+      "velocity": [
+        2.737511537694756,
+        2.4539846570072665,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 9.970291789579154,
+      "reward_total": 0.45854852640175225,
+      "reward_components": {
+        "reward_progress": 0.19718856134737583,
+        "reward_safety_static": 0.2653145966226289,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.06591052613754134,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 1.3492302814244592,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_eval_shifted",
+      "scene_cfg_name": "scene_cfg_shifted.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "shifted",
+        "variant": "clean",
+        "run_kind": "eval_shifted",
+        "behavior_id": "shifted_eval_clean_success",
+        "phase": "eval_shifted",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 3.676412669415524,
+        "proxy_alignment": 0.0,
+        "scene_cfg_name": "scene_cfg_shifted.yaml"
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 11,
+      "sim_time": 0.9166666666666666,
+      "scene_id": "demo3_shifted_gate_v0",
+      "scenario_type": "shifted",
+      "position": [
+        4.131787708960639,
+        3.139850232964867,
+        1.2
+      ],
+      "velocity": [
+        2.642874185589287,
+        2.447527350678534,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 9.677191364539295,
+      "reward_total": 0.40766030465819225,
+      "reward_components": {
+        "reward_progress": 0.19951160577212024,
+        "reward_safety_static": 0.21134313257563042,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.053240561492640275,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 1.0523872291659673,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_eval_shifted",
+      "scene_cfg_name": "scene_cfg_shifted.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "shifted",
+        "variant": "clean",
+        "run_kind": "eval_shifted",
+        "behavior_id": "shifted_eval_clean_success",
+        "phase": "eval_shifted",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 3.6021068964112826,
+        "proxy_alignment": 0.09714922517136865,
+        "scene_cfg_name": "scene_cfg_shifted.yaml"
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 12,
+      "sim_time": 1.0,
+      "scene_id": "demo3_shifted_gate_v0",
+      "scenario_type": "shifted",
+      "position": [
+        4.3466923954171435,
+        3.3429588355228543,
+        1.2
+      ],
+      "velocity": [
+        2.578856237478057,
+        2.437303230695848,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 9.389593031787017,
+      "reward_total": 0.3641747148982275,
+      "reward_components": {
+        "reward_progress": 0.20305870611287316,
+        "reward_safety_static": 0.16423774628779214,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.05202895837396422,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 0.7933076045828569,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_eval_shifted",
+      "scene_cfg_name": "scene_cfg_shifted.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "shifted",
+        "variant": "clean",
+        "run_kind": "eval_shifted",
+        "behavior_id": "shifted_eval_clean_success",
+        "phase": "eval_shifted",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 3.5483723778571914,
+        "proxy_alignment": 0.2055054595419719,
+        "scene_cfg_name": "scene_cfg_shifted.yaml"
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 13,
+      "sim_time": 1.0833333333333333,
+      "scene_id": "demo3_shifted_gate_v0",
+      "scenario_type": "shifted",
+      "position": [
+        4.546746126589383,
+        3.54583728000585,
+        1.2
+      ],
+      "velocity": [
+        2.400644774066876,
+        2.4345413337959503,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 9.115580766528629,
+      "reward_total": 0.3281710612815077,
+      "reward_components": {
+        "reward_progress": 0.2037293869571538,
+        "reward_safety_static": 0.1278643406201122,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.05704443826263866,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 0.5932538734106172,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_eval_shifted",
+      "scene_cfg_name": "scene_cfg_shifted.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "shifted",
+        "variant": "clean",
+        "run_kind": "eval_shifted",
+        "behavior_id": "shifted_eval_clean_success",
+        "phase": "eval_shifted",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 3.419076898406289,
+        "proxy_alignment": 0.3113043353860343,
+        "scene_cfg_name": "scene_cfg_shifted.yaml"
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 14,
+      "sim_time": 1.1666666666666665,
+      "scene_id": "demo3_shifted_gate_v0",
+      "scenario_type": "shifted",
+      "position": [
+        4.794329260255752,
+        3.7405395823354826,
+        1.2
+      ],
+      "velocity": [
+        2.9709976039964303,
+        2.3364276279555884,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 8.804564986358011,
+      "reward_total": 0.3001877302112885,
+      "reward_components": {
+        "reward_progress": 0.2218506016351795,
+        "reward_safety_static": 0.08284922540804507,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.07520161386560169,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 0.345670739744248,
+      "near_violation_flag": true,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_eval_shifted",
+      "scene_cfg_name": "scene_cfg_shifted.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "shifted",
+        "variant": "clean",
+        "run_kind": "eval_shifted",
+        "behavior_id": "shifted_eval_clean_success",
+        "phase": "eval_shifted",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 3.7796455949766914,
+        "proxy_alignment": 0.42210472754339307,
+        "scene_cfg_name": "scene_cfg_shifted.yaml"
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 15,
+      "sim_time": 1.25,
+      "scene_id": "demo3_shifted_gate_v0",
+      "scenario_type": "shifted",
+      "position": [
+        4.967136302548518,
+        3.9893777666121153,
+        1.2
+      ],
+      "velocity": [
+        2.0736845075131853,
+        2.986058211319593,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 8.533998253065654,
+      "reward_total": 0.31961931376923514,
+      "reward_components": {
+        "reward_progress": 0.213981523387284,
+        "reward_safety_static": 0.11220660046336682,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.10948016802359509,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 0.5071363025485176,
+      "near_violation_flag": true,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_eval_shifted",
+      "scene_cfg_name": "scene_cfg_shifted.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "shifted",
+        "variant": "clean",
+        "run_kind": "eval_shifted",
+        "behavior_id": "shifted_eval_clean_success",
+        "phase": "eval_shifted",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 3.6354794839318467,
+        "proxy_alignment": 0.5397766813576514,
+        "scene_cfg_name": "scene_cfg_shifted.yaml"
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 16,
+      "sim_time": 1.3333333333333333,
+      "scene_id": "demo3_shifted_gate_v0",
+      "scenario_type": "shifted",
+      "position": [
+        5.143999749976583,
+        4.243938050917445,
+        1.2
+      ],
+      "velocity": [
+        2.122361369136783,
+        3.0547234116639608,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 8.259463726156222,
+      "reward_total": 0.3627111170928914,
+      "reward_components": {
+        "reward_progress": 0.22135015464158536,
+        "reward_safety_static": 0.14436359090483325,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.05004380755878706,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 0.6839997499765829,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_eval_shifted",
+      "scene_cfg_name": "scene_cfg_shifted.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "shifted",
+        "variant": "clean",
+        "run_kind": "eval_shifted",
+        "behavior_id": "shifted_eval_clean_success",
+        "phase": "eval_shifted",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 3.7196441903725237,
+        "proxy_alignment": 0.6601683098475659,
+        "scene_cfg_name": "scene_cfg_shifted.yaml"
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 17,
+      "sim_time": 1.4166666666666665,
+      "scene_id": "demo3_shifted_gate_v0",
+      "scenario_type": "shifted",
+      "position": [
+        5.338102400145496,
+        4.444647050872549,
+        1.2
+      ],
+      "velocity": [
+        2.3292318020269605,
+        2.4085079994612393,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 7.995830902643637,
+      "reward_total": 0.3975627367979842,
+      "reward_components": {
+        "reward_progress": 0.22284518685631055,
+        "reward_safety_static": 0.17965498184463566,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.08229053171603293,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 0.8781024001454962,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_eval_shifted",
+      "scene_cfg_name": "scene_cfg_shifted.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "shifted",
+        "variant": "clean",
+        "run_kind": "eval_shifted",
+        "behavior_id": "shifted_eval_clean_success",
+        "phase": "eval_shifted",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 3.35055690461191,
+        "proxy_alignment": 0.764200537240636,
+        "scene_cfg_name": "scene_cfg_shifted.yaml"
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 18,
+      "sim_time": 1.5,
+      "scene_id": "demo3_shifted_gate_v0",
+      "scenario_type": "shifted",
+      "position": [
+        5.527279436470792,
+        4.709579168751612,
+        1.2
+      ],
+      "velocity": [
+        2.270124435903547,
+        3.1791854145487655,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 7.710103845200557,
+      "reward_total": 0.44201908391823685,
+      "reward_components": {
+        "reward_progress": 0.23275109063067267,
+        "reward_safety_static": 0.21405080663105303,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.07971355572481434,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 1.0672794364707918,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_eval_shifted",
+      "scene_cfg_name": "scene_cfg_shifted.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "shifted",
+        "variant": "clean",
+        "run_kind": "eval_shifted",
+        "behavior_id": "shifted_eval_clean_success",
+        "phase": "eval_shifted",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 3.9064926538476947,
+        "proxy_alignment": 0.8120778220005085,
+        "scene_cfg_name": "scene_cfg_shifted.yaml"
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 19,
+      "sim_time": 1.5833333333333333,
+      "scene_id": "demo3_shifted_gate_v0",
+      "scenario_type": "shifted",
+      "position": [
+        5.726697945543371,
+        4.927901626792058,
+        1.2
+      ],
+      "velocity": [
+        2.3930221088709516,
+        2.619869496485343,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 7.437432966795282,
+      "reward_total": 0.4719429865220042,
+      "reward_components": {
+        "reward_progress": 0.22607519534460607,
+        "reward_safety_static": 0.25030871737152205,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.07401543656873129,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 1.2666979455433711,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_eval_shifted",
+      "scene_cfg_name": "scene_cfg_shifted.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "shifted",
+        "variant": "clean",
+        "run_kind": "eval_shifted",
+        "behavior_id": "shifted_eval_clean_success",
+        "phase": "eval_shifted",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 3.548277186489176,
+        "proxy_alignment": 0.7673419337362555,
+        "scene_cfg_name": "scene_cfg_shifted.yaml"
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 20,
+      "sim_time": 1.6666666666666665,
+      "scene_id": "demo3_shifted_gate_v0",
+      "scenario_type": "shifted",
+      "position": [
+        5.907464618814405,
+        5.1679407480340345,
+        1.2
+      ],
+      "velocity": [
+        2.1692000792524055,
+        2.8804694549037215,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 7.175101557387876,
+      "reward_total": 0.451497607168539,
+      "reward_components": {
+        "reward_progress": 0.21977975194993515,
+        "reward_safety_static": 0.23585440045389228,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.06894242058814118,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 1.1871992024964075,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_eval_shifted",
+      "scene_cfg_name": "scene_cfg_shifted.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "shifted",
+        "variant": "clean",
+        "run_kind": "eval_shifted",
+        "behavior_id": "shifted_eval_clean_success",
+        "phase": "eval_shifted",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 3.605902558925017,
+        "proxy_alignment": 0.7117414550283407,
+        "scene_cfg_name": "scene_cfg_shifted.yaml"
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 21,
+      "sim_time": 1.75,
+      "scene_id": "demo3_shifted_gate_v0",
+      "scenario_type": "shifted",
+      "position": [
+        6.090701011181593,
+        5.407663999043006,
+        1.2
+      ],
+      "velocity": [
+        2.198836708406251,
+        2.876679012107658,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 6.91370519113495,
+      "reward_total": 0.4383966057031119,
+      "reward_components": {
+        "reward_progress": 0.21670803487435925,
+        "reward_safety_static": 0.22477458987992244,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.0514336508528295,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 1.1262602443395735,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_eval_shifted",
+      "scene_cfg_name": "scene_cfg_shifted.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "shifted",
+        "variant": "clean",
+        "run_kind": "eval_shifted",
+        "behavior_id": "shifted_eval_clean_success",
+        "phase": "eval_shifted",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 3.6207961843958474,
+        "proxy_alignment": 0.656665406967287,
+        "scene_cfg_name": "scene_cfg_shifted.yaml"
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 22,
+      "sim_time": 1.8333333333333333,
+      "scene_id": "demo3_shifted_gate_v0",
+      "scenario_type": "shifted",
+      "position": [
+        6.272002096565355,
+        5.621661454738651,
+        1.2
+      ],
+      "velocity": [
+        2.175613024605152,
+        2.567969468347737,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 6.666667242412974,
+      "reward_total": 0.4490282218689994,
+      "reward_components": {
+        "reward_progress": 0.20951563215461208,
+        "reward_safety_static": 0.2431154762800779,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.060048109428177114,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 1.2271351195404285,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_eval_shifted",
+      "scene_cfg_name": "scene_cfg_shifted.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "shifted",
+        "variant": "clean",
+        "run_kind": "eval_shifted",
+        "behavior_id": "shifted_eval_clean_success",
+        "phase": "eval_shifted",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 3.3656736655828263,
+        "proxy_alignment": 0.6104545917828029,
+        "scene_cfg_name": "scene_cfg_shifted.yaml"
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 23,
+      "sim_time": 1.9166666666666665,
+      "scene_id": "demo3_shifted_gate_v0",
+      "scenario_type": "shifted",
+      "position": [
+        6.462596701285404,
+        5.87054059170755,
+        1.2
+      ],
+      "velocity": [
+        2.287135256640589,
+        2.9865496436267875,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 6.401940015565213,
+      "reward_total": 0.4500920071597453,
+      "reward_components": {
+        "reward_progress": 0.2119640597656064,
+        "reward_safety_static": 0.2417198924168092,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.05986575037783795,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 1.2194594082924506,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_eval_shifted",
+      "scene_cfg_name": "scene_cfg_shifted.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "shifted",
+        "variant": "clean",
+        "run_kind": "eval_shifted",
+        "behavior_id": "shifted_eval_clean_success",
+        "phase": "eval_shifted",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 3.761710575790714,
+        "proxy_alignment": 0.5391360527473552,
+        "scene_cfg_name": "scene_cfg_shifted.yaml"
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 24,
+      "sim_time": 2.0,
+      "scene_id": "demo3_shifted_gate_v0",
+      "scenario_type": "shifted",
+      "position": [
+        6.685603474521314,
+        6.092060911872541,
+        1.2
+      ],
+      "velocity": [
+        2.6760812788309174,
+        2.658243841979896,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 6.119431225163271,
+      "reward_total": 0.4181076865987829,
+      "reward_components": {
+        "reward_progress": 0.21219568159411586,
+        "reward_safety_static": 0.21053437965953803,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.07703957758118303,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 1.0479390881274593,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_eval_shifted",
+      "scene_cfg_name": "scene_cfg_shifted.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "shifted",
+        "variant": "clean",
+        "run_kind": "eval_shifted",
+        "behavior_id": "shifted_eval_clean_success",
+        "phase": "eval_shifted",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 3.771958554164316,
+        "proxy_alignment": 0.42285385714911133,
+        "scene_cfg_name": "scene_cfg_shifted.yaml"
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 25,
+      "sim_time": 2.083333333333333,
+      "scene_id": "demo3_shifted_gate_v0",
+      "scenario_type": "shifted",
+      "position": [
+        6.8817969432588075,
+        6.304147713246491,
+        1.2
+      ],
+      "velocity": [
+        2.35432162484992,
+        2.5450416164873957,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 5.8685705725724375,
+      "reward_total": 0.36447922694981355,
+      "reward_components": {
+        "reward_progress": 0.19601310485527731,
+        "reward_safety_static": 0.17197314304609265,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.0584503491926065,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 0.8358522867535096,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_eval_shifted",
+      "scene_cfg_name": "scene_cfg_shifted.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "shifted",
+        "variant": "clean",
+        "run_kind": "eval_shifted",
+        "behavior_id": "shifted_eval_clean_success",
+        "phase": "eval_shifted",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 3.46699684783369,
+        "proxy_alignment": 0.31440965948788047,
+        "scene_cfg_name": "scene_cfg_shifted.yaml"
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 26,
+      "sim_time": 2.1666666666666665,
+      "scene_id": "demo3_shifted_gate_v0",
+      "scenario_type": "shifted",
+      "position": [
+        7.077228101655694,
+        6.5210343112532065,
+        1.2
+      ],
+      "velocity": [
+        2.345173900762642,
+        2.60263917608059,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 5.62083575369028,
+      "reward_total": 0.31883099248217106,
+      "reward_components": {
+        "reward_progress": 0.18944875344328105,
+        "reward_safety_static": 0.13253921613578068,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.05261628494817814,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 0.6189656887467938,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_eval_shifted",
+      "scene_cfg_name": "scene_cfg_shifted.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "shifted",
+        "variant": "clean",
+        "run_kind": "eval_shifted",
+        "behavior_id": "shifted_eval_clean_success",
+        "phase": "eval_shifted",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 3.503365711096648,
+        "proxy_alignment": 0.2043783004669532,
+        "scene_cfg_name": "scene_cfg_shifted.yaml"
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 27,
+      "sim_time": 2.25,
+      "scene_id": "demo3_shifted_gate_v0",
+      "scenario_type": "shifted",
+      "position": [
+        7.273859286596351,
+        6.743979603388577,
+        1.2
+      ],
+      "velocity": [
+        2.359574219287879,
+        2.6753435056244435,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 5.374954324736082,
+      "reward_total": 0.3298637045763369,
+      "reward_components": {
+        "reward_progress": 0.18319884172894746,
+        "reward_safety_static": 0.14979259756297275,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.052128911926388716,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 0.7138592865963502,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_eval_shifted",
+      "scene_cfg_name": "scene_cfg_shifted.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "shifted",
+        "variant": "clean",
+        "run_kind": "eval_shifted",
+        "behavior_id": "shifted_eval_clean_success",
+        "phase": "eval_shifted",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 3.5672192768898983,
+        "proxy_alignment": 0.09198311769040199,
+        "scene_cfg_name": "scene_cfg_shifted.yaml"
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 28,
+      "sim_time": 2.333333333333333,
+      "scene_id": "demo3_shifted_gate_v0",
+      "scenario_type": "shifted",
+      "position": [
+        7.539251142603083,
+        6.8807797256129115,
+        1.2
+      ],
+      "velocity": [
+        3.184702272080788,
+        1.6416014666920162,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 5.085438353648968,
+      "reward_total": 0.384016020233333,
+      "reward_components": {
+        "reward_progress": 0.1934354301696189,
+        "reward_safety_static": 0.19804566229146953,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.12441787046259097,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 0.9792511426030825,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_eval_shifted",
+      "scene_cfg_name": "scene_cfg_shifted.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "shifted",
+        "variant": "clean",
+        "run_kind": "eval_shifted",
+        "behavior_id": "shifted_eval_clean_success",
+        "phase": "eval_shifted",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 3.5829016086465324,
+        "proxy_alignment": 0.0,
+        "scene_cfg_name": "scene_cfg_shifted.yaml"
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 29,
+      "sim_time": 2.4166666666666665,
+      "scene_id": "demo3_shifted_gate_v0",
+      "scenario_type": "shifted",
+      "position": [
+        7.8513640043177775,
+        6.9712634188804685,
+        1.2
+      ],
+      "velocity": [
+        3.7453543405763305,
+        1.085804319210684,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 4.761104448936817,
+      "reward_total": 0.4079954602900235,
+      "reward_components": {
+        "reward_progress": 0.20527352760213124,
+        "reward_safety_static": 0.20804718531012717,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.08875421037058188,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 1.0342595192056996,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_eval_shifted",
+      "scene_cfg_name": "scene_cfg_shifted.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "shifted",
+        "variant": "clean",
+        "run_kind": "eval_shifted",
+        "behavior_id": "shifted_eval_clean_success",
+        "phase": "eval_shifted",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 3.8995705091830994,
+        "proxy_alignment": 0.0,
+        "scene_cfg_name": "scene_cfg_shifted.yaml"
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 30,
+      "sim_time": 2.5,
+      "scene_id": "demo3_shifted_gate_v0",
+      "scenario_type": "shifted",
+      "position": [
+        8.127977781578133,
+        7.0806477728207655,
+        1.2
+      ],
+      "velocity": [
+        3.3193653271242702,
+        1.312612247283564,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 4.467637719868732,
+      "reward_total": 0.3872841786366899,
+      "reward_components": {
+        "reward_progress": 0.19477868788314903,
+        "reward_safety_static": 0.19663826913729715,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.06887963972927169,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 0.9715104802551344,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_eval_shifted",
+      "scene_cfg_name": "scene_cfg_shifted.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "shifted",
+        "variant": "clean",
+        "run_kind": "eval_shifted",
+        "behavior_id": "shifted_eval_clean_success",
+        "phase": "eval_shifted",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 3.5694729424151155,
+        "proxy_alignment": 0.0,
+        "scene_cfg_name": "scene_cfg_shifted.yaml"
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 31,
+      "sim_time": 2.583333333333333,
+      "scene_id": "demo3_shifted_gate_v0",
+      "scenario_type": "shifted",
+      "position": [
+        8.38663714159294,
+        7.172120935574152,
+        1.2
+      ],
+      "velocity": [
+        3.1039123201776846,
+        1.0976779530406375,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 4.195847679580053,
+      "reward_total": 0.397081675898367,
+      "reward_components": {
+        "reward_progress": 0.18740861369815062,
+        "reward_safety_static": 0.21311289737711855,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.05733058628170262,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 1.062120935574152,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_eval_shifted",
+      "scene_cfg_name": "scene_cfg_shifted.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "shifted",
+        "variant": "clean",
+        "run_kind": "eval_shifted",
+        "behavior_id": "shifted_eval_clean_success",
+        "phase": "eval_shifted",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 3.292289261280409,
+        "proxy_alignment": 0.0,
+        "scene_cfg_name": "scene_cfg_shifted.yaml"
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 32,
+      "sim_time": 2.6666666666666665,
+      "scene_id": "demo3_shifted_gate_v0",
+      "scenario_type": "shifted",
+      "position": [
+        8.685567887634315,
+        7.304247002870243,
+        1.2
+      ],
+      "velocity": [
+        3.587168952496498,
+        1.5855128075530907,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 3.8773656743801688,
+      "reward_total": 0.44559548153257433,
+      "reward_components": {
+        "reward_progress": 0.2032838817679607,
+        "reward_safety_static": 0.24622672779458962,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.06525213383293281,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 1.244247002870243,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_eval_shifted",
+      "scene_cfg_name": "scene_cfg_shifted.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "shifted",
+        "variant": "clean",
+        "run_kind": "eval_shifted",
+        "behavior_id": "shifted_eval_clean_success",
+        "phase": "eval_shifted",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 3.921942370391195,
+        "proxy_alignment": 0.0,
+        "scene_cfg_name": "scene_cfg_shifted.yaml"
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 33,
+      "sim_time": 2.75,
+      "scene_id": "demo3_shifted_gate_v0",
+      "scenario_type": "shifted",
+      "position": [
+        8.969431214149978,
+        7.355691316191998,
+        1.2
+      ],
+      "velocity": [
+        3.4063599181879525,
+        0.617331759861063,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 3.5888786036377573,
+      "reward_total": 0.4428231121263506,
+      "reward_components": {
+        "reward_progress": 0.19308560405241987,
+        "reward_safety_static": 0.25558023930763607,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.09737885389508882,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 1.2956913161919983,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_eval_shifted",
+      "scene_cfg_name": "scene_cfg_shifted.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "shifted",
+        "variant": "clean",
+        "run_kind": "eval_shifted",
+        "behavior_id": "shifted_eval_clean_success",
+        "phase": "eval_shifted",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 3.4618472516808985,
+        "proxy_alignment": 0.0,
+        "scene_cfg_name": "scene_cfg_shifted.yaml"
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 34,
+      "sim_time": 2.833333333333333,
+      "scene_id": "demo3_shifted_gate_v0",
+      "scenario_type": "shifted",
+      "position": [
+        9.253031464299415,
+        7.392947010875354,
+        1.2
+      ],
+      "velocity": [
+        3.403203001793244,
+        0.44706833620027453,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 3.3032284213228076,
+      "reward_total": 0.45250652756544124,
+      "reward_components": {
+        "reward_progress": 0.1921210619870829,
+        "reward_safety_static": 0.2639694370409758,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.05973285771029115,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 1.341831903725367,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_eval_shifted",
+      "scene_cfg_name": "scene_cfg_shifted.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "shifted",
+        "variant": "clean",
+        "run_kind": "eval_shifted",
+        "behavior_id": "shifted_eval_clean_success",
+        "phase": "eval_shifted",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 3.4324423911622217,
+        "proxy_alignment": 0.0,
+        "scene_cfg_name": "scene_cfg_shifted.yaml"
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 35,
+      "sim_time": 2.9166666666666665,
+      "scene_id": "demo3_shifted_gate_v0",
+      "scenario_type": "shifted",
+      "position": [
+        9.55926935683528,
+        7.423209479056086,
+        1.2
+      ],
+      "velocity": [
+        3.674854710430381,
+        0.36314961816878366,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 2.99676225628573,
+      "reward_total": 0.46685500737396174,
+      "reward_components": {
+        "reward_progress": 0.1991984961126064,
+        "reward_safety_static": 0.27104193512085806,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.05642373099171259,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 1.3807306431647193,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_eval_shifted",
+      "scene_cfg_name": "scene_cfg_shifted.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "shifted",
+        "variant": "clean",
+        "run_kind": "eval_shifted",
+        "behavior_id": "shifted_eval_clean_success",
+        "phase": "eval_shifted",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 3.692754363337547,
+        "proxy_alignment": 0.0,
+        "scene_cfg_name": "scene_cfg_shifted.yaml"
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 36,
+      "sim_time": 3.0,
+      "scene_id": "demo3_shifted_gate_v0",
+      "scenario_type": "shifted",
+      "position": [
+        9.842456761814258,
+        7.494845608909507,
+        1.2
+      ],
+      "velocity": [
+        3.3982488597477385,
+        0.8596335582410433,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 2.7051279122556786,
+      "reward_total": 0.4089178041719257,
+      "reward_components": {
+        "reward_progress": 0.19415567697021743,
+        "reward_safety_static": 0.2195533160337711,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.0798531472010478,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 1.097543238185741,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_eval_shifted",
+      "scene_cfg_name": "scene_cfg_shifted.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "shifted",
+        "variant": "clean",
+        "run_kind": "eval_shifted",
+        "behavior_id": "shifted_eval_clean_success",
+        "phase": "eval_shifted",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 3.505291024612787,
+        "proxy_alignment": 0.0,
+        "scene_cfg_name": "scene_cfg_shifted.yaml"
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 37,
+      "sim_time": 3.083333333333333,
+      "scene_id": "demo3_shifted_gate_v0",
+      "scenario_type": "shifted",
+      "position": [
+        10.153978419608565,
+        7.524403749324602,
+        1.2
+      ],
+      "velocity": [
+        3.7382598935316835,
+        0.3546976849811436,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 2.3937437309200043,
+      "reward_total": 0.35894564218046066,
+      "reward_components": {
+        "reward_progress": 0.20087062165412928,
+        "reward_safety_static": 0.16291301461662439,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.08063323483821712,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 0.7860215803914341,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_eval_shifted",
+      "scene_cfg_name": "scene_cfg_shifted.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "shifted",
+        "variant": "clean",
+        "run_kind": "eval_shifted",
+        "behavior_id": "shifted_eval_clean_success",
+        "phase": "eval_shifted",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 3.7550495974512104,
+        "proxy_alignment": 0.0,
+        "scene_cfg_name": "scene_cfg_shifted.yaml"
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 38,
+      "sim_time": 3.1666666666666665,
+      "scene_id": "demo3_shifted_gate_v0",
+      "scenario_type": "shifted",
+      "position": [
+        10.452406708502386,
+        7.565278134746786,
+        1.2
+      ],
+      "velocity": [
+        3.581139466725844,
+        0.4904926250662136,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 2.093232282264744,
+      "reward_total": 0.30232899421307763,
+      "reward_components": {
+        "reward_progress": 0.19717389254278847,
+        "reward_safety_static": 0.10865332572683886,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.05830373427582856,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 0.48759329149761377,
+      "near_violation_flag": true,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_eval_shifted",
+      "scene_cfg_name": "scene_cfg_shifted.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "shifted",
+        "variant": "clean",
+        "run_kind": "eval_shifted",
+        "behavior_id": "shifted_eval_clean_success",
+        "phase": "eval_shifted",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 3.614573681001095,
+        "proxy_alignment": 0.0,
+        "scene_cfg_name": "scene_cfg_shifted.yaml"
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 39,
+      "sim_time": 3.25,
+      "scene_id": "demo3_shifted_gate_v0",
+      "scenario_type": "shifted",
+      "position": [
+        10.74456092207375,
+        7.646519971091567,
+        1.2
+      ],
+      "velocity": [
+        3.5058505628563807,
+        0.9749020361373653,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 1.7906743107409755,
+      "reward_total": 0.30135040559525034,
+      "reward_components": {
+        "reward_progress": 0.1978697103180813,
+        "reward_safety_static": 0.108101985831591,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.07702150924036634,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 0.48456092207375057,
+      "near_violation_flag": true,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_eval_shifted",
+      "scene_cfg_name": "scene_cfg_shifted.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "shifted",
+        "variant": "clean",
+        "run_kind": "eval_shifted",
+        "behavior_id": "shifted_eval_clean_success",
+        "phase": "eval_shifted",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 3.638876495450922,
+        "proxy_alignment": 0.0,
+        "scene_cfg_name": "scene_cfg_shifted.yaml"
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 40,
+      "sim_time": 3.333333333333333,
+      "scene_id": "demo3_shifted_gate_v0",
+      "scenario_type": "shifted",
+      "position": [
+        11.034443080668067,
+        7.6926792246287174,
+        1.2
+      ],
+      "velocity": [
+        3.478585903131801,
+        0.553911042445808,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 1.4974321830308415,
+      "reward_total": 0.351150348875877,
+      "reward_components": {
+        "reward_progress": 0.19470232342144556,
+        "reward_safety_static": 0.1608078328487395,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.07266345657180136,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 0.7744430806680673,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_eval_shifted",
+      "scene_cfg_name": "scene_cfg_shifted.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "shifted",
+        "variant": "clean",
+        "run_kind": "eval_shifted",
+        "behavior_id": "shifted_eval_clean_success",
+        "phase": "eval_shifted",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 3.522410726819161,
+        "proxy_alignment": 0.0,
+        "scene_cfg_name": "scene_cfg_shifted.yaml"
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 41,
+      "sim_time": 3.4166666666666665,
+      "scene_id": "demo3_shifted_gate_v0",
+      "scenario_type": "shifted",
+      "position": [
+        11.335061694350832,
+        7.768963497646907,
+        1.2
+      ],
+      "velocity": [
+        3.607423364193181,
+        0.9154112762182756,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 1.1876275179484113,
+      "reward_total": 0.4117121089952408,
+      "reward_components": {
+        "reward_progress": 0.20033358612802626,
+        "reward_safety_static": 0.21546576260924225,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.06812066236712928,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 1.0750616943508324,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_eval_shifted",
+      "scene_cfg_name": "scene_cfg_shifted.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "shifted",
+        "variant": "clean",
+        "run_kind": "eval_shifted",
+        "behavior_id": "shifted_eval_clean_success",
+        "phase": "eval_shifted",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 3.7217578015172377,
+        "proxy_alignment": 0.0,
+        "scene_cfg_name": "scene_cfg_shifted.yaml"
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 42,
+      "sim_time": 3.5,
+      "scene_id": "demo3_shifted_gate_v0",
+      "scenario_type": "shifted",
+      "position": [
+        11.618795058785036,
+        7.803242929663607,
+        1.2
+      ],
+      "velocity": [
+        3.404800373210442,
+        0.41135318420040434,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 0.9029039224352879,
+      "reward_total": 0.45432031897567926,
+      "reward_components": {
+        "reward_progress": 0.1918060224744619,
+        "reward_safety_static": 0.26705364705182466,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.07565584251012125,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 1.358795058785036,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_eval_shifted",
+      "scene_cfg_name": "scene_cfg_shifted.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "shifted",
+        "variant": "clean",
+        "run_kind": "eval_shifted",
+        "behavior_id": "shifted_eval_clean_success",
+        "phase": "eval_shifted",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 3.429559304570454,
+        "proxy_alignment": 0.0,
+        "scene_cfg_name": "scene_cfg_shifted.yaml"
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 43,
+      "sim_time": 3.583333333333333,
+      "scene_id": "demo3_shifted_gate_v0",
+      "scenario_type": "shifted",
+      "position": [
+        11.932677809430796,
+        7.859652117288976,
+        1.2
+      ],
+      "velocity": [
+        3.7665930077491225,
+        0.6769102515044274,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 0.5844244999088481,
+      "reward_total": 0.5237152436891405,
+      "reward_components": {
+        "reward_progress": 0.20328300365898952,
+        "reward_safety_static": 0.32412323807832655,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.06151663413626014,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 1.6726778094307961,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_eval_shifted",
+      "scene_cfg_name": "scene_cfg_shifted.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "shifted",
+        "variant": "clean",
+        "run_kind": "eval_shifted",
+        "behavior_id": "shifted_eval_clean_success",
+        "phase": "eval_shifted",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 3.826934853719928,
+        "proxy_alignment": 0.0,
+        "scene_cfg_name": "scene_cfg_shifted.yaml"
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 44,
+      "sim_time": 3.6666666666666665,
+      "scene_id": "demo3_shifted_gate_v0",
+      "scenario_type": "shifted",
+      "position": [
+        12.220303533658653,
+        7.925074059762183,
+        1.2
+      ],
+      "velocity": [
+        3.451508690734279,
+        0.7850633096784811,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 0.2895583012181783,
+      "reward_total": 0.5681233246905982,
+      "reward_components": {
+        "reward_progress": 0.19525450755482773,
+        "reward_safety_static": 0.3764188243015732,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.059166786096710444,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 1.9603035336586527,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_shifted_gate_eval_shifted",
+      "scene_cfg_name": "scene_cfg_shifted.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "shifted",
+        "variant": "clean",
+        "run_kind": "eval_shifted",
+        "behavior_id": "shifted_eval_clean_success",
+        "phase": "eval_shifted",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 3.539666176692032,
+        "proxy_alignment": 0.0,
+        "scene_cfg_name": "scene_cfg_shifted.yaml"
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 45,
+      "sim_time": 3.75,
+      "scene_id": "demo3_shifted_gate_v0",
+      "scenario_type": "shifted",
+      "position": [
+        12.504807622574278,
+        8.017330814644234,
+        1.2
+      ],
+      "velocity": [
+        3.414049066987502,
+        1.1070810585846118,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 0.017985282067554766,
+      "reward_total": 1.03140258587588,
+      "reward_components": {
+        "reward_progress": 0.187334826511212,
+        "reward_safety_static": 0.4281468404680505,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.06798468505637789,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 2.244807622574278,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "success",
+      "source": "demo_shifted_gate_eval_shifted",
+      "scene_cfg_name": "scene_cfg_shifted.yaml",
+      "target_position": [
+        12.5,
+        8.0,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "shifted",
+        "variant": "clean",
+        "run_kind": "eval_shifted",
+        "behavior_id": "shifted_eval_clean_success",
+        "phase": "eval_shifted",
+        "demo_id": "demo3_er_shifted_gate",
+        "speed_norm": 3.5890610892091344,
+        "proxy_alignment": 0.0,
+        "scene_cfg_name": "scene_cfg_shifted.yaml"
+      }
+    }
+  ]
+}

@@ -1,0 +1,353 @@
+{
+  "findings": [
+    {
+      "affected_paths": [
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/spec_shared/constraint_spec_v0.yaml"
+      ],
+      "check_id": "constraint_runtime_binding",
+      "details": {
+        "missing_logged_variables": [],
+        "missing_threshold_refs": [],
+        "runtime_fields_checked": [
+          "collision",
+          "collision_flag",
+          "done_type",
+          "drone_state",
+          "episode_len",
+          "goal_distance",
+          "min_obstacle_distance",
+          "near_violation_flag",
+          "near_violation_ratio",
+          "near_violation_steps",
+          "out_of_bounds",
+          "out_of_bounds_flag",
+          "penalty_height",
+          "penalty_height_total",
+          "penalty_smooth",
+          "penalty_smooth_total",
+          "position",
+          "reach_goal",
+          "return",
+          "reward_components",
+          "reward_progress",
+          "reward_progress_total",
+          "reward_safety_dynamic",
+          "reward_safety_dynamic_total",
+          "reward_safety_static",
+          "reward_safety_static_total",
+          "reward_total",
+          "scenario_type",
+          "scene_cfg_name",
+          "scene_id",
+          "source",
+          "speed_norm",
+          "truncated",
+          "velocity",
+          "yaw_rate"
+        ]
+      },
+      "finding_id": "constraint_runtime_binding:1",
+      "passed": true,
+      "recommended_action": "Update the constraint spec or runtime schema so every required constraint has a valid logged_variable and threshold_ref.",
+      "severity": "info",
+      "summary": "All required constraints map to runtime fields and threshold references."
+    },
+    {
+      "affected_paths": [
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/spec_shared/reward_spec_v0.yaml",
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/spec_shared/constraint_spec_v0.yaml"
+      ],
+      "check_id": "reward_constraint_conflicts",
+      "details": {
+        "enabled_reward_components": [
+          "manual_control",
+          "penalty_height",
+          "penalty_smooth",
+          "reward_progress",
+          "reward_safety_static"
+        ],
+        "issues": []
+      },
+      "finding_id": "reward_constraint_conflicts:2",
+      "passed": true,
+      "recommended_action": "Rebalance reward components or constraint support terms so each declared safety requirement has an explicit behavioral counterweight.",
+      "severity": "info",
+      "summary": "No obvious reward/constraint direct conflicts were detected."
+    },
+    {
+      "affected_paths": [
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/spec_shared/reward_spec_v0.yaml",
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/spec_shared/policy_spec_v0.yaml"
+      ],
+      "check_id": "reward_proxy_suspicion",
+      "details": {
+        "assumptions": {
+          "collision_penalty_present": true,
+          "constant_step_bias_present": true,
+          "primary_progress_proxy": "goal_aligned_progress",
+          "success_bonus_present": true
+        },
+        "warnings": [
+          {
+            "kind": "constant_step_bias",
+            "reason": "A constant per-step reward bias is present and may reward lingering or overlong trajectories."
+          }
+        ]
+      },
+      "finding_id": "reward_proxy_suspicion:3",
+      "passed": false,
+      "recommended_action": "Review whether progress shaping, step bias, and success/collision signals reflect the intended task objective instead of only an easy proxy.",
+      "severity": "warning",
+      "summary": "The reward specification contains proxy patterns that may deserve review."
+    },
+    {
+      "affected_paths": [
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/env_repaired/scene_cfg_nominal.yaml",
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/env_repaired/scene_cfg_shifted.yaml",
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/spec_shared/constraint_spec_v0.yaml"
+      ],
+      "check_id": "scene_family_coverage",
+      "details": {
+        "family_capabilities": {
+          "nominal": {
+            "all_families": true,
+            "dynamic_obstacles": false,
+            "perforated_templates": false,
+            "route_adjacent_structure": true,
+            "shifted_distribution": false,
+            "static_obstacles": true,
+            "workspace_limits": true
+          },
+          "shifted": {
+            "all_families": true,
+            "dynamic_obstacles": false,
+            "perforated_templates": false,
+            "route_adjacent_structure": true,
+            "shifted_distribution": true,
+            "static_obstacles": true,
+            "workspace_limits": true
+          }
+        },
+        "uncovered_requirements": []
+      },
+      "finding_id": "scene_family_coverage:4",
+      "passed": true,
+      "recommended_action": "Add or adjust scene-family capabilities so every declared constraint activation requirement is covered by at least one family.",
+      "severity": "info",
+      "summary": "Scene families cover the current constraint activation requirements."
+    },
+    {
+      "affected_paths": [
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/env_repaired/scene_cfg_nominal.yaml",
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/env_repaired/scene_cfg_shifted.yaml"
+      ],
+      "check_id": "scene_family_structure",
+      "details": {
+        "issues": [
+          {
+            "family": "nominal",
+            "kind": "missing_template_params",
+            "template": "bottleneck"
+          },
+          {
+            "family": "nominal",
+            "kind": "missing_template_params",
+            "template": "low_clearance_passage"
+          },
+          {
+            "family": "shifted",
+            "kind": "missing_template_params",
+            "template": "blind_offset_gate"
+          },
+          {
+            "family": "shifted",
+            "kind": "missing_template_params",
+            "template": "late_exit_post"
+          },
+          {
+            "family": "shifted",
+            "kind": "missing_template_params",
+            "template": "route_squeeze"
+          }
+        ]
+      },
+      "finding_id": "scene_family_structure:5",
+      "passed": false,
+      "recommended_action": "Repair scene-family config structure so workspace, start-goal, template, and validation settings remain internally consistent.",
+      "severity": "high",
+      "summary": "Some scene family configs violate required structural validation rules."
+    },
+    {
+      "affected_paths": [
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/env_repaired/scene_cfg_nominal.yaml",
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/env_repaired/scene_cfg_shifted.yaml",
+        "/home/mint/rl_dev/crerl_v1/isaac-training/training/envs/env_gen.py"
+      ],
+      "check_id": "scene_backend_capability",
+      "details": {
+        "issues": [
+          {
+            "family": "shifted",
+            "kind": "unsupported_template_candidates",
+            "template_types": [
+              "blind_offset_gate",
+              "late_exit_post",
+              "route_squeeze"
+            ]
+          }
+        ],
+        "supported_dynamic_motion_types": [
+          "lane_patrol",
+          "random_walk",
+          "waypoint_patrol"
+        ],
+        "supported_rule_templates": [
+          "bottleneck",
+          "clutter_cluster",
+          "low_clearance_passage",
+          "moving_crossing",
+          "perforated_barrier",
+          "pillar_field"
+        ],
+        "supported_scene_families": [
+          "boundary_critical",
+          "nominal",
+          "shifted"
+        ]
+      },
+      "finding_id": "scene_backend_capability:6",
+      "passed": false,
+      "recommended_action": "Align scene-family declarations with the actual env_gen backend capabilities, or extend the backend to express the missing cases.",
+      "severity": "high",
+      "summary": "Some scene family requirements are not expressible by the current scene backend."
+    },
+    {
+      "affected_paths": [
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/spec_shared/reward_spec_v0.yaml",
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/spec_shared/policy_spec_v0.yaml"
+      ],
+      "check_id": "execution_mode_alignment",
+      "details": {
+        "issues": [],
+        "required_rollout_modes": [
+          "baseline",
+          "eval",
+          "train"
+        ],
+        "supported_execution_modes": [
+          "baseline",
+          "eval",
+          "manual",
+          "train"
+        ]
+      },
+      "finding_id": "execution_mode_alignment:7",
+      "passed": true,
+      "recommended_action": "Align reward component execution_modes with the supported manual, train, eval, and baseline execution paths.",
+      "severity": "info",
+      "summary": "Reward component execution modes align with the supported execution paths."
+    },
+    {
+      "affected_paths": [
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/spec_shared/reward_spec_v0.yaml",
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/spec_shared/policy_spec_v0.yaml"
+      ],
+      "check_id": "required_runtime_fields",
+      "details": {
+        "missing_core_fields": [],
+        "missing_done_type_labels": [],
+        "missing_reward_logged_keys": [],
+        "missing_reward_total_fields": [],
+        "runtime_fields_checked": [
+          "collision",
+          "collision_flag",
+          "done_type",
+          "drone_state",
+          "episode_index",
+          "episode_len",
+          "final_goal_distance",
+          "goal_distance",
+          "min_obstacle_distance",
+          "near_violation_flag",
+          "near_violation_ratio",
+          "near_violation_steps",
+          "num_steps",
+          "out_of_bounds",
+          "out_of_bounds_flag",
+          "penalty_height",
+          "penalty_height_total",
+          "penalty_smooth",
+          "penalty_smooth_total",
+          "position",
+          "reach_goal",
+          "return",
+          "return_total",
+          "reward_components",
+          "reward_components_total",
+          "reward_progress",
+          "reward_progress_total",
+          "reward_safety_dynamic",
+          "reward_safety_dynamic_total",
+          "reward_safety_static",
+          "reward_safety_static_total",
+          "reward_total",
+          "scenario_type",
+          "scene_cfg_name",
+          "scene_id",
+          "seed",
+          "source",
+          "speed_norm",
+          "success_flag",
+          "trajectory_length",
+          "truncated",
+          "velocity",
+          "yaw_rate"
+        ]
+      },
+      "finding_id": "required_runtime_fields:8",
+      "passed": true,
+      "recommended_action": "Align the runtime schema with the declared reward and policy expectations so all required fields are emitted and named consistently.",
+      "severity": "info",
+      "summary": "The runtime schema provides the required core fields and reward bindings."
+    }
+  ],
+  "max_severity": "high",
+  "metadata": {
+    "check_ids": [
+      "constraint_runtime_binding",
+      "reward_constraint_conflicts",
+      "reward_proxy_suspicion",
+      "scene_family_coverage",
+      "scene_family_structure",
+      "scene_backend_capability",
+      "execution_mode_alignment",
+      "required_runtime_fields"
+    ],
+    "detector_type": "static",
+    "report_artifacts": [
+      "static_report.json",
+      "summary.json",
+      "manifest.json",
+      "namespace_manifest.json"
+    ],
+    "report_namespace": "analysis/static",
+    "source_paths": {
+      "constraint_spec": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/spec_shared/constraint_spec_v0.yaml",
+      "detector_thresholds": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/detector_cfg/detector_thresholds.yaml",
+      "policy_spec": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/spec_shared/policy_spec_v0.yaml",
+      "reward_spec": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/spec_shared/reward_spec_v0.yaml",
+      "scene_cfg_base": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/env_repaired/scene_cfg_base.yaml",
+      "scene_family:nominal": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/env_repaired/scene_cfg_nominal.yaml",
+      "scene_family:shifted": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/env_repaired/scene_cfg_shifted.yaml",
+      "witness_weights": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/detector_cfg/witness_weights.yaml"
+    }
+  },
+  "num_findings": 8,
+  "passed": false,
+  "report_type": "static_analyzer_report.v1",
+  "scene_family_set": [
+    "nominal",
+    "shifted"
+  ],
+  "spec_version": "demo3-v0"
+}

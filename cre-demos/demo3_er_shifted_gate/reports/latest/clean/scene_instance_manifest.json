@@ -1,0 +1,6 @@
+{
+  "eval_nominal_episode_count": 12,
+  "eval_shifted_episode_count": 12,
+  "train_episode_count": 12,
+  "variant": "clean"
+}

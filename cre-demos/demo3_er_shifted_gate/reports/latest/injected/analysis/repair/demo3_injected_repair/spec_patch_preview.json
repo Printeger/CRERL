@@ -1,0 +1,28 @@
+{
+  "files_touched": [
+    "cre-demos/demo3_er_shifted_gate/cfg/env_injected/scene_cfg_shifted.yaml"
+  ],
+  "operation_count": 1,
+  "operations": [
+    {
+      "after": 0.16,
+      "before": 0.04,
+      "metadata": {},
+      "operation": "set",
+      "operation_id": "repair_handoff:scene_backend_capability:6:increase_shifted_boundary_bias:1",
+      "rationale": "Make shifted scenes place more structure near boundary regions to better represent robustness stress.",
+      "target_file": "cre-demos/demo3_er_shifted_gate/cfg/env_injected/scene_cfg_shifted.yaml",
+      "target_path": "distribution_modes.boundary_adjacent_bias",
+      "would_change": true
+    }
+  ],
+  "patch_id": "patch:repair_handoff:scene_backend_capability:6:increase_shifted_boundary_bias",
+  "patch_type": "phase8_spec_patch.v1",
+  "preview_mode": "non_destructive",
+  "preview_type": "phase8_spec_patch_preview.v1",
+  "primary_claim_type": "E-R",
+  "selected_candidate_id": "candidate:repair_handoff:scene_backend_capability:6:increase_shifted_boundary_bias",
+  "source_mutation_performed": false,
+  "target_component": "E",
+  "target_file": "cre-demos/demo3_er_shifted_gate/cfg/env_injected/scene_cfg_shifted.yaml"
+}

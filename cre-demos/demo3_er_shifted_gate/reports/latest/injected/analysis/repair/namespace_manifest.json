@@ -1,0 +1,17 @@
+{
+  "bundle_dir": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/reports/latest/injected/analysis/repair/demo3_injected_repair",
+  "bundle_relative_dir": "demo3_injected_repair",
+  "generated_at_utc": "2026-04-15T11:55:31.813749+00:00",
+  "latest_bundle": "demo3_injected_repair",
+  "manifest_path": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/reports/latest/injected/analysis/repair/demo3_injected_repair/manifest.json",
+  "max_severity": "info",
+  "namespace": "analysis/repair",
+  "namespace_type": "analysis_namespace.v1",
+  "passed": true,
+  "phase9_ready": true,
+  "primary_claim_type": "E-R",
+  "report_mode": "repair_generation",
+  "report_path": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/reports/latest/injected/analysis/repair/demo3_injected_repair/repair_plan.json",
+  "selected_candidate_id": "candidate:repair_handoff:scene_backend_capability:6:increase_shifted_boundary_bias",
+  "summary_path": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/reports/latest/injected/analysis/repair/demo3_injected_repair/repair_summary.json"
+}

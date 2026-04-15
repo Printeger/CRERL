@@ -1,0 +1,32 @@
+{
+  "acceptance_path": "acceptance.json",
+  "bundle_type": "repair_generation_bundle.v1",
+  "max_severity": "info",
+  "metadata": {
+    "patch_preview_only": true,
+    "primary_claim_type_override": "E-R",
+    "selection_focus_order": [
+      "E-R",
+      "E-C",
+      "C-R"
+    ],
+    "selection_policy": "phase7_ranked_claim_selection.v3",
+    "upstream_report_type": "phase7_unified_report.v1"
+  },
+  "namespace": "analysis/repair",
+  "passed": true,
+  "phase9_ready": true,
+  "plan_type": "phase8_repair_plan.v1",
+  "primary_claim_type": "E-R",
+  "repair_candidates_path": "repair_candidates.json",
+  "repair_plan_path": "repair_plan.json",
+  "repair_summary_md_path": "repair_summary.md",
+  "repair_summary_path": "repair_summary.json",
+  "repair_validation_path": "repair_validation.json",
+  "selected_candidate_id": "candidate:repair_handoff:scene_backend_capability:6:increase_shifted_boundary_bias",
+  "source_report_bundle": "demo3_injected_report",
+  "spec_patch_path": "spec_patch.json",
+  "spec_patch_preview_path": "spec_patch_preview.json",
+  "validation_context_preview_path": "validation_context_preview.json",
+  "validation_request_path": "validation_request.json"
+}

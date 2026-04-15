@@ -1,0 +1,14 @@
+{
+  "primary_claim_type": "E-R",
+  "repair_bundle_name": "demo3_injected_repair",
+  "validation_targets": [
+    "W_ER",
+    "shifted_min_distance",
+    "nominal_vs_shifted_success_gap",
+    "nominal_vs_shifted_min_distance_gap",
+    "nominal_vs_shifted_collision_gap",
+    "nominal_vs_shifted_near_violation_gap",
+    "nominal_vs_shifted_return_gap"
+  ],
+  "validation_type": "demo3_validation_plan.v1"
+}

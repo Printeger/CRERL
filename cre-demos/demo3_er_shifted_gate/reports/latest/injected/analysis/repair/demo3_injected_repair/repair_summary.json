@@ -1,0 +1,17 @@
+{
+  "bundle_type": "repair_generation_bundle.v1",
+  "candidate_count": 13,
+  "metadata": {
+    "max_severity": "info",
+    "passed": true,
+    "primary_repair_direction": "environment"
+  },
+  "plan_type": "phase8_repair_plan.v1",
+  "primary_claim_type": "E-R",
+  "selected_candidate_id": "candidate:repair_handoff:scene_backend_capability:6:increase_shifted_boundary_bias",
+  "validation_targets": [
+    "W_ER",
+    "nominal_vs_shifted_success_gap",
+    "shifted_min_distance"
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "bundle_type": "semantic_analysis_bundle.v1",
+  "claim_consumer_path": "claim_consumer.json",
+  "dynamic_bundle_name": "demo3_injected_dynamic",
+  "max_severity": "warning",
+  "metadata": {
+    "claim_set_metadata": {
+      "semantic_contract_type": "phase6_dynamic_semantic_contract.v1",
+      "semantic_input_type": "semantic_analysis_input.v1"
+    },
+    "detector_type": "semantic",
+    "dynamic_bundle_dir": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/reports/latest/injected/analysis/dynamic/demo3_injected_dynamic",
+    "provider_mode": "mock",
+    "provider_name": "mock_semantic_provider.v1",
+    "report_artifacts": [
+      "semantic_report.json",
+      "semantic_claims.json",
+      "semantic_input.json",
+      "semantic_summary.md",
+      "semantic_merge_input.json",
+      "claim_consumer.json",
+      "summary.json",
+      "manifest.json",
+      "namespace_manifest.json"
+    ],
+    "report_namespace": "analysis/semantic",
+    "source_paths": {
+      "constraint_spec": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/spec_shared/constraint_spec_v0.yaml",
+      "detector_thresholds": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/detector_cfg/detector_thresholds.yaml",
+      "policy_spec": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/spec_shared/policy_spec_v0.yaml",
+      "reward_spec": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/spec_shared/reward_spec_v0.yaml",
+      "scene_cfg_base": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/env_injected/scene_cfg_base.yaml",
+      "scene_family:nominal": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/env_injected/scene_cfg_nominal.yaml",
+      "scene_family:shifted": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/env_injected/scene_cfg_shifted.yaml",
+      "witness_weights": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/detector_cfg/witness_weights.yaml"
+    },
+    "static_bundle_dir": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/reports/latest/injected/analysis/static/demo3_injected_static"
+  },
+  "namespace": "analysis/semantic",
+  "num_findings": 2,
+  "passed": true,
+  "report_path": "semantic_report.json",
+  "report_type": "semantic_analyzer_report.v1",
+  "semantic_claims_path": "semantic_claims.json",
+  "semantic_input_path": "semantic_input.json",
+  "semantic_merge_input_path": "semantic_merge_input.json",
+  "semantic_summary_path": "semantic_summary.md",
+  "spec_version": "demo3-v0",
+  "static_bundle_name": "demo3_injected_static",
+  "summary_path": "summary.json"
+}

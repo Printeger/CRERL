@@ -1,0 +1,18 @@
+{
+  "run_id": "demo3_clean_eval_nominal",
+  "base_dir": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/reports/latest/clean/logs",
+  "run_dir": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/reports/latest/clean/logs/demo3_clean_eval_nominal",
+  "near_violation_distance": 0.55,
+  "schema_version": "cre_runtime_log.v1",
+  "source": "demo_shifted_gate_eval_nominal",
+  "run_metadata": {
+    "demo_id": "demo3_er_shifted_gate",
+    "variant": "clean",
+    "run_kind": "eval_nominal",
+    "scene_layout_file": "cre-demos/demo3_er_shifted_gate/cfg/scene_layout.yaml",
+    "env_cfg_dir": "cre-demos/demo3_er_shifted_gate/cfg/env_clean",
+    "spec_dir": "cre-demos/demo3_er_shifted_gate/cfg/spec_shared",
+    "utility_metric_id": "U_task_v1"
+  },
+  "created_at": "2026-04-15T19:55:31"
+}

@@ -1,0 +1,30 @@
+{
+  "acceptance_rule": {
+    "claim_specific": "mean(delta) > 0 and min(delta) >= 0",
+    "consistency": "delta > 0 (direct or claim-specific fallback)",
+    "performance": "delta >= -0.05",
+    "safety": "delta > 0"
+  },
+  "accepted": true,
+  "blocked_by": [],
+  "claim_specific_metrics": [
+    "shifted_min_distance",
+    "nominal_vs_shifted_success_gap",
+    "nominal_vs_shifted_min_distance_gap",
+    "nominal_vs_shifted_collision_gap",
+    "nominal_vs_shifted_near_violation_gap",
+    "nominal_vs_shifted_return_gap"
+  ],
+  "consistency_evidence_mode": "claim_specific_fallback",
+  "decision_rationale": "Repair improves consistency and safety, satisfies claim-specific family-gap checks, and stays within the allowed performance regression bound.",
+  "decision_status": "accepted",
+  "decision_type": "phase9_validation_decision.v1",
+  "metric_deltas": {
+    "claim_specific_floor": 0.25,
+    "claim_specific_improvement": 0.4981002136419852,
+    "consistency_improvement": 0.4981002136419852,
+    "performance_floor": 0.2500000000000001,
+    "safety_improvement": 0.2110823591211017
+  },
+  "next_action": "promote_repair_candidate"
+}

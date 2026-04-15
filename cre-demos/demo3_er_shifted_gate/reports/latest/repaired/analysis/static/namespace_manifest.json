@@ -1,0 +1,15 @@
+{
+  "bundle_dir": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/reports/latest/repaired/analysis/static/demo3_repaired_static",
+  "bundle_relative_dir": "demo3_repaired_static",
+  "generated_at_utc": "2026-04-15T11:55:31.719165+00:00",
+  "latest_bundle": "demo3_repaired_static",
+  "manifest_path": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/reports/latest/repaired/analysis/static/demo3_repaired_static/manifest.json",
+  "max_severity": "high",
+  "namespace": "analysis/static",
+  "namespace_type": "analysis_namespace.v1",
+  "num_findings": 8,
+  "passed": false,
+  "report_mode": "static_audit",
+  "report_path": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/reports/latest/repaired/analysis/static/demo3_repaired_static/static_report.json",
+  "summary_path": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/reports/latest/repaired/analysis/static/demo3_repaired_static/summary.json"
+}

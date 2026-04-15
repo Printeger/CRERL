@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="520" viewBox="0 0 900 520">
+<rect x="0" y="0" width="100%" height="100%" fill="#f6f2ea"/>
+<text x="48" y="56" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="30" fill="#1f2933">Gate Offset Inset</text>
+<text x="48" y="92" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="18" fill="#5f6b76">A close-up around the gate region makes the shift magnitude and squeeze zone immediately visible.</text>
+<rect x="44" y="126" width="812" height="332" rx="26" fill="#fffdfa" stroke="#d8d0c4" stroke-width="2"/>
+<rect x="210.5" y="255.0" width="324.8" height="160.7" rx="18" fill="#8ecae6" opacity="0.55" stroke="#1d4ed8" stroke-width="3"/>
+<rect x="335.3" y="151.5" width="253.7" height="130.6" rx="18" fill="#ffb085" opacity="0.55" stroke="#d9481c" stroke-width="3"/>
+<polygon points="226.7,303.6 612.4,311.3 734.2,234.1 592.1,149.2 267.3,164.6 165.8,249.5" fill="#fb923c" opacity="0.22" stroke="#c2410c" stroke-width="2.5" stroke-dasharray="9 8"/>
+<line x1="402" y1="270" x2="508" y2="204" stroke="#7c3aed" stroke-width="5" stroke-linecap="round"/>
+<polygon points="498,194 524,196 510,217" fill="#7c3aed"/>
+<text x="548" y="210" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="18" fill="#6d28d9">dx=0.44, dy=1.18</text>
+<text x="62" y="486" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="17" fill="#1d4ed8">Blue: nominal gate window</text>
+<text x="324" y="486" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="17" fill="#d9481c">Orange: shifted gate window</text>
+<text x="598" y="486" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="17" fill="#c2410c">Dashed region: shifted squeeze zone</text>
+</svg>

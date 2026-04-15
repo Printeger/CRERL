@@ -1,0 +1,32 @@
+{
+  "demo_id": "demo3_er_shifted_gate",
+  "eval_episode_seeds": [
+    11,
+    17,
+    23,
+    31,
+    47,
+    59,
+    71,
+    83,
+    97,
+    101,
+    113,
+    127
+  ],
+  "scene_layout_file": "cre-demos/demo3_er_shifted_gate/cfg/scene_layout.yaml",
+  "train_episode_seeds": [
+    11,
+    17,
+    23,
+    31,
+    47,
+    59,
+    71,
+    83,
+    97,
+    101,
+    113,
+    127
+  ]
+}

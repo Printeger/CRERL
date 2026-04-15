@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="620" viewBox="0 0 1040 620">
+<defs>
+<linearGradient id="summary_bg" x1="0%" y1="0%" x2="100%" y2="100%">
+<stop offset="0%" stop-color="#16324f"/>
+<stop offset="100%" stop-color="#1f6d5a"/>
+</linearGradient>
+</defs>
+<rect x="0" y="0" width="100%" height="100%" rx="28" fill="url(#summary_bg)"/>
+<text x="58" y="72" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="34" fill="#ffffff">Demo 3 Summary Card</text>
+<text x="58" y="110" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="19" fill="#dbeafe">Primary claim is environment-to-reward-utility decoupling under shifted transfer.</text>
+<text x="58" y="182" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="20" fill="#ffffff">Injected shifted reward retention</text>
+<text x="58" y="228" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="56" fill="#ffd166">0.93</text>
+<text x="362" y="182" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="20" fill="#ffffff">Injected shifted utility retention</text>
+<text x="362" y="228" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="56" fill="#ff8c69">0.24</text>
+<text x="690" y="182" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="20" fill="#ffffff">Injected W_ER</text>
+<text x="690" y="228" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="56" fill="#9ae6b4">0.57</text>
+<text x="58" y="338" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="20" fill="#ffffff">Repair closes decoupling gap</text>
+<text x="58" y="382" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="30" fill="#dbeafe">0.69 -> 0.18</text>
+<text x="58" y="470" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="20" fill="#ffffff">Primary report claim</text>
+<text x="58" y="512" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="32" fill="#ffd166">E-R</text>
+<text x="362" y="470" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="20" fill="#ffffff">Shifted success recovery</text>
+<text x="362" y="512" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="32" fill="#9ae6b4">0.33 -> 0.83</text>
+<text x="690" y="470" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="20" fill="#ffffff">Shifted min-distance recovery</text>
+<text x="690" y="512" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="32" fill="#9ae6b4">-0.47 -> -0.02</text>
+</svg>

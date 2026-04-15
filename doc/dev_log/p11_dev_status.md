@@ -1705,3 +1705,101 @@ Validation results:
   - a figure/styling plan
   - acceptance and anti-drift rules
 - the root isolated demo plan now links directly to the Demo 3 subplan
+
+## 25. Demo-3 Isolated Pipeline Implementation Addendum
+
+The third isolated CRE demo is now fully implemented as a dedicated Phase 11
+benchmark package under:
+
+- `cre-demos/demo3_er_shifted_gate/`
+
+This implementation keeps the Demo-3 causal story aligned with the frozen
+documentation:
+
+- reward stays fixed
+- utility stays fixed as `U_task_v1`
+- the injected failure is driven by shifted-family transfer mismatch
+- the repair stays on the robustness / environment side
+
+What was added:
+
+1. **isolated demo configuration**
+   - scene layout for a centered-gate nominal family and a shifted-gate family
+   - clean / injected / repaired environment configs
+   - shared reward / constraint / policy specs
+   - detector thresholds and witness weights for the isolated run
+
+2. **end-to-end demo pipeline**
+   - `cre-demos/demo3_er_shifted_gate/scripts/run_demo3.py`
+   - synthetic but contract-compliant runtime logs for:
+     - `train`
+     - `eval_nominal`
+     - `eval_shifted`
+   - static analysis, dynamic analysis, semantic analysis, report generation,
+     rule-based repair, and post-repair validation
+
+3. **machine-readable retained evidence**
+   - full isolated report bundle under:
+     - `cre-demos/demo3_er_shifted_gate/reports/latest/`
+   - verification manifests, reward freeze note, utility freeze note, shift diff,
+     metrics summaries, repair bundle, validation bundle, and visual manifest
+
+4. **proof-oriented visuals**
+   - multiple SVG boards under:
+     - `cre-demos/demo3_er_shifted_gate/assets/screenshots/`
+   - multiple replay pages under:
+     - `cre-demos/demo3_er_shifted_gate/assets/videos/`
+   - these include:
+     - scene comparison
+     - gate offset inset
+     - same-seed shifted overlay
+     - reward-vs-utility scatter
+     - reward / utility retention bars
+     - failure breakdown
+     - shifted heatmap
+     - repair recovery board
+     - multiframe failure storyboard
+     - summary card
+
+5. **isolated regression test**
+   - `cre-demos/demo3_er_shifted_gate/test_demo3_pipeline.py`
+   - verifies:
+     - goal achievement
+     - injected reward remains deceptively decent under shift
+     - injected utility drops sharply under shift
+     - `W_ER` dominates the injected witness surface
+     - repair validation is accepted
+
+Observed headline result from the generated verification summary:
+
+- injected `W_ER`: `0.574`
+- injected reward retention under shift: `0.932`
+- injected utility retention under shift: `0.244`
+- injected nominal-vs-shifted success gap: `0.667`
+- repaired decoupling gap: `0.182`
+- repaired shifted success rate: `0.833`
+- validation decision: `accepted`
+
+Focused validation:
+
+```bash
+python3 cre-demos/demo3_er_shifted_gate/scripts/run_demo3.py --clean-output
+```
+
+```bash
+pytest -q cre-demos/demo3_er_shifted_gate/test_demo3_pipeline.py
+```
+
+```bash
+python3 -m py_compile \
+  cre-demos/demo3_er_shifted_gate/scripts/run_demo3.py \
+  cre-demos/demo3_er_shifted_gate/test_demo3_pipeline.py
+```
+
+Validation results:
+
+- the isolated Demo-3 pipeline now runs end-to-end and reaches its goal
+- the generated report promotes `E-R` as the primary claim type
+- the selected repair operator is `increase_shifted_boundary_bias`
+- post-repair validation is accepted
+- the isolated pytest target passes: `2 passed`

@@ -1,0 +1,111 @@
+spec_version: "demo3-v0"
+
+policy_type: "demo_shifted_gate_policy"
+action_type: "continuous"
+action_dimensions: 2
+action_bounds: [-1.0, 1.0]
+command_frame: "world_xy_velocity"
+yaw_control: false
+
+observations:
+  topdown_route_context: true
+  goal_relative_state: true
+  dynamic_obstacle_features: false
+  angular_velocity: false
+  attitude_features: false
+  previous_action: false
+  partial_observability: true
+
+control:
+  simulator: "demo_polyline_runner"
+  control_frequency_hz: 12.0
+  dynamic_model: "deterministic route replay"
+  actuation_delay_modeled: false
+  sensor_delay_modeled: false
+
+runtime_expectations:
+  scene_family_backend_required: true
+  cre_runtime_metadata_required: true
+  done_type_labels_required: true
+  supported_execution_modes:
+    - "manual"
+    - "train"
+    - "eval"
+    - "baseline"
+  rollout_required_artifacts:
+    - "manifest.json"
+    - "steps.jsonl"
+    - "episodes.jsonl"
+    - "summary.json"
+    - "acceptance.json"
+  static_audit_namespace: "analysis/static"
+  static_audit_required_artifacts:
+    - "static_report.json"
+    - "summary.json"
+    - "manifest.json"
+    - "namespace_manifest.json"
+  dynamic_analysis_namespace: "analysis/dynamic"
+  dynamic_analysis_required_artifacts:
+    - "dynamic_report.json"
+    - "dynamic_evidence.json"
+    - "semantic_inputs.json"
+    - "summary.json"
+    - "manifest.json"
+    - "namespace_manifest.json"
+  semantic_analysis_namespace: "analysis/semantic"
+  semantic_analysis_required_artifacts:
+    - "semantic_report.json"
+    - "semantic_claims.json"
+    - "semantic_input.json"
+    - "semantic_summary.md"
+    - "semantic_merge_input.json"
+    - "claim_consumer.json"
+    - "summary.json"
+    - "manifest.json"
+    - "namespace_manifest.json"
+  report_generation_namespace: "analysis/report"
+  report_generation_required_artifacts:
+    - "report.json"
+    - "ranked_findings.json"
+    - "repair_handoff.json"
+    - "report_summary.md"
+    - "summary.json"
+    - "manifest.json"
+    - "namespace_manifest.json"
+  repair_generation_namespace: "analysis/repair"
+  repair_generation_required_artifacts:
+    - "repair_plan.json"
+    - "repair_candidates.json"
+    - "spec_patch.json"
+    - "spec_patch_preview.json"
+    - "validation_context_preview.json"
+    - "repair_summary.json"
+    - "repair_summary.md"
+    - "acceptance.json"
+    - "repair_validation.json"
+    - "validation_request.json"
+    - "manifest.json"
+    - "namespace_manifest.json"
+  validation_generation_namespace: "analysis/validation"
+  validation_generation_required_artifacts:
+    - "validation_plan.json"
+    - "validation_runs.json"
+    - "comparison.json"
+    - "validation_decision.json"
+    - "post_repair_evidence.json"
+    - "validation_summary.json"
+    - "validation_summary.md"
+    - "manifest.json"
+    - "namespace_manifest.json"
+  validation_post_repair_evidence_consumer_contract: "phase10_post_repair_evidence_consumer.v2"
+  validation_supported_bounded_rerun_adapters: []
+  validation_default_rerun_mode: "preview"
+  validation_preview_fallback_allowed: true
+  validation_real_execution_preferred_modes:
+    - "eval"
+    - "baseline"
+  validation_preview_fallback_modes: []
+  validation_subprocess_rerun_acceptance_required: true
+  validation_claim_specific_decision_required_for:
+    - "E-C"
+    - "E-R"

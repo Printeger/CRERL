@@ -1,0 +1,107 @@
+{
+  "contract_type": "report_namespace_contract.v1",
+  "generated_at_utc": "2026-04-15T11:55:31.506068+00:00",
+  "report_mode_artifacts": {
+    "benchmark_suite": [
+      "benchmark_manifest.json",
+      "benchmark_cases.json",
+      "benchmark_matrix.json",
+      "benchmark_summary.json",
+      "benchmark_summary.md",
+      "manifest.json",
+      "namespace_manifest.json"
+    ],
+    "dynamic_analysis": [
+      "dynamic_report.json",
+      "dynamic_evidence.json",
+      "semantic_inputs.json",
+      "summary.json",
+      "manifest.json",
+      "namespace_manifest.json"
+    ],
+    "integration_audit": [
+      "integration_plan.json",
+      "execution_matrix.json",
+      "run_binding.json",
+      "native_execution_consumer.json",
+      "integration_acceptance.json",
+      "integration_summary.json",
+      "integration_summary.md",
+      "manifest.json",
+      "namespace_manifest.json"
+    ],
+    "release_packaging": [
+      "release_plan.json",
+      "release_artifacts.json",
+      "demo_matrix.json",
+      "demo_consumer.json",
+      "release_acceptance.json",
+      "release_summary.json",
+      "release_summary.md",
+      "manifest.json",
+      "namespace_manifest.json"
+    ],
+    "repair_generation": [
+      "repair_plan.json",
+      "repair_candidates.json",
+      "spec_patch.json",
+      "spec_patch_preview.json",
+      "validation_context_preview.json",
+      "repair_summary.json",
+      "repair_summary.md",
+      "acceptance.json",
+      "repair_validation.json",
+      "validation_request.json",
+      "manifest.json",
+      "namespace_manifest.json"
+    ],
+    "report_generation": [
+      "report.json",
+      "ranked_findings.json",
+      "repair_handoff.json",
+      "report_summary.md",
+      "summary.json",
+      "manifest.json",
+      "namespace_manifest.json"
+    ],
+    "semantic_analysis": [
+      "semantic_report.json",
+      "semantic_claims.json",
+      "semantic_input.json",
+      "semantic_summary.md",
+      "semantic_merge_input.json",
+      "claim_consumer.json",
+      "summary.json",
+      "manifest.json",
+      "namespace_manifest.json"
+    ],
+    "static_audit": [
+      "static_report.json",
+      "summary.json",
+      "manifest.json",
+      "namespace_manifest.json"
+    ],
+    "validation_generation": [
+      "validation_plan.json",
+      "validation_runs.json",
+      "comparison.json",
+      "validation_decision.json",
+      "post_repair_evidence.json",
+      "validation_summary.json",
+      "validation_summary.md",
+      "manifest.json",
+      "namespace_manifest.json"
+    ]
+  },
+  "report_namespaces": {
+    "benchmark_suite": "analysis/benchmark",
+    "dynamic_analysis": "analysis/dynamic",
+    "integration_audit": "analysis/integration",
+    "release_packaging": "analysis/release",
+    "repair_generation": "analysis/repair",
+    "report_generation": "analysis/report",
+    "semantic_analysis": "analysis/semantic",
+    "static_audit": "analysis/static",
+    "validation_generation": "analysis/validation"
+  }
+}

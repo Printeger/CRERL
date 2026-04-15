@@ -1,0 +1,9 @@
+{
+  "nominal_mean": 0.6607557041229147,
+  "reward_retention_under_shift": 0.9316550729762788,
+  "reward_utility_decoupling_gap": 0.6879338489535614,
+  "shifted_mean": 0.1610401889888293,
+  "utility_metric_id": "U_task_v1",
+  "utility_retention_under_shift": 0.24372122402271743,
+  "variant": "injected"
+}

@@ -1,0 +1,564 @@
+[
+  {
+    "attribution_hints": [
+      "C-R",
+      "reward-constraint-coupling"
+    ],
+    "evidence_id": "witness:W_CR",
+    "evidence_refs": [
+      "demo3_repaired_eval_nominal"
+    ],
+    "evidence_type": "witness_summary",
+    "group_name": "",
+    "grouping_key": "",
+    "metrics": {
+      "hazardous_terminal_return_ratio": 0.0,
+      "high_return_hazard_ratio": 0.0,
+      "near_violation_step_ratio": 0.0,
+      "negative_clearance_reward_corr": 0.0,
+      "positive_reward_near_ratio": 0.0,
+      "proximity_pressure": 0.0,
+      "proximity_reward_alignment": 0.0,
+      "reward_concentration_ratio": 0.0
+    },
+    "payload": {
+      "episode_count": 12,
+      "mean_reward": 0.6149216279851042,
+      "near_violation_distance": 0.55,
+      "primary_run_ids": [
+        "demo3_repaired_eval_nominal"
+      ],
+      "step_count": 552
+    },
+    "scenario_types": [],
+    "scene_cfg_names": [],
+    "scope": "report",
+    "score": 0.0,
+    "semantic_tags": [
+      "w_cr",
+      "dynamic_witness"
+    ],
+    "severity": "info",
+    "sources": [],
+    "summary": "Reward-boundary coupling is limited.",
+    "title": "W_CR witness summary",
+    "witness_id": "W_CR"
+  },
+  {
+    "attribution_hints": [
+      "E-C",
+      "critical-state-undercoverage"
+    ],
+    "evidence_id": "witness:W_EC",
+    "evidence_refs": [
+      "demo3_repaired_eval_nominal"
+    ],
+    "evidence_type": "witness_summary",
+    "group_name": "",
+    "grouping_key": "",
+    "metrics": {
+      "critical_band_coverage_ratio": 0.3333333333333333,
+      "critical_exposure_ratio": 0.0,
+      "dynamic_hazard_coverage_ratio": 1.0,
+      "family_coverage_ratio": 0.5,
+      "family_failure_pressure": 0.0
+    },
+    "payload": {
+      "episode_count": 12,
+      "expected_dynamic_families": [],
+      "expected_families": [
+        "nominal",
+        "shifted"
+      ],
+      "family_failure_summary": {
+        "nominal": {
+          "average_return": 28.286394887314795,
+          "collision_rate": 0.0,
+          "episode_count": 12.0,
+          "min_distance": 0.7488651508673994,
+          "near_violation_ratio": 0.0,
+          "success_rate": 1.0
+        }
+      },
+      "observed_dynamic_families": [],
+      "observed_families": [
+        "nominal"
+      ],
+      "primary_run_ids": [
+        "demo3_repaired_eval_nominal"
+      ],
+      "step_count": 552,
+      "visited_bands": {
+        "caution_band": true,
+        "collision_band": false,
+        "near_violation_band": false
+      }
+    },
+    "scenario_types": [],
+    "scene_cfg_names": [],
+    "scope": "report",
+    "score": 0.4333333333333334,
+    "semantic_tags": [
+      "w_ec",
+      "dynamic_witness"
+    ],
+    "severity": "warning",
+    "sources": [],
+    "summary": "Critical-state coverage appears acceptable.",
+    "title": "W_EC witness summary",
+    "witness_id": "W_EC"
+  },
+  {
+    "attribution_hints": [
+      "E-R",
+      "shift-fragility"
+    ],
+    "evidence_id": "witness:W_ER",
+    "evidence_refs": [
+      "demo3_repaired_eval_nominal",
+      "demo3_repaired_eval_shifted"
+    ],
+    "evidence_type": "witness_summary",
+    "group_name": "",
+    "grouping_key": "",
+    "metrics": {
+      "average_return_gap": 0.03262427938854985,
+      "collision_rate_gap": 0.0,
+      "family_shift_gap": 1.0,
+      "min_distance_gap": 1.0,
+      "near_violation_ratio_gap": 0.09420289855072464,
+      "source_pair_shift": 0.2817067944848186,
+      "success_rate_gap": 0.16666666666666663
+    },
+    "payload": {
+      "auto_inferred_comparison": false,
+      "baseline_families": [
+        "nominal"
+      ],
+      "baseline_family_summary": {
+        "nominal": {
+          "average_return": 28.286394887314795,
+          "collision_rate": 0.0,
+          "episode_count": 12.0,
+          "min_distance": 0.7488651508673994,
+          "near_violation_ratio": 0.0,
+          "success_rate": 1.0
+        }
+      },
+      "baseline_summary": {
+        "average_return": 28.286394887314795,
+        "collision_rate": 0.0,
+        "min_distance": 0.7488651508673994,
+        "near_violation_ratio": 0.0,
+        "success_rate": 1.0
+      },
+      "comparison_families": [
+        "shifted"
+      ],
+      "comparison_family_summary": {
+        "shifted": {
+          "average_return": 27.36357163761619,
+          "collision_rate": 0.0,
+          "episode_count": 12.0,
+          "min_distance": -0.015522971820007725,
+          "near_violation_ratio": 0.09420289855072463,
+          "success_rate": 0.8333333333333334
+        }
+      },
+      "comparison_run_ids": [
+        "demo3_repaired_eval_shifted"
+      ],
+      "comparison_summary": {
+        "average_return": 27.36357163761619,
+        "collision_rate": 0.0,
+        "min_distance": -0.015522971820007725,
+        "near_violation_ratio": 0.09420289855072464,
+        "success_rate": 0.8333333333333334
+      },
+      "primary_run_ids": [
+        "demo3_repaired_eval_nominal"
+      ]
+    },
+    "scenario_types": [],
+    "scene_cfg_names": [],
+    "scope": "report",
+    "score": 0.3678858055843942,
+    "semantic_tags": [
+      "w_er",
+      "dynamic_witness"
+    ],
+    "severity": "warning",
+    "sources": [],
+    "summary": "Transfer fragility under environment shift is limited.",
+    "title": "W_ER witness summary",
+    "witness_id": "W_ER"
+  },
+  {
+    "attribution_hints": [],
+    "evidence_id": "failure:primary:scenario_type:nominal",
+    "evidence_refs": [
+      "demo3_repaired_eval_nominal"
+    ],
+    "evidence_type": "failure_hotspot",
+    "group_name": "nominal",
+    "grouping_key": "scenario_type",
+    "metrics": {
+      "average_return": 28.286394887314795,
+      "collision_rate": 0.0,
+      "failure_pressure": 0.06278371228315016,
+      "min_distance": 0.7488651508673994,
+      "near_violation_ratio": 0.0,
+      "success_rate": 1.0
+    },
+    "payload": {
+      "average_return": 28.286394887314795,
+      "collision_rate": 0.0,
+      "episode_count": 12,
+      "failure_pressure": 0.06278371228315016,
+      "min_distance": 0.7488651508673994,
+      "near_violation_ratio": 0.0,
+      "run_count": 1,
+      "run_ids": [
+        "demo3_repaired_eval_nominal"
+      ],
+      "scenario_types": [
+        "nominal"
+      ],
+      "scene_cfg_names": [
+        "scene_cfg_nominal.yaml"
+      ],
+      "sources": [
+        "demo_shifted_gate_eval_nominal"
+      ],
+      "success_rate": 1.0
+    },
+    "scenario_types": [
+      "nominal"
+    ],
+    "scene_cfg_names": [
+      "scene_cfg_nominal.yaml"
+    ],
+    "scope": "primary",
+    "score": 0.06278371228315016,
+    "semantic_tags": [
+      "failure_hotspot",
+      "primary",
+      "scenario_type",
+      "nominal"
+    ],
+    "severity": "warning",
+    "sources": [
+      "demo_shifted_gate_eval_nominal"
+    ],
+    "summary": "primary group 'nominal' under 'scenario_type' has failure pressure 0.063",
+    "title": "primary failure hotspot for scenario_type=nominal",
+    "witness_id": ""
+  },
+  {
+    "attribution_hints": [],
+    "evidence_id": "failure:primary:scene_cfg_name:scene_cfg_nominal.yaml",
+    "evidence_refs": [
+      "demo3_repaired_eval_nominal"
+    ],
+    "evidence_type": "failure_hotspot",
+    "group_name": "scene_cfg_nominal.yaml",
+    "grouping_key": "scene_cfg_name",
+    "metrics": {
+      "average_return": 28.286394887314795,
+      "collision_rate": 0.0,
+      "failure_pressure": 0.06278371228315016,
+      "min_distance": 0.7488651508673994,
+      "near_violation_ratio": 0.0,
+      "success_rate": 1.0
+    },
+    "payload": {
+      "average_return": 28.286394887314795,
+      "collision_rate": 0.0,
+      "episode_count": 12,
+      "failure_pressure": 0.06278371228315016,
+      "min_distance": 0.7488651508673994,
+      "near_violation_ratio": 0.0,
+      "run_count": 1,
+      "run_ids": [
+        "demo3_repaired_eval_nominal"
+      ],
+      "scenario_types": [
+        "nominal"
+      ],
+      "scene_cfg_names": [
+        "scene_cfg_nominal.yaml"
+      ],
+      "sources": [
+        "demo_shifted_gate_eval_nominal"
+      ],
+      "success_rate": 1.0
+    },
+    "scenario_types": [
+      "nominal"
+    ],
+    "scene_cfg_names": [
+      "scene_cfg_nominal.yaml"
+    ],
+    "scope": "primary",
+    "score": 0.06278371228315016,
+    "semantic_tags": [
+      "failure_hotspot",
+      "primary",
+      "scene_cfg_name",
+      "scene_cfg_nominal.yaml"
+    ],
+    "severity": "warning",
+    "sources": [
+      "demo_shifted_gate_eval_nominal"
+    ],
+    "summary": "primary group 'scene_cfg_nominal.yaml' under 'scene_cfg_name' has failure pressure 0.063",
+    "title": "primary failure hotspot for scene_cfg_name=scene_cfg_nominal.yaml",
+    "witness_id": ""
+  },
+  {
+    "attribution_hints": [],
+    "evidence_id": "failure:primary:source:demo_shifted_gate_eval_nominal",
+    "evidence_refs": [
+      "demo3_repaired_eval_nominal"
+    ],
+    "evidence_type": "failure_hotspot",
+    "group_name": "demo_shifted_gate_eval_nominal",
+    "grouping_key": "source",
+    "metrics": {
+      "average_return": 28.286394887314795,
+      "collision_rate": 0.0,
+      "failure_pressure": 0.06278371228315016,
+      "min_distance": 0.7488651508673994,
+      "near_violation_ratio": 0.0,
+      "success_rate": 1.0
+    },
+    "payload": {
+      "average_return": 28.286394887314795,
+      "collision_rate": 0.0,
+      "episode_count": 12,
+      "failure_pressure": 0.06278371228315016,
+      "min_distance": 0.7488651508673994,
+      "near_violation_ratio": 0.0,
+      "run_count": 1,
+      "run_ids": [
+        "demo3_repaired_eval_nominal"
+      ],
+      "scenario_types": [
+        "nominal"
+      ],
+      "scene_cfg_names": [
+        "scene_cfg_nominal.yaml"
+      ],
+      "sources": [
+        "demo_shifted_gate_eval_nominal"
+      ],
+      "success_rate": 1.0
+    },
+    "scenario_types": [
+      "nominal"
+    ],
+    "scene_cfg_names": [
+      "scene_cfg_nominal.yaml"
+    ],
+    "scope": "primary",
+    "score": 0.06278371228315016,
+    "semantic_tags": [
+      "failure_hotspot",
+      "primary",
+      "source",
+      "demo_shifted_gate_eval_nominal"
+    ],
+    "severity": "warning",
+    "sources": [
+      "demo_shifted_gate_eval_nominal"
+    ],
+    "summary": "primary group 'demo_shifted_gate_eval_nominal' under 'source' has failure pressure 0.063",
+    "title": "primary failure hotspot for source=demo_shifted_gate_eval_nominal",
+    "witness_id": ""
+  },
+  {
+    "attribution_hints": [
+      "shifted-family-hotspot"
+    ],
+    "evidence_id": "failure:comparison:scenario_type:shifted",
+    "evidence_refs": [
+      "demo3_repaired_eval_shifted"
+    ],
+    "evidence_type": "failure_hotspot",
+    "group_name": "shifted",
+    "grouping_key": "scenario_type",
+    "metrics": {
+      "average_return": 27.36357163761619,
+      "collision_rate": 0.0,
+      "failure_pressure": 0.31909813425934974,
+      "min_distance": -0.015522971820007725,
+      "near_violation_ratio": 0.09420289855072464,
+      "success_rate": 0.8333333333333334
+    },
+    "payload": {
+      "average_return": 27.36357163761619,
+      "collision_rate": 0.0,
+      "episode_count": 12,
+      "failure_pressure": 0.31909813425934974,
+      "min_distance": -0.015522971820007725,
+      "near_violation_ratio": 0.09420289855072464,
+      "run_count": 1,
+      "run_ids": [
+        "demo3_repaired_eval_shifted"
+      ],
+      "scenario_types": [
+        "shifted"
+      ],
+      "scene_cfg_names": [
+        "scene_cfg_shifted.yaml"
+      ],
+      "sources": [
+        "demo_shifted_gate_eval_shifted"
+      ],
+      "success_rate": 0.8333333333333334
+    },
+    "scenario_types": [
+      "shifted"
+    ],
+    "scene_cfg_names": [
+      "scene_cfg_shifted.yaml"
+    ],
+    "scope": "comparison",
+    "score": 0.31909813425934974,
+    "semantic_tags": [
+      "failure_hotspot",
+      "comparison",
+      "scenario_type",
+      "shifted"
+    ],
+    "severity": "warning",
+    "sources": [
+      "demo_shifted_gate_eval_shifted"
+    ],
+    "summary": "comparison group 'shifted' under 'scenario_type' has failure pressure 0.319",
+    "title": "comparison failure hotspot for scenario_type=shifted",
+    "witness_id": ""
+  },
+  {
+    "attribution_hints": [],
+    "evidence_id": "failure:comparison:scene_cfg_name:scene_cfg_shifted.yaml",
+    "evidence_refs": [
+      "demo3_repaired_eval_shifted"
+    ],
+    "evidence_type": "failure_hotspot",
+    "group_name": "scene_cfg_shifted.yaml",
+    "grouping_key": "scene_cfg_name",
+    "metrics": {
+      "average_return": 27.36357163761619,
+      "collision_rate": 0.0,
+      "failure_pressure": 0.31909813425934974,
+      "min_distance": -0.015522971820007725,
+      "near_violation_ratio": 0.09420289855072464,
+      "success_rate": 0.8333333333333334
+    },
+    "payload": {
+      "average_return": 27.36357163761619,
+      "collision_rate": 0.0,
+      "episode_count": 12,
+      "failure_pressure": 0.31909813425934974,
+      "min_distance": -0.015522971820007725,
+      "near_violation_ratio": 0.09420289855072464,
+      "run_count": 1,
+      "run_ids": [
+        "demo3_repaired_eval_shifted"
+      ],
+      "scenario_types": [
+        "shifted"
+      ],
+      "scene_cfg_names": [
+        "scene_cfg_shifted.yaml"
+      ],
+      "sources": [
+        "demo_shifted_gate_eval_shifted"
+      ],
+      "success_rate": 0.8333333333333334
+    },
+    "scenario_types": [
+      "shifted"
+    ],
+    "scene_cfg_names": [
+      "scene_cfg_shifted.yaml"
+    ],
+    "scope": "comparison",
+    "score": 0.31909813425934974,
+    "semantic_tags": [
+      "failure_hotspot",
+      "comparison",
+      "scene_cfg_name",
+      "scene_cfg_shifted.yaml"
+    ],
+    "severity": "warning",
+    "sources": [
+      "demo_shifted_gate_eval_shifted"
+    ],
+    "summary": "comparison group 'scene_cfg_shifted.yaml' under 'scene_cfg_name' has failure pressure 0.319",
+    "title": "comparison failure hotspot for scene_cfg_name=scene_cfg_shifted.yaml",
+    "witness_id": ""
+  },
+  {
+    "attribution_hints": [],
+    "evidence_id": "failure:comparison:source:demo_shifted_gate_eval_shifted",
+    "evidence_refs": [
+      "demo3_repaired_eval_shifted"
+    ],
+    "evidence_type": "failure_hotspot",
+    "group_name": "demo_shifted_gate_eval_shifted",
+    "grouping_key": "source",
+    "metrics": {
+      "average_return": 27.36357163761619,
+      "collision_rate": 0.0,
+      "failure_pressure": 0.31909813425934974,
+      "min_distance": -0.015522971820007725,
+      "near_violation_ratio": 0.09420289855072464,
+      "success_rate": 0.8333333333333334
+    },
+    "payload": {
+      "average_return": 27.36357163761619,
+      "collision_rate": 0.0,
+      "episode_count": 12,
+      "failure_pressure": 0.31909813425934974,
+      "min_distance": -0.015522971820007725,
+      "near_violation_ratio": 0.09420289855072464,
+      "run_count": 1,
+      "run_ids": [
+        "demo3_repaired_eval_shifted"
+      ],
+      "scenario_types": [
+        "shifted"
+      ],
+      "scene_cfg_names": [
+        "scene_cfg_shifted.yaml"
+      ],
+      "sources": [
+        "demo_shifted_gate_eval_shifted"
+      ],
+      "success_rate": 0.8333333333333334
+    },
+    "scenario_types": [
+      "shifted"
+    ],
+    "scene_cfg_names": [
+      "scene_cfg_shifted.yaml"
+    ],
+    "scope": "comparison",
+    "score": 0.31909813425934974,
+    "semantic_tags": [
+      "failure_hotspot",
+      "comparison",
+      "source",
+      "demo_shifted_gate_eval_shifted"
+    ],
+    "severity": "warning",
+    "sources": [
+      "demo_shifted_gate_eval_shifted"
+    ],
+    "summary": "comparison group 'demo_shifted_gate_eval_shifted' under 'source' has failure pressure 0.319",
+    "title": "comparison failure hotspot for source=demo_shifted_gate_eval_shifted",
+    "witness_id": ""
+  }
+]

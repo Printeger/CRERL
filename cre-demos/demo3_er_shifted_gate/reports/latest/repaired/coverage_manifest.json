@@ -1,0 +1,10 @@
+{
+  "env_cfg_dir": "cre-demos/demo3_er_shifted_gate/cfg/env_repaired",
+  "train_episode_count": 12,
+  "train_family_counts": {
+    "nominal": 7,
+    "shifted": 5
+  },
+  "train_shifted_episode_rate": 0.4166666666666667,
+  "variant": "repaired"
+}

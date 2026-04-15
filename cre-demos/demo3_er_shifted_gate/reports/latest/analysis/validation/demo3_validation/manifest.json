@@ -1,0 +1,14 @@
+{
+  "accepted": true,
+  "bundle_type": "validation_bundle.v1",
+  "comparison_path": "comparison.json",
+  "decision_status": "accepted",
+  "namespace": "analysis/validation",
+  "post_repair_evidence_path": "post_repair_evidence.json",
+  "repair_bundle_name": "demo3_injected_repair",
+  "validation_decision_path": "validation_decision.json",
+  "validation_plan_path": "validation_plan.json",
+  "validation_runs_path": "validation_runs.json",
+  "validation_summary_md_path": "validation_summary.md",
+  "validation_summary_path": "validation_summary.json"
+}

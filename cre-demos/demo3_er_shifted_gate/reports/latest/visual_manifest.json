@@ -1,0 +1,19 @@
+{
+  "failure_breakdown": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/assets/screenshots/demo3_failure_breakdown.svg",
+  "gate_inset": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/assets/screenshots/demo3_gate_offset_inset.svg",
+  "injected_shifted_failure": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/assets/videos/demo3_injected_shifted_failure.html",
+  "multiframe_story": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/assets/screenshots/demo3_multiframe_story.svg",
+  "nominal_success": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/assets/videos/demo3_nominal_success.html",
+  "quadrants": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/assets/screenshots/demo3_reward_utility_quadrants.svg",
+  "quality_metrics": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/assets/screenshots/demo3_quality_metrics.svg",
+  "repair_recovery": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/assets/screenshots/demo3_repair_recovery_board.svg",
+  "repaired_shifted_recovery": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/assets/videos/demo3_repaired_shifted_recovery.html",
+  "reward_utility_bars": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/assets/screenshots/demo3_reward_utility_bars.svg",
+  "reward_utility_scatter": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/assets/screenshots/demo3_reward_utility_scatter.svg",
+  "same_seed_overlay": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/assets/screenshots/demo3_same_seed_overlay.svg",
+  "scene_compare": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/assets/screenshots/demo3_scene_compare.svg",
+  "shifted_heatmap": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/assets/screenshots/demo3_shifted_heatmap.svg",
+  "shifted_same_seed": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/assets/videos/demo3_shifted_same_seed.html",
+  "summary_card": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/assets/screenshots/demo3_summary_card.svg",
+  "triplet_split_screen": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/assets/videos/demo3_triplet_split_screen.html"
+}

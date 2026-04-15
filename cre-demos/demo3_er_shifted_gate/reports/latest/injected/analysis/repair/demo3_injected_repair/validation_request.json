@@ -1,0 +1,56 @@
+{
+  "acceptance_passed": true,
+  "comparison_mode": "pre_post_targeted_rerun.v1",
+  "cross_phase_contract": {
+    "phase7_input": "repair_handoff.json",
+    "phase8_bundle": "repair_plan.json",
+    "phase9_request": "validation_request.json"
+  },
+  "evidence_refs": [
+    "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/env_injected/scene_cfg_nominal.yaml",
+    "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/env_injected/scene_cfg_shifted.yaml",
+    "/home/mint/rl_dev/crerl_v1/isaac-training/training/envs/env_gen.py"
+  ],
+  "expected_metric_direction": [
+    "decrease_W_ER",
+    "reduce_shifted_gap"
+  ],
+  "phase9_entrypoint": "repair_validation_loop.v1",
+  "phase9_ready": true,
+  "preferred_execution_modes": [
+    "baseline",
+    "eval"
+  ],
+  "primary_claim_type": "E-R",
+  "primary_repair_direction": "environment",
+  "repair_bundle_name": "demo3_injected_repair",
+  "repair_namespace": "analysis/repair",
+  "repair_validation_passed": true,
+  "request_type": "phase9_validation_request.v1",
+  "required_upstream_artifacts": [
+    "analysis/report/<bundle>/repair_handoff.json",
+    "analysis/report/<bundle>/report.json",
+    "analysis/repair/<bundle>/repair_plan.json",
+    "analysis/repair/<bundle>/spec_patch.json",
+    "analysis/repair/<bundle>/repair_validation.json"
+  ],
+  "scene_family_scope": [
+    "nominal",
+    "shifted"
+  ],
+  "selected_candidate_id": "candidate:repair_handoff:scene_backend_capability:6:increase_shifted_boundary_bias",
+  "selected_operator_type": "increase_shifted_boundary_bias",
+  "selected_target_component": "E",
+  "selected_target_files": [
+    "cre-demos/demo3_er_shifted_gate/cfg/env_injected/scene_cfg_shifted.yaml"
+  ],
+  "selected_target_paths": [
+    "distribution_modes.boundary_adjacent_bias"
+  ],
+  "source_report_bundle": "demo3_injected_report",
+  "validation_targets": [
+    "W_ER",
+    "nominal_vs_shifted_success_gap",
+    "shifted_min_distance"
+  ]
+}

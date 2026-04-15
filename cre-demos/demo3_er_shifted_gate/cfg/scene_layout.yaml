@@ -1,0 +1,253 @@
+layout_id: "demo3_er_shifted_gate"
+scene_name: "Shifted Gate Reward-Utility Decoupling"
+
+workspace:
+  xmin: 0.0
+  ymin: 0.0
+  xmax: 14.0
+  ymax: 10.0
+  flight_z: 1.2
+
+start: [1.3, 1.5]
+goal: [12.5, 8.0]
+
+families:
+  nominal:
+    scene_id: "demo3_nominal_gate_v0"
+    scene_cfg_name: "scene_cfg_nominal.yaml"
+    label: "Nominal Centered Gate"
+    scene_intent: "Centered gate crossing where reward and mission utility are mostly aligned."
+    gate:
+      center: [6.42, 4.60]
+      width: 1.60
+      height: 1.60
+    obstacles:
+      - id: "nominal_entry_block"
+        kind: "rect"
+        x: 3.2
+        y: 2.7
+        width: 0.9
+        height: 2.0
+      - id: "nominal_gate_lower_pillar"
+        kind: "rect"
+        x: 6.0
+        y: 2.2
+        width: 0.85
+        height: 1.6
+      - id: "nominal_gate_upper_pillar"
+        kind: "rect"
+        x: 6.0
+        y: 5.4
+        width: 0.85
+        height: 1.8
+      - id: "nominal_exit_block"
+        kind: "rect"
+        x: 9.2
+        y: 6.0
+        width: 0.85
+        height: 1.9
+    reference_paths:
+      nominal_centerline:
+        label: "Centered nominal route"
+        waypoints:
+          - [1.3, 1.5]
+          - [2.4, 1.8]
+          - [3.8, 2.3]
+          - [5.1, 3.2]
+          - [6.35, 4.55]
+          - [7.55, 5.70]
+          - [9.1, 6.55]
+          - [10.8, 7.25]
+          - [12.5, 8.0]
+      nominal_buffered:
+        label: "Nominal route with extra gate margin"
+        waypoints:
+          - [1.3, 1.5]
+          - [2.2, 1.9]
+          - [3.5, 2.6]
+          - [4.8, 3.5]
+          - [5.8, 4.2]
+          - [6.25, 4.95]
+          - [7.2, 5.9]
+          - [8.8, 6.7]
+          - [10.6, 7.4]
+          - [12.5, 8.0]
+      nominal_slow:
+        label: "Nominal slow but safe route"
+        waypoints:
+          - [1.3, 1.5]
+          - [2.2, 1.8]
+          - [3.4, 2.4]
+          - [4.6, 3.1]
+          - [5.6, 3.9]
+          - [6.2, 4.55]
+          - [6.9, 5.2]
+          - [7.8, 5.9]
+          - [9.0, 6.6]
+          - [10.6, 7.3]
+          - [12.5, 8.0]
+
+  shifted:
+    scene_id: "demo3_shifted_gate_v0"
+    scene_cfg_name: "scene_cfg_shifted.yaml"
+    label: "Shifted Gate Crossing"
+    scene_intent: "Laterally shifted gate plus route squeeze where reward remains decent but mission utility degrades."
+    gate:
+      center: [6.86, 5.78]
+      width: 1.25
+      height: 1.30
+    shift_metadata:
+      nominal_gate_center: [6.42, 4.60]
+      shifted_gate_center: [6.86, 5.78]
+      vertical_shift: 1.18
+      lateral_shift: 0.44
+      cross_traffic_enabled: true
+    obstacles:
+      - id: "shifted_lower_occluder"
+        kind: "rect"
+        x: 4.4
+        y: 3.3
+        width: 0.8
+        height: 1.9
+      - id: "shifted_gate_lower_pillar"
+        kind: "rect"
+        x: 6.4
+        y: 3.0
+        width: 0.9
+        height: 2.1
+      - id: "shifted_gate_upper_pillar"
+        kind: "rect"
+        x: 6.4
+        y: 6.4
+        width: 0.9
+        height: 2.0
+      - id: "shifted_cross_traffic_bar"
+        kind: "rect"
+        x: 8.15
+        y: 4.8
+        width: 1.0
+        height: 2.0
+      - id: "shifted_exit_post"
+        kind: "rect"
+        x: 10.2
+        y: 6.9
+        width: 0.8
+        height: 1.5
+    critical_region:
+      label: "Shifted squeeze zone"
+      polygon:
+        - [5.7, 5.2]
+        - [7.6, 5.1]
+        - [8.2, 6.1]
+        - [7.5, 7.2]
+        - [5.9, 7.0]
+        - [5.4, 5.9]
+    reference_paths:
+      shifted_guarded:
+        label: "Shift-aware guarded route"
+        waypoints:
+          - [1.3, 1.5]
+          - [2.3, 1.9]
+          - [3.6, 2.6]
+          - [4.8, 3.7]
+          - [5.8, 4.9]
+          - [6.55, 5.85]
+          - [7.35, 6.7]
+          - [8.7, 7.25]
+          - [10.4, 7.55]
+          - [12.5, 8.0]
+      shifted_risky:
+        label: "Reward-heavy squeeze route"
+        waypoints:
+          - [1.3, 1.5]
+          - [2.5, 1.8]
+          - [4.0, 2.3]
+          - [5.4, 3.5]
+          - [6.15, 4.55]
+          - [6.55, 5.00]
+          - [6.95, 5.30]
+          - [7.85, 5.95]
+          - [9.3, 6.95]
+          - [12.5, 8.0]
+      shifted_hesitant:
+        label: "Hesitant probing near the shifted gate"
+        waypoints:
+          - [1.3, 1.5]
+          - [2.2, 1.9]
+          - [3.4, 2.5]
+          - [4.7, 3.5]
+          - [5.7, 4.7]
+          - [6.2, 5.2]
+          - [6.4, 5.4]
+          - [6.45, 5.45]
+          - [6.4, 5.35]
+          - [6.48, 5.40]
+          - [6.52, 5.38]
+      shifted_late_collision:
+        label: "Late collision after high progress"
+        waypoints:
+          - [1.3, 1.5]
+          - [2.5, 1.8]
+          - [4.0, 2.4]
+          - [5.3, 3.7]
+          - [6.1, 4.8]
+          - [6.7, 5.5]
+          - [7.4, 6.0]
+          - [8.5, 6.4]
+          - [9.5, 6.9]
+          - [10.5, 7.35]
+          - [11.5, 7.75]
+          - [12.1, 7.95]
+      shifted_repaired:
+        label: "Repaired shift-aware route"
+        waypoints:
+          - [1.3, 1.5]
+          - [2.3, 1.95]
+          - [3.6, 2.7]
+          - [4.8, 3.85]
+          - [5.7, 5.0]
+          - [6.45, 6.0]
+          - [7.35, 6.8]
+          - [8.6, 7.25]
+          - [10.2, 7.6]
+          - [12.5, 8.0]
+
+simulation:
+  train_episode_seeds:
+    - 11
+    - 17
+    - 23
+    - 31
+    - 47
+    - 59
+    - 71
+    - 83
+    - 97
+    - 101
+    - 113
+    - 127
+  eval_episode_seeds:
+    - 11
+    - 17
+    - 23
+    - 31
+    - 47
+    - 59
+    - 71
+    - 83
+    - 97
+    - 101
+    - 113
+    - 127
+  train_steps_per_episode: 34
+  eval_steps_per_episode: 46
+  near_violation_distance: 0.55
+  collision_distance: 0.22
+  goal_success_radius: 0.50
+  route_selection_margin: 0.02
+
+intended_readout:
+  reward_is_frozen: true
+  utility_is_frozen: true
+  injected_should_keep_reward_decent_but_drop_utility: true
+  repaired_should_narrow_decoupling: true

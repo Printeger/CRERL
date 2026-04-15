@@ -1,0 +1,476 @@
+{
+  "bundle_type": "dynamic_analysis_bundle.v1",
+  "comparison_run_ids": [
+    "demo3_clean_eval_shifted"
+  ],
+  "dynamic_evidence_path": "dynamic_evidence.json",
+  "max_severity": "warning",
+  "metadata": {
+    "comparison_failure_summaries": {
+      "by_scenario_type": {
+        "shifted": {
+          "average_return": 19.38375711779227,
+          "collision_rate": 0.0,
+          "episode_count": 12,
+          "failure_pressure": 0.375131253104949,
+          "min_distance": -0.1418293602458831,
+          "near_violation_ratio": 0.19202898550724637,
+          "run_count": 1,
+          "run_ids": [
+            "demo3_clean_eval_shifted"
+          ],
+          "scenario_types": [
+            "shifted"
+          ],
+          "scene_cfg_names": [
+            "scene_cfg_shifted.yaml"
+          ],
+          "sources": [
+            "demo_shifted_gate_eval_shifted"
+          ],
+          "success_rate": 0.8333333333333334
+        }
+      },
+      "by_scene_cfg_name": {
+        "scene_cfg_shifted.yaml": {
+          "average_return": 19.38375711779227,
+          "collision_rate": 0.0,
+          "episode_count": 12,
+          "failure_pressure": 0.375131253104949,
+          "min_distance": -0.1418293602458831,
+          "near_violation_ratio": 0.19202898550724637,
+          "run_count": 1,
+          "run_ids": [
+            "demo3_clean_eval_shifted"
+          ],
+          "scenario_types": [
+            "shifted"
+          ],
+          "scene_cfg_names": [
+            "scene_cfg_shifted.yaml"
+          ],
+          "sources": [
+            "demo_shifted_gate_eval_shifted"
+          ],
+          "success_rate": 0.8333333333333334
+        }
+      },
+      "by_source": {
+        "demo_shifted_gate_eval_shifted": {
+          "average_return": 19.38375711779227,
+          "collision_rate": 0.0,
+          "episode_count": 12,
+          "failure_pressure": 0.375131253104949,
+          "min_distance": -0.1418293602458831,
+          "near_violation_ratio": 0.19202898550724637,
+          "run_count": 1,
+          "run_ids": [
+            "demo3_clean_eval_shifted"
+          ],
+          "scenario_types": [
+            "shifted"
+          ],
+          "scene_cfg_names": [
+            "scene_cfg_shifted.yaml"
+          ],
+          "sources": [
+            "demo_shifted_gate_eval_shifted"
+          ],
+          "success_rate": 0.8333333333333334
+        }
+      }
+    },
+    "comparison_group_summaries": {
+      "by_scenario_type": {
+        "shifted": {
+          "average_return": 19.38375711779227,
+          "collision_rate": 0.0,
+          "episode_count": 12,
+          "min_distance": -0.1418293602458831,
+          "near_violation_ratio": 0.19202898550724637,
+          "run_count": 1,
+          "run_ids": [
+            "demo3_clean_eval_shifted"
+          ],
+          "scenario_types": [
+            "shifted"
+          ],
+          "scene_cfg_names": [
+            "scene_cfg_shifted.yaml"
+          ],
+          "sources": [
+            "demo_shifted_gate_eval_shifted"
+          ],
+          "success_rate": 0.8333333333333334
+        }
+      },
+      "by_scene_cfg_name": {
+        "scene_cfg_shifted.yaml": {
+          "average_return": 19.38375711779227,
+          "collision_rate": 0.0,
+          "episode_count": 12,
+          "min_distance": -0.1418293602458831,
+          "near_violation_ratio": 0.19202898550724637,
+          "run_count": 1,
+          "run_ids": [
+            "demo3_clean_eval_shifted"
+          ],
+          "scenario_types": [
+            "shifted"
+          ],
+          "scene_cfg_names": [
+            "scene_cfg_shifted.yaml"
+          ],
+          "sources": [
+            "demo_shifted_gate_eval_shifted"
+          ],
+          "success_rate": 0.8333333333333334
+        }
+      },
+      "by_source": {
+        "demo_shifted_gate_eval_shifted": {
+          "average_return": 19.38375711779227,
+          "collision_rate": 0.0,
+          "episode_count": 12,
+          "min_distance": -0.1418293602458831,
+          "near_violation_ratio": 0.19202898550724637,
+          "run_count": 1,
+          "run_ids": [
+            "demo3_clean_eval_shifted"
+          ],
+          "scenario_types": [
+            "shifted"
+          ],
+          "scene_cfg_names": [
+            "scene_cfg_shifted.yaml"
+          ],
+          "sources": [
+            "demo_shifted_gate_eval_shifted"
+          ],
+          "success_rate": 0.8333333333333334
+        }
+      }
+    },
+    "comparison_run_dirs": [
+      "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/reports/latest/clean/logs/demo3_clean_eval_shifted"
+    ],
+    "detector_type": "dynamic",
+    "grouping_keys": [
+      "source",
+      "scenario_type",
+      "scene_cfg_name"
+    ],
+    "primary_failure_summaries": {
+      "by_scenario_type": {
+        "nominal": {
+          "average_return": 28.05104944815339,
+          "collision_rate": 0.0,
+          "episode_count": 12,
+          "failure_pressure": 0.0672201930847236,
+          "min_distance": 0.7311192276611056,
+          "near_violation_ratio": 0.0,
+          "run_count": 1,
+          "run_ids": [
+            "demo3_clean_eval_nominal"
+          ],
+          "scenario_types": [
+            "nominal"
+          ],
+          "scene_cfg_names": [
+            "scene_cfg_nominal.yaml"
+          ],
+          "sources": [
+            "demo_shifted_gate_eval_nominal"
+          ],
+          "success_rate": 1.0
+        }
+      },
+      "by_scene_cfg_name": {
+        "scene_cfg_nominal.yaml": {
+          "average_return": 28.05104944815339,
+          "collision_rate": 0.0,
+          "episode_count": 12,
+          "failure_pressure": 0.0672201930847236,
+          "min_distance": 0.7311192276611056,
+          "near_violation_ratio": 0.0,
+          "run_count": 1,
+          "run_ids": [
+            "demo3_clean_eval_nominal"
+          ],
+          "scenario_types": [
+            "nominal"
+          ],
+          "scene_cfg_names": [
+            "scene_cfg_nominal.yaml"
+          ],
+          "sources": [
+            "demo_shifted_gate_eval_nominal"
+          ],
+          "success_rate": 1.0
+        }
+      },
+      "by_source": {
+        "demo_shifted_gate_eval_nominal": {
+          "average_return": 28.05104944815339,
+          "collision_rate": 0.0,
+          "episode_count": 12,
+          "failure_pressure": 0.0672201930847236,
+          "min_distance": 0.7311192276611056,
+          "near_violation_ratio": 0.0,
+          "run_count": 1,
+          "run_ids": [
+            "demo3_clean_eval_nominal"
+          ],
+          "scenario_types": [
+            "nominal"
+          ],
+          "scene_cfg_names": [
+            "scene_cfg_nominal.yaml"
+          ],
+          "sources": [
+            "demo_shifted_gate_eval_nominal"
+          ],
+          "success_rate": 1.0
+        }
+      }
+    },
+    "primary_group_summaries": {
+      "by_scenario_type": {
+        "nominal": {
+          "average_return": 28.05104944815339,
+          "collision_rate": 0.0,
+          "episode_count": 12,
+          "min_distance": 0.7311192276611056,
+          "near_violation_ratio": 0.0,
+          "run_count": 1,
+          "run_ids": [
+            "demo3_clean_eval_nominal"
+          ],
+          "scenario_types": [
+            "nominal"
+          ],
+          "scene_cfg_names": [
+            "scene_cfg_nominal.yaml"
+          ],
+          "sources": [
+            "demo_shifted_gate_eval_nominal"
+          ],
+          "success_rate": 1.0
+        }
+      },
+      "by_scene_cfg_name": {
+        "scene_cfg_nominal.yaml": {
+          "average_return": 28.05104944815339,
+          "collision_rate": 0.0,
+          "episode_count": 12,
+          "min_distance": 0.7311192276611056,
+          "near_violation_ratio": 0.0,
+          "run_count": 1,
+          "run_ids": [
+            "demo3_clean_eval_nominal"
+          ],
+          "scenario_types": [
+            "nominal"
+          ],
+          "scene_cfg_names": [
+            "scene_cfg_nominal.yaml"
+          ],
+          "sources": [
+            "demo_shifted_gate_eval_nominal"
+          ],
+          "success_rate": 1.0
+        }
+      },
+      "by_source": {
+        "demo_shifted_gate_eval_nominal": {
+          "average_return": 28.05104944815339,
+          "collision_rate": 0.0,
+          "episode_count": 12,
+          "min_distance": 0.7311192276611056,
+          "near_violation_ratio": 0.0,
+          "run_count": 1,
+          "run_ids": [
+            "demo3_clean_eval_nominal"
+          ],
+          "scenario_types": [
+            "nominal"
+          ],
+          "scene_cfg_names": [
+            "scene_cfg_nominal.yaml"
+          ],
+          "sources": [
+            "demo_shifted_gate_eval_nominal"
+          ],
+          "success_rate": 1.0
+        }
+      }
+    },
+    "primary_run_dirs": [
+      "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/reports/latest/clean/logs/demo3_clean_eval_nominal"
+    ],
+    "report_artifacts": [
+      "dynamic_report.json",
+      "dynamic_evidence.json",
+      "semantic_inputs.json",
+      "summary.json",
+      "manifest.json",
+      "namespace_manifest.json"
+    ],
+    "report_namespace": "analysis/dynamic",
+    "source_paths": {
+      "constraint_spec": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/spec_shared/constraint_spec_v0.yaml",
+      "detector_thresholds": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/detector_cfg/detector_thresholds.yaml",
+      "policy_spec": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/spec_shared/policy_spec_v0.yaml",
+      "reward_spec": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/spec_shared/reward_spec_v0.yaml",
+      "scene_cfg_base": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/env_clean/scene_cfg_base.yaml",
+      "scene_family:nominal": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/env_clean/scene_cfg_nominal.yaml",
+      "scene_family:shifted": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/env_clean/scene_cfg_shifted.yaml",
+      "witness_weights": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/cfg/detector_cfg/witness_weights.yaml"
+    },
+    "static_bundle_dir": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/reports/latest/clean/analysis/static/demo3_clean_static",
+    "static_context": {
+      "bundle_dir": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/reports/latest/clean/analysis/static/demo3_clean_static",
+      "bundle_name": "demo3_clean_static",
+      "manifest_path": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/reports/latest/clean/analysis/static/demo3_clean_static/manifest.json",
+      "max_severity": "high",
+      "namespace_contract": {
+        "contract_type": "report_namespace_contract.v1",
+        "generated_at_utc": "2026-04-15T11:55:31.486266+00:00",
+        "report_mode_artifacts": {
+          "benchmark_suite": [
+            "benchmark_manifest.json",
+            "benchmark_cases.json",
+            "benchmark_matrix.json",
+            "benchmark_summary.json",
+            "benchmark_summary.md",
+            "manifest.json",
+            "namespace_manifest.json"
+          ],
+          "dynamic_analysis": [
+            "dynamic_report.json",
+            "dynamic_evidence.json",
+            "semantic_inputs.json",
+            "summary.json",
+            "manifest.json",
+            "namespace_manifest.json"
+          ],
+          "integration_audit": [
+            "integration_plan.json",
+            "execution_matrix.json",
+            "run_binding.json",
+            "native_execution_consumer.json",
+            "integration_acceptance.json",
+            "integration_summary.json",
+            "integration_summary.md",
+            "manifest.json",
+            "namespace_manifest.json"
+          ],
+          "release_packaging": [
+            "release_plan.json",
+            "release_artifacts.json",
+            "demo_matrix.json",
+            "demo_consumer.json",
+            "release_acceptance.json",
+            "release_summary.json",
+            "release_summary.md",
+            "manifest.json",
+            "namespace_manifest.json"
+          ],
+          "repair_generation": [
+            "repair_plan.json",
+            "repair_candidates.json",
+            "spec_patch.json",
+            "spec_patch_preview.json",
+            "validation_context_preview.json",
+            "repair_summary.json",
+            "repair_summary.md",
+            "acceptance.json",
+            "repair_validation.json",
+            "validation_request.json",
+            "manifest.json",
+            "namespace_manifest.json"
+          ],
+          "report_generation": [
+            "report.json",
+            "ranked_findings.json",
+            "repair_handoff.json",
+            "report_summary.md",
+            "summary.json",
+            "manifest.json",
+            "namespace_manifest.json"
+          ],
+          "semantic_analysis": [
+            "semantic_report.json",
+            "semantic_claims.json",
+            "semantic_input.json",
+            "semantic_summary.md",
+            "semantic_merge_input.json",
+            "claim_consumer.json",
+            "summary.json",
+            "manifest.json",
+            "namespace_manifest.json"
+          ],
+          "static_audit": [
+            "static_report.json",
+            "summary.json",
+            "manifest.json",
+            "namespace_manifest.json"
+          ],
+          "validation_generation": [
+            "validation_plan.json",
+            "validation_runs.json",
+            "comparison.json",
+            "validation_decision.json",
+            "post_repair_evidence.json",
+            "validation_summary.json",
+            "validation_summary.md",
+            "manifest.json",
+            "namespace_manifest.json"
+          ]
+        },
+        "report_namespaces": {
+          "benchmark_suite": "analysis/benchmark",
+          "dynamic_analysis": "analysis/dynamic",
+          "integration_audit": "analysis/integration",
+          "release_packaging": "analysis/release",
+          "repair_generation": "analysis/repair",
+          "report_generation": "analysis/report",
+          "semantic_analysis": "analysis/semantic",
+          "static_audit": "analysis/static",
+          "validation_generation": "analysis/validation"
+        }
+      },
+      "namespace_manifest": {
+        "bundle_dir": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/reports/latest/clean/analysis/static/demo3_clean_static",
+        "bundle_relative_dir": "demo3_clean_static",
+        "generated_at_utc": "2026-04-15T11:55:31.486219+00:00",
+        "latest_bundle": "demo3_clean_static",
+        "manifest_path": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/reports/latest/clean/analysis/static/demo3_clean_static/manifest.json",
+        "max_severity": "high",
+        "namespace": "analysis/static",
+        "namespace_type": "analysis_namespace.v1",
+        "num_findings": 8,
+        "passed": false,
+        "report_mode": "static_audit",
+        "report_path": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/reports/latest/clean/analysis/static/demo3_clean_static/static_report.json",
+        "summary_path": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/reports/latest/clean/analysis/static/demo3_clean_static/summary.json"
+      },
+      "num_findings": 8,
+      "passed": false,
+      "report_path": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/reports/latest/clean/analysis/static/demo3_clean_static/static_report.json",
+      "spec_version": "demo3-v0",
+      "summary_path": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/reports/latest/clean/analysis/static/demo3_clean_static/summary.json"
+    }
+  },
+  "namespace": "analysis/dynamic",
+  "num_findings": 3,
+  "passed": true,
+  "primary_run_ids": [
+    "demo3_clean_eval_nominal"
+  ],
+  "report_path": "dynamic_report.json",
+  "report_type": "dynamic_analyzer_report.v1",
+  "semantic_inputs_path": "semantic_inputs.json",
+  "spec_version": "demo3-v0",
+  "summary_path": "summary.json"
+}

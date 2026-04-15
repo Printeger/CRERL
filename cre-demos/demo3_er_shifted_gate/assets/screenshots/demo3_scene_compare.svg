@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="720" viewBox="0 0 1320 720">
+<defs>
+<linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+<stop offset="0%" stop-color="#f8f4eb"/>
+<stop offset="100%" stop-color="#eef6f8"/>
+</linearGradient>
+</defs>
+<rect x="0" y="0" width="100%" height="100%" fill="url(#bg)"/>
+<text x="58" y="70" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="34" fill="#1f2933">Demo 3 Scene Comparison</text>
+<text x="58" y="106" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="18" fill="#5f6b76">Nominal keeps the gate centered; shifted moves the gate upward-right and compresses the safe crossing band.</text>
+<rect x="52.0" y="144.0" width="560.0" height="470.0" rx="30" fill="#fffdf8" stroke="#d6cfc5" stroke-width="2"/>
+<rect x="64.0" y="156.0" width="536.0" height="446.0" rx="24" fill="#fbf7ef" stroke="none"/>
+<rect x="193.0" y="391.7" width="32.9" height="84.4" rx="10" fill="#d8d3cc" stroke="#7d766d" stroke-width="1.8"/>
+<rect x="295.4" y="429.6" width="31.1" height="67.5" rx="10" fill="#d8d3cc" stroke="#7d766d" stroke-width="1.8"/>
+<rect x="295.4" y="286.2" width="31.1" height="76.0" rx="10" fill="#d8d3cc" stroke="#7d766d" stroke-width="1.8"/>
+<rect x="412.5" y="256.6" width="31.1" height="80.2" rx="10" fill="#d8d3cc" stroke="#7d766d" stroke-width="1.8"/>
+<rect x="281.5" y="362.1" width="58.5" height="67.5" rx="12" fill="#d6f0ff" opacity="0.75" stroke="#2f7ea1" stroke-width="2.4"/>
+<circle cx="123.5" cy="526.7" r="8" fill="#2f9e44"/>
+<circle cx="533.1" cy="252.4" r="8" fill="#f08c00"/>
+<rect x="708.0" y="144.0" width="560.0" height="470.0" rx="30" fill="#fffdf8" stroke="#d6cfc5" stroke-width="2"/>
+<rect x="720.0" y="156.0" width="536.0" height="446.0" rx="24" fill="#fbf7ef" stroke="none"/>
+<polygon points="940.5,370.6 1009.9,374.8 1031.9,332.6 1006.3,286.2 947.8,294.6 929.5,341.0" fill="#ff9a62" opacity="0.22" stroke="#d85f25" stroke-width="2.5" stroke-dasharray="10 8"/>
+<rect x="892.9" y="370.6" width="29.3" height="80.2" rx="10" fill="#d8d3cc" stroke="#7d766d" stroke-width="1.8"/>
+<rect x="966.1" y="374.8" width="32.9" height="88.6" rx="10" fill="#d8d3cc" stroke="#7d766d" stroke-width="1.8"/>
+<rect x="966.1" y="235.5" width="32.9" height="84.4" rx="10" fill="#d8d3cc" stroke="#7d766d" stroke-width="1.8"/>
+<rect x="1030.1" y="303.0" width="36.6" height="84.4" rx="10" fill="#d8d3cc" stroke="#7d766d" stroke-width="1.8"/>
+<rect x="1105.0" y="235.5" width="29.3" height="63.3" rx="10" fill="#d8d3cc" stroke="#7d766d" stroke-width="1.8"/>
+<rect x="960.0" y="318.7" width="45.7" height="54.9" rx="12" fill="#d6f0ff" opacity="0.75" stroke="#2f7ea1" stroke-width="2.4"/>
+<circle cx="779.5" cy="526.7" r="8" fill="#2f9e44"/>
+<circle cx="1189.1" cy="252.4" r="8" fill="#f08c00"/>
+<text x="84" y="188" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="24" fill="#1d4ed8">Nominal centered gate</text>
+<text x="740" y="188" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="24" fill="#d9481c">Shifted gate with squeeze zone</text>
+<text x="86" y="650" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="18" fill="#4f5b66">Gate center: [6.42, 4.6]</text>
+<text x="742" y="650" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="18" fill="#4f5b66">Gate center: [6.86, 5.78]</text>
+<text x="86" y="680" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="16" fill="#6b7280">Shift delta: dx=0.44, dy=1.18</text>
+<path d="M 606 380 C 650 330, 670 330, 714 380" fill="none" stroke="#8b5cf6" stroke-width="6" stroke-linecap="round"/>
+<polygon points="706,372 732,382 709,395" fill="#8b5cf6"/>
+<text x="548" y="334" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="18" fill="#6d28d9">Environment shift</text>
+</svg>

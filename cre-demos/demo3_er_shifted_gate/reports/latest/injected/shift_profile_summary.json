@@ -1,0 +1,14 @@
+{
+  "cross_traffic_enabled": true,
+  "lateral_shift": 0.44,
+  "nominal_gate_center": [
+    6.42,
+    4.6
+  ],
+  "shifted_gate_center": [
+    6.86,
+    5.78
+  ],
+  "variant": "injected",
+  "vertical_shift": 1.18
+}

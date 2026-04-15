@@ -1,0 +1,10 @@
+{
+  "env_cfg_dir": "cre-demos/demo3_er_shifted_gate/cfg/env_clean",
+  "train_episode_count": 12,
+  "train_family_counts": {
+    "nominal": 8,
+    "shifted": 4
+  },
+  "train_shifted_episode_rate": 0.3333333333333333,
+  "variant": "clean"
+}

@@ -1,0 +1,9 @@
+{
+  "collision_gap": 0.0,
+  "decoupling_gap": -0.0640202890325654,
+  "min_distance_gap": 0.8729485879069887,
+  "return_gap": 8.667292330361118,
+  "success_gap": 0.16666666666666663,
+  "timeout_gap": 0.16666666666666666,
+  "variant": "clean"
+}

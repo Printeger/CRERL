@@ -1,0 +1,65 @@
+{
+  "train_scene_assignments": [
+    {
+      "behavior_id": "train_nominal_reference",
+      "family": "nominal",
+      "seed": 11
+    },
+    {
+      "behavior_id": "train_nominal_reference",
+      "family": "nominal",
+      "seed": 17
+    },
+    {
+      "behavior_id": "train_nominal_reference",
+      "family": "nominal",
+      "seed": 23
+    },
+    {
+      "behavior_id": "train_nominal_reference",
+      "family": "nominal",
+      "seed": 31
+    },
+    {
+      "behavior_id": "train_nominal_reference",
+      "family": "nominal",
+      "seed": 47
+    },
+    {
+      "behavior_id": "train_nominal_reference",
+      "family": "nominal",
+      "seed": 59
+    },
+    {
+      "behavior_id": "train_nominal_reference",
+      "family": "nominal",
+      "seed": 71
+    },
+    {
+      "behavior_id": "train_shift_support_repaired",
+      "family": "shifted",
+      "seed": 83
+    },
+    {
+      "behavior_id": "train_shift_support_repaired",
+      "family": "shifted",
+      "seed": 97
+    },
+    {
+      "behavior_id": "train_shift_support_repaired",
+      "family": "shifted",
+      "seed": 101
+    },
+    {
+      "behavior_id": "train_shift_support_repaired",
+      "family": "shifted",
+      "seed": 113
+    },
+    {
+      "behavior_id": "train_shift_support_repaired",
+      "family": "shifted",
+      "seed": 127
+    }
+  ],
+  "variant": "repaired"
+}

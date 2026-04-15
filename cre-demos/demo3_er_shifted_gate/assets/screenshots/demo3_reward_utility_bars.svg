@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="640" viewBox="0 0 1120 640">
+<rect x="0" y="0" width="100%" height="100%" fill="#f6f3ed"/>
+<text x="62" y="64" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="30" fill="#1f2933">Reward / Utility Retention</text>
+<text x="62" y="98" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="18" fill="#5f6b76">Bars compare shifted-versus-nominal retention. Injected keeps reward much better than utility.</text>
+<rect x="116.0" y="148.0" width="860.0" height="360.0" rx="28" fill="#fffdfa" stroke="#d8d0c4" stroke-width="2"/>
+<line x1="116.0" y1="508.0" x2="976.0" y2="508.0" stroke="#ece4d7" stroke-width="1"/>
+<text x="72" y="514.0" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="15" fill="#6b7280">0.00</text>
+<line x1="116.0" y1="436.0" x2="976.0" y2="436.0" stroke="#ece4d7" stroke-width="1"/>
+<text x="72" y="442.0" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="15" fill="#6b7280">0.23</text>
+<line x1="116.0" y1="364.0" x2="976.0" y2="364.0" stroke="#ece4d7" stroke-width="1"/>
+<text x="72" y="370.0" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="15" fill="#6b7280">0.46</text>
+<line x1="116.0" y1="292.0" x2="976.0" y2="292.0" stroke="#ece4d7" stroke-width="1"/>
+<text x="72" y="298.0" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="15" fill="#6b7280">0.69</text>
+<line x1="116.0" y1="220.0" x2="976.0" y2="220.0" stroke="#ece4d7" stroke-width="1"/>
+<text x="72" y="226.0" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="15" fill="#6b7280">0.92</text>
+<line x1="116.0" y1="148.0" x2="976.0" y2="148.0" stroke="#ece4d7" stroke-width="1"/>
+<text x="72" y="154.0" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="15" fill="#6b7280">1.15</text>
+<rect x="216.0" y="291.7" width="48" height="216.3" rx="16" fill="#1d4ed8" opacity="0.88"/>
+<text x="240.0" y="279.7" text-anchor="middle" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="15" fill="#374151">0.69</text>
+<text x="240.0" y="536.0" text-anchor="middle" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="15" fill="#4b5563">Reward</text>
+<rect x="288.0" y="271.6" width="48" height="236.4" rx="16" fill="#0f766e" opacity="0.88"/>
+<text x="312.0" y="259.6" text-anchor="middle" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="15" fill="#374151">0.76</text>
+<text x="312.0" y="536.0" text-anchor="middle" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="15" fill="#4b5563">Utility</text>
+<text x="276.0" y="574.0" text-anchor="middle" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="22" fill="#1d4ed8">Clean</text>
+<text x="276.0" y="562" text-anchor="middle" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="16" fill="#7c2d12">Decoupling gap -0.06</text>
+<rect x="466.0" y="216.4" width="48" height="291.6" rx="16" fill="#d9481c" opacity="0.88"/>
+<text x="490.0" y="204.4" text-anchor="middle" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="15" fill="#374151">0.93</text>
+<text x="490.0" y="536.0" text-anchor="middle" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="15" fill="#4b5563">Reward</text>
+<rect x="538.0" y="431.7" width="48" height="76.3" rx="16" fill="#0f766e" opacity="0.88"/>
+<text x="562.0" y="419.7" text-anchor="middle" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="15" fill="#374151">0.24</text>
+<text x="562.0" y="536.0" text-anchor="middle" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="15" fill="#4b5563">Utility</text>
+<text x="526.0" y="574.0" text-anchor="middle" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="22" fill="#d9481c">Injected</text>
+<text x="526.0" y="562" text-anchor="middle" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="16" fill="#7c2d12">Decoupling gap 0.69</text>
+<rect x="716.0" y="205.2" width="48" height="302.8" rx="16" fill="#2b8a3e" opacity="0.88"/>
+<text x="740.0" y="193.2" text-anchor="middle" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="15" fill="#374151">0.97</text>
+<text x="740.0" y="536.0" text-anchor="middle" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="15" fill="#4b5563">Reward</text>
+<rect x="788.0" y="262.1" width="48" height="245.9" rx="16" fill="#0f766e" opacity="0.88"/>
+<text x="812.0" y="250.1" text-anchor="middle" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="15" fill="#374151">0.79</text>
+<text x="812.0" y="536.0" text-anchor="middle" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="15" fill="#4b5563">Utility</text>
+<text x="776.0" y="574.0" text-anchor="middle" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="22" fill="#2b8a3e">Repaired</text>
+<text x="776.0" y="562" text-anchor="middle" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="16" fill="#7c2d12">Decoupling gap 0.18</text>
+</svg>

@@ -936,16 +936,9 @@ Demo 3 只有同时满足以下条件，才算完成。
 
 ## 17. 当前实现状态
 
-截至当前仓库状态，Demo 3 **尚未建立独立实现目录与隔离 pipeline**。
+Demo 3 已经建立了**独立可重跑的隔离 pipeline**，并完成了 `clean / injected / repaired` 三版本闭环。
 
-本次先完成的是：
-
-- 中文开发计划
-- 实验数据留存清单
-- 视频留存清单
-- 图片与出片规范
-
-建议下一批实现优先补齐：
+当前已经落地的核心文件：
 
 - `cre-demos/demo3_er_shifted_gate/cfg/`
 - `cre-demos/demo3_er_shifted_gate/scripts/run_demo3.py`
@@ -954,4 +947,101 @@ Demo 3 只有同时满足以下条件，才算完成。
 - `cre-demos/demo3_er_shifted_gate/assets/screenshots/`
 - `cre-demos/demo3_er_shifted_gate/assets/videos/`
 
-在实现完成前，这份文档就是 Demo 3 的冻结开发蓝图。
+### 17.1 一次运行命令
+
+```bash
+python3 cre-demos/demo3_er_shifted_gate/scripts/run_demo3.py --clean-output
+```
+
+### 17.2 关键结果
+
+- `goal_achieved`: `True`
+- `report primary claim`: `E-R`
+- `repair operator`: `increase_shifted_boundary_bias`
+- `clean decoupling gap`: `-0.064`
+- `injected W_ER`: `0.574`
+- `injected reward retention`: `0.932`
+- `injected utility retention`: `0.244`
+- `injected success gap`: `0.667`
+- `repaired decoupling gap`: `0.182`
+- `repaired shifted success`: `0.833`
+
+### 17.3 证明性图片总览
+
+下面这些图片都已经自动生成，并且每张都有单独的“证明点”：
+
+- `demo3_scene_compare.svg`
+- `demo3_gate_offset_inset.svg`
+- `demo3_same_seed_overlay.svg`
+- `demo3_reward_utility_scatter.svg`
+- `demo3_reward_utility_bars.svg`
+- `demo3_failure_breakdown.svg`
+- `demo3_quality_metrics.svg`
+- `demo3_repair_recovery_board.svg`
+- `demo3_summary_card.svg`
+- `demo3_multiframe_story.svg`
+- `demo3_shifted_heatmap.svg`
+- `demo3_reward_utility_quadrants.svg`
+
+#### 场景与几何
+
+![Scene Compare](assets/screenshots/demo3_scene_compare.svg)
+
+![Gate Offset Inset](assets/screenshots/demo3_gate_offset_inset.svg)
+
+#### 同 seed 行为差异
+
+![Same Seed Overlay](assets/screenshots/demo3_same_seed_overlay.svg)
+
+![Injected Storyboard](assets/screenshots/demo3_multiframe_story.svg)
+
+![Repair Recovery Board](assets/screenshots/demo3_repair_recovery_board.svg)
+
+#### Reward / Utility 解耦证据
+
+![Reward Utility Scatter](assets/screenshots/demo3_reward_utility_scatter.svg)
+
+![Reward Utility Bars](assets/screenshots/demo3_reward_utility_bars.svg)
+
+![Retention Quadrants](assets/screenshots/demo3_reward_utility_quadrants.svg)
+
+#### 质量与风险
+
+![Failure Breakdown](assets/screenshots/demo3_failure_breakdown.svg)
+
+![Quality Metrics](assets/screenshots/demo3_quality_metrics.svg)
+
+![Shifted Heatmap](assets/screenshots/demo3_shifted_heatmap.svg)
+
+![Summary Card](assets/screenshots/demo3_summary_card.svg)
+
+### 17.4 视频 / 回放页面
+
+- [demo3_nominal_success.html](assets/videos/demo3_nominal_success.html)
+- [demo3_shifted_same_seed.html](assets/videos/demo3_shifted_same_seed.html)
+- [demo3_injected_shifted_failure.html](assets/videos/demo3_injected_shifted_failure.html)
+- [demo3_repaired_shifted_recovery.html](assets/videos/demo3_repaired_shifted_recovery.html)
+- [demo3_triplet_split_screen.html](assets/videos/demo3_triplet_split_screen.html)
+
+### 17.5 主要留存数据
+
+- `reports/latest/metrics_summary.json`
+- `reports/latest/verification/verification_summary.json`
+- `reports/latest/verification/reward_diff.md`
+- `reports/latest/verification/utility_metric_spec.md`
+- `reports/latest/verification/shift_diff.md`
+- `reports/latest/injected/analysis/report/demo3_injected_report/report.json`
+- `reports/latest/injected/analysis/repair/demo3_injected_repair/repair_plan.json`
+- `reports/latest/analysis/validation/demo3_validation/validation_decision.json`
+- `assets/screenshots/demo3_summary_metrics.csv`
+- `assets/screenshots/demo3_reward_utility_points.csv`
+
+### 17.6 当前结论
+
+这版 Demo 3 已经满足最初计划里的主叙事：
+
+- reward 保持冻结
+- utility 保持冻结
+- injected 在 shifted 下仍保留一定 reward，但 `U_task_v1`、成功率和安全裕度明显下降
+- `W_ER` 成为主 witness
+- repair 后 reward-utility 裂口收窄

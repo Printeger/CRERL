@@ -1,0 +1,11 @@
+{
+  "max_severity": "high",
+  "num_findings": 8,
+  "passed": false,
+  "report_type": "static_analyzer_report.v1",
+  "scene_family_set": [
+    "nominal",
+    "shifted"
+  ],
+  "spec_version": "demo3-v0"
+}

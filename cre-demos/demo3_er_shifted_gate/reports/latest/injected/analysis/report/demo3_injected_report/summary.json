@@ -1,0 +1,9 @@
+{
+  "max_severity": "high",
+  "num_ranked_findings": 13,
+  "passed": false,
+  "primary_claim_type": "E-R",
+  "repair_ready_claims": 6,
+  "report_type": "phase7_unified_report.v1",
+  "spec_version": "demo3-v0"
+}

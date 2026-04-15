@@ -1,0 +1,11 @@
+{
+  "family_counts": {
+    "nominal": 7,
+    "shifted": 5
+  },
+  "family_rates": {
+    "nominal": 0.5833333333333334,
+    "shifted": 0.4166666666666667
+  },
+  "variant": "repaired"
+}

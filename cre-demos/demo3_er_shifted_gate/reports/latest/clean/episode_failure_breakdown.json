@@ -1,0 +1,13 @@
+{
+  "eval_nominal": {
+    "collision": 0,
+    "success": 12,
+    "timeout": 0
+  },
+  "eval_shifted": {
+    "collision": 0,
+    "success": 10,
+    "timeout": 2
+  },
+  "variant": "clean"
+}

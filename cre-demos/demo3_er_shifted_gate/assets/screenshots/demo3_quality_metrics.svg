@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1260" height="720" viewBox="0 0 1260 720">
+<rect x="0" y="0" width="100%" height="100%" fill="#f5f4ee"/>
+<text x="62" y="64" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="30" fill="#1f2933">Shifted Quality Metrics</text>
+<text x="62" y="98" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="18" fill="#5f6b76">A compact board showing where the injected policy loses real task quality under the same environment shift.</text>
+<rect x="60.0" y="140.0" width="480.0" height="248.0" rx="24" fill="#fffdfa" stroke="#d8d0c4" stroke-width="2"/>
+<text x="84.0" y="174.0" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="22" fill="#374151">Shifted success</text>
+<rect x="94.0" y="226.0" width="72" height="110.0" rx="18" fill="#1d4ed8" opacity="0.9"/>
+<text x="130.0" y="216.0" text-anchor="middle" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="16" fill="#374151">0.83</text>
+<text x="130.0" y="366.0" text-anchor="middle" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="16" fill="#4b5563">Clean</text>
+<rect x="242.0" y="292.0" width="72" height="44.0" rx="18" fill="#d9481c" opacity="0.9"/>
+<text x="278.0" y="282.0" text-anchor="middle" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="16" fill="#374151">0.33</text>
+<text x="278.0" y="366.0" text-anchor="middle" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="16" fill="#4b5563">Injected</text>
+<rect x="390.0" y="226.0" width="72" height="110.0" rx="18" fill="#2b8a3e" opacity="0.9"/>
+<text x="426.0" y="216.0" text-anchor="middle" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="16" fill="#374151">0.83</text>
+<text x="426.0" y="366.0" text-anchor="middle" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="16" fill="#4b5563">Repaired</text>
+<rect x="632.0" y="140.0" width="480.0" height="248.0" rx="24" fill="#fffdfa" stroke="#d8d0c4" stroke-width="2"/>
+<text x="656.0" y="174.0" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="22" fill="#374151">Shifted min distance</text>
+<rect x="666.0" y="336.0" width="72" height="0.0" rx="18" fill="#1d4ed8" opacity="0.9"/>
+<text x="702.0" y="326.0" text-anchor="middle" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="16" fill="#374151">-0.14</text>
+<text x="702.0" y="366.0" text-anchor="middle" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="16" fill="#4b5563">Clean</text>
+<rect x="814.0" y="336.0" width="72" height="0.0" rx="18" fill="#d9481c" opacity="0.9"/>
+<text x="850.0" y="326.0" text-anchor="middle" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="16" fill="#374151">-0.47</text>
+<text x="850.0" y="366.0" text-anchor="middle" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="16" fill="#4b5563">Injected</text>
+<rect x="962.0" y="336.0" width="72" height="0.0" rx="18" fill="#2b8a3e" opacity="0.9"/>
+<text x="998.0" y="326.0" text-anchor="middle" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="16" fill="#374151">-0.02</text>
+<text x="998.0" y="366.0" text-anchor="middle" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="16" fill="#4b5563">Repaired</text>
+<rect x="60.0" y="422.0" width="480.0" height="248.0" rx="24" fill="#fffdfa" stroke="#d8d0c4" stroke-width="2"/>
+<text x="84.0" y="456.0" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="22" fill="#374151">Shifted time efficiency</text>
+<rect x="94.0" y="501.6" width="72" height="116.4" rx="18" fill="#1d4ed8" opacity="0.9"/>
+<text x="130.0" y="491.6" text-anchor="middle" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="16" fill="#374151">0.88</text>
+<text x="130.0" y="648.0" text-anchor="middle" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="16" fill="#4b5563">Clean</text>
+<rect x="242.0" y="531.6" width="72" height="86.4" rx="18" fill="#d9481c" opacity="0.9"/>
+<text x="278.0" y="521.6" text-anchor="middle" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="16" fill="#374151">0.65</text>
+<text x="278.0" y="648.0" text-anchor="middle" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="16" fill="#4b5563">Injected</text>
+<rect x="390.0" y="493.7" width="72" height="124.3" rx="18" fill="#2b8a3e" opacity="0.9"/>
+<text x="426.0" y="483.7" text-anchor="middle" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="16" fill="#374151">0.94</text>
+<text x="426.0" y="648.0" text-anchor="middle" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="16" fill="#4b5563">Repaired</text>
+<rect x="632.0" y="422.0" width="480.0" height="248.0" rx="24" fill="#fffdfa" stroke="#d8d0c4" stroke-width="2"/>
+<text x="656.0" y="456.0" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="22" fill="#374151">Shifted path efficiency</text>
+<rect x="666.0" y="493.5" width="72" height="124.5" rx="18" fill="#1d4ed8" opacity="0.9"/>
+<text x="702.0" y="483.5" text-anchor="middle" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="16" fill="#374151">0.94</text>
+<text x="702.0" y="648.0" text-anchor="middle" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="16" fill="#4b5563">Clean</text>
+<rect x="814.0" y="502.9" width="72" height="115.1" rx="18" fill="#d9481c" opacity="0.9"/>
+<text x="850.0" y="492.9" text-anchor="middle" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="16" fill="#374151">0.87</text>
+<text x="850.0" y="648.0" text-anchor="middle" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="16" fill="#4b5563">Injected</text>
+<rect x="962.0" y="492.2" width="72" height="125.8" rx="18" fill="#2b8a3e" opacity="0.9"/>
+<text x="998.0" y="482.2" text-anchor="middle" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="16" fill="#374151">0.95</text>
+<text x="998.0" y="648.0" text-anchor="middle" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="16" fill="#4b5563">Repaired</text>
+</svg>

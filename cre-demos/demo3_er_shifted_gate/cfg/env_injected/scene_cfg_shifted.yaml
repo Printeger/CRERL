@@ -1,0 +1,80 @@
+scene_id: "demo3_shifted_gate_v0"
+scene_family: "shifted"
+seed: 3403
+
+workspace:
+  size_x: 14.0
+  size_y: 10.0
+  size_z: 3.0
+  flight_height_min: 0.8
+  flight_height_max: 1.6
+
+primitive_budget:
+  box: [3, 5]
+  cylinder: [0, 0]
+  slab: [0, 0]
+  perforated_slab: [0, 0]
+  sphere: [0, 0]
+  capsule: [0, 0]
+
+distribution_modes:
+  background: "fixed_demo_layout"
+  structure: "template_driven"
+  route_adjacent_bias: 0.28
+  boundary_adjacent_bias: 0.04
+  shifted_distribution_bias: 0.06
+
+background_placement:
+  obstacle_obstacle_min_dist: 0.28
+  obstacle_boundary_min_dist: 0.22
+  max_rejection_trials: 1
+  free_space_fraction_min: 0.36
+  free_space_fraction_max: 0.62
+
+templates:
+  enabled: true
+  min_templates_per_scene: 1
+  max_templates_per_scene: 1
+  candidate_types:
+    - blind_offset_gate
+    - late_exit_post
+    - route_squeeze
+
+dynamic_obstacles:
+  enabled: false
+  max_dynamic_count: 0
+
+start_goal:
+  start_sampling_mode: "fixed_demo_anchor"
+  start_band_min: 0.0
+  start_band_max: 0.0
+  start_clearance_min: 0.35
+  goal_sampling_mode: "fixed_demo_anchor"
+  goal_clearance_min: 0.35
+  goal_boundary_clearance_min: 0.35
+  start_goal_distance_min: 9.0
+  start_goal_distance_max: 12.5
+  heading_random: false
+
+validation:
+  enforce_connectivity: true
+  allow_failure_analysis_only: false
+  max_overlap_tolerance: 0.0
+  require_template_presence: false
+  require_start_goal_valid: true
+  require_traversable_perforation: false
+  validate_dynamic_spawn: false
+
+validation_rules:
+  require_shifted_semantics: false
+
+logging:
+  save_scene_json: true
+  save_validation_report: true
+  save_scene_stats: true
+
+demo_layout:
+  layout_id: "demo3_er_shifted_gate"
+  family_scene_key: "shifted"
+  scene_layout_file: "scene_layout.yaml"
+  scene_intent: "Injected variant under-prepares the policy for the shifted gate and makes reward-utility decoupling easy to surface."

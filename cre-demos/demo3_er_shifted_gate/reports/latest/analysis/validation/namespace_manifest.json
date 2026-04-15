@@ -1,0 +1,15 @@
+{
+  "accepted": true,
+  "bundle_dir": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/reports/latest/analysis/validation/demo3_validation",
+  "bundle_relative_dir": "demo3_validation",
+  "decision_status": "accepted",
+  "generated_at_utc": "2026-04-15T11:55:31.829214+00:00",
+  "latest_bundle": "demo3_validation",
+  "manifest_path": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/reports/latest/analysis/validation/demo3_validation/manifest.json",
+  "namespace": "analysis/validation",
+  "namespace_type": "analysis_namespace.v1",
+  "primary_claim_type": "E-R",
+  "report_mode": "validation_generation",
+  "report_path": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/reports/latest/analysis/validation/demo3_validation/validation_plan.json",
+  "summary_path": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/reports/latest/analysis/validation/demo3_validation/validation_summary.json"
+}

@@ -1,0 +1,671 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <title>Demo 3 Injected Shifted Failure</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 28px;
+      font-family: "Trebuchet MS", "Avenir Next", sans-serif;
+      background: linear-gradient(135deg, #f6f0e7, #eef5f7);
+      color: #1f2933;
+    }
+    h1 {
+      margin: 0 0 12px;
+      font-size: 30px;
+      font-weight: 700;
+    }
+    p {
+      margin: 0 0 24px;
+      font-size: 17px;
+      line-height: 1.6;
+      color: #55616d;
+      max-width: 980px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 18px;
+    }
+    .panel {
+      background: rgba(255,255,255,0.9);
+      border: 1px solid #d8d0c4;
+      border-radius: 18px;
+      padding: 14px;
+      box-shadow: 0 12px 28px rgba(36, 42, 48, 0.08);
+    }
+    .label {
+      font-size: 19px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .meta {
+      margin-top: 8px;
+      font-size: 14px;
+      color: #5f6b76;
+    }
+    svg {
+      width: 100%;
+      display: block;
+      border-radius: 14px;
+      background: #fffdfa;
+    }
+  </style>
+</head>
+<body>
+  <h1>Demo 3 Injected Shifted Failure</h1>
+  <p>A single injected shifted replay highlighting late hesitation or collision near the shifted gate.</p>
+  <div class="grid" id="grid"></div>
+  <script>
+    const payload = {
+  "workspace": {
+    "xmin": 0.0,
+    "ymin": 0.0,
+    "xmax": 14.0,
+    "ymax": 10.0,
+    "flight_z": 1.2
+  },
+  "start": [
+    1.3,
+    1.5
+  ],
+  "goal": [
+    12.5,
+    8.0
+  ],
+  "panels": [
+    {
+      "id": "injected-failure",
+      "label": "Injected shifted failure",
+      "color": "#d9481c",
+      "family_layout": {
+        "scene_id": "demo3_shifted_gate_v0",
+        "scene_cfg_name": "scene_cfg_shifted.yaml",
+        "label": "Shifted Gate Crossing",
+        "scene_intent": "Laterally shifted gate plus route squeeze where reward remains decent but mission utility degrades.",
+        "gate": {
+          "center": [
+            6.86,
+            5.78
+          ],
+          "width": 1.25,
+          "height": 1.3
+        },
+        "shift_metadata": {
+          "nominal_gate_center": [
+            6.42,
+            4.6
+          ],
+          "shifted_gate_center": [
+            6.86,
+            5.78
+          ],
+          "vertical_shift": 1.18,
+          "lateral_shift": 0.44,
+          "cross_traffic_enabled": true
+        },
+        "obstacles": [
+          {
+            "id": "shifted_lower_occluder",
+            "kind": "rect",
+            "x": 4.4,
+            "y": 3.3,
+            "width": 0.8,
+            "height": 1.9
+          },
+          {
+            "id": "shifted_gate_lower_pillar",
+            "kind": "rect",
+            "x": 6.4,
+            "y": 3.0,
+            "width": 0.9,
+            "height": 2.1
+          },
+          {
+            "id": "shifted_gate_upper_pillar",
+            "kind": "rect",
+            "x": 6.4,
+            "y": 6.4,
+            "width": 0.9,
+            "height": 2.0
+          },
+          {
+            "id": "shifted_cross_traffic_bar",
+            "kind": "rect",
+            "x": 8.15,
+            "y": 4.8,
+            "width": 1.0,
+            "height": 2.0
+          },
+          {
+            "id": "shifted_exit_post",
+            "kind": "rect",
+            "x": 10.2,
+            "y": 6.9,
+            "width": 0.8,
+            "height": 1.5
+          }
+        ],
+        "critical_region": {
+          "label": "Shifted squeeze zone",
+          "polygon": [
+            [
+              5.7,
+              5.2
+            ],
+            [
+              7.6,
+              5.1
+            ],
+            [
+              8.2,
+              6.1
+            ],
+            [
+              7.5,
+              7.2
+            ],
+            [
+              5.9,
+              7.0
+            ],
+            [
+              5.4,
+              5.9
+            ]
+          ]
+        },
+        "reference_paths": {
+          "shifted_guarded": {
+            "label": "Shift-aware guarded route",
+            "waypoints": [
+              [
+                1.3,
+                1.5
+              ],
+              [
+                2.3,
+                1.9
+              ],
+              [
+                3.6,
+                2.6
+              ],
+              [
+                4.8,
+                3.7
+              ],
+              [
+                5.8,
+                4.9
+              ],
+              [
+                6.55,
+                5.85
+              ],
+              [
+                7.35,
+                6.7
+              ],
+              [
+                8.7,
+                7.25
+              ],
+              [
+                10.4,
+                7.55
+              ],
+              [
+                12.5,
+                8.0
+              ]
+            ]
+          },
+          "shifted_risky": {
+            "label": "Reward-heavy squeeze route",
+            "waypoints": [
+              [
+                1.3,
+                1.5
+              ],
+              [
+                2.5,
+                1.8
+              ],
+              [
+                4.0,
+                2.3
+              ],
+              [
+                5.4,
+                3.5
+              ],
+              [
+                6.15,
+                4.55
+              ],
+              [
+                6.55,
+                5.0
+              ],
+              [
+                6.95,
+                5.3
+              ],
+              [
+                7.85,
+                5.95
+              ],
+              [
+                9.3,
+                6.95
+              ],
+              [
+                12.5,
+                8.0
+              ]
+            ]
+          },
+          "shifted_hesitant": {
+            "label": "Hesitant probing near the shifted gate",
+            "waypoints": [
+              [
+                1.3,
+                1.5
+              ],
+              [
+                2.2,
+                1.9
+              ],
+              [
+                3.4,
+                2.5
+              ],
+              [
+                4.7,
+                3.5
+              ],
+              [
+                5.7,
+                4.7
+              ],
+              [
+                6.2,
+                5.2
+              ],
+              [
+                6.4,
+                5.4
+              ],
+              [
+                6.45,
+                5.45
+              ],
+              [
+                6.4,
+                5.35
+              ],
+              [
+                6.48,
+                5.4
+              ],
+              [
+                6.52,
+                5.38
+              ]
+            ]
+          },
+          "shifted_late_collision": {
+            "label": "Late collision after high progress",
+            "waypoints": [
+              [
+                1.3,
+                1.5
+              ],
+              [
+                2.5,
+                1.8
+              ],
+              [
+                4.0,
+                2.4
+              ],
+              [
+                5.3,
+                3.7
+              ],
+              [
+                6.1,
+                4.8
+              ],
+              [
+                6.7,
+                5.5
+              ],
+              [
+                7.4,
+                6.0
+              ],
+              [
+                8.5,
+                6.4
+              ],
+              [
+                9.5,
+                6.9
+              ],
+              [
+                10.5,
+                7.35
+              ],
+              [
+                11.5,
+                7.75
+              ],
+              [
+                12.1,
+                7.95
+              ]
+            ]
+          },
+          "shifted_repaired": {
+            "label": "Repaired shift-aware route",
+            "waypoints": [
+              [
+                1.3,
+                1.5
+              ],
+              [
+                2.3,
+                1.95
+              ],
+              [
+                3.6,
+                2.7
+              ],
+              [
+                4.8,
+                3.85
+              ],
+              [
+                5.7,
+                5.0
+              ],
+              [
+                6.45,
+                6.0
+              ],
+              [
+                7.35,
+                6.8
+              ],
+              [
+                8.6,
+                7.25
+              ],
+              [
+                10.2,
+                7.6
+              ],
+              [
+                12.5,
+                8.0
+              ]
+            ]
+          }
+        }
+      },
+      "trajectory": [
+        [
+          1.3230174465834525,
+          1.5218301874728977
+        ],
+        [
+          1.578663592715208,
+          1.56938103884953
+        ],
+        [
+          1.851331873464815,
+          1.6118288131877405
+        ],
+        [
+          2.1323952424568446,
+          1.7158812048106353
+        ],
+        [
+          2.41122217329511,
+          1.739888367881242
+        ],
+        [
+          2.6804054944585096,
+          1.8256458805047526
+        ],
+        [
+          2.97259611438847,
+          1.9569360146423913
+        ],
+        [
+          3.26071561043041,
+          2.026234729937383
+        ],
+        [
+          3.517960880766361,
+          2.155918242257155
+        ],
+        [
+          3.7829844881195496,
+          2.2691731144368488
+        ],
+        [
+          4.0559227151216595,
+          2.35026994485712
+        ],
+        [
+          4.251524798110947,
+          2.557209883507349
+        ],
+        [
+          4.483580510251471,
+          2.7365685495899026
+        ],
+        [
+          4.6648602655607805,
+          2.971922616260243
+        ],
+        [
+          4.862453553686043,
+          3.180627882853547
+        ],
+        [
+          5.107884909129791,
+          3.40320676164754
+        ],
+        [
+          5.266583140861263,
+          3.6041082408352683
+        ],
+        [
+          5.46514032275543,
+          3.849146428134057
+        ],
+        [
+          5.620463545395774,
+          4.04903935894707
+        ],
+        [
+          5.834003037012653,
+          4.3221487393304034
+        ],
+        [
+          5.9917409084175,
+          4.561884241652258
+        ],
+        [
+          6.129627321244929,
+          4.766562302168754
+        ],
+        [
+          6.358210843557431,
+          5.006695733218979
+        ],
+        [
+          6.5477754584253045,
+          5.222698153670831
+        ],
+        [
+          6.708807698947744,
+          5.417456958265336
+        ],
+        [
+          6.92794508107274,
+          5.611465444470706
+        ],
+        [
+          7.162587797977924,
+          5.789612079375083
+        ],
+        [
+          7.408701661073722,
+          5.911242367313605
+        ],
+        [
+          7.672699973582462,
+          6.0256116235307555
+        ],
+        [
+          7.939575337324315,
+          6.1211602524510145
+        ],
+        [
+          8.19407231761318,
+          6.212599297057192
+        ],
+        [
+          8.466363662539884,
+          6.31141663420276
+        ],
+        [
+          8.718491620742306,
+          6.442504270970107
+        ],
+        [
+          8.976053180478505,
+          6.550711085284099
+        ],
+        [
+          9.245820811500318,
+          6.706710746904144
+        ],
+        [
+          9.512781669169982,
+          6.791361647509818
+        ],
+        [
+          9.786098090705131,
+          6.937688415858184
+        ],
+        [
+          10.026950602645073,
+          7.026782200430222
+        ],
+        [
+          10.326160681593253,
+          7.136984870361043
+        ],
+        [
+          10.607116105208197,
+          7.267173650035437
+        ],
+        [
+          10.86617733806073,
+          7.381188460209443
+        ],
+        [
+          11.143665942026384,
+          7.486659336468364
+        ],
+        [
+          11.417651694662045,
+          7.6384130081745525
+        ],
+        [
+          11.717557605158875,
+          7.757840038838276
+        ],
+        [
+          11.99402089259322,
+          7.864692297886799
+        ],
+        [
+          10.75,
+          7.1
+        ]
+      ],
+      "meta": {
+        "outcome": "collision",
+        "return_total": 24.829722269366144,
+        "utility_score": -0.09324379104304173
+      }
+    }
+  ]
+};
+    const width = 360;
+    const height = 260;
+    const margin = 18;
+    const workspace = payload.workspace;
+    const scaleX = value => margin + (value - workspace.xmin) / (workspace.xmax - workspace.xmin) * (width - margin * 2);
+    const scaleY = value => margin + (workspace.ymax - value) / (workspace.ymax - workspace.ymin) * (height - margin * 2);
+
+    function renderPanel(panel) {
+      const obstacleMarkup = (panel.family_layout.obstacles || []).map(item => {
+        const x = scaleX(item.x);
+        const y = scaleY(item.y + item.height);
+        const w = item.width / (workspace.xmax - workspace.xmin) * (width - margin * 2);
+        const h = item.height / (workspace.ymax - workspace.ymin) * (height - margin * 2);
+        return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="#ddd6ce" stroke="#7d766d" stroke-width="1.2"/>`;
+      }).join("");
+      const gate = panel.family_layout.gate || {};
+      const gateX = scaleX(gate.center[0] - gate.width / 2);
+      const gateY = scaleY(gate.center[1] + gate.height / 2);
+      const gateW = gate.width / (workspace.xmax - workspace.xmin) * (width - margin * 2);
+      const gateH = gate.height / (workspace.ymax - workspace.ymin) * (height - margin * 2);
+      const criticalPolygon = (panel.family_layout.critical_region?.polygon || []).map(point => `${scaleX(point[0]).toFixed(2)},${scaleY(point[1]).toFixed(2)}`).join(" ");
+      const polyline = panel.trajectory.map(point => `${scaleX(point[0]).toFixed(2)},${scaleY(point[1]).toFixed(2)}`).join(" ");
+      const endMeta = panel.meta || {};
+      return `
+        <div class="panel">
+          <div class="label" style="color:${panel.color}">${panel.label}</div>
+          <svg viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
+            <rect x="0" y="0" width="${width}" height="${height}" rx="16" fill="#fffdfa"/>
+            <rect x="${margin}" y="${margin}" width="${width - margin * 2}" height="${height - margin * 2}" rx="14" fill="#fffdfa" stroke="#cfc6b9" stroke-width="2"/>
+            ${obstacleMarkup}
+            <rect x="${gateX}" y="${gateY}" width="${gateW}" height="${gateH}" rx="10" fill="#bfe6ff" opacity="0.65" stroke="#2f7ea1" stroke-width="2"/>
+            ${criticalPolygon ? `<polygon points="${criticalPolygon}" fill="#ff9a62" opacity="0.20" stroke="#d85f25" stroke-width="2" stroke-dasharray="8 6"/>` : ""}
+            <polyline points="${polyline}" fill="none" stroke="${panel.color}" stroke-width="4" opacity="0.28" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle id="dot-${panel.id}" cx="${scaleX(panel.trajectory[0][0])}" cy="${scaleY(panel.trajectory[0][1])}" r="6" fill="${panel.color}"/>
+          </svg>
+          <div class="meta">outcome=${endMeta.outcome || ""} | reward=${(endMeta.return_total || 0).toFixed ? endMeta.return_total.toFixed(2) : endMeta.return_total} | utility=${(endMeta.utility_score || 0).toFixed ? endMeta.utility_score.toFixed(2) : endMeta.utility_score}</div>
+        </div>`;
+    }
+
+    const grid = document.getElementById("grid");
+    payload.panels.forEach(panel => grid.insertAdjacentHTML("beforeend", renderPanel(panel)));
+    let frame = 0;
+    const frameCount = Math.max(...payload.panels.map(panel => panel.trajectory.length));
+    function tick() {
+      payload.panels.forEach(panel => {
+        const point = panel.trajectory[Math.min(frame, panel.trajectory.length - 1)];
+        const dot = document.getElementById(`dot-${panel.id}`);
+        if (dot && point) {
+          dot.setAttribute("cx", scaleX(point[0]));
+          dot.setAttribute("cy", scaleY(point[1]));
+        }
+      });
+      frame = (frame + 1) % frameCount;
+      window.requestAnimationFrame(tick);
+    }
+    window.requestAnimationFrame(tick);
+  </script>
+</body>
+</html>

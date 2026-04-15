@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="760" viewBox="0 0 1320 760">
+<rect x="0" y="0" width="100%" height="100%" fill="#f7f4ed"/>
+<text x="62" y="66" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="30" fill="#1f2933">Injected Shifted Failure Storyboard</text>
+<text x="62" y="100" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="18" fill="#5f6b76">Four frames from seed 101: progress stays plausible, but the path hugs the squeeze zone and ends badly.</text>
+<rect x="60.0" y="138.0" width="560.0" height="236.0" rx="30" fill="#fffdf8" stroke="#d6cfc5" stroke-width="2"/>
+<rect x="72.0" y="150.0" width="536.0" height="212.0" rx="24" fill="#fbf7ef" stroke="none"/>
+<polygon points="292.5,252.2 361.9,254.1 383.9,235.3 358.3,214.6 299.8,218.4 281.5,239.1" fill="#ff9a62" opacity="0.22" stroke="#d85f25" stroke-width="2.5" stroke-dasharray="10 8"/>
+<rect x="244.9" y="252.2" width="29.3" height="35.7" rx="10" fill="#d8d3cc" stroke="#7d766d" stroke-width="1.8"/>
+<rect x="318.1" y="254.1" width="32.9" height="39.5" rx="10" fill="#d8d3cc" stroke="#7d766d" stroke-width="1.8"/>
+<rect x="318.1" y="192.1" width="32.9" height="37.6" rx="10" fill="#d8d3cc" stroke="#7d766d" stroke-width="1.8"/>
+<rect x="382.1" y="222.2" width="36.6" height="37.6" rx="10" fill="#d8d3cc" stroke="#7d766d" stroke-width="1.8"/>
+<rect x="457.0" y="192.1" width="29.3" height="28.2" rx="10" fill="#d8d3cc" stroke="#7d766d" stroke-width="1.8"/>
+<rect x="312.0" y="229.1" width="45.7" height="24.4" rx="12" fill="#d6f0ff" opacity="0.75" stroke="#2f7ea1" stroke-width="2.4"/>
+<circle cx="131.5" cy="321.8" r="8" fill="#2f9e44"/>
+<circle cx="541.1" cy="199.6" r="8" fill="#f08c00"/>
+<polyline points="129.1,324.2 138.6,323.2 148.8,322.4 159.2,320.4 169.6,319.9 179.6,318.2 190.4,315.6 201.1,314.3" fill="none" stroke="#d9481c" stroke-width="5" opacity="0.82" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="84.0" y="172.0" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="18" fill="#374151">Frame 1: progress 18%</text>
+<circle cx="201.1" cy="314.3" r="7" fill="#d9481c"/>
+<rect x="672.0" y="138.0" width="560.0" height="236.0" rx="30" fill="#fffdf8" stroke="#d6cfc5" stroke-width="2"/>
+<rect x="684.0" y="150.0" width="536.0" height="212.0" rx="24" fill="#fbf7ef" stroke="none"/>
+<polygon points="904.5,252.2 973.9,254.1 995.9,235.3 970.3,214.6 911.8,218.4 893.5,239.1" fill="#ff9a62" opacity="0.22" stroke="#d85f25" stroke-width="2.5" stroke-dasharray="10 8"/>
+<rect x="856.9" y="252.2" width="29.3" height="35.7" rx="10" fill="#d8d3cc" stroke="#7d766d" stroke-width="1.8"/>
+<rect x="930.1" y="254.1" width="32.9" height="39.5" rx="10" fill="#d8d3cc" stroke="#7d766d" stroke-width="1.8"/>
+<rect x="930.1" y="192.1" width="32.9" height="37.6" rx="10" fill="#d8d3cc" stroke="#7d766d" stroke-width="1.8"/>
+<rect x="994.1" y="222.2" width="36.6" height="37.6" rx="10" fill="#d8d3cc" stroke="#7d766d" stroke-width="1.8"/>
+<rect x="1069.0" y="192.1" width="29.3" height="28.2" rx="10" fill="#d8d3cc" stroke="#7d766d" stroke-width="1.8"/>
+<rect x="924.0" y="229.1" width="45.7" height="24.4" rx="12" fill="#d6f0ff" opacity="0.75" stroke="#2f7ea1" stroke-width="2.4"/>
+<circle cx="743.5" cy="321.8" r="8" fill="#2f9e44"/>
+<circle cx="1153.1" cy="199.6" r="8" fill="#f08c00"/>
+<polyline points="741.1,324.2 750.6,323.2 760.8,322.4 771.2,320.4 781.6,319.9 791.6,318.2 802.4,315.6 813.1,314.3 822.7,311.7 832.5,309.5 842.6,307.9 849.9,303.9 858.5,300.4 865.3,295.8 872.6,291.7 881.7,287.3 887.6,283.4 895.0,278.6 900.8,274.6" fill="none" stroke="#d9481c" stroke-width="5" opacity="0.82" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="696.0" y="172.0" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="18" fill="#374151">Frame 2: progress 42%</text>
+<circle cx="900.8" cy="274.6" r="7" fill="#d9481c"/>
+<rect x="60.0" y="424.0" width="560.0" height="236.0" rx="30" fill="#fffdf8" stroke="#d6cfc5" stroke-width="2"/>
+<rect x="72.0" y="436.0" width="536.0" height="212.0" rx="24" fill="#fbf7ef" stroke="none"/>
+<polygon points="292.5,538.2 361.9,540.1 383.9,521.3 358.3,500.6 299.8,504.4 281.5,525.1" fill="#ff9a62" opacity="0.22" stroke="#d85f25" stroke-width="2.5" stroke-dasharray="10 8"/>
+<rect x="244.9" y="538.2" width="29.3" height="35.7" rx="10" fill="#d8d3cc" stroke="#7d766d" stroke-width="1.8"/>
+<rect x="318.1" y="540.1" width="32.9" height="39.5" rx="10" fill="#d8d3cc" stroke="#7d766d" stroke-width="1.8"/>
+<rect x="318.1" y="478.1" width="32.9" height="37.6" rx="10" fill="#d8d3cc" stroke="#7d766d" stroke-width="1.8"/>
+<rect x="382.1" y="508.2" width="36.6" height="37.6" rx="10" fill="#d8d3cc" stroke="#7d766d" stroke-width="1.8"/>
+<rect x="457.0" y="478.1" width="29.3" height="28.2" rx="10" fill="#d8d3cc" stroke="#7d766d" stroke-width="1.8"/>
+<rect x="312.0" y="515.1" width="45.7" height="24.4" rx="12" fill="#d6f0ff" opacity="0.75" stroke="#2f7ea1" stroke-width="2.4"/>
+<circle cx="131.5" cy="607.8" r="8" fill="#2f9e44"/>
+<circle cx="541.1" cy="485.6" r="8" fill="#f08c00"/>
+<polyline points="129.1,610.2 138.6,609.2 148.8,608.4 159.2,606.4 169.6,605.9 179.6,604.2 190.4,601.6 201.1,600.3 210.7,597.7 220.5,595.5 230.6,593.9 237.9,589.9 246.5,586.4 253.3,581.8 260.6,577.7 269.7,573.3 275.6,569.4 283.0,564.6 288.8,560.6 296.7,555.3 302.6,550.6 307.7,546.6 316.2,541.9 323.2,537.6 329.2,533.8 337.3,530.0 346.0,526.5 355.2,524.1 365.0,521.9 374.9,520.0 384.4,518.2" fill="none" stroke="#d9481c" stroke-width="5" opacity="0.82" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="84.0" y="458.0" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="18" fill="#374151">Frame 3: progress 68%</text>
+<circle cx="384.4" cy="518.2" r="7" fill="#d9481c"/>
+<rect x="672.0" y="424.0" width="560.0" height="236.0" rx="30" fill="#fffdf8" stroke="#d6cfc5" stroke-width="2"/>
+<rect x="684.0" y="436.0" width="536.0" height="212.0" rx="24" fill="#fbf7ef" stroke="none"/>
+<polygon points="904.5,538.2 973.9,540.1 995.9,521.3 970.3,500.6 911.8,504.4 893.5,525.1" fill="#ff9a62" opacity="0.22" stroke="#d85f25" stroke-width="2.5" stroke-dasharray="10 8"/>
+<rect x="856.9" y="538.2" width="29.3" height="35.7" rx="10" fill="#d8d3cc" stroke="#7d766d" stroke-width="1.8"/>
+<rect x="930.1" y="540.1" width="32.9" height="39.5" rx="10" fill="#d8d3cc" stroke="#7d766d" stroke-width="1.8"/>
+<rect x="930.1" y="478.1" width="32.9" height="37.6" rx="10" fill="#d8d3cc" stroke="#7d766d" stroke-width="1.8"/>
+<rect x="994.1" y="508.2" width="36.6" height="37.6" rx="10" fill="#d8d3cc" stroke="#7d766d" stroke-width="1.8"/>
+<rect x="1069.0" y="478.1" width="29.3" height="28.2" rx="10" fill="#d8d3cc" stroke="#7d766d" stroke-width="1.8"/>
+<rect x="924.0" y="515.1" width="45.7" height="24.4" rx="12" fill="#d6f0ff" opacity="0.75" stroke="#2f7ea1" stroke-width="2.4"/>
+<circle cx="743.5" cy="607.8" r="8" fill="#2f9e44"/>
+<circle cx="1153.1" cy="485.6" r="8" fill="#f08c00"/>
+<polyline points="741.1,610.2 750.6,609.2 760.8,608.4 771.2,606.4 781.6,605.9 791.6,604.2 802.4,601.6 813.1,600.3 822.7,597.7 832.5,595.5 842.6,593.9 849.9,589.9 858.5,586.4 865.3,581.8 872.6,577.7 881.7,573.3 887.6,569.4 895.0,564.6 900.8,560.6 908.7,555.3 914.6,550.6 919.7,546.6 928.2,541.9 935.2,537.6 941.2,533.8 949.3,530.0 958.0,526.5 967.2,524.1 977.0,521.9 986.9,520.0 996.4,518.2 1006.5,516.3 1015.8,513.7 1025.4,511.6 1035.4,508.5 1045.3,506.9 1055.5,504.0 1064.4,502.3 1075.5,500.1 1086.0,497.6 1095.6,495.3 1105.9,493.3" fill="none" stroke="#d9481c" stroke-width="5" opacity="0.82" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="696.0" y="458.0" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="18" fill="#374151">Frame 4: progress 92%</text>
+<circle cx="1105.9" cy="493.3" r="7" fill="#d9481c"/>
+</svg>

@@ -1,0 +1,18 @@
+{
+  "comparison_run_ids": [
+    "demo3_repaired_eval_shifted"
+  ],
+  "max_severity": "warning",
+  "num_findings": 3,
+  "passed": true,
+  "primary_run_ids": [
+    "demo3_repaired_eval_nominal"
+  ],
+  "report_type": "dynamic_analyzer_report.v1",
+  "spec_version": "demo3-v0",
+  "witness_scores": {
+    "W_CR": 0.0,
+    "W_EC": 0.4333333333333334,
+    "W_ER": 0.3678858055843942
+  }
+}

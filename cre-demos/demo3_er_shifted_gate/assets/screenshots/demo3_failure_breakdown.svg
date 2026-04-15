@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="620" viewBox="0 0 1120 620">
+<rect x="0" y="0" width="100%" height="100%" fill="#f7f2ea"/>
+<text x="62" y="62" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="30" fill="#1f2933">Shifted Failure Breakdown</text>
+<text x="62" y="96" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="18" fill="#5f6b76">Shifted episodes are normalized to 100%. Injected failure mass concentrates in timeout and collision.</text>
+<rect x="114.0" y="148.0" width="840.0" height="320.0" rx="26" fill="#fffdfa" stroke="#d8d0c4" stroke-width="2"/>
+<rect x="232.0" y="201.3" width="84" height="266.7" rx="18" fill="#2b8a3e" opacity="0.88"/>
+<text x="274.0" y="340.7" text-anchor="middle" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="16" fill="#ffffff">success 83%</text>
+<rect x="232.0" y="148.0" width="84" height="53.3" rx="18" fill="#f59f00" opacity="0.88"/>
+<text x="274.0" y="180.7" text-anchor="middle" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="16" fill="#ffffff">timeout 17%</text>
+<rect x="232.0" y="148.0" width="84" height="0.0" rx="18" fill="#d9481c" opacity="0.88"/>
+<text x="274.0" y="518" text-anchor="middle" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="22" fill="#1d4ed8">Clean</text>
+<rect x="482.0" y="361.3" width="84" height="106.7" rx="18" fill="#2b8a3e" opacity="0.88"/>
+<text x="524.0" y="420.7" text-anchor="middle" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="16" fill="#ffffff">success 33%</text>
+<rect x="482.0" y="228.0" width="84" height="133.3" rx="18" fill="#f59f00" opacity="0.88"/>
+<text x="524.0" y="300.7" text-anchor="middle" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="16" fill="#ffffff">timeout 42%</text>
+<rect x="482.0" y="148.0" width="84" height="80.0" rx="18" fill="#d9481c" opacity="0.88"/>
+<text x="524.0" y="194.0" text-anchor="middle" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="16" fill="#ffffff">collision 25%</text>
+<text x="524.0" y="518" text-anchor="middle" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="22" fill="#d9481c">Injected</text>
+<rect x="732.0" y="201.3" width="84" height="266.7" rx="18" fill="#2b8a3e" opacity="0.88"/>
+<text x="774.0" y="340.7" text-anchor="middle" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="16" fill="#ffffff">success 83%</text>
+<rect x="732.0" y="148.0" width="84" height="53.3" rx="18" fill="#f59f00" opacity="0.88"/>
+<text x="774.0" y="180.7" text-anchor="middle" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="16" fill="#ffffff">timeout 17%</text>
+<rect x="732.0" y="148.0" width="84" height="0.0" rx="18" fill="#d9481c" opacity="0.88"/>
+<text x="774.0" y="518" text-anchor="middle" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="22" fill="#2b8a3e">Repaired</text>
+<rect x="980.0" y="176.0" width="20" height="20" rx="6" fill="#2b8a3e"/>
+<text x="1012.0" y="192.0" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="16" fill="#374151">success</text>
+<rect x="980.0" y="208.0" width="20" height="20" rx="6" fill="#f59f00"/>
+<text x="1012.0" y="224.0" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="16" fill="#374151">timeout</text>
+<rect x="980.0" y="240.0" width="20" height="20" rx="6" fill="#d9481c"/>
+<text x="1012.0" y="256.0" font-family="Trebuchet MS, Avenir Next, sans-serif" font-size="16" fill="#374151">collision</text>
+</svg>

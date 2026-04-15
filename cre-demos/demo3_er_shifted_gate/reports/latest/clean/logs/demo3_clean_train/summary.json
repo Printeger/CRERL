@@ -1,0 +1,49 @@
+{
+  "U_task_v1_mean": 0.6526572997914636,
+  "average_return": 21.10600535250567,
+  "clearance_score_mean": 0.5517808285787588,
+  "collision_rate": 0.0,
+  "critical_region_entry_rate": 0.3333333333333333,
+  "done_type_counts": {
+    "success": 12
+  },
+  "episode_count": 12,
+  "failure_counts": {
+    "collision": 0,
+    "success": 12,
+    "timeout": 0
+  },
+  "family_counts": {
+    "nominal": 8,
+    "shifted": 4
+  },
+  "family_rates": {
+    "nominal": 0.6666666666666666,
+    "shifted": 0.3333333333333333
+  },
+  "min_distance": 0.5039693321341915,
+  "near_violation_distance": 0.55,
+  "near_violation_ratio": 0.0196078431372549,
+  "out_of_bounds_rate": 0.0,
+  "path_efficiency_score_mean": 0.9766051489944484,
+  "reward_utility_correlation": 0.9979872073988535,
+  "run_dir": "/home/mint/rl_dev/crerl_v1/cre-demos/demo3_er_shifted_gate/reports/latest/clean/logs/demo3_clean_train",
+  "run_id": "demo3_clean_train",
+  "run_metadata": {
+    "demo_id": "demo3_er_shifted_gate",
+    "env_cfg_dir": "cre-demos/demo3_er_shifted_gate/cfg/env_clean",
+    "run_kind": "train",
+    "scene_layout_file": "cre-demos/demo3_er_shifted_gate/cfg/scene_layout.yaml",
+    "spec_dir": "cre-demos/demo3_er_shifted_gate/cfg/spec_shared",
+    "utility_metric_id": "U_task_v1",
+    "variant": "clean"
+  },
+  "scenario_type": "nominal",
+  "scene_cfg_name": "scene_cfg_nominal.yaml",
+  "schema_version": "cre_runtime_log.v1",
+  "source": "demo_shifted_gate_train",
+  "success_rate": 1.0,
+  "time_efficiency_score_mean": 0.9981870203414291,
+  "timeout_rate": 0.0,
+  "utility_metric_id": "U_task_v1"
+}

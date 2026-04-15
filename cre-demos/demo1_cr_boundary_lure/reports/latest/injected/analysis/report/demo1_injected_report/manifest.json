@@ -1,0 +1,230 @@
+{
+  "bundle_type": "report_generation_bundle.v1",
+  "max_severity": "medium",
+  "metadata": {
+    "namespace_contract": {
+      "contract_type": "report_namespace_contract.v1",
+      "generated_at_utc": "2026-04-15T09:58:36.050005+00:00",
+      "report_mode_artifacts": {
+        "benchmark_suite": [
+          "benchmark_manifest.json",
+          "benchmark_cases.json",
+          "benchmark_matrix.json",
+          "benchmark_summary.json",
+          "benchmark_summary.md",
+          "manifest.json",
+          "namespace_manifest.json"
+        ],
+        "dynamic_analysis": [
+          "dynamic_report.json",
+          "dynamic_evidence.json",
+          "semantic_inputs.json",
+          "summary.json",
+          "manifest.json",
+          "namespace_manifest.json"
+        ],
+        "integration_audit": [
+          "integration_plan.json",
+          "execution_matrix.json",
+          "run_binding.json",
+          "native_execution_consumer.json",
+          "integration_acceptance.json",
+          "integration_summary.json",
+          "integration_summary.md",
+          "manifest.json",
+          "namespace_manifest.json"
+        ],
+        "release_packaging": [
+          "release_plan.json",
+          "release_artifacts.json",
+          "demo_matrix.json",
+          "demo_consumer.json",
+          "release_acceptance.json",
+          "release_summary.json",
+          "release_summary.md",
+          "manifest.json",
+          "namespace_manifest.json"
+        ],
+        "repair_generation": [
+          "repair_plan.json",
+          "repair_candidates.json",
+          "spec_patch.json",
+          "spec_patch_preview.json",
+          "validation_context_preview.json",
+          "repair_summary.json",
+          "repair_summary.md",
+          "acceptance.json",
+          "repair_validation.json",
+          "validation_request.json",
+          "manifest.json",
+          "namespace_manifest.json"
+        ],
+        "report_generation": [
+          "report.json",
+          "ranked_findings.json",
+          "repair_handoff.json",
+          "report_summary.md",
+          "summary.json",
+          "manifest.json",
+          "namespace_manifest.json"
+        ],
+        "semantic_analysis": [
+          "semantic_report.json",
+          "semantic_claims.json",
+          "semantic_input.json",
+          "semantic_summary.md",
+          "semantic_merge_input.json",
+          "claim_consumer.json",
+          "summary.json",
+          "manifest.json",
+          "namespace_manifest.json"
+        ],
+        "static_audit": [
+          "static_report.json",
+          "summary.json",
+          "manifest.json",
+          "namespace_manifest.json"
+        ],
+        "validation_generation": [
+          "validation_plan.json",
+          "validation_runs.json",
+          "comparison.json",
+          "validation_decision.json",
+          "post_repair_evidence.json",
+          "validation_summary.json",
+          "validation_summary.md",
+          "manifest.json",
+          "namespace_manifest.json"
+        ]
+      },
+      "report_namespaces": {
+        "benchmark_suite": "analysis/benchmark",
+        "dynamic_analysis": "analysis/dynamic",
+        "integration_audit": "analysis/integration",
+        "release_packaging": "analysis/release",
+        "repair_generation": "analysis/repair",
+        "report_generation": "analysis/report",
+        "semantic_analysis": "analysis/semantic",
+        "static_audit": "analysis/static",
+        "validation_generation": "analysis/validation"
+      }
+    },
+    "report_artifacts": [
+      "report.json",
+      "ranked_findings.json",
+      "repair_handoff.json",
+      "report_summary.md",
+      "summary.json",
+      "manifest.json",
+      "namespace_manifest.json"
+    ],
+    "report_namespace": "analysis/report",
+    "semantic_merge_input": {
+      "claim_overview": {
+        "claim_type_breakdown": {
+          "C-R": 1,
+          "E-C": 1
+        },
+        "rejected_count": 0,
+        "supported_count": 0,
+        "weak_count": 2
+      },
+      "consumer_contract": {
+        "claim_consumer_type": "phase7_claim_consumer.v1",
+        "consumer_contract_type": "phase7_claim_consumer_contract.v1",
+        "repair_ready_claim_schema": "phase7_claim_record.v1"
+      },
+      "dynamic_bundle_name": "demo1_injected_dynamic",
+      "evidence_overview": {
+        "dynamic_finding_count": 3,
+        "evidence_object_count": 6,
+        "failure_hotspot_count": 3,
+        "static_finding_count": 8,
+        "witness_count": 3
+      },
+      "human_summary": {
+        "most_likely_claim_summary": "Reward-boundary coupling is elevated.",
+        "most_likely_claim_type": "C-R",
+        "next_check_or_repair_direction": "collect more dynamic evidence before acting on weak semantic claims",
+        "strongest_supported_claim_id": "",
+        "strongest_uncertainty_claim_id": "mock_semantic_provider.v1:claim:001"
+      },
+      "max_severity": "medium",
+      "merge_input_type": "phase7_semantic_report_merge_input.v1",
+      "metadata": {
+        "merge_target": "phase7_unified_report_generation",
+        "repair_target": "phase8_repair_engine"
+      },
+      "passed": true,
+      "semantic_bundle_name": "demo1_injected_semantic",
+      "spec_version": "demo1-v0",
+      "static_bundle_name": "demo1_injected_static",
+      "top_claim": {
+        "affected_families": [],
+        "affected_scene_cfg_names": [],
+        "affected_sources": [
+          "unknown"
+        ],
+        "claim_id": "mock_semantic_provider.v1:claim:001",
+        "claim_type": "C-R",
+        "confidence": 0.7180302016989563,
+        "provider_metadata": {
+          "comparison_run_ids": [],
+          "crosscheck_messages": [
+            "Claim type 'C-R' is allowed by the semantic contract.",
+            "Claim cites 1 known evidence object(s).",
+            "Claim cites 2 known finding id(s).",
+            "Claim cites 1 known witness id(s).",
+            "Claim is aligned with witness id(s): W_CR.",
+            "Matched sources: <none>"
+          ],
+          "crosscheck_passed": false,
+          "generation_mode": "deterministic_mock",
+          "primary_run_ids": [
+            "demo1_injected"
+          ],
+          "provider_name": "mock_semantic_provider.v1"
+        },
+        "rationale": "Generated from witness W_CR with score 0.718 and real runtime evidence from accepted bundles.",
+        "repair_direction_hint": "review reward shaping and constraint penalties",
+        "severity": "medium",
+        "status": "weak",
+        "summary": "Reward-boundary coupling is elevated.",
+        "supporting_evidence_ids": [
+          "witness:W_CR"
+        ],
+        "supporting_finding_ids": [
+          "W_CR:1",
+          "W_EC:2"
+        ],
+        "supporting_witness_ids": [
+          "W_CR"
+        ]
+      }
+    },
+    "source_namespaces": [
+      "analysis/static",
+      "analysis/dynamic",
+      "analysis/semantic"
+    ],
+    "source_paths": {
+      "constraint_spec": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/constraint_spec_v0.yaml",
+      "detector_thresholds": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/detector_cfg/detector_thresholds.yaml",
+      "policy_spec": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/policy_spec_v0.yaml",
+      "reward_spec": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml",
+      "scene_cfg_base": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/env_cfg/scene_cfg_base.yaml",
+      "scene_family:nominal": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/env_cfg/scene_cfg_nominal.yaml",
+      "witness_weights": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/detector_cfg/witness_weights.yaml"
+    }
+  },
+  "namespace": "analysis/report",
+  "num_ranked_findings": 13,
+  "passed": true,
+  "ranked_findings_path": "ranked_findings.json",
+  "repair_handoff_path": "repair_handoff.json",
+  "report_path": "report.json",
+  "report_summary_path": "report_summary.md",
+  "report_type": "phase7_unified_report.v1",
+  "spec_version": "demo1-v0",
+  "summary_path": "summary.json"
+}

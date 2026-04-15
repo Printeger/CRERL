@@ -1370,3 +1370,98 @@ Validation results:
   - required videos
   - final acceptance rules
 - the root isolated demo plan now links directly to the Demo 1 subplan
+
+## 22. Demo-1 Isolated Implementation Addendum
+
+The first isolated demo is now implemented end-to-end under:
+
+- `cre-demos/demo1_cr_boundary_lure/`
+
+This addendum introduced:
+
+1. **demo-local config copies and scene geometry**
+   - fixed dual-corridor scene definition in:
+     - `cfg/scene_layout.yaml`
+   - demo-local environment config in:
+     - `cfg/env_cfg/scene_cfg_base.yaml`
+     - `cfg/env_cfg/scene_cfg_nominal.yaml`
+   - demo-local detector config in:
+     - `cfg/detector_cfg/*.yaml`
+   - demo-local clean / injected / repaired spec variants in:
+     - `cfg/spec_clean/`
+     - `cfg/spec_injected/`
+     - `cfg/spec_repaired/`
+
+2. **a runnable isolated pipeline**
+   - the new runner:
+     - `scripts/run_demo1.py`
+   - now generates:
+     - clean / injected / repaired CRE logs
+     - static / dynamic bundles for all variants
+     - semantic / report / repair bundle for injected
+     - repair-validation bundle for injected vs repaired
+     - verification summary JSON / markdown
+     - top-down scene SVG
+     - trajectory overlay SVG
+     - metric-board SVG
+     - lightweight replay HTML
+
+3. **a focused regression test**
+   - `test_demo1_pipeline.py`
+   - runs the isolated pipeline in a temp directory
+   - asserts that the demo-level goal is achieved
+
+4. **frozen current demo outputs**
+   - latest machine-readable artifacts now exist under:
+     - `cre-demos/demo1_cr_boundary_lure/reports/latest/`
+   - latest display assets now exist under:
+     - `cre-demos/demo1_cr_boundary_lure/assets/`
+
+Key observed result snapshot from the current successful run:
+
+- Clean:
+  - `risky_route_rate = 0.0`
+  - `min_distance = 0.3685`
+  - `near_violation_ratio = 0.0556`
+  - `W_CR = 0.0103`
+- Injected:
+  - `risky_route_rate = 1.0`
+  - `min_distance = 0.0673`
+  - `near_violation_ratio = 0.5787`
+  - `W_CR = 0.7180`
+- Repaired:
+  - `risky_route_rate = 0.0`
+  - `min_distance = 0.3644`
+  - `near_violation_ratio = 0.0556`
+  - `W_CR = 0.0118`
+- report primary claim:
+  - `C-R`
+- repair-validation decision:
+  - `accepted`
+
+Focused validation for this addendum:
+
+```bash
+python3 -m py_compile \
+  cre-demos/demo1_cr_boundary_lure/scripts/run_demo1.py \
+  cre-demos/demo1_cr_boundary_lure/test_demo1_pipeline.py
+```
+
+```bash
+pytest -q cre-demos/demo1_cr_boundary_lure/test_demo1_pipeline.py
+```
+
+```bash
+python3 cre-demos/demo1_cr_boundary_lure/scripts/run_demo1.py --clean-output
+```
+
+Validation results:
+
+- the isolated Demo 1 runner now executes successfully inside the repo
+- the focused pytest regression passes
+- the latest verification summary reports:
+  - `goal_achieved = true`
+- the generated report path now attributes the injected case to:
+  - `C-R`
+- the generated validation path now resolves to:
+  - `accepted`

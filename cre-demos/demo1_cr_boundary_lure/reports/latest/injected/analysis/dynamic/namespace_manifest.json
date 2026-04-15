@@ -1,0 +1,15 @@
+{
+  "bundle_dir": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/reports/latest/injected/analysis/dynamic/demo1_injected_dynamic",
+  "bundle_relative_dir": "demo1_injected_dynamic",
+  "generated_at_utc": "2026-04-15T09:58:36.004547+00:00",
+  "latest_bundle": "demo1_injected_dynamic",
+  "manifest_path": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/reports/latest/injected/analysis/dynamic/demo1_injected_dynamic/manifest.json",
+  "max_severity": "medium",
+  "namespace": "analysis/dynamic",
+  "namespace_type": "analysis_namespace.v1",
+  "num_findings": 3,
+  "passed": true,
+  "report_mode": "dynamic_analysis",
+  "report_path": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/reports/latest/injected/analysis/dynamic/demo1_injected_dynamic/dynamic_report.json",
+  "summary_path": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/reports/latest/injected/analysis/dynamic/demo1_injected_dynamic/summary.json"
+}

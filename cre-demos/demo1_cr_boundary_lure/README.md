@@ -686,3 +686,93 @@ Demo 1 只有同时满足以下条件，才算完成：
 
 如果第一轮少量 seed 结果看不出“危险近路偏好”，不要急着扩训练，
 先回到场景几何和 reward 差异上重调。
+
+---
+
+## 15. 当前实现状态
+
+截至当前仓库状态，Demo 1 已经有一套可直接运行的隔离实现：
+
+- 配置目录：`cre-demos/demo1_cr_boundary_lure/cfg/`
+- 主脚本：`cre-demos/demo1_cr_boundary_lure/scripts/run_demo1.py`
+- 轻量回归测试：`cre-demos/demo1_cr_boundary_lure/test_demo1_pipeline.py`
+- 最新实验输出：`cre-demos/demo1_cr_boundary_lure/reports/latest/`
+- 最新展示素材：
+  - `assets/screenshots/demo1_scene_topdown.svg`
+  - `assets/screenshots/demo1_trajectory_overlay.svg`
+  - `assets/screenshots/demo1_metric_board.svg`
+  - `assets/videos/demo1_replay.html`
+
+### 15.1 当前实现的实验版本
+
+当前实现不是把 PPO 训练链强行拉进来，而是先做了一个：
+
+- 场景隔离
+- reward 隔离
+- 运行日志结构化
+- CRE 分析链可复用
+- 可视化可直接展示
+
+的 demo substrate。
+
+它的作用是先把 Demo 1 最重要的因果关系做干净：
+
+> 同一几何场景下，只改 reward，策略就会从安全通道转向危险通道；
+> 然后通过 reward 侧修复，再回到安全通道。
+
+### 15.2 一键复现实验
+
+```bash
+python3 cre-demos/demo1_cr_boundary_lure/scripts/run_demo1.py --clean-output
+```
+
+### 15.3 当前验证结论
+
+最新 `verification_summary.json` 已经给出：
+
+- `goal_achieved = true`
+- `report_primary_claim_is_cr = true`
+- `repair_validation_accepted = true`
+
+关键结果如下：
+
+- Clean:
+  - `risky_route_rate = 0.0`
+  - `min_distance = 0.3685`
+  - `near_violation_ratio = 0.0556`
+  - `W_CR = 0.0103`
+- Injected:
+  - `risky_route_rate = 1.0`
+  - `min_distance = 0.0673`
+  - `near_violation_ratio = 0.5787`
+  - `W_CR = 0.7180`
+- Repaired:
+  - `risky_route_rate = 0.0`
+  - `min_distance = 0.3644`
+  - `near_violation_ratio = 0.0556`
+  - `W_CR = 0.0118`
+
+### 15.4 当前 repair 叙事
+
+当前 report / repair / validation 路径选择的修复算子是：
+
+- `strengthen_safety_reward`
+
+因此当前 repaired 版本采用的是：
+
+- 保留较强 progress shaping
+- 通过提升 `reward_safety_static.weight`
+- 把路线偏好从危险近路拉回安全远路
+
+这和 Demo 1 原计划中的“恢复 safety 权重”是一致的。
+
+### 15.5 后续如果要升级成真实训练版
+
+当前 demo 已经足够支撑展示与因果验证。
+
+如果后续要升级成更重的 native 训练版，推荐顺序是：
+
+1. 保留当前双通道几何不动
+2. 把同样的 clean / injected / repaired reward 配置接到真实训练入口
+3. 让训练结果继续输出同样的 step / episode / analysis 证据
+4. 用当前 demo 的指标和图作为 native 版本的验收模板

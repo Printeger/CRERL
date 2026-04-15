@@ -1,0 +1,15 @@
+{
+  "run_id": "demo1_clean",
+  "base_dir": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/reports/latest/clean/logs",
+  "run_dir": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/reports/latest/clean/logs/demo1_clean",
+  "near_violation_distance": 0.6,
+  "schema_version": "cre_runtime_log.v1",
+  "source": "demo_boundary_lure",
+  "run_metadata": {
+    "demo_id": "demo1_cr_boundary_lure",
+    "variant": "clean",
+    "scene_layout_file": "cre-demos/demo1_cr_boundary_lure/cfg/scene_layout.yaml",
+    "spec_dir": "cre-demos/demo1_cr_boundary_lure/cfg/spec_clean"
+  },
+  "created_at": "2026-04-15T17:58:35"
+}

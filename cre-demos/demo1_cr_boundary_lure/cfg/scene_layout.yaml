@@ -1,0 +1,84 @@
+layout_id: "demo1_cr_boundary_lure"
+scene_name: "Boundary Lure Dual Corridor"
+
+workspace:
+  xmin: 0.0
+  ymin: 0.0
+  xmax: 12.0
+  ymax: 8.0
+  flight_z: 1.2
+
+start: [1.0, 6.4]
+goal: [11.0, 5.8]
+
+obstacles:
+  - id: "entry_splitter"
+    kind: "rect"
+    x: 2.15
+    y: 3.20
+    width: 0.80
+    height: 1.60
+  - id: "upper_barrier"
+    kind: "rect"
+    x: 3.40
+    y: 4.80
+    width: 4.80
+    height: 1.70
+  - id: "lower_blocker"
+    kind: "rect"
+    x: 6.00
+    y: 0.90
+    width: 2.40
+    height: 0.90
+
+corridors:
+  - id: "risky_short"
+    role: "risky"
+    label: "Short Inner Corridor"
+    rendered_color: "#d04b36"
+    waypoints:
+      - [1.0, 6.4]
+      - [2.9, 6.4]
+      - [4.0, 6.95]
+      - [7.9, 6.95]
+      - [9.5, 6.4]
+      - [11.0, 5.8]
+  - id: "safe_long"
+    role: "safe"
+    label: "Long Outer Corridor"
+    rendered_color: "#1b7f6b"
+    waypoints:
+      - [1.0, 6.4]
+      - [1.2, 5.4]
+      - [1.3, 4.2]
+      - [1.5, 3.1]
+      - [2.6, 2.5]
+      - [8.6, 2.5]
+      - [10.1, 4.3]
+      - [11.0, 5.8]
+
+route_preference_model:
+  risky_short:
+    progress_proxy: 1.12
+    safety_proxy: 0.25
+    smoothness_proxy: 0.10
+  safe_long:
+    progress_proxy: 1.00
+    safety_proxy: 1.00
+    smoothness_proxy: 0.06
+
+simulation:
+  episodes_per_variant: 6
+  steps_per_episode: 36
+  near_violation_distance: 0.60
+  collision_distance: 0.22
+  route_selection_margin: 0.02
+  risky_collision_seeds:
+    - 2
+    - 5
+
+intended_readout:
+  risky_route_is_shorter: true
+  risky_route_hugs_obstacle_boundary: true
+  safe_route_has_larger_clearance: true
+  repaired_should_return_to_safe_route: true

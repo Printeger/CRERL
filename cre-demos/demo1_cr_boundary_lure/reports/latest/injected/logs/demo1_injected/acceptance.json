@@ -1,0 +1,45 @@
+{
+  "passed": true,
+  "run_dir": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/reports/latest/injected/logs/demo1_injected",
+  "source": "demo_boundary_lure",
+  "metrics": {
+    "episode_count": 6,
+    "success_rate": 0.6666666666666666,
+    "collision_rate": 0.3333333333333333,
+    "out_of_bounds_rate": 0.0,
+    "min_distance": 0.0672684745200607,
+    "average_return": 20.332736712594777,
+    "near_violation_ratio": 0.5787037037037037,
+    "done_type_counts": {
+      "success": 4,
+      "collision": 2
+    }
+  },
+  "checks": {
+    "artifact_completeness": {
+      "passed": true,
+      "errors": []
+    },
+    "step_schema": {
+      "passed": true,
+      "errors": []
+    },
+    "episode_schema": {
+      "passed": true,
+      "errors": []
+    },
+    "summary_consistency": {
+      "passed": true,
+      "errors": []
+    },
+    "cross_file_consistency": {
+      "passed": true,
+      "errors": []
+    },
+    "run_metric_sufficiency": {
+      "passed": true,
+      "errors": []
+    }
+  },
+  "errors": []
+}

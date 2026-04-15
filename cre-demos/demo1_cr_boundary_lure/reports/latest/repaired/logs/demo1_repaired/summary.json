@@ -1,0 +1,30 @@
+{
+  "W_CR": 0.01175147595222004,
+  "W_EC": 0.0777777777777778,
+  "W_ER": 0.0,
+  "average_return": 21.2380898865634,
+  "collision_rate": 0.0,
+  "done_type_counts": {
+    "success": 6
+  },
+  "episode_count": 6,
+  "min_distance": 0.36444209453100185,
+  "near_violation_distance": 0.6,
+  "near_violation_ratio": 0.05555555555555555,
+  "out_of_bounds_rate": 0.0,
+  "risky_route_rate": 0.0,
+  "run_dir": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/reports/latest/repaired/logs/demo1_repaired",
+  "run_id": "demo1_repaired",
+  "run_metadata": {
+    "demo_id": "demo1_cr_boundary_lure",
+    "scene_layout_file": "cre-demos/demo1_cr_boundary_lure/cfg/scene_layout.yaml",
+    "spec_dir": "cre-demos/demo1_cr_boundary_lure/cfg/spec_repaired",
+    "variant": "repaired"
+  },
+  "safe_route_rate": 1.0,
+  "scene_layout_id": "demo1_cr_boundary_lure",
+  "schema_version": "cre_runtime_log.v1",
+  "source": "demo_boundary_lure",
+  "success_rate": 1.0,
+  "variant_name": "repaired"
+}

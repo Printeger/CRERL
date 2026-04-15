@@ -1,0 +1,18 @@
+{
+  "bundle_dir": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/reports/latest/injected/analysis/semantic/demo1_injected_semantic",
+  "bundle_relative_dir": "demo1_injected_semantic",
+  "generated_at_utc": "2026-04-15T09:58:36.049958+00:00",
+  "latest_bundle": "demo1_injected_semantic",
+  "manifest_path": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/reports/latest/injected/analysis/semantic/demo1_injected_semantic/manifest.json",
+  "max_severity": "medium",
+  "namespace": "analysis/semantic",
+  "namespace_type": "analysis_namespace.v1",
+  "num_findings": 2,
+  "passed": true,
+  "rejected_claims": 0,
+  "report_mode": "semantic_analysis",
+  "report_path": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/reports/latest/injected/analysis/semantic/demo1_injected_semantic/semantic_report.json",
+  "summary_path": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/reports/latest/injected/analysis/semantic/demo1_injected_semantic/summary.json",
+  "supported_claims": 0,
+  "weak_claims": 2
+}

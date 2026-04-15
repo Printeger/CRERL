@@ -1,0 +1,709 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Demo 1 Replay</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 24px;
+      font-family: Helvetica, Arial, sans-serif;
+      background: #ffffff;
+      color: #222222;
+    }
+    h1 {
+      margin: 0 0 16px;
+      font-size: 28px;
+      font-weight: 600;
+    }
+    p {
+      margin: 0 0 24px;
+      color: #555555;
+      line-height: 1.5;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+    .panel {
+      border: 1px solid #d7d7d7;
+      border-radius: 14px;
+      padding: 12px;
+      background: #ffffff;
+    }
+    .label {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    svg {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 10px;
+      background: #ffffff;
+    }
+  </style>
+</head>
+<body>
+  <h1>Demo 1 Replay</h1>
+  <p>This lightweight replay animates one representative trajectory for each variant in the same dual-corridor scene.</p>
+  <div class="grid" id="grid"></div>
+  <script>
+    const payload = {
+  "scene_layout": {
+    "layout_id": "demo1_cr_boundary_lure",
+    "scene_name": "Boundary Lure Dual Corridor",
+    "workspace": {
+      "xmin": 0.0,
+      "ymin": 0.0,
+      "xmax": 12.0,
+      "ymax": 8.0,
+      "flight_z": 1.2
+    },
+    "start": [
+      1.0,
+      6.4
+    ],
+    "goal": [
+      11.0,
+      5.8
+    ],
+    "obstacles": [
+      {
+        "id": "entry_splitter",
+        "kind": "rect",
+        "x": 2.15,
+        "y": 3.2,
+        "width": 0.8,
+        "height": 1.6
+      },
+      {
+        "id": "upper_barrier",
+        "kind": "rect",
+        "x": 3.4,
+        "y": 4.8,
+        "width": 4.8,
+        "height": 1.7
+      },
+      {
+        "id": "lower_blocker",
+        "kind": "rect",
+        "x": 6.0,
+        "y": 0.9,
+        "width": 2.4,
+        "height": 0.9
+      }
+    ],
+    "corridors": [
+      {
+        "id": "risky_short",
+        "role": "risky",
+        "label": "Short Inner Corridor",
+        "rendered_color": "#d04b36",
+        "waypoints": [
+          [
+            1.0,
+            6.4
+          ],
+          [
+            2.9,
+            6.4
+          ],
+          [
+            4.0,
+            6.95
+          ],
+          [
+            7.9,
+            6.95
+          ],
+          [
+            9.5,
+            6.4
+          ],
+          [
+            11.0,
+            5.8
+          ]
+        ]
+      },
+      {
+        "id": "safe_long",
+        "role": "safe",
+        "label": "Long Outer Corridor",
+        "rendered_color": "#1b7f6b",
+        "waypoints": [
+          [
+            1.0,
+            6.4
+          ],
+          [
+            1.2,
+            5.4
+          ],
+          [
+            1.3,
+            4.2
+          ],
+          [
+            1.5,
+            3.1
+          ],
+          [
+            2.6,
+            2.5
+          ],
+          [
+            8.6,
+            2.5
+          ],
+          [
+            10.1,
+            4.3
+          ],
+          [
+            11.0,
+            5.8
+          ]
+        ]
+      }
+    ],
+    "route_preference_model": {
+      "risky_short": {
+        "progress_proxy": 1.12,
+        "safety_proxy": 0.25,
+        "smoothness_proxy": 0.1
+      },
+      "safe_long": {
+        "progress_proxy": 1.0,
+        "safety_proxy": 1.0,
+        "smoothness_proxy": 0.06
+      }
+    },
+    "simulation": {
+      "episodes_per_variant": 6,
+      "steps_per_episode": 36,
+      "near_violation_distance": 0.6,
+      "collision_distance": 0.22,
+      "route_selection_margin": 0.02,
+      "risky_collision_seeds": [
+        2,
+        5
+      ]
+    },
+    "intended_readout": {
+      "risky_route_is_shorter": true,
+      "risky_route_hugs_obstacle_boundary": true,
+      "safe_route_has_larger_clearance": true,
+      "repaired_should_return_to_safe_route": true
+    }
+  },
+  "variants": {
+    "clean": {
+      "label": "Clean",
+      "color": "#1b7f6b",
+      "trajectory": [
+        [
+          1.0,
+          6.4
+        ],
+        [
+          1.0986518086423938,
+          5.981940069382041
+        ],
+        [
+          1.172579870796427,
+          5.560580216424681
+        ],
+        [
+          1.2095805480774813,
+          5.182445234716329
+        ],
+        [
+          1.2510609103109092,
+          4.762280977037347
+        ],
+        [
+          1.2709099561262809,
+          4.318060433642745
+        ],
+        [
+          1.3572838899168256,
+          3.904514617755151
+        ],
+        [
+          1.414746477499099,
+          3.501812410759502
+        ],
+        [
+          1.527440196974779,
+          3.1016624604778826
+        ],
+        [
+          1.8643647857154884,
+          2.8918663916512877
+        ],
+        [
+          2.2683244178968462,
+          2.7142435816120978
+        ],
+        [
+          2.6372784233163715,
+          2.5275693625173767
+        ],
+        [
+          3.0260561641683315,
+          2.5256269183761475
+        ],
+        [
+          3.488402958864015,
+          2.53089660347266
+        ],
+        [
+          3.8562440841650676,
+          2.505380078322166
+        ],
+        [
+          4.274773281366374,
+          2.484440470472855
+        ],
+        [
+          4.748608052906861,
+          2.5113449214256547
+        ],
+        [
+          5.112346559290674,
+          2.4945130583554582
+        ],
+        [
+          5.530645575070625,
+          2.5081934288818446
+        ],
+        [
+          5.98075521940116,
+          2.509841092870423
+        ],
+        [
+          6.426040941730238,
+          2.4743468481585307
+        ],
+        [
+          6.834739277372639,
+          2.4794576346446457
+        ],
+        [
+          7.253009421255996,
+          2.4631225776083565
+        ],
+        [
+          7.655175412063527,
+          2.4883486491258906
+        ],
+        [
+          8.088974491468836,
+          2.4793652947853673
+        ],
+        [
+          8.490192745188025,
+          2.451734178419255
+        ],
+        [
+          8.822317970977153,
+          2.727202085214162
+        ],
+        [
+          9.051834309305411,
+          3.0392819441741667
+        ],
+        [
+          9.337232954039163,
+          3.368269192838162
+        ],
+        [
+          9.607453092978192,
+          3.6915868191213748
+        ],
+        [
+          9.876111973098118,
+          4.041838333075849
+        ],
+        [
+          10.134964773695492,
+          4.368896186610576
+        ],
+        [
+          10.353261876135257,
+          4.732355382247719
+        ],
+        [
+          10.548923299801892,
+          5.087758169002461
+        ],
+        [
+          10.778761939317492,
+          5.452236792127411
+        ],
+        [
+          11.0,
+          5.8
+        ]
+      ]
+    },
+    "injected": {
+      "label": "Injected",
+      "color": "#d04b36",
+      "trajectory": [
+        [
+          1.0,
+          6.4
+        ],
+        [
+          1.2915035995324056,
+          6.419293592174899
+        ],
+        [
+          1.563343986715436,
+          6.402047810281076
+        ],
+        [
+          1.9122558753118708,
+          6.38018419338719
+        ],
+        [
+          2.200566140185563,
+          6.400243011947604
+        ],
+        [
+          2.4811134178364114,
+          6.393818375244688
+        ],
+        [
+          2.7674743746643067,
+          6.363932278470572
+        ],
+        [
+          3.0281874488541445,
+          6.445264775148806
+        ],
+        [
+          3.315196210453878,
+          6.568232074351334
+        ],
+        [
+          3.5820671222461438,
+          6.689842512093405
+        ],
+        [
+          3.8215988987033906,
+          6.780683252906247
+        ],
+        [
+          4.110894942739671,
+          6.8520603628098575
+        ],
+        [
+          4.432320831003265,
+          6.817979791247534
+        ],
+        [
+          4.709736867484738,
+          6.8222118953613995
+        ],
+        [
+          4.988616138457543,
+          6.832110169710405
+        ],
+        [
+          5.281098846132622,
+          6.800425420087216
+        ],
+        [
+          5.582220368801069,
+          6.835684041097706
+        ],
+        [
+          5.908958730615445,
+          6.80138341983846
+        ],
+        [
+          6.181035161127617,
+          6.795905931142501
+        ],
+        [
+          6.472281126977887,
+          6.838345499810017
+        ],
+        [
+          6.776172369145495,
+          6.8379584012771994
+        ],
+        [
+          7.101746087482017,
+          6.8209089764019675
+        ],
+        [
+          7.3643165705106135,
+          6.852901123247346
+        ],
+        [
+          7.687025439236952,
+          6.825769318113194
+        ],
+        [
+          7.955769264102861,
+          6.8376784861107645
+        ],
+        [
+          8.24591926976482,
+          6.723240260388557
+        ],
+        [
+          8.499268137797197,
+          6.64822449206313
+        ],
+        [
+          8.8159799972628,
+          6.603345079063743
+        ],
+        [
+          9.088820134989264,
+          6.497241374722049
+        ],
+        [
+          9.380880626766379,
+          6.416416076613595
+        ],
+        [
+          9.60133336631233,
+          6.344283230496966
+        ],
+        [
+          9.929882887613582,
+          6.240533932279222
+        ],
+        [
+          10.168293677553853,
+          6.110093896823563
+        ],
+        [
+          10.441895976000094,
+          6.023338186657288
+        ],
+        [
+          10.723128642314025,
+          5.914254747803841
+        ],
+        [
+          11.0,
+          5.8
+        ]
+      ]
+    },
+    "repaired": {
+      "label": "Repaired",
+      "color": "#1f5aa6",
+      "trajectory": [
+        [
+          1.0,
+          6.4
+        ],
+        [
+          1.091025806051426,
+          5.975404503673569
+        ],
+        [
+          1.1733017901295681,
+          5.6063044449789015
+        ],
+        [
+          1.19570277154834,
+          5.152217927323255
+        ],
+        [
+          1.2385507333455223,
+          4.7595284352298775
+        ],
+        [
+          1.3119656687940306,
+          4.339413088599419
+        ],
+        [
+          1.3730831300603958,
+          3.9038849589013145
+        ],
+        [
+          1.4067897640547413,
+          3.519084720981966
+        ],
+        [
+          1.5237741931235338,
+          3.1322219410671948
+        ],
+        [
+          1.8945709596464881,
+          2.936304971694942
+        ],
+        [
+          2.2562380167136684,
+          2.7025202117631
+        ],
+        [
+          2.602866458647706,
+          2.515417871760942
+        ],
+        [
+          3.027180818418187,
+          2.5019823099194434
+        ],
+        [
+          3.4392780926182978,
+          2.489302632648944
+        ],
+        [
+          3.8623139605734154,
+          2.489616225127437
+        ],
+        [
+          4.322722322205285,
+          2.479375825857905
+        ],
+        [
+          4.723772711432292,
+          2.527285153285359
+        ],
+        [
+          5.1665817550043185,
+          2.476384597751155
+        ],
+        [
+          5.578834965472895,
+          2.509643589913233
+        ],
+        [
+          5.9722921783400915,
+          2.5131560381279066
+        ],
+        [
+          6.377869177461655,
+          2.4914478634453285
+        ],
+        [
+          6.8038523421800425,
+          2.500122976608466
+        ],
+        [
+          7.2573090312234365,
+          2.5009056854565506
+        ],
+        [
+          7.635768853981579,
+          2.497650141291084
+        ],
+        [
+          8.066323267587075,
+          2.4995197737510964
+        ],
+        [
+          8.486039281991694,
+          2.4626330521645112
+        ],
+        [
+          8.824194627614089,
+          2.699807319404672
+        ],
+        [
+          9.056209138477001,
+          3.0459637092954015
+        ],
+        [
+          9.3639325283569,
+          3.3578771022678597
+        ],
+        [
+          9.605215074700213,
+          3.696165447135433
+        ],
+        [
+          9.904016845534043,
+          4.041195652198557
+        ],
+        [
+          10.127070831776932,
+          4.3228678078795335
+        ],
+        [
+          10.328894812631045,
+          4.720551685574666
+        ],
+        [
+          10.544216557665655,
+          5.081973752820317
+        ],
+        [
+          10.801329518336853,
+          5.461617649378756
+        ],
+        [
+          11.0,
+          5.8
+        ]
+      ]
+    }
+  }
+};
+    const width = 360;
+    const height = 250;
+    const margin = 18;
+    const scene = payload.scene_layout;
+    const variants = payload.variants;
+    const workspace = scene.workspace;
+    const scaleX = value => margin + (value - workspace.xmin) / (workspace.xmax - workspace.xmin) * (width - margin * 2);
+    const scaleY = value => margin + (workspace.ymax - value) / (workspace.ymax - workspace.ymin) * (height - margin * 2);
+
+    function buildSceneMarkup(color, label, trajectory) {
+      const obstacleMarkup = scene.obstacles.map(item => {
+        const x = scaleX(item.x);
+        const y = scaleY(item.y + item.height);
+        const w = item.width / (workspace.xmax - workspace.xmin) * (width - margin * 2);
+        const h = item.height / (workspace.ymax - workspace.ymin) * (height - margin * 2);
+        return `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#e5e5e5" stroke="#8a8a8a" stroke-width="1.5" />`;
+      }).join("");
+      const polyline = trajectory.map(point => `${scaleX(point[0]).toFixed(2)},${scaleY(point[1]).toFixed(2)}`).join(" ");
+      return `
+        <div class="panel">
+          <div class="label">${label}</div>
+          <svg viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
+            <rect x="0" y="0" width="${width}" height="${height}" fill="#ffffff" />
+            <rect x="${margin}" y="${margin}" width="${width - margin * 2}" height="${height - margin * 2}" fill="#ffffff" stroke="#333333" stroke-width="2" />
+            ${obstacleMarkup}
+            <polyline points="${polyline}" fill="none" stroke="${color}" stroke-width="4" opacity="0.3" stroke-linecap="round" stroke-linejoin="round" />
+            <circle id="dot-${label}" cx="${scaleX(trajectory[0][0])}" cy="${scaleY(trajectory[0][1])}" r="6" fill="${color}" />
+          </svg>
+        </div>`;
+    }
+
+    const grid = document.getElementById("grid");
+    Object.entries(variants).forEach(([name, config]) => {
+      grid.insertAdjacentHTML("beforeend", buildSceneMarkup(config.color, config.label, config.trajectory));
+    });
+
+    let frame = 0;
+    const frameCount = Math.max(...Object.values(variants).map(item => item.trajectory.length));
+    function tick() {
+      Object.values(variants).forEach(config => {
+        const point = config.trajectory[Math.min(frame, config.trajectory.length - 1)];
+        const dot = document.getElementById(`dot-${config.label}`);
+        if (dot && point) {
+          dot.setAttribute("cx", scaleX(point[0]));
+          dot.setAttribute("cy", scaleY(point[1]));
+        }
+      });
+      frame = (frame + 1) % frameCount;
+      window.requestAnimationFrame(tick);
+    }
+    window.requestAnimationFrame(tick);
+  </script>
+</body>
+</html>

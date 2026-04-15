@@ -1,0 +1,87 @@
+spec_version: "demo1-v0"
+reward_total_field: "reward_total"
+
+standard_component_keys:
+  - "reward_progress"
+  - "reward_safety_static"
+  - "reward_safety_dynamic"
+  - "penalty_smooth"
+  - "penalty_height"
+  - "manual_control"
+
+components:
+  reward_progress:
+    sign: "positive"
+    weight: 2.4
+    expected_logged_key: "reward_progress"
+    expected_total_field: "reward_progress_total"
+    enabled: true
+    execution_modes:
+      - "train"
+      - "eval"
+      - "baseline"
+    intended_effect: "Keep strong progress shaping while relying on stronger safety support to restore safer route choice."
+
+  reward_safety_static:
+    sign: "positive"
+    weight: 0.85
+    expected_logged_key: "reward_safety_static"
+    expected_total_field: "reward_safety_static_total"
+    enabled: true
+    execution_modes:
+      - "train"
+      - "eval"
+      - "baseline"
+    intended_effect: "Strengthen obstacle-clearance support so the safe corridor becomes preferable again."
+
+  reward_safety_dynamic:
+    sign: "positive"
+    weight: 0.0
+    expected_logged_key: "reward_safety_dynamic"
+    expected_total_field: "reward_safety_dynamic_total"
+    enabled: false
+    execution_modes:
+      - "train"
+      - "eval"
+      - "baseline"
+    intended_effect: "Unused in Demo 1 because no dynamic hazards are present."
+
+  penalty_smooth:
+    sign: "negative"
+    weight: -0.05
+    expected_logged_key: "penalty_smooth"
+    expected_total_field: "penalty_smooth_total"
+    enabled: true
+    execution_modes:
+      - "train"
+      - "eval"
+      - "baseline"
+    intended_effect: "Discourage abrupt corridor transitions."
+
+  penalty_height:
+    sign: "negative"
+    weight: -1.0
+    expected_logged_key: "penalty_height"
+    expected_total_field: "penalty_height_total"
+    enabled: true
+    execution_modes:
+      - "train"
+      - "eval"
+      - "baseline"
+    intended_effect: "Preserve the fixed flight-height band."
+
+  manual_control:
+    sign: "neutral"
+    weight: 0.0
+    expected_logged_key: "manual_control"
+    expected_total_field: null
+    enabled: true
+    execution_modes:
+      - "manual"
+    intended_effect: "Schema placeholder for the canonical CRE runtime contract."
+
+assumptions:
+  success_bonus_present: true
+  collision_penalty_present: true
+  constant_step_bias_present: false
+  primary_progress_proxy: "shortest_corridor_progress"

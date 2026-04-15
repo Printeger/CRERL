@@ -1,0 +1,1951 @@
+{
+  "summary": {
+    "episode_index": 4,
+    "seed": 4,
+    "scene_id": "demo1_cr_boundary_lure_nominal_v0",
+    "scenario_type": "nominal",
+    "num_steps": 36,
+    "trajectory_length": 14.67942003644614,
+    "return_total": 21.248317890583014,
+    "reward_components_total": {
+      "reward_progress": 4.038154397967005,
+      "reward_safety_static": 13.781002431928462,
+      "reward_safety_dynamic": 0.0,
+      "penalty_smooth": 3.1420946335396835,
+      "penalty_height": 0.0,
+      "manual_control": 0.0
+    },
+    "success_flag": true,
+    "collision_flag": false,
+    "out_of_bounds_flag": false,
+    "min_obstacle_distance": 0.3693099379333958,
+    "near_violation_steps": 2,
+    "near_violation_ratio": 0.05555555555555555,
+    "final_goal_distance": 0.0,
+    "done_type": "success",
+    "source": "demo_boundary_lure",
+    "scene_cfg_name": "scene_cfg_nominal.yaml",
+    "scene_tags": {
+      "family": "nominal",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "route_id": "safe_long",
+      "route_role": "safe",
+      "variant": "repaired",
+      "demo_id": "demo1_cr_boundary_lure",
+      "route_scores": {
+        "risky_short": 2.8955,
+        "safe_long": 3.247
+      }
+    }
+  },
+  "steps": [
+    {
+      "episode_index": 4,
+      "step_idx": 0,
+      "sim_time": 0.0,
+      "scene_id": "demo1_cr_boundary_lure_nominal_v0",
+      "scenario_type": "nominal",
+      "position": [
+        1.0,
+        6.4,
+        1.2
+      ],
+      "velocity": [
+        0.8608683396174674,
+        -5.18333851766149,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 10.017983829094556,
+      "reward_total": 0.6609098854349186,
+      "reward_components": {
+        "reward_progress": 0.041999999999999996,
+        "reward_safety_static": 0.6624822181587278,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.06,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 1.9704060495238027,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_boundary_lure",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        11.0,
+        5.8,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "scene_cfg_name": "scene_cfg_nominal.yaml",
+        "route_id": "safe_long",
+        "route_role": "safe",
+        "variant": "repaired",
+        "demo_id": "demo1_cr_boundary_lure",
+        "route_scores": {
+          "risky_short": 2.8955,
+          "safe_long": 3.247
+        },
+        "speed_norm": 5.254340347448854
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 1,
+      "sim_time": 0.08333333333333333,
+      "scene_id": "demo1_cr_boundary_lure_nominal_v0",
+      "scenario_type": "nominal",
+      "position": [
+        1.0717390283014556,
+        5.9680551235282095,
+        1.2
+      ],
+      "velocity": [
+        0.8608683396174674,
+        -5.18333851766149,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 9.929683199714711,
+      "reward_total": 0.5952225071383185,
+      "reward_components": {
+        "reward_progress": 0.06407515734496112,
+        "reward_safety_static": 0.522873093541661,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.06,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 1.5896538914772573,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_boundary_lure",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        11.0,
+        5.8,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "scene_cfg_name": "scene_cfg_nominal.yaml",
+        "route_id": "safe_long",
+        "route_role": "safe",
+        "variant": "repaired",
+        "demo_id": "demo1_cr_boundary_lure",
+        "route_scores": {
+          "risky_short": 2.8955,
+          "safe_long": 3.247
+        },
+        "speed_norm": 5.254340347448854
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 2,
+      "sim_time": 0.16666666666666666,
+      "scene_id": "demo1_cr_boundary_lure_nominal_v0",
+      "scenario_type": "nominal",
+      "position": [
+        1.1855737154662278,
+        5.58409625502966,
+        1.2
+      ],
+      "velocity": [
+        1.3660162459772662,
+        -4.607506421982592,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 9.816800788527777,
+      "reward_total": 0.5005246234802756,
+      "reward_components": {
+        "reward_progress": 0.07022060279673355,
+        "reward_safety_static": 0.39574837654320416,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.08781886587216915,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 1.2429501178451021,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_boundary_lure",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        11.0,
+        5.8,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "scene_cfg_name": "scene_cfg_nominal.yaml",
+        "route_id": "safe_long",
+        "route_role": "safe",
+        "variant": "repaired",
+        "demo_id": "demo1_cr_boundary_lure",
+        "route_scores": {
+          "risky_short": 2.8955,
+          "safe_long": 3.247
+        },
+        "speed_norm": 4.8057378010961695
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 3,
+      "sim_time": 0.25,
+      "scene_id": "demo1_cr_boundary_lure_nominal_v0",
+      "scenario_type": "nominal",
+      "position": [
+        1.2259314116702997,
+        5.176763401570825,
+        1.2
+      ],
+      "velocity": [
+        0.4842923544488631,
+        -4.887994241506025,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 9.793918553214281,
+      "reward_total": 0.3694176767160307,
+      "reward_components": {
+        "reward_progress": 0.04772055882837396,
+        "reward_safety_static": 0.30590567002500707,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.10262967986645652,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 0.9979245546136556,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_boundary_lure",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        11.0,
+        5.8,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "scene_cfg_name": "scene_cfg_nominal.yaml",
+        "route_id": "safe_long",
+        "route_role": "safe",
+        "variant": "repaired",
+        "demo_id": "demo1_cr_boundary_lure",
+        "route_scores": {
+          "risky_short": 2.8955,
+          "safe_long": 3.247
+        },
+        "speed_norm": 4.911926993510153
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 4,
+      "sim_time": 0.3333333333333333,
+      "scene_id": "demo1_cr_boundary_lure_nominal_v0",
+      "scenario_type": "nominal",
+      "position": [
+        1.2631447619881633,
+        4.742487989226291,
+        1.2
+      ],
+      "velocity": [
+        0.44656020381436257,
+        -5.2113049481344085,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 9.79411463987068,
+      "reward_total": 0.32305388581133276,
+      "reward_components": {
+        "reward_progress": 0.041999999999999996,
+        "reward_safety_static": 0.2651802539376734,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.06298660071379208,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 0.8868552380118366,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_boundary_lure",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        11.0,
+        5.8,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "scene_cfg_name": "scene_cfg_nominal.yaml",
+        "route_id": "safe_long",
+        "route_role": "safe",
+        "variant": "repaired",
+        "demo_id": "demo1_cr_boundary_lure",
+        "route_scores": {
+          "risky_short": 2.8955,
+          "safe_long": 3.247
+        },
+        "speed_norm": 5.2304029747315735
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 5,
+      "sim_time": 0.41666666666666663,
+      "scene_id": "demo1_cr_boundary_lure_nominal_v0",
+      "scenario_type": "nominal",
+      "position": [
+        1.2889581344062218,
+        4.339375309647739,
+        1.2
+      ],
+      "velocity": [
+        0.30976046901670173,
+        -4.8373521549426215,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 9.820272837420644,
+      "reward_total": 0.31491579027114347,
+      "reward_components": {
+        "reward_progress": 0.041999999999999996,
+        "reward_safety_static": 0.25571535071771867,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.06484515677834847,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 0.8610418655937782,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_boundary_lure",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        11.0,
+        5.8,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "scene_cfg_name": "scene_cfg_nominal.yaml",
+        "route_id": "safe_long",
+        "route_role": "safe",
+        "variant": "repaired",
+        "demo_id": "demo1_cr_boundary_lure",
+        "route_scores": {
+          "risky_short": 2.8955,
+          "safe_long": 3.247
+        },
+        "speed_norm": 4.847259784568336
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 6,
+      "sim_time": 0.5,
+      "scene_id": "demo1_cr_boundary_lure_nominal_v0",
+      "scenario_type": "nominal",
+      "position": [
+        1.3548861822587102,
+        3.9343430357075397,
+        1.2
+      ],
+      "velocity": [
+        0.7911365742298608,
+        -4.860387287282391,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 9.82389415993459,
+      "reward_total": 0.2935146174383053,
+      "reward_components": {
+        "reward_progress": 0.041999999999999996,
+        "reward_safety_static": 0.23154173317180626,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.0819171151545997,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 0.7951138177412898,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_boundary_lure",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        11.0,
+        5.8,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "scene_cfg_name": "scene_cfg_nominal.yaml",
+        "route_id": "safe_long",
+        "route_role": "safe",
+        "variant": "repaired",
+        "demo_id": "demo1_cr_boundary_lure",
+        "route_scores": {
+          "risky_short": 2.8955,
+          "safe_long": 3.247
+        },
+        "speed_norm": 4.924353933406944
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 7,
+      "sim_time": 0.5833333333333333,
+      "scene_id": "demo1_cr_boundary_lure_nominal_v0",
+      "scenario_type": "nominal",
+      "position": [
+        1.4136274277957073,
+        3.5210413029666006,
+        1.2
+      ],
+      "velocity": [
+        0.7048949464439653,
+        -4.95962079289127,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 9.853537021592548,
+      "reward_total": 0.2760758051103351,
+      "reward_components": {
+        "reward_progress": 0.041999999999999996,
+        "reward_safety_static": 0.2100032764749073,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.06453959786672153,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 0.7363725722042926,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_boundary_lure",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        11.0,
+        5.8,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "scene_cfg_name": "scene_cfg_nominal.yaml",
+        "route_id": "safe_long",
+        "route_role": "safe",
+        "variant": "repaired",
+        "demo_id": "demo1_cr_boundary_lure",
+        "route_scores": {
+          "risky_short": 2.8955,
+          "safe_long": 3.247
+        },
+        "speed_norm": 5.009462575446759
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 8,
+      "sim_time": 0.6666666666666666,
+      "scene_id": "demo1_cr_boundary_lure_nominal_v0",
+      "scenario_type": "nominal",
+      "position": [
+        1.4918735756099826,
+        3.1128368179831245,
+        1.2
+      ],
+      "velocity": [
+        0.9389537737713036,
+        -4.898453819801713,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 9.880552315987742,
+      "reward_total": 0.2531648816600432,
+      "reward_components": {
+        "reward_progress": 0.041999999999999996,
+        "reward_safety_static": 0.18342022445041925,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.07084618245626335,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 0.6638733394102343,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_boundary_lure",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        11.0,
+        5.8,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "scene_cfg_name": "scene_cfg_nominal.yaml",
+        "route_id": "safe_long",
+        "route_role": "safe",
+        "variant": "repaired",
+        "demo_id": "demo1_cr_boundary_lure",
+        "route_scores": {
+          "risky_short": 2.8955,
+          "safe_long": 3.247
+        },
+        "speed_norm": 4.987633107397673
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 9,
+      "sim_time": 0.75,
+      "scene_id": "demo1_cr_boundary_lure_nominal_v0",
+      "scenario_type": "nominal",
+      "position": [
+        1.8992254376904296,
+        2.928887571006396,
+        1.2
+      ],
+      "velocity": [
+        4.888222344965365,
+        -2.2073909637207425,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 9.542923253065725,
+      "reward_total": 0.35547903507578554,
+      "reward_components": {
+        "reward_progress": 0.1264072657305044,
+        "reward_safety_static": 0.0754136439089118,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.24,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 0.3693099379333958,
+      "near_violation_flag": true,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_boundary_lure",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        11.0,
+        5.8,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "scene_cfg_name": "scene_cfg_nominal.yaml",
+        "route_id": "safe_long",
+        "route_role": "safe",
+        "variant": "repaired",
+        "demo_id": "demo1_cr_boundary_lure",
+        "route_scores": {
+          "risky_short": 2.8955,
+          "safe_long": 3.247
+        },
+        "speed_norm": 5.363514944561512
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 10,
+      "sim_time": 0.8333333333333333,
+      "scene_id": "demo1_cr_boundary_lure_nominal_v0",
+      "scenario_type": "nominal",
+      "position": [
+        2.2423458718089546,
+        2.727865476327553,
+        1.2
+      ],
+      "velocity": [
+        4.1174452094223,
+        -2.4122651361461163,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 9.280868297770516,
+      "reward_total": 0.3499913234020597,
+      "reward_components": {
+        "reward_progress": 0.10751373882380229,
+        "reward_safety_static": 0.11311599201323067,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.08380485972623723,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 0.47213452367244724,
+      "near_violation_flag": true,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_boundary_lure",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        11.0,
+        5.8,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "scene_cfg_name": "scene_cfg_nominal.yaml",
+        "route_id": "safe_long",
+        "route_role": "safe",
+        "variant": "repaired",
+        "demo_id": "demo1_cr_boundary_lure",
+        "route_scores": {
+          "risky_short": 2.8955,
+          "safe_long": 3.247
+        },
+        "speed_norm": 4.7720412969357975
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 11,
+      "sim_time": 0.9166666666666666,
+      "scene_id": "demo1_cr_boundary_lure_nominal_v0",
+      "scenario_type": "nominal",
+      "position": [
+        2.6232851647776863,
+        2.5163647523501202,
+        1.2
+      ],
+      "velocity": [
+        4.57127151562478,
+        -2.5380086877291923,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 8.997311368972527,
+      "reward_total": 0.4297402895973204,
+      "reward_components": {
+        "reward_progress": 0.11288923219949716,
+        "reward_safety_static": 0.19066625747162266,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.0652037306470401,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 0.6836352476498799,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_boundary_lure",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        11.0,
+        5.8,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "scene_cfg_name": "scene_cfg_nominal.yaml",
+        "route_id": "safe_long",
+        "route_role": "safe",
+        "variant": "repaired",
+        "demo_id": "demo1_cr_boundary_lure",
+        "route_scores": {
+          "risky_short": 2.8955,
+          "safe_long": 3.247
+        },
+        "speed_norm": 5.228576418926219
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 12,
+      "sim_time": 1.0,
+      "scene_id": "demo1_cr_boundary_lure_nominal_v0",
+      "scenario_type": "nominal",
+      "position": [
+        3.0562568937684835,
+        2.528224983601355,
+        1.2
+      ],
+      "velocity": [
+        5.195660747889567,
+        0.14232277501481505,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 8.591133004192818,
+      "reward_total": 0.4964698471056202,
+      "reward_components": {
+        "reward_progress": 0.14354459119492732,
+        "reward_safety_static": 0.18937975551760405,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.1801992790433768,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 0.680126605957102,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_boundary_lure",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        11.0,
+        5.8,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "scene_cfg_name": "scene_cfg_nominal.yaml",
+        "route_id": "safe_long",
+        "route_role": "safe",
+        "variant": "repaired",
+        "demo_id": "demo1_cr_boundary_lure",
+        "route_scores": {
+          "risky_short": 2.8955,
+          "safe_long": 3.247
+        },
+        "speed_norm": 5.19760967940536
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 13,
+      "sim_time": 1.0833333333333333,
+      "scene_id": "demo1_cr_boundary_lure_nominal_v0",
+      "scenario_type": "nominal",
+      "position": [
+        3.457374555531389,
+        2.510862938560988,
+        1.2
+      ],
+      "velocity": [
+        4.813411941154866,
+        -0.20834454048440243,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 8.228585613851081,
+      "reward_total": 0.5302480536655204,
+      "reward_components": {
+        "reward_progress": 0.13263684758543423,
+        "reward_safety_static": 0.25378159126476996,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.07589466229152173,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 0.8557679761766452,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_boundary_lure",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        11.0,
+        5.8,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "scene_cfg_name": "scene_cfg_nominal.yaml",
+        "route_id": "safe_long",
+        "route_role": "safe",
+        "variant": "repaired",
+        "demo_id": "demo1_cr_boundary_lure",
+        "route_scores": {
+          "risky_short": 2.8955,
+          "safe_long": 3.247
+        },
+        "speed_norm": 4.817918841450312
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 14,
+      "sim_time": 1.1666666666666665,
+      "scene_id": "demo1_cr_boundary_lure_nominal_v0",
+      "scenario_type": "nominal",
+      "position": [
+        3.861211634528509,
+        2.521367201556029,
+        1.2
+      ],
+      "velocity": [
+        4.846044947965437,
+        0.1260511559404911,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 7.855681533388664,
+      "reward_total": 0.6238650155357351,
+      "reward_components": {
+        "reward_progress": 0.13522602011560433,
+        "reward_safety_static": 0.3565903173794842,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.07558405028553591,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 1.136155411034957,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_boundary_lure",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        11.0,
+        5.8,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "scene_cfg_name": "scene_cfg_nominal.yaml",
+        "route_id": "safe_long",
+        "route_role": "safe",
+        "variant": "repaired",
+        "demo_id": "demo1_cr_boundary_lure",
+        "route_scores": {
+          "risky_short": 2.8955,
+          "safe_long": 3.247
+        },
+        "speed_norm": 4.847684037931439
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 15,
+      "sim_time": 1.25,
+      "scene_id": "demo1_cr_boundary_lure_nominal_v0",
+      "scenario_type": "nominal",
+      "position": [
+        4.320393869943707,
+        2.4813275093838536,
+        1.2
+      ],
+      "velocity": [
+        5.510186824982384,
+        -0.4804763060661035,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 7.458600750318921,
+      "reward_total": 0.7660527007591472,
+      "reward_components": {
+        "reward_progress": 0.14127019576743557,
+        "reward_safety_static": 0.5073826950845556,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.08542119809140988,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 1.547407350230606,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_boundary_lure",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        11.0,
+        5.8,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "scene_cfg_name": "scene_cfg_nominal.yaml",
+        "route_id": "safe_long",
+        "route_role": "safe",
+        "variant": "repaired",
+        "demo_id": "demo1_cr_boundary_lure",
+        "route_scores": {
+          "risky_short": 2.8955,
+          "safe_long": 3.247
+        },
+        "speed_norm": 5.531095400271123
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 16,
+      "sim_time": 1.3333333333333333,
+      "scene_id": "demo1_cr_boundary_lure_nominal_v0",
+      "scenario_type": "nominal",
+      "position": [
+        4.730925560854087,
+        2.5238521463791073,
+        1.2
+      ],
+      "velocity": [
+        4.926380290924552,
+        0.5102956439430439,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 7.073502603543553,
+      "reward_total": 0.7310632307134922,
+      "reward_components": {
+        "reward_progress": 0.13827453669384202,
+        "reward_safety_static": 0.47569885330726813,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.10279365325813032,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 1.4609968726561857,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_boundary_lure",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        11.0,
+        5.8,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "scene_cfg_name": "scene_cfg_nominal.yaml",
+        "route_id": "safe_long",
+        "route_role": "safe",
+        "variant": "repaired",
+        "demo_id": "demo1_cr_boundary_lure",
+        "route_scores": {
+          "risky_short": 2.8955,
+          "safe_long": 3.247
+        },
+        "speed_norm": 4.952739082067328
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 17,
+      "sim_time": 1.4166666666666665,
+      "scene_id": "demo1_cr_boundary_lure_nominal_v0",
+      "scenario_type": "nominal",
+      "position": [
+        5.112328613591583,
+        2.506977481421099,
+        1.2
+      ],
+      "velocity": [
+        4.57683663284995,
+        -0.2024959794960992,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 6.746011537360438,
+      "reward_total": 0.595316281831006,
+      "reward_components": {
+        "reward_progress": 0.12387276654577879,
+        "reward_safety_static": 0.3560944011314636,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.09317197681214286,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 1.134802912176719,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_boundary_lure",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        11.0,
+        5.8,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "scene_cfg_name": "scene_cfg_nominal.yaml",
+        "route_id": "safe_long",
+        "route_role": "safe",
+        "variant": "repaired",
+        "demo_id": "demo1_cr_boundary_lure",
+        "route_scores": {
+          "risky_short": 2.8955,
+          "safe_long": 3.247
+        },
+        "speed_norm": 4.581314023891983
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 18,
+      "sim_time": 1.5,
+      "scene_id": "demo1_cr_boundary_lure_nominal_v0",
+      "scenario_type": "nominal",
+      "position": [
+        5.586912879180107,
+        2.526736204085232,
+        1.2
+      ],
+      "velocity": [
+        5.6950111870622955,
+        0.23710467196959506,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 6.325801771730802,
+      "reward_total": 0.5584932508826002,
+      "reward_components": {
+        "reward_progress": 0.147052441407409,
+        "reward_safety_static": 0.2465093147860874,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.0793105212671161,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 0.8359344948711475,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_boundary_lure",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        11.0,
+        5.8,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "scene_cfg_name": "scene_cfg_nominal.yaml",
+        "route_id": "safe_long",
+        "route_role": "safe",
+        "variant": "repaired",
+        "demo_id": "demo1_cr_boundary_lure",
+        "route_scores": {
+          "risky_short": 2.8955,
+          "safe_long": 3.247
+        },
+        "speed_norm": 5.699944828350052
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 19,
+      "sim_time": 1.5833333333333333,
+      "scene_id": "demo1_cr_boundary_lure_nominal_v0",
+      "scenario_type": "nominal",
+      "position": [
+        6.00541012189128,
+        2.5102751303631616,
+        1.2
+      ],
+      "velocity": [
+        5.021966912534069,
+        -0.19753288466484342,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 5.98065362384524,
+      "reward_total": 0.474347584781929,
+      "reward_components": {
+        "reward_progress": 0.12828703697139063,
+        "reward_safety_static": 0.2004342144664926,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.07820772491854412,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 0.7102751303631616,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_boundary_lure",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        11.0,
+        5.8,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "scene_cfg_name": "scene_cfg_nominal.yaml",
+        "route_id": "safe_long",
+        "route_role": "safe",
+        "variant": "repaired",
+        "demo_id": "demo1_cr_boundary_lure",
+        "route_scores": {
+          "risky_short": 2.8955,
+          "safe_long": 3.247
+        },
+        "speed_norm": 5.025850267478228
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 20,
+      "sim_time": 1.6666666666666665,
+      "scene_id": "demo1_cr_boundary_lure_nominal_v0",
+      "scenario_type": "nominal",
+      "position": [
+        6.398785886103568,
+        2.4790511011261316,
+        1.2
+      ],
+      "velocity": [
+        4.720509170547455,
+        -0.3746883508443606,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 5.674493185373588,
+      "reward_total": 0.44168503760230404,
+      "reward_components": {
+        "reward_progress": 0.11854010961791302,
+        "reward_safety_static": 0.18898540374624825,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.06897637329996528,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 0.6790511011261315,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_boundary_lure",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        11.0,
+        5.8,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "scene_cfg_name": "scene_cfg_nominal.yaml",
+        "route_id": "safe_long",
+        "route_role": "safe",
+        "variant": "repaired",
+        "demo_id": "demo1_cr_boundary_lure",
+        "route_scores": {
+          "risky_short": 2.8955,
+          "safe_long": 3.247
+        },
+        "speed_norm": 4.735356184014154
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 21,
+      "sim_time": 1.75,
+      "scene_id": "demo1_cr_boundary_lure_nominal_v0",
+      "scenario_type": "nominal",
+      "position": [
+        6.788494471386543,
+        2.4860319624654426,
+        1.2
+      ],
+      "velocity": [
+        4.676503023395707,
+        0.08377033607173168,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 5.359026308140534,
+      "reward_total": 0.4488008257106715,
+      "reward_components": {
+        "reward_progress": 0.1208667193082635,
+        "reward_safety_static": 0.1915450529039956,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.08185191195114255,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 0.6860319624654425,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_boundary_lure",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        11.0,
+        5.8,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "scene_cfg_name": "scene_cfg_nominal.yaml",
+        "route_id": "safe_long",
+        "route_role": "safe",
+        "variant": "repaired",
+        "demo_id": "demo1_cr_boundary_lure",
+        "route_scores": {
+          "risky_short": 2.8955,
+          "safe_long": 3.247
+        },
+        "speed_norm": 4.677253253463485
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 22,
+      "sim_time": 1.8333333333333333,
+      "scene_id": "demo1_cr_boundary_lure_nominal_v0",
+      "scenario_type": "nominal",
+      "position": [
+        7.230141803846196,
+        2.472567082125535,
+        1.2
+      ],
+      "velocity": [
+        5.299767989515839,
+        -0.1615785640788907,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 5.028284065370868,
+      "reward_total": 0.45431770405681404,
+      "reward_components": {
+        "reward_progress": 0.12468556069241639,
+        "reward_safety_static": 0.18660793011269616,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.0708876440155401,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 0.672567082125535,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_boundary_lure",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        11.0,
+        5.8,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "scene_cfg_name": "scene_cfg_nominal.yaml",
+        "route_id": "safe_long",
+        "route_role": "safe",
+        "variant": "repaired",
+        "demo_id": "demo1_cr_boundary_lure",
+        "route_scores": {
+          "risky_short": 2.8955,
+          "safe_long": 3.247
+        },
+        "speed_norm": 5.302230509423987
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 23,
+      "sim_time": 1.9166666666666665,
+      "scene_id": "demo1_cr_boundary_lure_nominal_v0",
+      "scenario_type": "nominal",
+      "position": [
+        7.655554399578829,
+        2.456278575576404,
+        1.2
+      ],
+      "velocity": [
+        5.104951148791592,
+        -0.19546207858957132,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 4.7292482846987305,
+      "reward_total": 0.4306739687659456,
+      "reward_components": {
+        "reward_progress": 0.11675894516803438,
+        "reward_safety_static": 0.18063547771134814,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.06175311383965658,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 0.656278575576404,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_boundary_lure",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        11.0,
+        5.8,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "scene_cfg_name": "scene_cfg_nominal.yaml",
+        "route_id": "safe_long",
+        "route_role": "safe",
+        "variant": "repaired",
+        "demo_id": "demo1_cr_boundary_lure",
+        "route_scores": {
+          "risky_short": 2.8955,
+          "safe_long": 3.247
+        },
+        "speed_norm": 5.1086917753682455
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 24,
+      "sim_time": 2.0,
+      "scene_id": "demo1_cr_boundary_lure_nominal_v0",
+      "scenario_type": "nominal",
+      "position": [
+        8.047668937443602,
+        2.476397674008289,
+        1.2
+      ],
+      "velocity": [
+        4.705374454377271,
+        0.24142918118262102,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 4.44551359510607,
+      "reward_total": 0.4268441611029075,
+      "reward_components": {
+        "reward_progress": 0.11293367239816506,
+        "reward_safety_static": 0.188012480469706,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.08014522103877389,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 0.6763976740082891,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_boundary_lure",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        11.0,
+        5.8,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "scene_cfg_name": "scene_cfg_nominal.yaml",
+        "route_id": "safe_long",
+        "route_role": "safe",
+        "variant": "repaired",
+        "demo_id": "demo1_cr_boundary_lure",
+        "route_scores": {
+          "risky_short": 2.8955,
+          "safe_long": 3.247
+        },
+        "speed_norm": 4.711564156989981
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 25,
+      "sim_time": 2.083333333333333,
+      "scene_id": "demo1_cr_boundary_lure_nominal_v0",
+      "scenario_type": "nominal",
+      "position": [
+        8.51508576090689,
+        2.479921497553322,
+        1.2
+      ],
+      "velocity": [
+        5.609001881559465,
+        0.042285882540396,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 4.147013387735354,
+      "reward_total": 0.44033124440499605,
+      "reward_components": {
+        "reward_progress": 0.11662505184267898,
+        "reward_safety_static": 0.19285062564253466,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.06983823627175753,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 0.6895926153887308,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_boundary_lure",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        11.0,
+        5.8,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "scene_cfg_name": "scene_cfg_nominal.yaml",
+        "route_id": "safe_long",
+        "route_role": "safe",
+        "variant": "repaired",
+        "demo_id": "demo1_cr_boundary_lure",
+        "route_scores": {
+          "risky_short": 2.8955,
+          "safe_long": 3.247
+        },
+        "speed_norm": 5.609161274486573
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 26,
+      "sim_time": 2.1666666666666665,
+      "scene_id": "demo1_cr_boundary_lure_nominal_v0",
+      "scenario_type": "nominal",
+      "position": [
+        8.788110759035623,
+        2.7439232121998414,
+        1.2
+      ],
+      "velocity": [
+        3.276299977544795,
+        3.1680205757582307,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 3.772540171717844,
+      "reward_total": 0.5810085054455032,
+      "reward_components": {
+        "reward_progress": 0.13561830400437755,
+        "reward_safety_static": 0.31421939496158574,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.23123819764701528,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 1.0205983498952338,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_boundary_lure",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        11.0,
+        5.8,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "scene_cfg_name": "scene_cfg_nominal.yaml",
+        "route_id": "safe_long",
+        "route_role": "safe",
+        "variant": "repaired",
+        "demo_id": "demo1_cr_boundary_lure",
+        "route_scores": {
+          "risky_short": 2.8955,
+          "safe_long": 3.247
+        },
+        "speed_norm": 4.557465952839093
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 27,
+      "sim_time": 2.25,
+      "scene_id": "demo1_cr_boundary_lure_nominal_v0",
+      "scenario_type": "nominal",
+      "position": [
+        9.06375955174973,
+        3.0236679712874306,
+        1.2
+      ],
+      "velocity": [
+        3.307785512569275,
+        3.3569371090510707,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 3.3848259345342497,
+      "reward_total": 0.7130274703141202,
+      "reward_components": {
+        "reward_progress": 0.13892855929589862,
+        "reward_safety_static": 0.45043635540338034,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.06543948177819611,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 1.3920991511001282,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_boundary_lure",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        11.0,
+        5.8,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "scene_cfg_name": "scene_cfg_nominal.yaml",
+        "route_id": "safe_long",
+        "route_role": "safe",
+        "variant": "repaired",
+        "demo_id": "demo1_cr_boundary_lure",
+        "route_scores": {
+          "risky_short": 2.8955,
+          "safe_long": 3.247
+        },
+        "speed_norm": 4.71279871745944
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 28,
+      "sim_time": 2.333333333333333,
+      "scene_id": "demo1_cr_boundary_lure_nominal_v0",
+      "scenario_type": "nominal",
+      "position": [
+        9.331659464835672,
+        3.354563465803633,
+        1.2
+      ],
+      "velocity": [
+        3.214798957031313,
+        3.970745934194431,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 2.960324303865158,
+      "reward_total": 0.8652576402273328,
+      "reward_components": {
+        "reward_progress": 0.14812540766727297,
+        "reward_safety_static": 0.6045328252432052,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.08192479261693315,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 1.8123622506632868,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_boundary_lure",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        11.0,
+        5.8,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "scene_cfg_name": "scene_cfg_nominal.yaml",
+        "route_id": "safe_long",
+        "route_role": "safe",
+        "variant": "repaired",
+        "demo_id": "demo1_cr_boundary_lure",
+        "route_scores": {
+          "risky_short": 2.8955,
+          "safe_long": 3.247
+        },
+        "speed_norm": 5.108987728312843
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 29,
+      "sim_time": 2.4166666666666665,
+      "scene_id": "demo1_cr_boundary_lure_nominal_v0",
+      "scenario_type": "nominal",
+      "position": [
+        9.589663032487504,
+        3.69000865160222,
+        1.2
+      ],
+      "velocity": [
+        3.096042811821981,
+        4.025342229583041,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 2.537934958237863,
+      "reward_total": 0.8542681057839328,
+      "reward_components": {
+        "reward_progress": 0.14759733640682368,
+        "reward_safety_static": 0.5921354159162336,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.06561210242485267,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 1.7785511343170006,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_boundary_lure",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        11.0,
+        5.8,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "scene_cfg_name": "scene_cfg_nominal.yaml",
+        "route_id": "safe_long",
+        "route_role": "safe",
+        "variant": "repaired",
+        "demo_id": "demo1_cr_boundary_lure",
+        "route_scores": {
+          "risky_short": 2.8955,
+          "safe_long": 3.247
+        },
+        "speed_norm": 5.07827344260814
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 30,
+      "sim_time": 2.5,
+      "scene_id": "demo1_cr_boundary_lure_nominal_v0",
+      "scenario_type": "nominal",
+      "position": [
+        9.88180957984138,
+        3.999337391036811,
+        1.2
+      ],
+      "velocity": [
+        3.50575856824652,
+        3.711944873215094,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 2.119607427580076,
+      "reward_total": 0.877190526590723,
+      "reward_components": {
+        "reward_progress": 0.1465818826644468,
+        "reward_safety_static": 0.6229794475716888,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.08277044479769251,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 1.86267122065006,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_boundary_lure",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        11.0,
+        5.8,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "scene_cfg_name": "scene_cfg_nominal.yaml",
+        "route_id": "safe_long",
+        "route_role": "safe",
+        "variant": "repaired",
+        "demo_id": "demo1_cr_boundary_lure",
+        "route_scores": {
+          "risky_short": 2.8955,
+          "safe_long": 3.247
+        },
+        "speed_norm": 5.105769078270355
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 31,
+      "sim_time": 2.583333333333333,
+      "scene_id": "demo1_cr_boundary_lure_nominal_v0",
+      "scenario_type": "nominal",
+      "position": [
+        10.130889135206717,
+        4.37422845750852,
+        1.2
+      ],
+      "velocity": [
+        2.988954664384032,
+        4.498692797660512,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 1.6697838742424904,
+      "reward_total": 0.9310276259179117,
+      "reward_components": {
+        "reward_progress": 0.1544558883343964,
+        "reward_safety_static": 0.6650006324299503,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.09834087300194945,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 1.9772744520816827,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_boundary_lure",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        11.0,
+        5.8,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "scene_cfg_name": "scene_cfg_nominal.yaml",
+        "route_id": "safe_long",
+        "route_role": "safe",
+        "variant": "repaired",
+        "demo_id": "demo1_cr_boundary_lure",
+        "route_scores": {
+          "risky_short": 2.8955,
+          "safe_long": 3.247
+        },
+        "speed_norm": 5.401119039001605
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 32,
+      "sim_time": 2.6666666666666665,
+      "scene_id": "demo1_cr_boundary_lure_nominal_v0",
+      "scenario_type": "nominal",
+      "position": [
+        10.347819175424396,
+        4.6925916250797695,
+        1.2
+      ],
+      "velocity": [
+        2.6031604826121537,
+        3.8203580108549886,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 1.2851821414832918,
+      "reward_total": 0.9476696460677915,
+      "reward_components": {
+        "reward_progress": 0.13815043318979967,
+        "reward_safety_static": 0.7285178192083428,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.06263079829638109,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 2.1505031432954804,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_boundary_lure",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        11.0,
+        5.8,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "scene_cfg_name": "scene_cfg_nominal.yaml",
+        "route_id": "safe_long",
+        "route_role": "safe",
+        "variant": "repaired",
+        "demo_id": "demo1_cr_boundary_lure",
+        "route_scores": {
+          "risky_short": 2.8955,
+          "safe_long": 3.247
+        },
+        "speed_norm": 4.62294060413255
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 33,
+      "sim_time": 2.75,
+      "scene_id": "demo1_cr_boundary_lure_nominal_v0",
+      "scenario_type": "nominal",
+      "position": [
+        10.590908636531923,
+        5.06298168379118,
+        1.2
+      ],
+      "velocity": [
+        2.9170735332903206,
+        4.444680704536925,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 0.8429423124339259,
+      "reward_total": 1.0571154398851061,
+      "reward_components": {
+        "reward_progress": 0.15255995726234148,
+        "reward_safety_static": 0.8166665000617054,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.06389965193926261,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 2.3909086365319236,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_boundary_lure",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        11.0,
+        5.8,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "scene_cfg_name": "scene_cfg_nominal.yaml",
+        "route_id": "safe_long",
+        "route_role": "safe",
+        "variant": "repaired",
+        "demo_id": "demo1_cr_boundary_lure",
+        "route_scores": {
+          "risky_short": 2.8955,
+          "safe_long": 3.247
+        },
+        "speed_norm": 5.316437205865007
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 34,
+      "sim_time": 2.833333333333333,
+      "scene_id": "demo1_cr_boundary_lure_nominal_v0",
+      "scenario_type": "nominal",
+      "position": [
+        10.799835919617875,
+        5.4458128739694756,
+        1.2
+      ],
+      "velocity": [
+        2.507127397031425,
+        4.593974282139548,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 0.4068343389157118,
+      "reward_total": 1.117833172297082,
+      "reward_components": {
+        "reward_progress": 0.15102699337955355,
+        "reward_safety_static": 0.8932731705265544,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.0782761352283533,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 2.5998359196178757,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "running",
+      "source": "demo_boundary_lure",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        11.0,
+        5.8,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "scene_cfg_name": "scene_cfg_nominal.yaml",
+        "route_id": "safe_long",
+        "route_role": "safe",
+        "variant": "repaired",
+        "demo_id": "demo1_cr_boundary_lure",
+        "route_scores": {
+          "risky_short": 2.8955,
+          "safe_long": 3.247
+        },
+        "speed_norm": 5.2335731092538635
+      }
+    },
+    {
+      "episode_index": 4,
+      "step_idx": 35,
+      "sim_time": 2.9166666666666665,
+      "scene_id": "demo1_cr_boundary_lure_nominal_v0",
+      "scenario_type": "nominal",
+      "position": [
+        11.0,
+        5.8,
+        1.2
+      ],
+      "velocity": [
+        2.4019689645854996,
+        4.250245512366291,
+        0.0
+      ],
+      "yaw_rate": 0.0,
+      "goal_distance": 0.0,
+      "reward_total": 1.1634005299989538,
+      "reward_components": {
+        "reward_progress": 0.14370858472892795,
+        "reward_safety_static": 0.966666666666667,
+        "reward_safety_dynamic": 0.0,
+        "penalty_smooth": 0.06333480034280534,
+        "penalty_height": 0.0,
+        "manual_control": 0.0
+      },
+      "collision_flag": false,
+      "min_obstacle_distance": 2.8000000000000007,
+      "near_violation_flag": false,
+      "out_of_bounds_flag": false,
+      "done_type": "success",
+      "source": "demo_boundary_lure",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "target_position": [
+        11.0,
+        5.8,
+        1.2
+      ],
+      "scene_tags": {
+        "family": "nominal",
+        "scene_cfg_name": "scene_cfg_nominal.yaml",
+        "route_id": "safe_long",
+        "route_role": "safe",
+        "variant": "repaired",
+        "demo_id": "demo1_cr_boundary_lure",
+        "route_scores": {
+          "risky_short": 2.8955,
+          "safe_long": 3.247
+        },
+        "speed_norm": 4.882012066988541
+      }
+    }
+  ]
+}

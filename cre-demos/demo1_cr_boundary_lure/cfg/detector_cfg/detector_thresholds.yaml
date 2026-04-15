@@ -1,0 +1,6 @@
+near_violation_distance: 0.6
+collision_distance: 0.22
+goal_success_radius: 0.5
+out_of_bounds_height_min: 0.6
+out_of_bounds_height_max: 1.8
+warning_speed_norm: 1.2

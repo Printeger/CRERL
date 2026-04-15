@@ -1,0 +1,10 @@
+{
+  "max_severity": "info",
+  "num_findings": 8,
+  "passed": true,
+  "report_type": "static_analyzer_report.v1",
+  "scene_family_set": [
+    "nominal"
+  ],
+  "spec_version": "demo1-v0"
+}

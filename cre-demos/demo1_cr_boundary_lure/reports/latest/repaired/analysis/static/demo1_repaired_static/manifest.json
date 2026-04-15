@@ -1,0 +1,43 @@
+{
+  "bundle_type": "static_audit_bundle.v3",
+  "max_severity": "info",
+  "metadata": {
+    "check_ids": [
+      "constraint_runtime_binding",
+      "reward_constraint_conflicts",
+      "reward_proxy_suspicion",
+      "scene_family_coverage",
+      "scene_family_structure",
+      "scene_backend_capability",
+      "execution_mode_alignment",
+      "required_runtime_fields"
+    ],
+    "detector_type": "static",
+    "report_artifacts": [
+      "static_report.json",
+      "summary.json",
+      "manifest.json",
+      "namespace_manifest.json"
+    ],
+    "report_namespace": "analysis/static",
+    "source_paths": {
+      "constraint_spec": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_repaired/constraint_spec_v0.yaml",
+      "detector_thresholds": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/detector_cfg/detector_thresholds.yaml",
+      "policy_spec": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_repaired/policy_spec_v0.yaml",
+      "reward_spec": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_repaired/reward_spec_v0.yaml",
+      "scene_cfg_base": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/env_cfg/scene_cfg_base.yaml",
+      "scene_family:nominal": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/env_cfg/scene_cfg_nominal.yaml",
+      "witness_weights": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/detector_cfg/witness_weights.yaml"
+    }
+  },
+  "namespace": "analysis/static",
+  "num_findings": 8,
+  "passed": true,
+  "report_path": "static_report.json",
+  "report_type": "static_analyzer_report.v1",
+  "scene_family_set": [
+    "nominal"
+  ],
+  "spec_version": "demo1-v0",
+  "summary_path": "summary.json"
+}

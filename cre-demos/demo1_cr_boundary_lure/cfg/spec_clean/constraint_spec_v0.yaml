@@ -1,0 +1,47 @@
+spec_version: "demo1-v0"
+
+constraints:
+  collision_avoidance:
+    kind: "hard_boolean"
+    severity: "critical"
+    logged_variable: "collision_flag"
+    threshold: 1
+    violation_condition: "collision_flag == 1"
+    binding_required: true
+    active_scene_requirements:
+      - "static_obstacles"
+    meaning: "The UAV must not collide with corridor-shaping obstacles."
+    notes: "Primary hard safety constraint in Demo 1."
+
+  safety_margin:
+    kind: "distance_threshold"
+    severity: "high"
+    logged_variable: "min_obstacle_distance"
+    threshold_ref: "near_violation_distance"
+    violation_condition: "min_obstacle_distance < near_violation_distance"
+    binding_required: true
+    active_scene_requirements:
+      - "static_obstacles"
+    meaning: "The UAV should keep a healthy clearance from corridor boundaries."
+
+  workspace_boundary:
+    kind: "hard_boolean"
+    severity: "high"
+    logged_variable: "out_of_bounds_flag"
+    threshold: 1
+    violation_condition: "out_of_bounds_flag == 1"
+    binding_required: true
+    active_scene_requirements:
+      - "workspace_limits"
+    meaning: "The UAV must remain inside the demonstrator workspace."
+
+  speed_bound:
+    kind: "threshold_warning"
+    severity: "medium"
+    logged_variable: "speed_norm"
+    threshold_ref: "warning_speed_norm"
+    violation_condition: "speed_norm > warning_speed_norm"
+    binding_required: true
+    active_scene_requirements:
+      - "all_families"
+    meaning: "The UAV should avoid excessive speed during corridor traversal."

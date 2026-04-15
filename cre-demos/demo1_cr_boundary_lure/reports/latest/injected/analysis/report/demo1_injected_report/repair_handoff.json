@@ -1,0 +1,228 @@
+{
+  "claim_record_schema": "phase7_repair_ready_claim.v1",
+  "handoff_type": "phase8_repair_handoff.v1",
+  "impacted_components_union": [
+    "C",
+    "E",
+    "R"
+  ],
+  "metadata": {
+    "max_selected_claims": 6,
+    "phase8_ready": true
+  },
+  "primary_claim_type": "C-R",
+  "primary_repair_direction": "reward",
+  "repair_order": [
+    {
+      "claim_type": "C-R",
+      "handoff_id": "repair_handoff:reward_proxy_suspicion:3",
+      "order": 1,
+      "selected_from": "analysis/static",
+      "selection_basis": "ranked_finding_backfill",
+      "suggested_repair_direction": "reward"
+    },
+    {
+      "claim_type": "C-R",
+      "handoff_id": "repair_handoff:constraint_runtime_binding:1",
+      "order": 2,
+      "selected_from": "analysis/static",
+      "selection_basis": "ranked_finding_backfill",
+      "suggested_repair_direction": "reward"
+    },
+    {
+      "claim_type": "C-R",
+      "handoff_id": "repair_handoff:W_CR:1",
+      "order": 3,
+      "selected_from": "analysis/dynamic",
+      "selection_basis": "ranked_finding_backfill",
+      "suggested_repair_direction": "reward"
+    },
+    {
+      "claim_type": "E-C",
+      "handoff_id": "repair_handoff:scene_family_coverage:4",
+      "order": 4,
+      "selected_from": "analysis/static",
+      "selection_basis": "ranked_finding_backfill",
+      "suggested_repair_direction": "environment"
+    },
+    {
+      "claim_type": "E-R",
+      "handoff_id": "repair_handoff:scene_backend_capability:6",
+      "order": 5,
+      "selected_from": "analysis/static",
+      "selection_basis": "ranked_finding_backfill",
+      "suggested_repair_direction": "mixed"
+    },
+    {
+      "claim_type": "E-R",
+      "handoff_id": "repair_handoff:execution_mode_alignment:7",
+      "order": 6,
+      "selected_from": "analysis/static",
+      "selection_basis": "ranked_finding_backfill",
+      "suggested_repair_direction": "mixed"
+    }
+  ],
+  "required_evidence_contract": {
+    "required_claim_fields": [
+      "claim_type",
+      "support_status",
+      "impacted_components",
+      "suggested_repair_direction",
+      "required_evidence_refs"
+    ],
+    "required_support_statuses": [
+      "machine_direct",
+      "machine_derived",
+      "semantic_supported",
+      "semantic_weak"
+    ]
+  },
+  "selected_claims": [
+    {
+      "claim_type": "C-R",
+      "confidence": 0.35,
+      "handoff_id": "repair_handoff:reward_proxy_suspicion:3",
+      "impacted_components": [
+        "C",
+        "R"
+      ],
+      "required_evidence_refs": [
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml",
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/policy_spec_v0.yaml"
+      ],
+      "selected_from": "analysis/static",
+      "selected_from_rank": 4,
+      "selection_basis": "ranked_finding_backfill",
+      "severity": "info",
+      "source_record_ids": [
+        "reward_proxy_suspicion:3"
+      ],
+      "suggested_repair_direction": "reward",
+      "summary": "No suspicious reward proxy patterns were detected.",
+      "support_status": "machine_direct"
+    },
+    {
+      "claim_type": "C-R",
+      "confidence": 0.35,
+      "handoff_id": "repair_handoff:constraint_runtime_binding:1",
+      "impacted_components": [
+        "C",
+        "R"
+      ],
+      "required_evidence_refs": [
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/constraint_spec_v0.yaml"
+      ],
+      "selected_from": "analysis/static",
+      "selected_from_rank": 9,
+      "selection_basis": "ranked_finding_backfill",
+      "severity": "info",
+      "source_record_ids": [
+        "constraint_runtime_binding:1"
+      ],
+      "suggested_repair_direction": "reward",
+      "summary": "All required constraints map to runtime fields and threshold references.",
+      "support_status": "machine_direct"
+    },
+    {
+      "claim_type": "C-R",
+      "confidence": 0.7180302016989563,
+      "handoff_id": "repair_handoff:W_CR:1",
+      "impacted_components": [
+        "C",
+        "R"
+      ],
+      "required_evidence_refs": [
+        "demo1_injected"
+      ],
+      "selected_from": "analysis/dynamic",
+      "selected_from_rank": 1,
+      "selection_basis": "ranked_finding_backfill",
+      "severity": "medium",
+      "source_record_ids": [
+        "W_CR:1"
+      ],
+      "suggested_repair_direction": "reward",
+      "summary": "Reward-boundary coupling is elevated.",
+      "support_status": "machine_derived"
+    },
+    {
+      "claim_type": "E-C",
+      "confidence": 0.35,
+      "handoff_id": "repair_handoff:scene_family_coverage:4",
+      "impacted_components": [
+        "E",
+        "C"
+      ],
+      "required_evidence_refs": [
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/env_cfg/scene_cfg_nominal.yaml",
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/constraint_spec_v0.yaml"
+      ],
+      "selected_from": "analysis/static",
+      "selected_from_rank": 2,
+      "selection_basis": "ranked_finding_backfill",
+      "severity": "info",
+      "source_record_ids": [
+        "scene_family_coverage:4"
+      ],
+      "suggested_repair_direction": "environment",
+      "summary": "Scene families cover the current constraint activation requirements.",
+      "support_status": "machine_direct"
+    },
+    {
+      "claim_type": "E-R",
+      "confidence": 0.35,
+      "handoff_id": "repair_handoff:scene_backend_capability:6",
+      "impacted_components": [
+        "E",
+        "R"
+      ],
+      "required_evidence_refs": [
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/env_cfg/scene_cfg_nominal.yaml",
+        "/home/mint/rl_dev/crerl_v1/isaac-training/training/envs/env_gen.py"
+      ],
+      "selected_from": "analysis/static",
+      "selected_from_rank": 3,
+      "selection_basis": "ranked_finding_backfill",
+      "severity": "info",
+      "source_record_ids": [
+        "scene_backend_capability:6"
+      ],
+      "suggested_repair_direction": "mixed",
+      "summary": "Scene backend capability matches the declared family requirements.",
+      "support_status": "machine_direct"
+    },
+    {
+      "claim_type": "E-R",
+      "confidence": 0.35,
+      "handoff_id": "repair_handoff:execution_mode_alignment:7",
+      "impacted_components": [
+        "E",
+        "R"
+      ],
+      "required_evidence_refs": [
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml",
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/policy_spec_v0.yaml"
+      ],
+      "selected_from": "analysis/static",
+      "selected_from_rank": 7,
+      "selection_basis": "ranked_finding_backfill",
+      "severity": "info",
+      "source_record_ids": [
+        "execution_mode_alignment:7"
+      ],
+      "suggested_repair_direction": "mixed",
+      "summary": "Reward component execution modes align with the supported execution paths.",
+      "support_status": "machine_direct"
+    }
+  ],
+  "selection_policy": "phase7_ranked_claim_selection.v3",
+  "selection_summary": {
+    "primary_claim_type": "C-R",
+    "selected_claim_count": 6,
+    "selection_focus_order": [
+      "C-R",
+      "E-C",
+      "E-R"
+    ]
+  }
+}

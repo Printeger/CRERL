@@ -1,0 +1,16 @@
+{
+  "comparison_run_ids": [],
+  "max_severity": "medium",
+  "num_findings": 3,
+  "passed": true,
+  "primary_run_ids": [
+    "demo1_injected"
+  ],
+  "report_type": "dynamic_analyzer_report.v1",
+  "spec_version": "demo1-v0",
+  "witness_scores": {
+    "W_CR": 0.7180302016989563,
+    "W_EC": 0.1824074074074074,
+    "W_ER": 0.0
+  }
+}

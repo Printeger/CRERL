@@ -1,0 +1,83 @@
+{
+  "claim_overview": {
+    "claim_type_breakdown": {
+      "C-R": 1,
+      "E-C": 1
+    },
+    "rejected_count": 0,
+    "supported_count": 0,
+    "weak_count": 2
+  },
+  "consumer_contract": {
+    "claim_consumer_type": "phase7_claim_consumer.v1",
+    "consumer_contract_type": "phase7_claim_consumer_contract.v1",
+    "repair_ready_claim_schema": "phase7_claim_record.v1"
+  },
+  "dynamic_bundle_name": "demo1_injected_dynamic",
+  "evidence_overview": {
+    "dynamic_finding_count": 3,
+    "evidence_object_count": 6,
+    "failure_hotspot_count": 3,
+    "static_finding_count": 8,
+    "witness_count": 3
+  },
+  "human_summary": {
+    "most_likely_claim_summary": "Reward-boundary coupling is elevated.",
+    "most_likely_claim_type": "C-R",
+    "next_check_or_repair_direction": "collect more dynamic evidence before acting on weak semantic claims",
+    "strongest_supported_claim_id": "",
+    "strongest_uncertainty_claim_id": "mock_semantic_provider.v1:claim:001"
+  },
+  "max_severity": "medium",
+  "merge_input_type": "phase7_semantic_report_merge_input.v1",
+  "metadata": {
+    "merge_target": "phase7_unified_report_generation",
+    "repair_target": "phase8_repair_engine"
+  },
+  "passed": true,
+  "semantic_bundle_name": "demo1_injected_semantic",
+  "spec_version": "demo1-v0",
+  "static_bundle_name": "demo1_injected_static",
+  "top_claim": {
+    "affected_families": [],
+    "affected_scene_cfg_names": [],
+    "affected_sources": [
+      "unknown"
+    ],
+    "claim_id": "mock_semantic_provider.v1:claim:001",
+    "claim_type": "C-R",
+    "confidence": 0.7180302016989563,
+    "provider_metadata": {
+      "comparison_run_ids": [],
+      "crosscheck_messages": [
+        "Claim type 'C-R' is allowed by the semantic contract.",
+        "Claim cites 1 known evidence object(s).",
+        "Claim cites 2 known finding id(s).",
+        "Claim cites 1 known witness id(s).",
+        "Claim is aligned with witness id(s): W_CR.",
+        "Matched sources: <none>"
+      ],
+      "crosscheck_passed": false,
+      "generation_mode": "deterministic_mock",
+      "primary_run_ids": [
+        "demo1_injected"
+      ],
+      "provider_name": "mock_semantic_provider.v1"
+    },
+    "rationale": "Generated from witness W_CR with score 0.718 and real runtime evidence from accepted bundles.",
+    "repair_direction_hint": "review reward shaping and constraint penalties",
+    "severity": "medium",
+    "status": "weak",
+    "summary": "Reward-boundary coupling is elevated.",
+    "supporting_evidence_ids": [
+      "witness:W_CR"
+    ],
+    "supporting_finding_ids": [
+      "W_CR:1",
+      "W_EC:2"
+    ],
+    "supporting_witness_ids": [
+      "W_CR"
+    ]
+  }
+}

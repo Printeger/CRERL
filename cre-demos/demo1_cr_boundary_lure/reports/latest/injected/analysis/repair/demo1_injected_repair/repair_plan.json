@@ -1,0 +1,860 @@
+{
+  "candidates": [
+    {
+      "candidate_id": "candidate:repair_handoff:W_CR:1:strengthen_safety_reward",
+      "claim_type": "C-R",
+      "estimated_edit_cost": 1.0,
+      "evidence_refs": [
+        "demo1_injected"
+      ],
+      "expected_metric_direction": [
+        "decrease_W_CR",
+        "increase_min_distance"
+      ],
+      "metadata": {
+        "selected_from": "analysis/dynamic",
+        "selected_from_rank": 1,
+        "selection_basis": "ranked_finding_backfill",
+        "support_status": "machine_derived"
+      },
+      "operator_type": "strengthen_safety_reward",
+      "origin_claim_id": "repair_handoff:W_CR:1",
+      "patch": {
+        "expected_metric_direction": [
+          "decrease_W_CR",
+          "increase_min_distance"
+        ],
+        "metadata": {
+          "operator_type": "strengthen_safety_reward",
+          "origin_claim_type": "C-R",
+          "preview_only": true
+        },
+        "operations": [
+          {
+            "after": 0.85,
+            "before": 0.35,
+            "metadata": {},
+            "operation": "set",
+            "operation_id": "repair_handoff:W_CR:1:strengthen_safety_reward:1",
+            "rationale": "Increase static-obstacle safety shaping to better support the declared clearance constraint.",
+            "target_file": "cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml",
+            "target_path": "components.reward_safety_static.weight"
+          }
+        ],
+        "patch_id": "patch:repair_handoff:W_CR:1:strengthen_safety_reward",
+        "patch_type": "phase8_spec_patch.v1",
+        "rationale": "Increase static-obstacle safety shaping to better support the declared clearance constraint.",
+        "target_component": "R",
+        "target_file": "cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml"
+      },
+      "priority": 1,
+      "rationale": "Increase static-obstacle safety shaping to better support the declared clearance constraint.",
+      "selection_score": 88.180302,
+      "source_record_ids": [
+        "W_CR:1"
+      ],
+      "target_component": "R",
+      "target_file": "cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml",
+      "target_paths": [
+        "components.reward_safety_static.weight"
+      ]
+    },
+    {
+      "candidate_id": "candidate:repair_handoff:W_CR:1:strengthen_height_penalty",
+      "claim_type": "C-R",
+      "estimated_edit_cost": 1.2,
+      "evidence_refs": [
+        "demo1_injected"
+      ],
+      "expected_metric_direction": [
+        "decrease_W_CR",
+        "decrease_out_of_bounds_rate"
+      ],
+      "metadata": {
+        "selected_from": "analysis/dynamic",
+        "selected_from_rank": 1,
+        "selection_basis": "ranked_finding_backfill",
+        "support_status": "machine_derived"
+      },
+      "operator_type": "strengthen_height_penalty",
+      "origin_claim_id": "repair_handoff:W_CR:1",
+      "patch": {
+        "expected_metric_direction": [
+          "decrease_W_CR",
+          "decrease_out_of_bounds_rate"
+        ],
+        "metadata": {
+          "operator_type": "strengthen_height_penalty",
+          "origin_claim_type": "C-R",
+          "preview_only": true
+        },
+        "operations": [
+          {
+            "after": -1.1,
+            "before": -1.0,
+            "metadata": {},
+            "operation": "set",
+            "operation_id": "repair_handoff:W_CR:1:strengthen_height_penalty:1",
+            "rationale": "Increase boundary-aware height penalty magnitude in a minimal way.",
+            "target_file": "cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml",
+            "target_path": "components.penalty_height.weight"
+          }
+        ],
+        "patch_id": "patch:repair_handoff:W_CR:1:strengthen_height_penalty",
+        "patch_type": "phase8_spec_patch.v1",
+        "rationale": "Increase boundary-aware height penalty magnitude in a minimal way.",
+        "target_component": "R",
+        "target_file": "cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml"
+      },
+      "priority": 2,
+      "rationale": "Increase boundary-aware height penalty magnitude in a minimal way.",
+      "selection_score": 87.130302,
+      "source_record_ids": [
+        "W_CR:1"
+      ],
+      "target_component": "R",
+      "target_file": "cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml",
+      "target_paths": [
+        "components.penalty_height.weight"
+      ]
+    },
+    {
+      "candidate_id": "candidate:repair_handoff:reward_proxy_suspicion:3:reduce_progress_proxy_weight",
+      "claim_type": "C-R",
+      "estimated_edit_cost": 1.0,
+      "evidence_refs": [
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml",
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/policy_spec_v0.yaml"
+      ],
+      "expected_metric_direction": [
+        "decrease_W_CR",
+        "reduce_boundary_seeking"
+      ],
+      "metadata": {
+        "selected_from": "analysis/static",
+        "selected_from_rank": 4,
+        "selection_basis": "ranked_finding_backfill",
+        "support_status": "machine_direct"
+      },
+      "operator_type": "reduce_progress_proxy_weight",
+      "origin_claim_id": "repair_handoff:reward_proxy_suspicion:3",
+      "patch": {
+        "expected_metric_direction": [
+          "decrease_W_CR",
+          "reduce_boundary_seeking"
+        ],
+        "metadata": {
+          "operator_type": "reduce_progress_proxy_weight",
+          "origin_claim_type": "C-R",
+          "preview_only": true
+        },
+        "operations": [
+          {
+            "after": 1.92,
+            "before": 2.4,
+            "metadata": {},
+            "operation": "set",
+            "operation_id": "repair_handoff:reward_proxy_suspicion:3:reduce_progress_proxy_weight:1",
+            "rationale": "Reduce progress dominance so safety-oriented terms can influence policy behavior more strongly.",
+            "target_file": "cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml",
+            "target_path": "components.reward_progress.weight"
+          }
+        ],
+        "patch_id": "patch:repair_handoff:reward_proxy_suspicion:3:reduce_progress_proxy_weight",
+        "patch_type": "phase8_spec_patch.v1",
+        "rationale": "Reduce progress dominance so safety-oriented terms can influence policy behavior more strongly.",
+        "target_component": "R",
+        "target_file": "cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml"
+      },
+      "priority": 3,
+      "rationale": "Reduce progress dominance so safety-oriented terms can influence policy behavior more strongly.",
+      "selection_score": 78.5,
+      "source_record_ids": [
+        "reward_proxy_suspicion:3"
+      ],
+      "target_component": "R",
+      "target_file": "cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml",
+      "target_paths": [
+        "components.reward_progress.weight"
+      ]
+    },
+    {
+      "candidate_id": "candidate:repair_handoff:reward_proxy_suspicion:3:strengthen_safety_reward",
+      "claim_type": "C-R",
+      "estimated_edit_cost": 1.0,
+      "evidence_refs": [
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml",
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/policy_spec_v0.yaml"
+      ],
+      "expected_metric_direction": [
+        "decrease_W_CR",
+        "increase_min_distance"
+      ],
+      "metadata": {
+        "selected_from": "analysis/static",
+        "selected_from_rank": 4,
+        "selection_basis": "ranked_finding_backfill",
+        "support_status": "machine_direct"
+      },
+      "operator_type": "strengthen_safety_reward",
+      "origin_claim_id": "repair_handoff:reward_proxy_suspicion:3",
+      "patch": {
+        "expected_metric_direction": [
+          "decrease_W_CR",
+          "increase_min_distance"
+        ],
+        "metadata": {
+          "operator_type": "strengthen_safety_reward",
+          "origin_claim_type": "C-R",
+          "preview_only": true
+        },
+        "operations": [
+          {
+            "after": 0.85,
+            "before": 0.35,
+            "metadata": {},
+            "operation": "set",
+            "operation_id": "repair_handoff:reward_proxy_suspicion:3:strengthen_safety_reward:1",
+            "rationale": "Increase static-obstacle safety shaping to better support the declared clearance constraint.",
+            "target_file": "cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml",
+            "target_path": "components.reward_safety_static.weight"
+          }
+        ],
+        "patch_id": "patch:repair_handoff:reward_proxy_suspicion:3:strengthen_safety_reward",
+        "patch_type": "phase8_spec_patch.v1",
+        "rationale": "Increase static-obstacle safety shaping to better support the declared clearance constraint.",
+        "target_component": "R",
+        "target_file": "cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml"
+      },
+      "priority": 4,
+      "rationale": "Increase static-obstacle safety shaping to better support the declared clearance constraint.",
+      "selection_score": 78.45,
+      "source_record_ids": [
+        "reward_proxy_suspicion:3"
+      ],
+      "target_component": "R",
+      "target_file": "cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml",
+      "target_paths": [
+        "components.reward_safety_static.weight"
+      ]
+    },
+    {
+      "candidate_id": "candidate:repair_handoff:reward_proxy_suspicion:3:strengthen_height_penalty",
+      "claim_type": "C-R",
+      "estimated_edit_cost": 1.2,
+      "evidence_refs": [
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml",
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/policy_spec_v0.yaml"
+      ],
+      "expected_metric_direction": [
+        "decrease_W_CR",
+        "decrease_out_of_bounds_rate"
+      ],
+      "metadata": {
+        "selected_from": "analysis/static",
+        "selected_from_rank": 4,
+        "selection_basis": "ranked_finding_backfill",
+        "support_status": "machine_direct"
+      },
+      "operator_type": "strengthen_height_penalty",
+      "origin_claim_id": "repair_handoff:reward_proxy_suspicion:3",
+      "patch": {
+        "expected_metric_direction": [
+          "decrease_W_CR",
+          "decrease_out_of_bounds_rate"
+        ],
+        "metadata": {
+          "operator_type": "strengthen_height_penalty",
+          "origin_claim_type": "C-R",
+          "preview_only": true
+        },
+        "operations": [
+          {
+            "after": -1.1,
+            "before": -1.0,
+            "metadata": {},
+            "operation": "set",
+            "operation_id": "repair_handoff:reward_proxy_suspicion:3:strengthen_height_penalty:1",
+            "rationale": "Increase boundary-aware height penalty magnitude in a minimal way.",
+            "target_file": "cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml",
+            "target_path": "components.penalty_height.weight"
+          }
+        ],
+        "patch_id": "patch:repair_handoff:reward_proxy_suspicion:3:strengthen_height_penalty",
+        "patch_type": "phase8_spec_patch.v1",
+        "rationale": "Increase boundary-aware height penalty magnitude in a minimal way.",
+        "target_component": "R",
+        "target_file": "cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml"
+      },
+      "priority": 5,
+      "rationale": "Increase boundary-aware height penalty magnitude in a minimal way.",
+      "selection_score": 77.4,
+      "source_record_ids": [
+        "reward_proxy_suspicion:3"
+      ],
+      "target_component": "R",
+      "target_file": "cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml",
+      "target_paths": [
+        "components.penalty_height.weight"
+      ]
+    },
+    {
+      "candidate_id": "candidate:repair_handoff:constraint_runtime_binding:1:strengthen_safety_reward",
+      "claim_type": "C-R",
+      "estimated_edit_cost": 1.0,
+      "evidence_refs": [
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/constraint_spec_v0.yaml"
+      ],
+      "expected_metric_direction": [
+        "decrease_W_CR",
+        "increase_min_distance"
+      ],
+      "metadata": {
+        "selected_from": "analysis/static",
+        "selected_from_rank": 9,
+        "selection_basis": "ranked_finding_backfill",
+        "support_status": "machine_direct"
+      },
+      "operator_type": "strengthen_safety_reward",
+      "origin_claim_id": "repair_handoff:constraint_runtime_binding:1",
+      "patch": {
+        "expected_metric_direction": [
+          "decrease_W_CR",
+          "increase_min_distance"
+        ],
+        "metadata": {
+          "operator_type": "strengthen_safety_reward",
+          "origin_claim_type": "C-R",
+          "preview_only": true
+        },
+        "operations": [
+          {
+            "after": 0.85,
+            "before": 0.35,
+            "metadata": {},
+            "operation": "set",
+            "operation_id": "repair_handoff:constraint_runtime_binding:1:strengthen_safety_reward:1",
+            "rationale": "Increase static-obstacle safety shaping to better support the declared clearance constraint.",
+            "target_file": "cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml",
+            "target_path": "components.reward_safety_static.weight"
+          }
+        ],
+        "patch_id": "patch:repair_handoff:constraint_runtime_binding:1:strengthen_safety_reward",
+        "patch_type": "phase8_spec_patch.v1",
+        "rationale": "Increase static-obstacle safety shaping to better support the declared clearance constraint.",
+        "target_component": "R",
+        "target_file": "cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml"
+      },
+      "priority": 6,
+      "rationale": "Increase static-obstacle safety shaping to better support the declared clearance constraint.",
+      "selection_score": 73.5,
+      "source_record_ids": [
+        "constraint_runtime_binding:1"
+      ],
+      "target_component": "R",
+      "target_file": "cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml",
+      "target_paths": [
+        "components.reward_safety_static.weight"
+      ]
+    },
+    {
+      "candidate_id": "candidate:repair_handoff:constraint_runtime_binding:1:strengthen_height_penalty",
+      "claim_type": "C-R",
+      "estimated_edit_cost": 1.2,
+      "evidence_refs": [
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/constraint_spec_v0.yaml"
+      ],
+      "expected_metric_direction": [
+        "decrease_W_CR",
+        "decrease_out_of_bounds_rate"
+      ],
+      "metadata": {
+        "selected_from": "analysis/static",
+        "selected_from_rank": 9,
+        "selection_basis": "ranked_finding_backfill",
+        "support_status": "machine_direct"
+      },
+      "operator_type": "strengthen_height_penalty",
+      "origin_claim_id": "repair_handoff:constraint_runtime_binding:1",
+      "patch": {
+        "expected_metric_direction": [
+          "decrease_W_CR",
+          "decrease_out_of_bounds_rate"
+        ],
+        "metadata": {
+          "operator_type": "strengthen_height_penalty",
+          "origin_claim_type": "C-R",
+          "preview_only": true
+        },
+        "operations": [
+          {
+            "after": -1.1,
+            "before": -1.0,
+            "metadata": {},
+            "operation": "set",
+            "operation_id": "repair_handoff:constraint_runtime_binding:1:strengthen_height_penalty:1",
+            "rationale": "Increase boundary-aware height penalty magnitude in a minimal way.",
+            "target_file": "cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml",
+            "target_path": "components.penalty_height.weight"
+          }
+        ],
+        "patch_id": "patch:repair_handoff:constraint_runtime_binding:1:strengthen_height_penalty",
+        "patch_type": "phase8_spec_patch.v1",
+        "rationale": "Increase boundary-aware height penalty magnitude in a minimal way.",
+        "target_component": "R",
+        "target_file": "cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml"
+      },
+      "priority": 7,
+      "rationale": "Increase boundary-aware height penalty magnitude in a minimal way.",
+      "selection_score": 72.45,
+      "source_record_ids": [
+        "constraint_runtime_binding:1"
+      ],
+      "target_component": "R",
+      "target_file": "cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml",
+      "target_paths": [
+        "components.penalty_height.weight"
+      ]
+    },
+    {
+      "candidate_id": "candidate:repair_handoff:scene_family_coverage:4:increase_critical_route_bias",
+      "claim_type": "E-C",
+      "estimated_edit_cost": 1.0,
+      "evidence_refs": [
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/env_cfg/scene_cfg_nominal.yaml",
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/constraint_spec_v0.yaml"
+      ],
+      "expected_metric_direction": [
+        "decrease_W_EC",
+        "increase_critical_family_coverage"
+      ],
+      "metadata": {
+        "selected_from": "analysis/static",
+        "selected_from_rank": 2,
+        "selection_basis": "ranked_finding_backfill",
+        "support_status": "machine_direct"
+      },
+      "operator_type": "increase_critical_route_bias",
+      "origin_claim_id": "repair_handoff:scene_family_coverage:4",
+      "patch": {
+        "expected_metric_direction": [
+          "decrease_W_EC",
+          "increase_critical_family_coverage"
+        ],
+        "metadata": {
+          "operator_type": "increase_critical_route_bias",
+          "origin_claim_type": "E-C",
+          "preview_only": true
+        },
+        "operations": [
+          {
+            "after": 0.65,
+            "before": null,
+            "metadata": {},
+            "operation": "set",
+            "operation_id": "repair_handoff:scene_family_coverage:4:increase_critical_route_bias:1",
+            "rationale": "Bias obstacle structure closer to routes to inject more critical scenarios.",
+            "target_file": "cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml",
+            "target_path": "distribution_modes.route_adjacent_bias"
+          }
+        ],
+        "patch_id": "patch:repair_handoff:scene_family_coverage:4:increase_critical_route_bias",
+        "patch_type": "phase8_spec_patch.v1",
+        "rationale": "Bias obstacle structure closer to routes to inject more critical scenarios.",
+        "target_component": "E",
+        "target_file": "cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml"
+      },
+      "priority": 8,
+      "rationale": "Bias obstacle structure closer to routes to inject more critical scenarios.",
+      "selection_score": 30.5,
+      "source_record_ids": [
+        "scene_family_coverage:4"
+      ],
+      "target_component": "E",
+      "target_file": "cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml",
+      "target_paths": [
+        "distribution_modes.route_adjacent_bias"
+      ]
+    },
+    {
+      "candidate_id": "candidate:repair_handoff:scene_family_coverage:4:increase_critical_template_floor",
+      "claim_type": "E-C",
+      "estimated_edit_cost": 1.1,
+      "evidence_refs": [
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/env_cfg/scene_cfg_nominal.yaml",
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/constraint_spec_v0.yaml"
+      ],
+      "expected_metric_direction": [
+        "decrease_W_EC",
+        "increase_critical_family_coverage"
+      ],
+      "metadata": {
+        "selected_from": "analysis/static",
+        "selected_from_rank": 2,
+        "selection_basis": "ranked_finding_backfill",
+        "support_status": "machine_direct"
+      },
+      "operator_type": "increase_critical_template_floor",
+      "origin_claim_id": "repair_handoff:scene_family_coverage:4",
+      "patch": {
+        "expected_metric_direction": [
+          "decrease_W_EC",
+          "increase_critical_family_coverage"
+        ],
+        "metadata": {
+          "operator_type": "increase_critical_template_floor",
+          "origin_claim_type": "E-C",
+          "preview_only": true
+        },
+        "operations": [
+          {
+            "after": 2,
+            "before": null,
+            "metadata": {},
+            "operation": "set",
+            "operation_id": "repair_handoff:scene_family_coverage:4:increase_critical_template_floor:1",
+            "rationale": "Require at least one more structured template to make critical-family scenes denser and more diagnostic.",
+            "target_file": "cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml",
+            "target_path": "templates.min_templates_per_scene"
+          }
+        ],
+        "patch_id": "patch:repair_handoff:scene_family_coverage:4:increase_critical_template_floor",
+        "patch_type": "phase8_spec_patch.v1",
+        "rationale": "Require at least one more structured template to make critical-family scenes denser and more diagnostic.",
+        "target_component": "E",
+        "target_file": "cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml"
+      },
+      "priority": 9,
+      "rationale": "Require at least one more structured template to make critical-family scenes denser and more diagnostic.",
+      "selection_score": 29.95,
+      "source_record_ids": [
+        "scene_family_coverage:4"
+      ],
+      "target_component": "E",
+      "target_file": "cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml",
+      "target_paths": [
+        "templates.min_templates_per_scene"
+      ]
+    },
+    {
+      "candidate_id": "candidate:repair_handoff:scene_backend_capability:6:increase_shifted_boundary_bias",
+      "claim_type": "E-R",
+      "estimated_edit_cost": 1.0,
+      "evidence_refs": [
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/env_cfg/scene_cfg_nominal.yaml",
+        "/home/mint/rl_dev/crerl_v1/isaac-training/training/envs/env_gen.py"
+      ],
+      "expected_metric_direction": [
+        "decrease_W_ER",
+        "reduce_shifted_gap"
+      ],
+      "metadata": {
+        "selected_from": "analysis/static",
+        "selected_from_rank": 3,
+        "selection_basis": "ranked_finding_backfill",
+        "support_status": "machine_direct"
+      },
+      "operator_type": "increase_shifted_boundary_bias",
+      "origin_claim_id": "repair_handoff:scene_backend_capability:6",
+      "patch": {
+        "expected_metric_direction": [
+          "decrease_W_ER",
+          "reduce_shifted_gap"
+        ],
+        "metadata": {
+          "operator_type": "increase_shifted_boundary_bias",
+          "origin_claim_type": "E-R",
+          "preview_only": true
+        },
+        "operations": [
+          {
+            "after": 0.15,
+            "before": null,
+            "metadata": {},
+            "operation": "set",
+            "operation_id": "repair_handoff:scene_backend_capability:6:increase_shifted_boundary_bias:1",
+            "rationale": "Make shifted scenes place more structure near boundary regions to better represent robustness stress.",
+            "target_file": "cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml",
+            "target_path": "distribution_modes.boundary_adjacent_bias"
+          }
+        ],
+        "patch_id": "patch:repair_handoff:scene_backend_capability:6:increase_shifted_boundary_bias",
+        "patch_type": "phase8_spec_patch.v1",
+        "rationale": "Make shifted scenes place more structure near boundary regions to better represent robustness stress.",
+        "target_component": "E",
+        "target_file": "cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml"
+      },
+      "priority": 10,
+      "rationale": "Make shifted scenes place more structure near boundary regions to better represent robustness stress.",
+      "selection_score": 29.5,
+      "source_record_ids": [
+        "scene_backend_capability:6"
+      ],
+      "target_component": "E",
+      "target_file": "cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml",
+      "target_paths": [
+        "distribution_modes.boundary_adjacent_bias"
+      ]
+    },
+    {
+      "candidate_id": "candidate:repair_handoff:scene_backend_capability:6:enable_shifted_dynamic_hazards",
+      "claim_type": "E-R",
+      "estimated_edit_cost": 1.4,
+      "evidence_refs": [
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/env_cfg/scene_cfg_nominal.yaml",
+        "/home/mint/rl_dev/crerl_v1/isaac-training/training/envs/env_gen.py"
+      ],
+      "expected_metric_direction": [
+        "decrease_W_ER",
+        "reduce_shifted_gap"
+      ],
+      "metadata": {
+        "selected_from": "analysis/static",
+        "selected_from_rank": 3,
+        "selection_basis": "ranked_finding_backfill",
+        "support_status": "machine_direct"
+      },
+      "operator_type": "enable_shifted_dynamic_hazards",
+      "origin_claim_id": "repair_handoff:scene_backend_capability:6",
+      "patch": {
+        "expected_metric_direction": [
+          "decrease_W_ER",
+          "reduce_shifted_gap"
+        ],
+        "metadata": {
+          "operator_type": "enable_shifted_dynamic_hazards",
+          "origin_claim_type": "E-R",
+          "preview_only": true
+        },
+        "operations": [
+          {
+            "after": true,
+            "before": null,
+            "metadata": {},
+            "operation": "set",
+            "operation_id": "repair_handoff:scene_backend_capability:6:enable_shifted_dynamic_hazards:1",
+            "rationale": "Enable dynamic hazards in the shifted family to make robustness stress explicit.",
+            "target_file": "cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml",
+            "target_path": "dynamic_obstacles.enabled"
+          },
+          {
+            "after": 2,
+            "before": null,
+            "metadata": {},
+            "operation": "set",
+            "operation_id": "repair_handoff:scene_backend_capability:6:enable_shifted_dynamic_hazards:2",
+            "rationale": "Ensure the shifted family includes a small but non-zero dynamic obstacle budget.",
+            "target_file": "cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml",
+            "target_path": "dynamic_obstacles.max_dynamic_count"
+          }
+        ],
+        "patch_id": "patch:repair_handoff:scene_backend_capability:6:enable_shifted_dynamic_hazards",
+        "patch_type": "phase8_spec_patch.v1",
+        "rationale": "Enable dynamic hazards in the shifted family to make robustness stress explicit. Ensure the shifted family includes a small but non-zero dynamic obstacle budget.",
+        "target_component": "E",
+        "target_file": "cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml"
+      },
+      "priority": 11,
+      "rationale": "Enable dynamic hazards in the shifted family to make robustness stress explicit. Ensure the shifted family includes a small but non-zero dynamic obstacle budget.",
+      "selection_score": 27.45,
+      "source_record_ids": [
+        "scene_backend_capability:6"
+      ],
+      "target_component": "E",
+      "target_file": "cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml",
+      "target_paths": [
+        "dynamic_obstacles.enabled",
+        "dynamic_obstacles.max_dynamic_count"
+      ]
+    },
+    {
+      "candidate_id": "candidate:repair_handoff:execution_mode_alignment:7:increase_shifted_boundary_bias",
+      "claim_type": "E-R",
+      "estimated_edit_cost": 1.0,
+      "evidence_refs": [
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml",
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/policy_spec_v0.yaml"
+      ],
+      "expected_metric_direction": [
+        "decrease_W_ER",
+        "reduce_shifted_gap"
+      ],
+      "metadata": {
+        "selected_from": "analysis/static",
+        "selected_from_rank": 7,
+        "selection_basis": "ranked_finding_backfill",
+        "support_status": "machine_direct"
+      },
+      "operator_type": "increase_shifted_boundary_bias",
+      "origin_claim_id": "repair_handoff:execution_mode_alignment:7",
+      "patch": {
+        "expected_metric_direction": [
+          "decrease_W_ER",
+          "reduce_shifted_gap"
+        ],
+        "metadata": {
+          "operator_type": "increase_shifted_boundary_bias",
+          "origin_claim_type": "E-R",
+          "preview_only": true
+        },
+        "operations": [
+          {
+            "after": 0.15,
+            "before": null,
+            "metadata": {},
+            "operation": "set",
+            "operation_id": "repair_handoff:execution_mode_alignment:7:increase_shifted_boundary_bias:1",
+            "rationale": "Make shifted scenes place more structure near boundary regions to better represent robustness stress.",
+            "target_file": "cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml",
+            "target_path": "distribution_modes.boundary_adjacent_bias"
+          }
+        ],
+        "patch_id": "patch:repair_handoff:execution_mode_alignment:7:increase_shifted_boundary_bias",
+        "patch_type": "phase8_spec_patch.v1",
+        "rationale": "Make shifted scenes place more structure near boundary regions to better represent robustness stress.",
+        "target_component": "E",
+        "target_file": "cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml"
+      },
+      "priority": 12,
+      "rationale": "Make shifted scenes place more structure near boundary regions to better represent robustness stress.",
+      "selection_score": 25.5,
+      "source_record_ids": [
+        "execution_mode_alignment:7"
+      ],
+      "target_component": "E",
+      "target_file": "cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml",
+      "target_paths": [
+        "distribution_modes.boundary_adjacent_bias"
+      ]
+    },
+    {
+      "candidate_id": "candidate:repair_handoff:execution_mode_alignment:7:enable_shifted_dynamic_hazards",
+      "claim_type": "E-R",
+      "estimated_edit_cost": 1.4,
+      "evidence_refs": [
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml",
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/policy_spec_v0.yaml"
+      ],
+      "expected_metric_direction": [
+        "decrease_W_ER",
+        "reduce_shifted_gap"
+      ],
+      "metadata": {
+        "selected_from": "analysis/static",
+        "selected_from_rank": 7,
+        "selection_basis": "ranked_finding_backfill",
+        "support_status": "machine_direct"
+      },
+      "operator_type": "enable_shifted_dynamic_hazards",
+      "origin_claim_id": "repair_handoff:execution_mode_alignment:7",
+      "patch": {
+        "expected_metric_direction": [
+          "decrease_W_ER",
+          "reduce_shifted_gap"
+        ],
+        "metadata": {
+          "operator_type": "enable_shifted_dynamic_hazards",
+          "origin_claim_type": "E-R",
+          "preview_only": true
+        },
+        "operations": [
+          {
+            "after": true,
+            "before": null,
+            "metadata": {},
+            "operation": "set",
+            "operation_id": "repair_handoff:execution_mode_alignment:7:enable_shifted_dynamic_hazards:1",
+            "rationale": "Enable dynamic hazards in the shifted family to make robustness stress explicit.",
+            "target_file": "cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml",
+            "target_path": "dynamic_obstacles.enabled"
+          },
+          {
+            "after": 2,
+            "before": null,
+            "metadata": {},
+            "operation": "set",
+            "operation_id": "repair_handoff:execution_mode_alignment:7:enable_shifted_dynamic_hazards:2",
+            "rationale": "Ensure the shifted family includes a small but non-zero dynamic obstacle budget.",
+            "target_file": "cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml",
+            "target_path": "dynamic_obstacles.max_dynamic_count"
+          }
+        ],
+        "patch_id": "patch:repair_handoff:execution_mode_alignment:7:enable_shifted_dynamic_hazards",
+        "patch_type": "phase8_spec_patch.v1",
+        "rationale": "Enable dynamic hazards in the shifted family to make robustness stress explicit. Ensure the shifted family includes a small but non-zero dynamic obstacle budget.",
+        "target_component": "E",
+        "target_file": "cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml"
+      },
+      "priority": 13,
+      "rationale": "Enable dynamic hazards in the shifted family to make robustness stress explicit. Ensure the shifted family includes a small but non-zero dynamic obstacle budget.",
+      "selection_score": 23.45,
+      "source_record_ids": [
+        "execution_mode_alignment:7"
+      ],
+      "target_component": "E",
+      "target_file": "cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml",
+      "target_paths": [
+        "dynamic_obstacles.enabled",
+        "dynamic_obstacles.max_dynamic_count"
+      ]
+    }
+  ],
+  "metadata": {
+    "patch_preview_only": true,
+    "primary_claim_type_override": "",
+    "selection_focus_order": [
+      "C-R",
+      "E-C",
+      "E-R"
+    ],
+    "selection_policy": "phase7_ranked_claim_selection.v3",
+    "upstream_report_type": "phase7_unified_report.v1"
+  },
+  "plan_type": "phase8_repair_plan.v1",
+  "primary_claim_type": "C-R",
+  "primary_repair_direction": "reward",
+  "rationale": "Selected `strengthen_safety_reward` as the first repair operator for `C-R` based on Phase 7 handoff ordering and minimal edit cost.",
+  "selected_candidate_id": "candidate:repair_handoff:W_CR:1:strengthen_safety_reward",
+  "selected_claim_ids": [
+    "repair_handoff:reward_proxy_suspicion:3",
+    "repair_handoff:constraint_runtime_binding:1",
+    "repair_handoff:W_CR:1",
+    "repair_handoff:scene_family_coverage:4",
+    "repair_handoff:scene_backend_capability:6",
+    "repair_handoff:execution_mode_alignment:7"
+  ],
+  "selected_patch": {
+    "expected_metric_direction": [
+      "decrease_W_CR",
+      "increase_min_distance"
+    ],
+    "metadata": {
+      "operator_type": "strengthen_safety_reward",
+      "origin_claim_type": "C-R",
+      "preview_only": true
+    },
+    "operations": [
+      {
+        "after": 0.85,
+        "before": 0.35,
+        "metadata": {},
+        "operation": "set",
+        "operation_id": "repair_handoff:W_CR:1:strengthen_safety_reward:1",
+        "rationale": "Increase static-obstacle safety shaping to better support the declared clearance constraint.",
+        "target_file": "cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml",
+        "target_path": "components.reward_safety_static.weight"
+      }
+    ],
+    "patch_id": "patch:repair_handoff:W_CR:1:strengthen_safety_reward",
+    "patch_type": "phase8_spec_patch.v1",
+    "rationale": "Increase static-obstacle safety shaping to better support the declared clearance constraint.",
+    "target_component": "R",
+    "target_file": "cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml"
+  },
+  "source_report_bundle": "demo1_injected_report",
+  "validation_targets": [
+    "W_CR",
+    "min_distance",
+    "near_violation_ratio"
+  ]
+}

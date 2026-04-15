@@ -1,0 +1,234 @@
+{
+  "file_previews": [
+    {
+      "document_type": "yaml",
+      "operation_count": 1,
+      "operations": [
+        {
+          "after": 0.85,
+          "before": 0.35,
+          "metadata": {},
+          "operation": "set",
+          "operation_id": "repair_handoff:W_CR:1:strengthen_safety_reward:1",
+          "rationale": "Increase static-obstacle safety shaping to better support the declared clearance constraint.",
+          "target_file": "cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml",
+          "target_path": "components.reward_safety_static.weight",
+          "would_change": true
+        }
+      ],
+      "original_document": {
+        "assumptions": {
+          "collision_penalty_present": true,
+          "constant_step_bias_present": false,
+          "primary_progress_proxy": "shortest_corridor_progress",
+          "success_bonus_present": true
+        },
+        "components": {
+          "manual_control": {
+            "enabled": true,
+            "execution_modes": [
+              "manual"
+            ],
+            "expected_logged_key": "manual_control",
+            "expected_total_field": null,
+            "intended_effect": "Schema placeholder for the canonical CRE runtime contract.",
+            "sign": "neutral",
+            "weight": 0.0
+          },
+          "penalty_height": {
+            "enabled": true,
+            "execution_modes": [
+              "train",
+              "eval",
+              "baseline"
+            ],
+            "expected_logged_key": "penalty_height",
+            "expected_total_field": "penalty_height_total",
+            "intended_effect": "Preserve the fixed flight-height band.",
+            "sign": "negative",
+            "weight": -1.0
+          },
+          "penalty_smooth": {
+            "enabled": true,
+            "execution_modes": [
+              "train",
+              "eval",
+              "baseline"
+            ],
+            "expected_logged_key": "penalty_smooth",
+            "expected_total_field": "penalty_smooth_total",
+            "intended_effect": "Discourage abrupt corridor transitions.",
+            "sign": "negative",
+            "weight": -0.05
+          },
+          "reward_progress": {
+            "enabled": true,
+            "execution_modes": [
+              "train",
+              "eval",
+              "baseline"
+            ],
+            "expected_logged_key": "reward_progress",
+            "expected_total_field": "reward_progress_total",
+            "intended_effect": "Aggressively reward shortest-corridor progress.",
+            "sign": "positive",
+            "weight": 2.4
+          },
+          "reward_safety_dynamic": {
+            "enabled": false,
+            "execution_modes": [
+              "train",
+              "eval",
+              "baseline"
+            ],
+            "expected_logged_key": "reward_safety_dynamic",
+            "expected_total_field": "reward_safety_dynamic_total",
+            "intended_effect": "Unused in Demo 1 because no dynamic hazards are present.",
+            "sign": "positive",
+            "weight": 0.0
+          },
+          "reward_safety_static": {
+            "enabled": true,
+            "execution_modes": [
+              "train",
+              "eval",
+              "baseline"
+            ],
+            "expected_logged_key": "reward_safety_static",
+            "expected_total_field": "reward_safety_static_total",
+            "intended_effect": "Provide only weak obstacle-clearance support.",
+            "sign": "positive",
+            "weight": 0.35
+          }
+        },
+        "reward_total_field": "reward_total",
+        "spec_version": "demo1-v0",
+        "standard_component_keys": [
+          "reward_progress",
+          "reward_safety_static",
+          "reward_safety_dynamic",
+          "penalty_smooth",
+          "penalty_height",
+          "manual_control"
+        ]
+      },
+      "patched_document": {
+        "assumptions": {
+          "collision_penalty_present": true,
+          "constant_step_bias_present": false,
+          "primary_progress_proxy": "shortest_corridor_progress",
+          "success_bonus_present": true
+        },
+        "components": {
+          "manual_control": {
+            "enabled": true,
+            "execution_modes": [
+              "manual"
+            ],
+            "expected_logged_key": "manual_control",
+            "expected_total_field": null,
+            "intended_effect": "Schema placeholder for the canonical CRE runtime contract.",
+            "sign": "neutral",
+            "weight": 0.0
+          },
+          "penalty_height": {
+            "enabled": true,
+            "execution_modes": [
+              "train",
+              "eval",
+              "baseline"
+            ],
+            "expected_logged_key": "penalty_height",
+            "expected_total_field": "penalty_height_total",
+            "intended_effect": "Preserve the fixed flight-height band.",
+            "sign": "negative",
+            "weight": -1.0
+          },
+          "penalty_smooth": {
+            "enabled": true,
+            "execution_modes": [
+              "train",
+              "eval",
+              "baseline"
+            ],
+            "expected_logged_key": "penalty_smooth",
+            "expected_total_field": "penalty_smooth_total",
+            "intended_effect": "Discourage abrupt corridor transitions.",
+            "sign": "negative",
+            "weight": -0.05
+          },
+          "reward_progress": {
+            "enabled": true,
+            "execution_modes": [
+              "train",
+              "eval",
+              "baseline"
+            ],
+            "expected_logged_key": "reward_progress",
+            "expected_total_field": "reward_progress_total",
+            "intended_effect": "Aggressively reward shortest-corridor progress.",
+            "sign": "positive",
+            "weight": 2.4
+          },
+          "reward_safety_dynamic": {
+            "enabled": false,
+            "execution_modes": [
+              "train",
+              "eval",
+              "baseline"
+            ],
+            "expected_logged_key": "reward_safety_dynamic",
+            "expected_total_field": "reward_safety_dynamic_total",
+            "intended_effect": "Unused in Demo 1 because no dynamic hazards are present.",
+            "sign": "positive",
+            "weight": 0.0
+          },
+          "reward_safety_static": {
+            "enabled": true,
+            "execution_modes": [
+              "train",
+              "eval",
+              "baseline"
+            ],
+            "expected_logged_key": "reward_safety_static",
+            "expected_total_field": "reward_safety_static_total",
+            "intended_effect": "Provide only weak obstacle-clearance support.",
+            "sign": "positive",
+            "weight": 0.85
+          }
+        },
+        "reward_total_field": "reward_total",
+        "spec_version": "demo1-v0",
+        "standard_component_keys": [
+          "reward_progress",
+          "reward_safety_static",
+          "reward_safety_dynamic",
+          "penalty_smooth",
+          "penalty_height",
+          "manual_control"
+        ]
+      },
+      "resolved_target_file": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml",
+      "target_file": "cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml"
+    }
+  ],
+  "phase9_entrypoint": "repair_validation_loop.v1",
+  "preferred_execution_modes": [
+    "baseline",
+    "eval"
+  ],
+  "preview_mode": "non_destructive_validation_context",
+  "preview_type": "phase9_validation_context_preview.v1",
+  "repair_bundle_name": "demo1_injected_repair",
+  "scene_family_scope": [
+    "nominal",
+    "boundary_critical"
+  ],
+  "source_mutation_performed": false,
+  "target_file_count": 1,
+  "validation_targets": [
+    "W_CR",
+    "min_distance",
+    "near_violation_ratio"
+  ]
+}

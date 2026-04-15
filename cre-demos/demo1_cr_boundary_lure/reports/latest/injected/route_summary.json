@@ -1,0 +1,22 @@
+{
+  "reward_weights": {
+    "penalty_height": -1.0,
+    "penalty_smooth": -0.05,
+    "reward_progress": 2.4,
+    "reward_safety_dynamic": 0.0,
+    "reward_safety_static": 0.35
+  },
+  "route_choice_scores": {
+    "risky_short": 2.7705,
+    "safe_long": 2.747
+  },
+  "route_counts": {
+    "risky_short": 6,
+    "safe_long": 0
+  },
+  "route_rate": {
+    "risky_short": 1.0,
+    "safe_long": 0.0
+  },
+  "variant": "injected"
+}

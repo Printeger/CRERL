@@ -1,0 +1,28 @@
+{
+  "files_touched": [
+    "cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml"
+  ],
+  "operation_count": 1,
+  "operations": [
+    {
+      "after": 0.85,
+      "before": 0.35,
+      "metadata": {},
+      "operation": "set",
+      "operation_id": "repair_handoff:W_CR:1:strengthen_safety_reward:1",
+      "rationale": "Increase static-obstacle safety shaping to better support the declared clearance constraint.",
+      "target_file": "cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml",
+      "target_path": "components.reward_safety_static.weight",
+      "would_change": true
+    }
+  ],
+  "patch_id": "patch:repair_handoff:W_CR:1:strengthen_safety_reward",
+  "patch_type": "phase8_spec_patch.v1",
+  "preview_mode": "non_destructive",
+  "preview_type": "phase8_spec_patch_preview.v1",
+  "primary_claim_type": "C-R",
+  "selected_candidate_id": "candidate:repair_handoff:W_CR:1:strengthen_safety_reward",
+  "source_mutation_performed": false,
+  "target_component": "R",
+  "target_file": "cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml"
+}

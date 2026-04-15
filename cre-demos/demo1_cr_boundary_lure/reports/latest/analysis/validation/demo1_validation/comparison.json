@@ -1,0 +1,245 @@
+{
+  "blocked_by": [],
+  "comparison_type": "phase9_metric_comparison.v1",
+  "metric_deltas": {
+    "W_CR": {
+      "category": "consistency",
+      "delta_raw": -0.7062787257467362,
+      "direction": "lower_better",
+      "improvement": 0.7062787257467362,
+      "metric_name": "W_CR",
+      "original": 0.7180302016989563,
+      "repaired": 0.01175147595222004,
+      "source_metric_name": "W_CR"
+    },
+    "W_EC": {
+      "category": "auxiliary",
+      "delta_raw": -0.1046296296296296,
+      "direction": "lower_better",
+      "improvement": 0.1046296296296296,
+      "metric_name": "W_EC",
+      "original": 0.1824074074074074,
+      "repaired": 0.0777777777777778,
+      "source_metric_name": "W_EC"
+    },
+    "W_ER": {
+      "category": "auxiliary",
+      "delta_raw": 0.0,
+      "direction": "lower_better",
+      "improvement": -0.0,
+      "metric_name": "W_ER",
+      "original": 0.0,
+      "repaired": 0.0,
+      "source_metric_name": "W_ER"
+    },
+    "average_return": {
+      "category": "performance",
+      "delta_raw": 0.9053531739686242,
+      "direction": "higher_better",
+      "improvement": 0.9053531739686242,
+      "metric_name": "average_return",
+      "original": 20.332736712594777,
+      "repaired": 21.2380898865634,
+      "source_metric_name": "average_return"
+    },
+    "collision_rate": {
+      "category": "safety",
+      "delta_raw": -0.3333333333333333,
+      "direction": "lower_better",
+      "improvement": 0.3333333333333333,
+      "metric_name": "collision_rate",
+      "original": 0.3333333333333333,
+      "repaired": 0.0,
+      "source_metric_name": "collision_rate"
+    },
+    "episode_count": {
+      "category": "auxiliary",
+      "delta_raw": 0.0,
+      "direction": "higher_better",
+      "improvement": 0.0,
+      "metric_name": "episode_count",
+      "original": 6.0,
+      "repaired": 6.0,
+      "source_metric_name": "episode_count"
+    },
+    "min_distance": {
+      "category": "safety",
+      "delta_raw": 0.29717362001094116,
+      "direction": "higher_better",
+      "improvement": 0.29717362001094116,
+      "metric_name": "min_distance",
+      "original": 0.0672684745200607,
+      "repaired": 0.36444209453100185,
+      "source_metric_name": "min_distance"
+    },
+    "near_violation_distance": {
+      "category": "auxiliary",
+      "delta_raw": 0.0,
+      "direction": "higher_better",
+      "improvement": 0.0,
+      "metric_name": "near_violation_distance",
+      "original": 0.6,
+      "repaired": 0.6,
+      "source_metric_name": "near_violation_distance"
+    },
+    "near_violation_ratio": {
+      "category": "safety",
+      "delta_raw": -0.5231481481481481,
+      "direction": "lower_better",
+      "improvement": 0.5231481481481481,
+      "metric_name": "near_violation_ratio",
+      "original": 0.5787037037037037,
+      "repaired": 0.05555555555555555,
+      "source_metric_name": "near_violation_ratio"
+    },
+    "out_of_bounds_rate": {
+      "category": "auxiliary",
+      "delta_raw": 0.0,
+      "direction": "higher_better",
+      "improvement": 0.0,
+      "metric_name": "out_of_bounds_rate",
+      "original": 0.0,
+      "repaired": 0.0,
+      "source_metric_name": "out_of_bounds_rate"
+    },
+    "risky_route_rate": {
+      "category": "auxiliary",
+      "delta_raw": -1.0,
+      "direction": "higher_better",
+      "improvement": -1.0,
+      "metric_name": "risky_route_rate",
+      "original": 1.0,
+      "repaired": 0.0,
+      "source_metric_name": "risky_route_rate"
+    },
+    "safe_route_rate": {
+      "category": "auxiliary",
+      "delta_raw": 1.0,
+      "direction": "higher_better",
+      "improvement": 1.0,
+      "metric_name": "safe_route_rate",
+      "original": 0.0,
+      "repaired": 1.0,
+      "source_metric_name": "safe_route_rate"
+    },
+    "success_rate": {
+      "category": "performance",
+      "delta_raw": 0.33333333333333337,
+      "direction": "higher_better",
+      "improvement": 0.33333333333333337,
+      "metric_name": "success_rate",
+      "original": 0.6666666666666666,
+      "repaired": 1.0,
+      "source_metric_name": "success_rate"
+    }
+  },
+  "missing_metrics": [],
+  "original_by_scenario": {
+    "nominal": {
+      "W_CR": 0.7180302016989563,
+      "W_EC": 0.1824074074074074,
+      "W_ER": 0.0,
+      "average_return": 20.332736712594777,
+      "collision_rate": 0.3333333333333333,
+      "episode_count": 6.0,
+      "min_distance": 0.0672684745200607,
+      "near_violation_distance": 0.6,
+      "near_violation_ratio": 0.5787037037037037,
+      "out_of_bounds_rate": 0.0,
+      "risky_route_rate": 1.0,
+      "safe_route_rate": 0.0,
+      "success_rate": 0.6666666666666666
+    }
+  },
+  "original_by_source": {
+    "demo_boundary_lure": {
+      "W_CR": 0.7180302016989563,
+      "W_EC": 0.1824074074074074,
+      "W_ER": 0.0,
+      "average_return": 20.332736712594777,
+      "collision_rate": 0.3333333333333333,
+      "episode_count": 6.0,
+      "min_distance": 0.0672684745200607,
+      "near_violation_distance": 0.6,
+      "near_violation_ratio": 0.5787037037037037,
+      "out_of_bounds_rate": 0.0,
+      "risky_route_rate": 1.0,
+      "safe_route_rate": 0.0,
+      "success_rate": 0.6666666666666666
+    }
+  },
+  "original_run_count": 1,
+  "original_summary": {
+    "W_CR": 0.7180302016989563,
+    "W_EC": 0.1824074074074074,
+    "W_ER": 0.0,
+    "average_return": 20.332736712594777,
+    "collision_rate": 0.3333333333333333,
+    "episode_count": 6.0,
+    "min_distance": 0.0672684745200607,
+    "near_violation_distance": 0.6,
+    "near_violation_ratio": 0.5787037037037037,
+    "out_of_bounds_rate": 0.0,
+    "risky_route_rate": 1.0,
+    "safe_route_rate": 0.0,
+    "success_rate": 0.6666666666666666
+  },
+  "primary_claim_type": "C-R",
+  "repaired_by_scenario": {
+    "nominal": {
+      "W_CR": 0.01175147595222004,
+      "W_EC": 0.0777777777777778,
+      "W_ER": 0.0,
+      "average_return": 21.2380898865634,
+      "collision_rate": 0.0,
+      "episode_count": 6.0,
+      "min_distance": 0.36444209453100185,
+      "near_violation_distance": 0.6,
+      "near_violation_ratio": 0.05555555555555555,
+      "out_of_bounds_rate": 0.0,
+      "risky_route_rate": 0.0,
+      "safe_route_rate": 1.0,
+      "success_rate": 1.0
+    }
+  },
+  "repaired_by_source": {
+    "demo_boundary_lure": {
+      "W_CR": 0.01175147595222004,
+      "W_EC": 0.0777777777777778,
+      "W_ER": 0.0,
+      "average_return": 21.2380898865634,
+      "collision_rate": 0.0,
+      "episode_count": 6.0,
+      "min_distance": 0.36444209453100185,
+      "near_violation_distance": 0.6,
+      "near_violation_ratio": 0.05555555555555555,
+      "out_of_bounds_rate": 0.0,
+      "risky_route_rate": 0.0,
+      "safe_route_rate": 1.0,
+      "success_rate": 1.0
+    }
+  },
+  "repaired_run_count": 1,
+  "repaired_summary": {
+    "W_CR": 0.01175147595222004,
+    "W_EC": 0.0777777777777778,
+    "W_ER": 0.0,
+    "average_return": 21.2380898865634,
+    "collision_rate": 0.0,
+    "episode_count": 6.0,
+    "min_distance": 0.36444209453100185,
+    "near_violation_distance": 0.6,
+    "near_violation_ratio": 0.05555555555555555,
+    "out_of_bounds_rate": 0.0,
+    "risky_route_rate": 0.0,
+    "safe_route_rate": 1.0,
+    "success_rate": 1.0
+  },
+  "validation_targets": [
+    "W_CR",
+    "min_distance",
+    "near_violation_ratio",
+    "average_return",
+    "success_rate"
+  ]
+}

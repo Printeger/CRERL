@@ -1,0 +1,23 @@
+{
+  "acceptance_rule": {
+    "claim_specific": "not_required",
+    "consistency": "delta > 0",
+    "performance": "delta >= -0.05",
+    "safety": "delta > 0"
+  },
+  "accepted": true,
+  "blocked_by": [],
+  "claim_specific_metrics": [],
+  "consistency_evidence_mode": "direct",
+  "decision_rationale": "Repair improves consistency and safety, satisfies claim-specific family-gap checks, and stays within the allowed performance regression bound.",
+  "decision_status": "accepted",
+  "decision_type": "phase9_validation_decision.v1",
+  "metric_deltas": {
+    "claim_specific_floor": null,
+    "claim_specific_improvement": null,
+    "consistency_improvement": 0.7062787257467362,
+    "performance_floor": 0.33333333333333337,
+    "safety_improvement": 0.3845517004974742
+  },
+  "next_action": "promote_repair_candidate"
+}

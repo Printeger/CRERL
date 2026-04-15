@@ -1,0 +1,10 @@
+{
+  "accepted": true,
+  "blocked_by": [],
+  "bundle_type": "validation_bundle.v1",
+  "decision_status": "accepted",
+  "original_run_count": 1,
+  "primary_claim_type": "C-R",
+  "repaired_run_count": 1,
+  "validation_plan_type": ""
+}

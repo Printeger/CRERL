@@ -1,0 +1,12 @@
+{
+  "primary_claim_type": "C-R",
+  "repair_bundle_name": "demo1_injected_repair",
+  "validation_targets": [
+    "W_CR",
+    "min_distance",
+    "near_violation_ratio",
+    "average_return",
+    "success_rate"
+  ],
+  "validation_type": "demo1_validation_plan.v1"
+}

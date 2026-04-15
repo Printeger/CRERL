@@ -1,0 +1,187 @@
+{
+  "artifact_paths": {
+    "metric_svg": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/assets/screenshots/demo1_metric_board.svg",
+    "overlay_svg": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/assets/screenshots/demo1_trajectory_overlay.svg",
+    "repair_bundle_dir": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/reports/latest/injected/analysis/repair/demo1_injected_repair",
+    "replay_html": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/assets/videos/demo1_replay.html",
+    "report_bundle_dir": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/reports/latest/injected/analysis/report/demo1_injected_report",
+    "scene_svg": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/assets/screenshots/demo1_scene_topdown.svg",
+    "validation_dir": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/reports/latest/analysis/validation/demo1_validation"
+  },
+  "checks": {
+    "clean_prefers_safe_route": {
+      "details": {
+        "risky_route_rate": 0.0
+      },
+      "passed": true
+    },
+    "injected_elevates_W_CR": {
+      "details": {
+        "clean_W_CR": 0.010271858923982921,
+        "injected_W_CR": 0.7180302016989563,
+        "repaired_W_CR": 0.01175147595222004
+      },
+      "passed": true
+    },
+    "injected_increases_near_violation": {
+      "details": {
+        "clean_near_violation_ratio": 0.05555555555555555,
+        "injected_near_violation_ratio": 0.5787037037037037,
+        "repaired_near_violation_ratio": 0.05555555555555555
+      },
+      "passed": true
+    },
+    "injected_prefers_risky_route": {
+      "details": {
+        "risky_route_rate": 1.0
+      },
+      "passed": true
+    },
+    "injected_reduces_clearance": {
+      "details": {
+        "clean_min_distance": 0.3684707313442594,
+        "injected_min_distance": 0.0672684745200607,
+        "repaired_min_distance": 0.36444209453100185
+      },
+      "passed": true
+    },
+    "repair_operator_matches_demo_story": {
+      "details": {
+        "selected_operator": "strengthen_safety_reward"
+      },
+      "passed": true
+    },
+    "repair_validation_accepted": {
+      "details": {
+        "blocked_by": [],
+        "decision_status": "accepted"
+      },
+      "passed": true
+    },
+    "repaired_returns_to_safe_route": {
+      "details": {
+        "risky_route_rate": 0.0
+      },
+      "passed": true
+    },
+    "report_primary_claim_is_cr": {
+      "details": {
+        "primary_claim_type": "C-R"
+      },
+      "passed": true
+    },
+    "reward_only_diff_scope": {
+      "details": {
+        "variant_reward_specs": [
+          "cre-demos/demo1_cr_boundary_lure/cfg/spec_clean/reward_spec_v0.yaml",
+          "cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml",
+          "cre-demos/demo1_cr_boundary_lure/cfg/spec_repaired/reward_spec_v0.yaml"
+        ]
+      },
+      "passed": true
+    },
+    "same_scene_geometry": {
+      "details": {
+        "scene_cfg_name": "scene_cfg_nominal.yaml",
+        "scene_layout_sha256": "247584fc34573b423f8fcb0daba0d716c9cf98a313e5b6b5b4e36004367821fa"
+      },
+      "passed": true
+    }
+  },
+  "demo_id": "demo1_cr_boundary_lure",
+  "goal_achieved": true,
+  "goal_statement": "Changing reward weights alone should push the policy toward the dangerous inner corridor.",
+  "variant_summaries": {
+    "clean": {
+      "W_CR": 0.010271858923982921,
+      "W_EC": 0.0777777777777778,
+      "W_ER": 0.0,
+      "average_return": 17.656261034103952,
+      "collision_rate": 0.0,
+      "done_type_counts": {
+        "success": 6
+      },
+      "episode_count": 6,
+      "min_distance": 0.3684707313442594,
+      "near_violation_distance": 0.6,
+      "near_violation_ratio": 0.05555555555555555,
+      "out_of_bounds_rate": 0.0,
+      "risky_route_rate": 0.0,
+      "run_dir": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/reports/latest/clean/logs/demo1_clean",
+      "run_id": "demo1_clean",
+      "run_metadata": {
+        "demo_id": "demo1_cr_boundary_lure",
+        "scene_layout_file": "cre-demos/demo1_cr_boundary_lure/cfg/scene_layout.yaml",
+        "spec_dir": "cre-demos/demo1_cr_boundary_lure/cfg/spec_clean",
+        "variant": "clean"
+      },
+      "safe_route_rate": 1.0,
+      "scene_layout_id": "demo1_cr_boundary_lure",
+      "schema_version": "cre_runtime_log.v1",
+      "source": "demo_boundary_lure",
+      "success_rate": 1.0,
+      "variant_name": "clean"
+    },
+    "injected": {
+      "W_CR": 0.7180302016989563,
+      "W_EC": 0.1824074074074074,
+      "W_ER": 0.0,
+      "average_return": 20.332736712594777,
+      "collision_rate": 0.3333333333333333,
+      "done_type_counts": {
+        "collision": 2,
+        "success": 4
+      },
+      "episode_count": 6,
+      "min_distance": 0.0672684745200607,
+      "near_violation_distance": 0.6,
+      "near_violation_ratio": 0.5787037037037037,
+      "out_of_bounds_rate": 0.0,
+      "risky_route_rate": 1.0,
+      "run_dir": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/reports/latest/injected/logs/demo1_injected",
+      "run_id": "demo1_injected",
+      "run_metadata": {
+        "demo_id": "demo1_cr_boundary_lure",
+        "scene_layout_file": "cre-demos/demo1_cr_boundary_lure/cfg/scene_layout.yaml",
+        "spec_dir": "cre-demos/demo1_cr_boundary_lure/cfg/spec_injected",
+        "variant": "injected"
+      },
+      "safe_route_rate": 0.0,
+      "scene_layout_id": "demo1_cr_boundary_lure",
+      "schema_version": "cre_runtime_log.v1",
+      "source": "demo_boundary_lure",
+      "success_rate": 0.6666666666666666,
+      "variant_name": "injected"
+    },
+    "repaired": {
+      "W_CR": 0.01175147595222004,
+      "W_EC": 0.0777777777777778,
+      "W_ER": 0.0,
+      "average_return": 21.2380898865634,
+      "collision_rate": 0.0,
+      "done_type_counts": {
+        "success": 6
+      },
+      "episode_count": 6,
+      "min_distance": 0.36444209453100185,
+      "near_violation_distance": 0.6,
+      "near_violation_ratio": 0.05555555555555555,
+      "out_of_bounds_rate": 0.0,
+      "risky_route_rate": 0.0,
+      "run_dir": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/reports/latest/repaired/logs/demo1_repaired",
+      "run_id": "demo1_repaired",
+      "run_metadata": {
+        "demo_id": "demo1_cr_boundary_lure",
+        "scene_layout_file": "cre-demos/demo1_cr_boundary_lure/cfg/scene_layout.yaml",
+        "spec_dir": "cre-demos/demo1_cr_boundary_lure/cfg/spec_repaired",
+        "variant": "repaired"
+      },
+      "safe_route_rate": 1.0,
+      "scene_layout_id": "demo1_cr_boundary_lure",
+      "schema_version": "cre_runtime_log.v1",
+      "source": "demo_boundary_lure",
+      "success_rate": 1.0,
+      "variant_name": "repaired"
+    }
+  }
+}

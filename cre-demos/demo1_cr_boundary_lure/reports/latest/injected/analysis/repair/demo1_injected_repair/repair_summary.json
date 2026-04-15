@@ -1,0 +1,17 @@
+{
+  "bundle_type": "repair_generation_bundle.v1",
+  "candidate_count": 13,
+  "metadata": {
+    "max_severity": "info",
+    "passed": true,
+    "primary_repair_direction": "reward"
+  },
+  "plan_type": "phase8_repair_plan.v1",
+  "primary_claim_type": "C-R",
+  "selected_candidate_id": "candidate:repair_handoff:W_CR:1:strengthen_safety_reward",
+  "validation_targets": [
+    "W_CR",
+    "min_distance",
+    "near_violation_ratio"
+  ]
+}

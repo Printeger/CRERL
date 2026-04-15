@@ -1,0 +1,1059 @@
+{
+  "input_bundles": {
+    "dynamic": {
+      "bundle_dir": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/reports/latest/injected/analysis/dynamic/demo1_injected_dynamic",
+      "bundle_name": "demo1_injected_dynamic"
+    },
+    "semantic": {
+      "bundle_dir": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/reports/latest/injected/analysis/semantic/demo1_injected_semantic",
+      "bundle_name": "demo1_injected_semantic"
+    },
+    "static": {
+      "bundle_dir": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/reports/latest/injected/analysis/static/demo1_injected_static",
+      "bundle_name": "demo1_injected_static"
+    }
+  },
+  "max_severity": "medium",
+  "metadata": {
+    "namespace_contract": {
+      "contract_type": "report_namespace_contract.v1",
+      "generated_at_utc": "2026-04-15T09:58:36.050005+00:00",
+      "report_mode_artifacts": {
+        "benchmark_suite": [
+          "benchmark_manifest.json",
+          "benchmark_cases.json",
+          "benchmark_matrix.json",
+          "benchmark_summary.json",
+          "benchmark_summary.md",
+          "manifest.json",
+          "namespace_manifest.json"
+        ],
+        "dynamic_analysis": [
+          "dynamic_report.json",
+          "dynamic_evidence.json",
+          "semantic_inputs.json",
+          "summary.json",
+          "manifest.json",
+          "namespace_manifest.json"
+        ],
+        "integration_audit": [
+          "integration_plan.json",
+          "execution_matrix.json",
+          "run_binding.json",
+          "native_execution_consumer.json",
+          "integration_acceptance.json",
+          "integration_summary.json",
+          "integration_summary.md",
+          "manifest.json",
+          "namespace_manifest.json"
+        ],
+        "release_packaging": [
+          "release_plan.json",
+          "release_artifacts.json",
+          "demo_matrix.json",
+          "demo_consumer.json",
+          "release_acceptance.json",
+          "release_summary.json",
+          "release_summary.md",
+          "manifest.json",
+          "namespace_manifest.json"
+        ],
+        "repair_generation": [
+          "repair_plan.json",
+          "repair_candidates.json",
+          "spec_patch.json",
+          "spec_patch_preview.json",
+          "validation_context_preview.json",
+          "repair_summary.json",
+          "repair_summary.md",
+          "acceptance.json",
+          "repair_validation.json",
+          "validation_request.json",
+          "manifest.json",
+          "namespace_manifest.json"
+        ],
+        "report_generation": [
+          "report.json",
+          "ranked_findings.json",
+          "repair_handoff.json",
+          "report_summary.md",
+          "summary.json",
+          "manifest.json",
+          "namespace_manifest.json"
+        ],
+        "semantic_analysis": [
+          "semantic_report.json",
+          "semantic_claims.json",
+          "semantic_input.json",
+          "semantic_summary.md",
+          "semantic_merge_input.json",
+          "claim_consumer.json",
+          "summary.json",
+          "manifest.json",
+          "namespace_manifest.json"
+        ],
+        "static_audit": [
+          "static_report.json",
+          "summary.json",
+          "manifest.json",
+          "namespace_manifest.json"
+        ],
+        "validation_generation": [
+          "validation_plan.json",
+          "validation_runs.json",
+          "comparison.json",
+          "validation_decision.json",
+          "post_repair_evidence.json",
+          "validation_summary.json",
+          "validation_summary.md",
+          "manifest.json",
+          "namespace_manifest.json"
+        ]
+      },
+      "report_namespaces": {
+        "benchmark_suite": "analysis/benchmark",
+        "dynamic_analysis": "analysis/dynamic",
+        "integration_audit": "analysis/integration",
+        "release_packaging": "analysis/release",
+        "repair_generation": "analysis/repair",
+        "report_generation": "analysis/report",
+        "semantic_analysis": "analysis/semantic",
+        "static_audit": "analysis/static",
+        "validation_generation": "analysis/validation"
+      }
+    },
+    "report_artifacts": [
+      "report.json",
+      "ranked_findings.json",
+      "repair_handoff.json",
+      "report_summary.md",
+      "summary.json",
+      "manifest.json",
+      "namespace_manifest.json"
+    ],
+    "report_namespace": "analysis/report",
+    "semantic_merge_input": {
+      "claim_overview": {
+        "claim_type_breakdown": {
+          "C-R": 1,
+          "E-C": 1
+        },
+        "rejected_count": 0,
+        "supported_count": 0,
+        "weak_count": 2
+      },
+      "consumer_contract": {
+        "claim_consumer_type": "phase7_claim_consumer.v1",
+        "consumer_contract_type": "phase7_claim_consumer_contract.v1",
+        "repair_ready_claim_schema": "phase7_claim_record.v1"
+      },
+      "dynamic_bundle_name": "demo1_injected_dynamic",
+      "evidence_overview": {
+        "dynamic_finding_count": 3,
+        "evidence_object_count": 6,
+        "failure_hotspot_count": 3,
+        "static_finding_count": 8,
+        "witness_count": 3
+      },
+      "human_summary": {
+        "most_likely_claim_summary": "Reward-boundary coupling is elevated.",
+        "most_likely_claim_type": "C-R",
+        "next_check_or_repair_direction": "collect more dynamic evidence before acting on weak semantic claims",
+        "strongest_supported_claim_id": "",
+        "strongest_uncertainty_claim_id": "mock_semantic_provider.v1:claim:001"
+      },
+      "max_severity": "medium",
+      "merge_input_type": "phase7_semantic_report_merge_input.v1",
+      "metadata": {
+        "merge_target": "phase7_unified_report_generation",
+        "repair_target": "phase8_repair_engine"
+      },
+      "passed": true,
+      "semantic_bundle_name": "demo1_injected_semantic",
+      "spec_version": "demo1-v0",
+      "static_bundle_name": "demo1_injected_static",
+      "top_claim": {
+        "affected_families": [],
+        "affected_scene_cfg_names": [],
+        "affected_sources": [
+          "unknown"
+        ],
+        "claim_id": "mock_semantic_provider.v1:claim:001",
+        "claim_type": "C-R",
+        "confidence": 0.7180302016989563,
+        "provider_metadata": {
+          "comparison_run_ids": [],
+          "crosscheck_messages": [
+            "Claim type 'C-R' is allowed by the semantic contract.",
+            "Claim cites 1 known evidence object(s).",
+            "Claim cites 2 known finding id(s).",
+            "Claim cites 1 known witness id(s).",
+            "Claim is aligned with witness id(s): W_CR.",
+            "Matched sources: <none>"
+          ],
+          "crosscheck_passed": false,
+          "generation_mode": "deterministic_mock",
+          "primary_run_ids": [
+            "demo1_injected"
+          ],
+          "provider_name": "mock_semantic_provider.v1"
+        },
+        "rationale": "Generated from witness W_CR with score 0.718 and real runtime evidence from accepted bundles.",
+        "repair_direction_hint": "review reward shaping and constraint penalties",
+        "severity": "medium",
+        "status": "weak",
+        "summary": "Reward-boundary coupling is elevated.",
+        "supporting_evidence_ids": [
+          "witness:W_CR"
+        ],
+        "supporting_finding_ids": [
+          "W_CR:1",
+          "W_EC:2"
+        ],
+        "supporting_witness_ids": [
+          "W_CR"
+        ]
+      }
+    },
+    "source_namespaces": [
+      "analysis/static",
+      "analysis/dynamic",
+      "analysis/semantic"
+    ],
+    "source_paths": {
+      "constraint_spec": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/constraint_spec_v0.yaml",
+      "detector_thresholds": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/detector_cfg/detector_thresholds.yaml",
+      "policy_spec": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/policy_spec_v0.yaml",
+      "reward_spec": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml",
+      "scene_cfg_base": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/env_cfg/scene_cfg_base.yaml",
+      "scene_family:nominal": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/env_cfg/scene_cfg_nominal.yaml",
+      "witness_weights": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/detector_cfg/witness_weights.yaml"
+    }
+  },
+  "num_ranked_findings": 13,
+  "passed": true,
+  "ranked_findings": [
+    {
+      "claim_type": "C-R",
+      "confidence": 0.7180302016989563,
+      "evidence_refs": [
+        "demo1_injected"
+      ],
+      "finding_id": "report:dynamic:W_CR:1",
+      "impacted_components": [
+        "C",
+        "R"
+      ],
+      "metadata": {
+        "score": 0.7180302016989563,
+        "witness_id": "W_CR"
+      },
+      "rank_score": 0.690205,
+      "repair_direction": "reward",
+      "severity": "medium",
+      "source_namespace": "analysis/dynamic",
+      "source_record_id": "W_CR:1",
+      "summary": "Reward-boundary coupling is elevated.",
+      "support_status": "machine_derived"
+    },
+    {
+      "claim_type": "E-C",
+      "confidence": 0.35,
+      "evidence_refs": [
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/env_cfg/scene_cfg_nominal.yaml",
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/constraint_spec_v0.yaml"
+      ],
+      "finding_id": "report:static:scene_family_coverage:4",
+      "impacted_components": [
+        "E",
+        "C"
+      ],
+      "metadata": {
+        "check_id": "scene_family_coverage",
+        "passed": true,
+        "recommended_action": "Add or adjust scene-family capabilities so every declared constraint activation requirement is covered by at least one family."
+      },
+      "rank_score": 0.5575,
+      "repair_direction": "environment",
+      "severity": "info",
+      "source_namespace": "analysis/static",
+      "source_record_id": "scene_family_coverage:4",
+      "summary": "Scene families cover the current constraint activation requirements.",
+      "support_status": "machine_direct"
+    },
+    {
+      "claim_type": "E-R",
+      "confidence": 0.35,
+      "evidence_refs": [
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/env_cfg/scene_cfg_nominal.yaml",
+        "/home/mint/rl_dev/crerl_v1/isaac-training/training/envs/env_gen.py"
+      ],
+      "finding_id": "report:static:scene_backend_capability:6",
+      "impacted_components": [
+        "E",
+        "R"
+      ],
+      "metadata": {
+        "check_id": "scene_backend_capability",
+        "passed": true,
+        "recommended_action": "Align scene-family declarations with the actual env_gen backend capabilities, or extend the backend to express the missing cases."
+      },
+      "rank_score": 0.5575,
+      "repair_direction": "mixed",
+      "severity": "info",
+      "source_namespace": "analysis/static",
+      "source_record_id": "scene_backend_capability:6",
+      "summary": "Scene backend capability matches the declared family requirements.",
+      "support_status": "machine_direct"
+    },
+    {
+      "claim_type": "C-R",
+      "confidence": 0.35,
+      "evidence_refs": [
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml",
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/policy_spec_v0.yaml"
+      ],
+      "finding_id": "report:static:reward_proxy_suspicion:3",
+      "impacted_components": [
+        "C",
+        "R"
+      ],
+      "metadata": {
+        "check_id": "reward_proxy_suspicion",
+        "passed": true,
+        "recommended_action": "Review whether progress shaping, step bias, and success/collision signals reflect the intended task objective instead of only an easy proxy."
+      },
+      "rank_score": 0.5575,
+      "repair_direction": "reward",
+      "severity": "info",
+      "source_namespace": "analysis/static",
+      "source_record_id": "reward_proxy_suspicion:3",
+      "summary": "No suspicious reward proxy patterns were detected.",
+      "support_status": "machine_direct"
+    },
+    {
+      "claim_type": "C-R",
+      "confidence": 0.35,
+      "evidence_refs": [
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml",
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/constraint_spec_v0.yaml"
+      ],
+      "finding_id": "report:static:reward_constraint_conflicts:2",
+      "impacted_components": [
+        "C",
+        "R"
+      ],
+      "metadata": {
+        "check_id": "reward_constraint_conflicts",
+        "passed": true,
+        "recommended_action": "Rebalance reward components or constraint support terms so each declared safety requirement has an explicit behavioral counterweight."
+      },
+      "rank_score": 0.5575,
+      "repair_direction": "reward",
+      "severity": "info",
+      "source_namespace": "analysis/static",
+      "source_record_id": "reward_constraint_conflicts:2",
+      "summary": "No obvious reward/constraint direct conflicts were detected.",
+      "support_status": "machine_direct"
+    },
+    {
+      "claim_type": "C-R",
+      "confidence": 0.35,
+      "evidence_refs": [
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml",
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/policy_spec_v0.yaml"
+      ],
+      "finding_id": "report:static:required_runtime_fields:8",
+      "impacted_components": [
+        "C",
+        "R"
+      ],
+      "metadata": {
+        "check_id": "required_runtime_fields",
+        "passed": true,
+        "recommended_action": "Align the runtime schema with the declared reward and policy expectations so all required fields are emitted and named consistently."
+      },
+      "rank_score": 0.5575,
+      "repair_direction": "reward",
+      "severity": "info",
+      "source_namespace": "analysis/static",
+      "source_record_id": "required_runtime_fields:8",
+      "summary": "The runtime schema provides the required core fields and reward bindings.",
+      "support_status": "machine_direct"
+    },
+    {
+      "claim_type": "E-R",
+      "confidence": 0.35,
+      "evidence_refs": [
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml",
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/policy_spec_v0.yaml"
+      ],
+      "finding_id": "report:static:execution_mode_alignment:7",
+      "impacted_components": [
+        "E",
+        "R"
+      ],
+      "metadata": {
+        "check_id": "execution_mode_alignment",
+        "passed": true,
+        "recommended_action": "Align reward component execution_modes with the supported manual, train, eval, and baseline execution paths."
+      },
+      "rank_score": 0.5575,
+      "repair_direction": "mixed",
+      "severity": "info",
+      "source_namespace": "analysis/static",
+      "source_record_id": "execution_mode_alignment:7",
+      "summary": "Reward component execution modes align with the supported execution paths.",
+      "support_status": "machine_direct"
+    },
+    {
+      "claim_type": "E-C",
+      "confidence": 0.35,
+      "evidence_refs": [
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/env_cfg/scene_cfg_nominal.yaml"
+      ],
+      "finding_id": "report:static:scene_family_structure:5",
+      "impacted_components": [
+        "E",
+        "C"
+      ],
+      "metadata": {
+        "check_id": "scene_family_structure",
+        "passed": true,
+        "recommended_action": "Repair scene-family config structure so workspace, start-goal, template, and validation settings remain internally consistent."
+      },
+      "rank_score": 0.545,
+      "repair_direction": "environment",
+      "severity": "info",
+      "source_namespace": "analysis/static",
+      "source_record_id": "scene_family_structure:5",
+      "summary": "Scene family configs satisfy the current structural validation rules.",
+      "support_status": "machine_direct"
+    },
+    {
+      "claim_type": "C-R",
+      "confidence": 0.35,
+      "evidence_refs": [
+        "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/constraint_spec_v0.yaml"
+      ],
+      "finding_id": "report:static:constraint_runtime_binding:1",
+      "impacted_components": [
+        "C",
+        "R"
+      ],
+      "metadata": {
+        "check_id": "constraint_runtime_binding",
+        "passed": true,
+        "recommended_action": "Update the constraint spec or runtime schema so every required constraint has a valid logged_variable and threshold_ref."
+      },
+      "rank_score": 0.545,
+      "repair_direction": "reward",
+      "severity": "info",
+      "source_namespace": "analysis/static",
+      "source_record_id": "constraint_runtime_binding:1",
+      "summary": "All required constraints map to runtime fields and threshold references.",
+      "support_status": "machine_direct"
+    },
+    {
+      "claim_type": "C-R",
+      "confidence": 0.7180302016989563,
+      "evidence_refs": [
+        "witness:W_CR"
+      ],
+      "finding_id": "report:semantic:mock_semantic_provider.v1:claim:001",
+      "impacted_components": [
+        "C",
+        "R"
+      ],
+      "metadata": {
+        "affected_families": [],
+        "affected_scene_cfg_names": [],
+        "affected_sources": [
+          "unknown"
+        ],
+        "semantic_bundle_name": "demo1_injected_semantic"
+      },
+      "rank_score": 0.510205,
+      "repair_direction": "review reward shaping and constraint penalties",
+      "severity": "medium",
+      "source_namespace": "analysis/semantic",
+      "source_record_id": "mock_semantic_provider.v1:claim:001",
+      "summary": "Reward-boundary coupling is elevated.",
+      "support_status": "semantic_weak"
+    },
+    {
+      "claim_type": "E-C",
+      "confidence": 0.1824074074074074,
+      "evidence_refs": [
+        "demo1_injected"
+      ],
+      "finding_id": "report:dynamic:W_EC:2",
+      "impacted_components": [
+        "E",
+        "C"
+      ],
+      "metadata": {
+        "score": 0.1824074074074074,
+        "witness_id": "W_EC"
+      },
+      "rank_score": 0.449861,
+      "repair_direction": "environment",
+      "severity": "info",
+      "source_namespace": "analysis/dynamic",
+      "source_record_id": "W_EC:2",
+      "summary": "Critical-state coverage appears acceptable.",
+      "support_status": "machine_derived"
+    },
+    {
+      "claim_type": "E-R",
+      "confidence": 0.0,
+      "evidence_refs": [
+        "demo1_injected"
+      ],
+      "finding_id": "report:dynamic:W_ER:3",
+      "impacted_components": [
+        "E",
+        "R"
+      ],
+      "metadata": {
+        "score": 0.0,
+        "witness_id": "W_ER"
+      },
+      "rank_score": 0.4225,
+      "repair_direction": "mixed",
+      "severity": "info",
+      "source_namespace": "analysis/dynamic",
+      "source_record_id": "W_ER:3",
+      "summary": "No comparison run group was available for transfer-fragility analysis.",
+      "support_status": "machine_derived"
+    },
+    {
+      "claim_type": "E-C",
+      "confidence": 0.1824074074074074,
+      "evidence_refs": [
+        "witness:W_EC"
+      ],
+      "finding_id": "report:semantic:mock_semantic_provider.v1:claim:002",
+      "impacted_components": [
+        "E",
+        "C"
+      ],
+      "metadata": {
+        "affected_families": [],
+        "affected_scene_cfg_names": [],
+        "affected_sources": [
+          "unknown"
+        ],
+        "semantic_bundle_name": "demo1_injected_semantic"
+      },
+      "rank_score": 0.349861,
+      "repair_direction": "review family coverage and critical scenario exposure",
+      "severity": "warning",
+      "source_namespace": "analysis/semantic",
+      "source_record_id": "mock_semantic_provider.v1:claim:002",
+      "summary": "Critical-state coverage appears acceptable.",
+      "support_status": "semantic_weak"
+    }
+  ],
+  "repair_handoff": {
+    "claim_record_schema": "phase7_repair_ready_claim.v1",
+    "handoff_type": "phase8_repair_handoff.v1",
+    "impacted_components_union": [
+      "C",
+      "E",
+      "R"
+    ],
+    "metadata": {
+      "max_selected_claims": 6,
+      "phase8_ready": true
+    },
+    "primary_claim_type": "C-R",
+    "primary_repair_direction": "reward",
+    "repair_order": [
+      {
+        "claim_type": "C-R",
+        "handoff_id": "repair_handoff:reward_proxy_suspicion:3",
+        "order": 1,
+        "selected_from": "analysis/static",
+        "selection_basis": "ranked_finding_backfill",
+        "suggested_repair_direction": "reward"
+      },
+      {
+        "claim_type": "C-R",
+        "handoff_id": "repair_handoff:constraint_runtime_binding:1",
+        "order": 2,
+        "selected_from": "analysis/static",
+        "selection_basis": "ranked_finding_backfill",
+        "suggested_repair_direction": "reward"
+      },
+      {
+        "claim_type": "C-R",
+        "handoff_id": "repair_handoff:W_CR:1",
+        "order": 3,
+        "selected_from": "analysis/dynamic",
+        "selection_basis": "ranked_finding_backfill",
+        "suggested_repair_direction": "reward"
+      },
+      {
+        "claim_type": "E-C",
+        "handoff_id": "repair_handoff:scene_family_coverage:4",
+        "order": 4,
+        "selected_from": "analysis/static",
+        "selection_basis": "ranked_finding_backfill",
+        "suggested_repair_direction": "environment"
+      },
+      {
+        "claim_type": "E-R",
+        "handoff_id": "repair_handoff:scene_backend_capability:6",
+        "order": 5,
+        "selected_from": "analysis/static",
+        "selection_basis": "ranked_finding_backfill",
+        "suggested_repair_direction": "mixed"
+      },
+      {
+        "claim_type": "E-R",
+        "handoff_id": "repair_handoff:execution_mode_alignment:7",
+        "order": 6,
+        "selected_from": "analysis/static",
+        "selection_basis": "ranked_finding_backfill",
+        "suggested_repair_direction": "mixed"
+      }
+    ],
+    "required_evidence_contract": {
+      "required_claim_fields": [
+        "claim_type",
+        "support_status",
+        "impacted_components",
+        "suggested_repair_direction",
+        "required_evidence_refs"
+      ],
+      "required_support_statuses": [
+        "machine_direct",
+        "machine_derived",
+        "semantic_supported",
+        "semantic_weak"
+      ]
+    },
+    "selected_claims": [
+      {
+        "claim_type": "C-R",
+        "confidence": 0.35,
+        "handoff_id": "repair_handoff:reward_proxy_suspicion:3",
+        "impacted_components": [
+          "C",
+          "R"
+        ],
+        "required_evidence_refs": [
+          "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml",
+          "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/policy_spec_v0.yaml"
+        ],
+        "selected_from": "analysis/static",
+        "selected_from_rank": 4,
+        "selection_basis": "ranked_finding_backfill",
+        "severity": "info",
+        "source_record_ids": [
+          "reward_proxy_suspicion:3"
+        ],
+        "suggested_repair_direction": "reward",
+        "summary": "No suspicious reward proxy patterns were detected.",
+        "support_status": "machine_direct"
+      },
+      {
+        "claim_type": "C-R",
+        "confidence": 0.35,
+        "handoff_id": "repair_handoff:constraint_runtime_binding:1",
+        "impacted_components": [
+          "C",
+          "R"
+        ],
+        "required_evidence_refs": [
+          "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/constraint_spec_v0.yaml"
+        ],
+        "selected_from": "analysis/static",
+        "selected_from_rank": 9,
+        "selection_basis": "ranked_finding_backfill",
+        "severity": "info",
+        "source_record_ids": [
+          "constraint_runtime_binding:1"
+        ],
+        "suggested_repair_direction": "reward",
+        "summary": "All required constraints map to runtime fields and threshold references.",
+        "support_status": "machine_direct"
+      },
+      {
+        "claim_type": "C-R",
+        "confidence": 0.7180302016989563,
+        "handoff_id": "repair_handoff:W_CR:1",
+        "impacted_components": [
+          "C",
+          "R"
+        ],
+        "required_evidence_refs": [
+          "demo1_injected"
+        ],
+        "selected_from": "analysis/dynamic",
+        "selected_from_rank": 1,
+        "selection_basis": "ranked_finding_backfill",
+        "severity": "medium",
+        "source_record_ids": [
+          "W_CR:1"
+        ],
+        "suggested_repair_direction": "reward",
+        "summary": "Reward-boundary coupling is elevated.",
+        "support_status": "machine_derived"
+      },
+      {
+        "claim_type": "E-C",
+        "confidence": 0.35,
+        "handoff_id": "repair_handoff:scene_family_coverage:4",
+        "impacted_components": [
+          "E",
+          "C"
+        ],
+        "required_evidence_refs": [
+          "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/env_cfg/scene_cfg_nominal.yaml",
+          "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/constraint_spec_v0.yaml"
+        ],
+        "selected_from": "analysis/static",
+        "selected_from_rank": 2,
+        "selection_basis": "ranked_finding_backfill",
+        "severity": "info",
+        "source_record_ids": [
+          "scene_family_coverage:4"
+        ],
+        "suggested_repair_direction": "environment",
+        "summary": "Scene families cover the current constraint activation requirements.",
+        "support_status": "machine_direct"
+      },
+      {
+        "claim_type": "E-R",
+        "confidence": 0.35,
+        "handoff_id": "repair_handoff:scene_backend_capability:6",
+        "impacted_components": [
+          "E",
+          "R"
+        ],
+        "required_evidence_refs": [
+          "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/env_cfg/scene_cfg_nominal.yaml",
+          "/home/mint/rl_dev/crerl_v1/isaac-training/training/envs/env_gen.py"
+        ],
+        "selected_from": "analysis/static",
+        "selected_from_rank": 3,
+        "selection_basis": "ranked_finding_backfill",
+        "severity": "info",
+        "source_record_ids": [
+          "scene_backend_capability:6"
+        ],
+        "suggested_repair_direction": "mixed",
+        "summary": "Scene backend capability matches the declared family requirements.",
+        "support_status": "machine_direct"
+      },
+      {
+        "claim_type": "E-R",
+        "confidence": 0.35,
+        "handoff_id": "repair_handoff:execution_mode_alignment:7",
+        "impacted_components": [
+          "E",
+          "R"
+        ],
+        "required_evidence_refs": [
+          "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml",
+          "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/policy_spec_v0.yaml"
+        ],
+        "selected_from": "analysis/static",
+        "selected_from_rank": 7,
+        "selection_basis": "ranked_finding_backfill",
+        "severity": "info",
+        "source_record_ids": [
+          "execution_mode_alignment:7"
+        ],
+        "suggested_repair_direction": "mixed",
+        "summary": "Reward component execution modes align with the supported execution paths.",
+        "support_status": "machine_direct"
+      }
+    ],
+    "selection_policy": "phase7_ranked_claim_selection.v3",
+    "selection_summary": {
+      "primary_claim_type": "C-R",
+      "selected_claim_count": 6,
+      "selection_focus_order": [
+        "C-R",
+        "E-C",
+        "E-R"
+      ]
+    }
+  },
+  "report_type": "phase7_unified_report.v1",
+  "root_cause_summary": {
+    "claim_type_breakdown": {
+      "C-R": 6,
+      "E-C": 4,
+      "E-R": 3
+    },
+    "claim_type_ordering": [
+      {
+        "aggregate_score": 2.982746,
+        "claim_type": "C-R",
+        "finding_count": 6
+      },
+      {
+        "aggregate_score": 1.607333,
+        "claim_type": "E-C",
+        "finding_count": 4
+      },
+      {
+        "aggregate_score": 1.474125,
+        "claim_type": "E-R",
+        "finding_count": 3
+      }
+    ],
+    "claim_type_scores": {
+      "C-R": 2.982746,
+      "E-C": 1.607333,
+      "E-R": 1.474125
+    },
+    "conflicts": [
+      {
+        "kind": "static_dynamic_claim_type_conflict",
+        "left_claim_type": "E-C",
+        "left_namespace": "analysis/static",
+        "left_support_status": "machine_direct",
+        "right_claim_type": "C-R",
+        "right_namespace": "analysis/dynamic",
+        "right_support_status": "machine_derived"
+      },
+      {
+        "kind": "static_semantic_claim_type_conflict",
+        "left_claim_type": "E-C",
+        "left_namespace": "analysis/static",
+        "left_support_status": "machine_direct",
+        "right_claim_type": "C-R",
+        "right_namespace": "analysis/semantic",
+        "right_support_status": "semantic_weak"
+      }
+    ],
+    "primary_claim_type": "C-R",
+    "primary_summary": "Reward-boundary coupling is elevated.",
+    "primary_support_status": "machine_derived",
+    "selection_mode": "aggregate_claim_score",
+    "selection_reason": "Selected `C-R` from aggregated cross-namespace score with strongest supporting finding in `analysis/dynamic`.",
+    "source_breakdown": {
+      "analysis/dynamic": 3,
+      "analysis/semantic": 2,
+      "analysis/static": 8
+    },
+    "top_by_namespace": {
+      "analysis/dynamic": {
+        "claim_type": "C-R",
+        "rank_score": 0.690205,
+        "severity": "medium",
+        "summary": "Reward-boundary coupling is elevated.",
+        "support_status": "machine_derived"
+      },
+      "analysis/semantic": {
+        "claim_type": "C-R",
+        "rank_score": 0.510205,
+        "severity": "medium",
+        "summary": "Reward-boundary coupling is elevated.",
+        "support_status": "semantic_weak"
+      },
+      "analysis/static": {
+        "claim_type": "E-C",
+        "rank_score": 0.5575,
+        "severity": "info",
+        "summary": "Scene families cover the current constraint activation requirements.",
+        "support_status": "machine_direct"
+      }
+    }
+  },
+  "semantic_claim_summary": {
+    "most_likely_claim_summary": "Reward-boundary coupling is elevated.",
+    "most_likely_claim_type": "C-R",
+    "next_check_or_repair_direction": "collect more dynamic evidence before acting on weak semantic claims",
+    "rejected_claims": 0,
+    "supported_claims": 0,
+    "weak_claims": 2
+  },
+  "spec_version": "demo1-v0",
+  "witness_summary": {
+    "failure_summaries": {
+      "comparison": {
+        "by_scenario_type": {},
+        "by_scene_cfg_name": {},
+        "by_source": {}
+      },
+      "grouping_keys": [
+        "source",
+        "scenario_type",
+        "scene_cfg_name"
+      ],
+      "primary": {
+        "by_scenario_type": {
+          "nominal": {
+            "average_return": 20.332736712594777,
+            "collision_rate": 0.3333333333333333,
+            "episode_count": 6,
+            "failure_pressure": 0.5445254739625774,
+            "min_distance": 0.0672684745200607,
+            "near_violation_ratio": 0.5787037037037037,
+            "run_count": 1,
+            "run_ids": [
+              "demo1_injected"
+            ],
+            "scenario_types": [
+              "nominal"
+            ],
+            "scene_cfg_names": [
+              "scene_cfg_nominal.yaml"
+            ],
+            "sources": [
+              "demo_boundary_lure"
+            ],
+            "success_rate": 0.6666666666666666
+          }
+        },
+        "by_scene_cfg_name": {
+          "scene_cfg_nominal.yaml": {
+            "average_return": 20.332736712594777,
+            "collision_rate": 0.3333333333333333,
+            "episode_count": 6,
+            "failure_pressure": 0.5445254739625774,
+            "min_distance": 0.0672684745200607,
+            "near_violation_ratio": 0.5787037037037037,
+            "run_count": 1,
+            "run_ids": [
+              "demo1_injected"
+            ],
+            "scenario_types": [
+              "nominal"
+            ],
+            "scene_cfg_names": [
+              "scene_cfg_nominal.yaml"
+            ],
+            "sources": [
+              "demo_boundary_lure"
+            ],
+            "success_rate": 0.6666666666666666
+          }
+        },
+        "by_source": {
+          "demo_boundary_lure": {
+            "average_return": 20.332736712594777,
+            "collision_rate": 0.3333333333333333,
+            "episode_count": 6,
+            "failure_pressure": 0.5445254739625774,
+            "min_distance": 0.0672684745200607,
+            "near_violation_ratio": 0.5787037037037037,
+            "run_count": 1,
+            "run_ids": [
+              "demo1_injected"
+            ],
+            "scenario_types": [
+              "nominal"
+            ],
+            "scene_cfg_names": [
+              "scene_cfg_nominal.yaml"
+            ],
+            "sources": [
+              "demo_boundary_lure"
+            ],
+            "success_rate": 0.6666666666666666
+          }
+        }
+      }
+    },
+    "group_summaries": {
+      "comparison": {
+        "by_scenario_type": {},
+        "by_scene_cfg_name": {},
+        "by_source": {}
+      },
+      "grouping_keys": [
+        "source",
+        "scenario_type",
+        "scene_cfg_name"
+      ],
+      "primary": {
+        "by_scenario_type": {
+          "nominal": {
+            "average_return": 20.332736712594777,
+            "collision_rate": 0.3333333333333333,
+            "episode_count": 6,
+            "min_distance": 0.0672684745200607,
+            "near_violation_ratio": 0.5787037037037037,
+            "run_count": 1,
+            "run_ids": [
+              "demo1_injected"
+            ],
+            "scenario_types": [
+              "nominal"
+            ],
+            "scene_cfg_names": [
+              "scene_cfg_nominal.yaml"
+            ],
+            "sources": [
+              "demo_boundary_lure"
+            ],
+            "success_rate": 0.6666666666666666
+          }
+        },
+        "by_scene_cfg_name": {
+          "scene_cfg_nominal.yaml": {
+            "average_return": 20.332736712594777,
+            "collision_rate": 0.3333333333333333,
+            "episode_count": 6,
+            "min_distance": 0.0672684745200607,
+            "near_violation_ratio": 0.5787037037037037,
+            "run_count": 1,
+            "run_ids": [
+              "demo1_injected"
+            ],
+            "scenario_types": [
+              "nominal"
+            ],
+            "scene_cfg_names": [
+              "scene_cfg_nominal.yaml"
+            ],
+            "sources": [
+              "demo_boundary_lure"
+            ],
+            "success_rate": 0.6666666666666666
+          }
+        },
+        "by_source": {
+          "demo_boundary_lure": {
+            "average_return": 20.332736712594777,
+            "collision_rate": 0.3333333333333333,
+            "episode_count": 6,
+            "min_distance": 0.0672684745200607,
+            "near_violation_ratio": 0.5787037037037037,
+            "run_count": 1,
+            "run_ids": [
+              "demo1_injected"
+            ],
+            "scenario_types": [
+              "nominal"
+            ],
+            "scene_cfg_names": [
+              "scene_cfg_nominal.yaml"
+            ],
+            "sources": [
+              "demo_boundary_lure"
+            ],
+            "success_rate": 0.6666666666666666
+          }
+        }
+      }
+    },
+    "witness_scores": {
+      "W_CR": 0.7180302016989563,
+      "W_EC": 0.1824074074074074,
+      "W_ER": 0.0
+    },
+    "witness_severities": {
+      "W_CR": "medium",
+      "W_EC": "info",
+      "W_ER": "info"
+    }
+  }
+}

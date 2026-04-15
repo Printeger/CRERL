@@ -1,0 +1,16 @@
+{
+  "bundle_dir": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/reports/latest/injected/analysis/report/demo1_injected_report",
+  "bundle_relative_dir": "demo1_injected_report",
+  "generated_at_utc": "2026-04-15T09:58:36.059134+00:00",
+  "latest_bundle": "demo1_injected_report",
+  "manifest_path": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/reports/latest/injected/analysis/report/demo1_injected_report/manifest.json",
+  "max_severity": "medium",
+  "namespace": "analysis/report",
+  "namespace_type": "analysis_namespace.v1",
+  "num_ranked_findings": 13,
+  "passed": true,
+  "primary_claim_type": "C-R",
+  "report_mode": "report_generation",
+  "report_path": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/reports/latest/injected/analysis/report/demo1_injected_report/report.json",
+  "summary_path": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/reports/latest/injected/analysis/report/demo1_injected_report/summary.json"
+}

@@ -1,0 +1,123 @@
+{
+  "checks": [
+    {
+      "check_id": "selected_candidate_exists",
+      "details": {},
+      "passed": true,
+      "severity": "high",
+      "summary": "Selected candidate id resolves to a candidate in the repair plan."
+    },
+    {
+      "check_id": "selected_patch_exists",
+      "details": {},
+      "passed": true,
+      "severity": "high",
+      "summary": "Repair plan includes a selected structured patch."
+    },
+    {
+      "check_id": "selected_patch_matches_candidate_patch",
+      "details": {
+        "candidate_patch_id": "patch:repair_handoff:W_CR:1:strengthen_safety_reward",
+        "selected_patch_id": "patch:repair_handoff:W_CR:1:strengthen_safety_reward"
+      },
+      "passed": true,
+      "severity": "high",
+      "summary": "Selected patch preview matches the patch attached to the selected candidate."
+    },
+    {
+      "check_id": "operator_within_supported_library",
+      "details": {
+        "operator_type": "strengthen_safety_reward"
+      },
+      "passed": true,
+      "severity": "high",
+      "summary": "Selected repair operator remains inside the supported Phase 8 repair library."
+    },
+    {
+      "check_id": "primary_claim_alignment",
+      "details": {
+        "candidate_claim_type": "C-R",
+        "primary_claim_type": "C-R"
+      },
+      "passed": true,
+      "severity": "medium",
+      "summary": "Selected candidate remains aligned with the primary Phase 7 claim type."
+    },
+    {
+      "check_id": "expected_metric_direction_declared",
+      "details": {},
+      "passed": true,
+      "severity": "medium",
+      "summary": "Selected candidate declares the metric directions that Phase 9 should check."
+    },
+    {
+      "check_id": "patch_has_operations",
+      "details": {},
+      "passed": true,
+      "severity": "high",
+      "summary": "Selected patch contains explicit operations."
+    },
+    {
+      "check_id": "patch_operations_are_effective",
+      "details": {
+        "effective_operations": 1
+      },
+      "passed": true,
+      "severity": "medium",
+      "summary": "Selected patch preview changes at least one concrete value."
+    },
+    {
+      "check_id": "patch_targets_declared",
+      "details": {
+        "target_files": [
+          "cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml"
+        ],
+        "target_paths": [
+          "components.reward_safety_static.weight"
+        ]
+      },
+      "passed": true,
+      "severity": "medium",
+      "summary": "Selected patch preview exposes concrete target files and target paths."
+    },
+    {
+      "check_id": "phase9_validation_targets_declared",
+      "details": {
+        "validation_targets": [
+          "W_CR",
+          "min_distance",
+          "near_violation_ratio"
+        ]
+      },
+      "passed": true,
+      "severity": "high",
+      "summary": "Repair plan declares explicit Phase 9 validation targets."
+    },
+    {
+      "check_id": "acceptance_preflight_passed",
+      "details": {},
+      "passed": true,
+      "severity": "medium",
+      "summary": "Repair plan passed the Phase 8 preflight acceptance gate before Phase 9 handoff."
+    }
+  ],
+  "failed_check_count": 0,
+  "max_severity": "info",
+  "num_checks": 11,
+  "passed": true,
+  "phase9_ready": true,
+  "primary_claim_type": "C-R",
+  "selected_candidate_id": "candidate:repair_handoff:W_CR:1:strengthen_safety_reward",
+  "target_files": [
+    "cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml"
+  ],
+  "target_paths": [
+    "components.reward_safety_static.weight"
+  ],
+  "validation_targets": [
+    "W_CR",
+    "min_distance",
+    "near_violation_ratio"
+  ],
+  "validation_type": "phase8_repair_validator.v1"
+}

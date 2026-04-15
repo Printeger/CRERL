@@ -1,0 +1,2613 @@
+{
+  "cross_validation_requirements": {
+    "cross_validation_contract": {
+      "claim_to_witness_map": {
+        "C-R": [
+          "W_CR"
+        ],
+        "E-C": [
+          "W_EC"
+        ],
+        "E-R": [
+          "W_ER"
+        ]
+      },
+      "contract_type": "phase6_cross_validation_contract.v1",
+      "required_evidence_fields": [
+        "evidence_refs",
+        "severity",
+        "score",
+        "summary",
+        "attribution_hints"
+      ],
+      "required_supported_claim_types": [
+        "C-R",
+        "E-C",
+        "E-R"
+      ],
+      "validation_rules": [
+        "Every semantic claim must cite at least one witness or failure-hotspot evidence object.",
+        "Semantic attribution must be rejected when no supporting evidence_refs are present.",
+        "Claims about shifted degradation should prefer evidence carrying shifted-family-hotspot or W_ER hints."
+      ]
+    },
+    "required_claim_types": [
+      "C-R",
+      "E-C",
+      "E-R"
+    ],
+    "semantic_contract_type": "phase6_dynamic_semantic_contract.v1"
+  },
+  "dynamic_context": {
+    "bundle_dir": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/reports/latest/injected/analysis/dynamic/demo1_injected_dynamic",
+    "bundle_name": "demo1_injected_dynamic",
+    "comparison_run_ids": [],
+    "manifest": {
+      "bundle_type": "dynamic_analysis_bundle.v1",
+      "comparison_run_ids": [],
+      "dynamic_evidence_path": "dynamic_evidence.json",
+      "max_severity": "medium",
+      "metadata": {
+        "comparison_failure_summaries": {
+          "by_scenario_type": {},
+          "by_scene_cfg_name": {},
+          "by_source": {}
+        },
+        "comparison_group_summaries": {
+          "by_scenario_type": {},
+          "by_scene_cfg_name": {},
+          "by_source": {}
+        },
+        "comparison_run_dirs": [],
+        "detector_type": "dynamic",
+        "grouping_keys": [
+          "source",
+          "scenario_type",
+          "scene_cfg_name"
+        ],
+        "primary_failure_summaries": {
+          "by_scenario_type": {
+            "nominal": {
+              "average_return": 20.332736712594777,
+              "collision_rate": 0.3333333333333333,
+              "episode_count": 6,
+              "failure_pressure": 0.5445254739625774,
+              "min_distance": 0.0672684745200607,
+              "near_violation_ratio": 0.5787037037037037,
+              "run_count": 1,
+              "run_ids": [
+                "demo1_injected"
+              ],
+              "scenario_types": [
+                "nominal"
+              ],
+              "scene_cfg_names": [
+                "scene_cfg_nominal.yaml"
+              ],
+              "sources": [
+                "demo_boundary_lure"
+              ],
+              "success_rate": 0.6666666666666666
+            }
+          },
+          "by_scene_cfg_name": {
+            "scene_cfg_nominal.yaml": {
+              "average_return": 20.332736712594777,
+              "collision_rate": 0.3333333333333333,
+              "episode_count": 6,
+              "failure_pressure": 0.5445254739625774,
+              "min_distance": 0.0672684745200607,
+              "near_violation_ratio": 0.5787037037037037,
+              "run_count": 1,
+              "run_ids": [
+                "demo1_injected"
+              ],
+              "scenario_types": [
+                "nominal"
+              ],
+              "scene_cfg_names": [
+                "scene_cfg_nominal.yaml"
+              ],
+              "sources": [
+                "demo_boundary_lure"
+              ],
+              "success_rate": 0.6666666666666666
+            }
+          },
+          "by_source": {
+            "demo_boundary_lure": {
+              "average_return": 20.332736712594777,
+              "collision_rate": 0.3333333333333333,
+              "episode_count": 6,
+              "failure_pressure": 0.5445254739625774,
+              "min_distance": 0.0672684745200607,
+              "near_violation_ratio": 0.5787037037037037,
+              "run_count": 1,
+              "run_ids": [
+                "demo1_injected"
+              ],
+              "scenario_types": [
+                "nominal"
+              ],
+              "scene_cfg_names": [
+                "scene_cfg_nominal.yaml"
+              ],
+              "sources": [
+                "demo_boundary_lure"
+              ],
+              "success_rate": 0.6666666666666666
+            }
+          }
+        },
+        "primary_group_summaries": {
+          "by_scenario_type": {
+            "nominal": {
+              "average_return": 20.332736712594777,
+              "collision_rate": 0.3333333333333333,
+              "episode_count": 6,
+              "min_distance": 0.0672684745200607,
+              "near_violation_ratio": 0.5787037037037037,
+              "run_count": 1,
+              "run_ids": [
+                "demo1_injected"
+              ],
+              "scenario_types": [
+                "nominal"
+              ],
+              "scene_cfg_names": [
+                "scene_cfg_nominal.yaml"
+              ],
+              "sources": [
+                "demo_boundary_lure"
+              ],
+              "success_rate": 0.6666666666666666
+            }
+          },
+          "by_scene_cfg_name": {
+            "scene_cfg_nominal.yaml": {
+              "average_return": 20.332736712594777,
+              "collision_rate": 0.3333333333333333,
+              "episode_count": 6,
+              "min_distance": 0.0672684745200607,
+              "near_violation_ratio": 0.5787037037037037,
+              "run_count": 1,
+              "run_ids": [
+                "demo1_injected"
+              ],
+              "scenario_types": [
+                "nominal"
+              ],
+              "scene_cfg_names": [
+                "scene_cfg_nominal.yaml"
+              ],
+              "sources": [
+                "demo_boundary_lure"
+              ],
+              "success_rate": 0.6666666666666666
+            }
+          },
+          "by_source": {
+            "demo_boundary_lure": {
+              "average_return": 20.332736712594777,
+              "collision_rate": 0.3333333333333333,
+              "episode_count": 6,
+              "min_distance": 0.0672684745200607,
+              "near_violation_ratio": 0.5787037037037037,
+              "run_count": 1,
+              "run_ids": [
+                "demo1_injected"
+              ],
+              "scenario_types": [
+                "nominal"
+              ],
+              "scene_cfg_names": [
+                "scene_cfg_nominal.yaml"
+              ],
+              "sources": [
+                "demo_boundary_lure"
+              ],
+              "success_rate": 0.6666666666666666
+            }
+          }
+        },
+        "primary_run_dirs": [
+          "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/reports/latest/injected/logs/demo1_injected"
+        ],
+        "report_artifacts": [
+          "dynamic_report.json",
+          "dynamic_evidence.json",
+          "semantic_inputs.json",
+          "summary.json",
+          "manifest.json",
+          "namespace_manifest.json"
+        ],
+        "report_namespace": "analysis/dynamic",
+        "source_paths": {
+          "constraint_spec": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/constraint_spec_v0.yaml",
+          "detector_thresholds": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/detector_cfg/detector_thresholds.yaml",
+          "policy_spec": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/policy_spec_v0.yaml",
+          "reward_spec": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml",
+          "scene_cfg_base": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/env_cfg/scene_cfg_base.yaml",
+          "scene_family:nominal": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/env_cfg/scene_cfg_nominal.yaml",
+          "witness_weights": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/detector_cfg/witness_weights.yaml"
+        },
+        "static_bundle_dir": "",
+        "static_context": {
+          "bundle_dir": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/reports/latest/injected/analysis/static/demo1_injected_static",
+          "bundle_name": "demo1_injected_static",
+          "manifest_path": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/reports/latest/injected/analysis/static/demo1_injected_static/manifest.json",
+          "max_severity": "info",
+          "namespace_contract": {
+            "contract_type": "report_namespace_contract.v1",
+            "generated_at_utc": "2026-04-15T09:58:35.994216+00:00",
+            "report_mode_artifacts": {
+              "benchmark_suite": [
+                "benchmark_manifest.json",
+                "benchmark_cases.json",
+                "benchmark_matrix.json",
+                "benchmark_summary.json",
+                "benchmark_summary.md",
+                "manifest.json",
+                "namespace_manifest.json"
+              ],
+              "dynamic_analysis": [
+                "dynamic_report.json",
+                "dynamic_evidence.json",
+                "semantic_inputs.json",
+                "summary.json",
+                "manifest.json",
+                "namespace_manifest.json"
+              ],
+              "integration_audit": [
+                "integration_plan.json",
+                "execution_matrix.json",
+                "run_binding.json",
+                "native_execution_consumer.json",
+                "integration_acceptance.json",
+                "integration_summary.json",
+                "integration_summary.md",
+                "manifest.json",
+                "namespace_manifest.json"
+              ],
+              "release_packaging": [
+                "release_plan.json",
+                "release_artifacts.json",
+                "demo_matrix.json",
+                "demo_consumer.json",
+                "release_acceptance.json",
+                "release_summary.json",
+                "release_summary.md",
+                "manifest.json",
+                "namespace_manifest.json"
+              ],
+              "repair_generation": [
+                "repair_plan.json",
+                "repair_candidates.json",
+                "spec_patch.json",
+                "spec_patch_preview.json",
+                "validation_context_preview.json",
+                "repair_summary.json",
+                "repair_summary.md",
+                "acceptance.json",
+                "repair_validation.json",
+                "validation_request.json",
+                "manifest.json",
+                "namespace_manifest.json"
+              ],
+              "report_generation": [
+                "report.json",
+                "ranked_findings.json",
+                "repair_handoff.json",
+                "report_summary.md",
+                "summary.json",
+                "manifest.json",
+                "namespace_manifest.json"
+              ],
+              "semantic_analysis": [
+                "semantic_report.json",
+                "semantic_claims.json",
+                "semantic_input.json",
+                "semantic_summary.md",
+                "semantic_merge_input.json",
+                "claim_consumer.json",
+                "summary.json",
+                "manifest.json",
+                "namespace_manifest.json"
+              ],
+              "static_audit": [
+                "static_report.json",
+                "summary.json",
+                "manifest.json",
+                "namespace_manifest.json"
+              ],
+              "validation_generation": [
+                "validation_plan.json",
+                "validation_runs.json",
+                "comparison.json",
+                "validation_decision.json",
+                "post_repair_evidence.json",
+                "validation_summary.json",
+                "validation_summary.md",
+                "manifest.json",
+                "namespace_manifest.json"
+              ]
+            },
+            "report_namespaces": {
+              "benchmark_suite": "analysis/benchmark",
+              "dynamic_analysis": "analysis/dynamic",
+              "integration_audit": "analysis/integration",
+              "release_packaging": "analysis/release",
+              "repair_generation": "analysis/repair",
+              "report_generation": "analysis/report",
+              "semantic_analysis": "analysis/semantic",
+              "static_audit": "analysis/static",
+              "validation_generation": "analysis/validation"
+            }
+          },
+          "namespace_manifest": {
+            "bundle_dir": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/reports/latest/injected/analysis/static/demo1_injected_static",
+            "bundle_relative_dir": "demo1_injected_static",
+            "generated_at_utc": "2026-04-15T09:58:35.994175+00:00",
+            "latest_bundle": "demo1_injected_static",
+            "manifest_path": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/reports/latest/injected/analysis/static/demo1_injected_static/manifest.json",
+            "max_severity": "info",
+            "namespace": "analysis/static",
+            "namespace_type": "analysis_namespace.v1",
+            "num_findings": 8,
+            "passed": true,
+            "report_mode": "static_audit",
+            "report_path": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/reports/latest/injected/analysis/static/demo1_injected_static/static_report.json",
+            "summary_path": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/reports/latest/injected/analysis/static/demo1_injected_static/summary.json"
+          },
+          "num_findings": 8,
+          "passed": true,
+          "report_path": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/reports/latest/injected/analysis/static/demo1_injected_static/static_report.json",
+          "spec_version": "demo1-v0",
+          "summary_path": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/reports/latest/injected/analysis/static/demo1_injected_static/summary.json"
+        }
+      },
+      "namespace": "analysis/dynamic",
+      "num_findings": 3,
+      "passed": true,
+      "primary_run_ids": [
+        "demo1_injected"
+      ],
+      "report_path": "dynamic_report.json",
+      "report_type": "dynamic_analyzer_report.v1",
+      "semantic_inputs_path": "semantic_inputs.json",
+      "spec_version": "demo1-v0",
+      "summary_path": "summary.json"
+    },
+    "primary_run_ids": [
+      "demo1_injected"
+    ],
+    "summary": {
+      "comparison_run_ids": [],
+      "max_severity": "medium",
+      "num_findings": 3,
+      "passed": true,
+      "primary_run_ids": [
+        "demo1_injected"
+      ],
+      "report_type": "dynamic_analyzer_report.v1",
+      "spec_version": "demo1-v0",
+      "witness_scores": {
+        "W_CR": 0.7180302016989563,
+        "W_EC": 0.1824074074074074,
+        "W_ER": 0.0
+      }
+    }
+  },
+  "evidence_context": {
+    "attribution_candidates": [
+      {
+        "attribution_hints": [
+          "C-R",
+          "reward-constraint-coupling"
+        ],
+        "candidate_id": "witness:W_CR",
+        "evidence_refs": [
+          "demo1_injected"
+        ],
+        "evidence_type": "witness_summary",
+        "scope": "report",
+        "score": 0.7180302016989563,
+        "severity": "medium",
+        "summary": "Reward-boundary coupling is elevated."
+      },
+      {
+        "attribution_hints": [],
+        "candidate_id": "failure:primary:scenario_type:nominal",
+        "evidence_refs": [
+          "demo1_injected"
+        ],
+        "evidence_type": "failure_hotspot",
+        "scope": "primary",
+        "score": 0.5445254739625774,
+        "severity": "medium",
+        "summary": "primary group 'nominal' under 'scenario_type' has failure pressure 0.545"
+      },
+      {
+        "attribution_hints": [],
+        "candidate_id": "failure:primary:scene_cfg_name:scene_cfg_nominal.yaml",
+        "evidence_refs": [
+          "demo1_injected"
+        ],
+        "evidence_type": "failure_hotspot",
+        "scope": "primary",
+        "score": 0.5445254739625774,
+        "severity": "medium",
+        "summary": "primary group 'scene_cfg_nominal.yaml' under 'scene_cfg_name' has failure pressure 0.545"
+      },
+      {
+        "attribution_hints": [],
+        "candidate_id": "failure:primary:source:demo_boundary_lure",
+        "evidence_refs": [
+          "demo1_injected"
+        ],
+        "evidence_type": "failure_hotspot",
+        "scope": "primary",
+        "score": 0.5445254739625774,
+        "severity": "medium",
+        "summary": "primary group 'demo_boundary_lure' under 'source' has failure pressure 0.545"
+      },
+      {
+        "attribution_hints": [
+          "E-C",
+          "critical-state-undercoverage"
+        ],
+        "candidate_id": "witness:W_EC",
+        "evidence_refs": [
+          "demo1_injected"
+        ],
+        "evidence_type": "witness_summary",
+        "scope": "report",
+        "score": 0.1824074074074074,
+        "severity": "info",
+        "summary": "Critical-state coverage appears acceptable."
+      },
+      {
+        "attribution_hints": [
+          "E-R",
+          "shift-fragility"
+        ],
+        "candidate_id": "witness:W_ER",
+        "evidence_refs": [
+          "demo1_injected"
+        ],
+        "evidence_type": "witness_summary",
+        "scope": "report",
+        "score": 0.0,
+        "severity": "info",
+        "summary": "No comparison run group was available for transfer-fragility analysis."
+      }
+    ],
+    "dynamic_bundle_refs": {
+      "bundle_dir": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/reports/latest/injected/analysis/dynamic/demo1_injected_dynamic",
+      "bundle_name": "demo1_injected_dynamic",
+      "comparison_run_ids": [],
+      "primary_run_ids": [
+        "demo1_injected"
+      ]
+    },
+    "dynamic_findings": {
+      "count": 3,
+      "finding_ids": [
+        "W_CR:1",
+        "W_EC:2",
+        "W_ER:3"
+      ],
+      "max_severity": "medium"
+    },
+    "evidence_objects": [
+      {
+        "attribution_hints": [
+          "C-R",
+          "reward-constraint-coupling"
+        ],
+        "evidence_id": "witness:W_CR",
+        "evidence_refs": [
+          "demo1_injected"
+        ],
+        "evidence_type": "witness_summary",
+        "group_name": "",
+        "grouping_key": "",
+        "metrics": {
+          "hazardous_terminal_return_ratio": 1.0,
+          "high_return_hazard_ratio": 1.0,
+          "near_violation_step_ratio": 0.5787037037037037,
+          "negative_clearance_reward_corr": 0.35646386334008284,
+          "positive_reward_near_ratio": 0.5787037037037037,
+          "proximity_pressure": 0.2993723736985534,
+          "proximity_reward_alignment": 0.18496513108860135,
+          "reward_concentration_ratio": 0.6241089154592622
+        },
+        "payload": {
+          "episode_count": 6,
+          "mean_reward": 0.5647982420165216,
+          "near_violation_distance": 0.6,
+          "primary_run_ids": [
+            "demo1_injected"
+          ],
+          "step_count": 216
+        },
+        "scenario_types": [],
+        "scene_cfg_names": [],
+        "scope": "report",
+        "score": 0.7180302016989563,
+        "semantic_tags": [
+          "w_cr",
+          "dynamic_witness"
+        ],
+        "severity": "medium",
+        "sources": [],
+        "summary": "Reward-boundary coupling is elevated.",
+        "title": "W_CR witness summary",
+        "witness_id": "W_CR"
+      },
+      {
+        "attribution_hints": [
+          "E-C",
+          "critical-state-undercoverage"
+        ],
+        "evidence_id": "witness:W_EC",
+        "evidence_refs": [
+          "demo1_injected"
+        ],
+        "evidence_type": "witness_summary",
+        "group_name": "",
+        "grouping_key": "",
+        "metrics": {
+          "critical_band_coverage_ratio": 1.0,
+          "critical_exposure_ratio": 1.0,
+          "dynamic_hazard_coverage_ratio": 1.0,
+          "family_coverage_ratio": 1.0,
+          "family_failure_pressure": 0.912037037037037
+        },
+        "payload": {
+          "episode_count": 6,
+          "expected_dynamic_families": [],
+          "expected_families": [
+            "nominal"
+          ],
+          "family_failure_summary": {
+            "nominal": {
+              "average_return": 20.332736712594777,
+              "collision_rate": 0.3333333333333333,
+              "episode_count": 6.0,
+              "min_distance": 0.0672684745200607,
+              "near_violation_ratio": 0.5787037037037037,
+              "success_rate": 0.6666666666666666
+            }
+          },
+          "observed_dynamic_families": [],
+          "observed_families": [
+            "nominal"
+          ],
+          "primary_run_ids": [
+            "demo1_injected"
+          ],
+          "step_count": 216,
+          "visited_bands": {
+            "caution_band": true,
+            "collision_band": true,
+            "near_violation_band": true
+          }
+        },
+        "scenario_types": [],
+        "scene_cfg_names": [],
+        "scope": "report",
+        "score": 0.1824074074074074,
+        "semantic_tags": [
+          "w_ec",
+          "dynamic_witness"
+        ],
+        "severity": "info",
+        "sources": [],
+        "summary": "Critical-state coverage appears acceptable.",
+        "title": "W_EC witness summary",
+        "witness_id": "W_EC"
+      },
+      {
+        "attribution_hints": [
+          "E-R",
+          "shift-fragility"
+        ],
+        "evidence_id": "witness:W_ER",
+        "evidence_refs": [
+          "demo1_injected"
+        ],
+        "evidence_type": "witness_summary",
+        "group_name": "",
+        "grouping_key": "",
+        "metrics": {
+          "average_return_gap": 0.0,
+          "collision_rate_gap": 0.0,
+          "family_shift_gap": 0.0,
+          "min_distance_gap": 0.0,
+          "near_violation_ratio_gap": 0.0,
+          "source_pair_shift": 0.0,
+          "success_rate_gap": 0.0
+        },
+        "payload": {
+          "auto_inferred_comparison": false,
+          "baseline_families": [
+            "nominal"
+          ],
+          "baseline_family_summary": {
+            "nominal": {
+              "average_return": 20.332736712594777,
+              "collision_rate": 0.3333333333333333,
+              "episode_count": 6.0,
+              "min_distance": 0.0672684745200607,
+              "near_violation_ratio": 0.5787037037037037,
+              "success_rate": 0.6666666666666666
+            }
+          },
+          "baseline_summary": {
+            "average_return": 20.332736712594777,
+            "collision_rate": 0.3333333333333333,
+            "min_distance": 0.0672684745200607,
+            "near_violation_ratio": 0.5787037037037037,
+            "success_rate": 0.6666666666666666
+          },
+          "comparison_families": [],
+          "comparison_family_summary": {},
+          "comparison_run_ids": [],
+          "comparison_summary": {
+            "average_return": 0.0,
+            "collision_rate": 0.0,
+            "min_distance": 0.0,
+            "near_violation_ratio": 0.0,
+            "success_rate": 0.0
+          },
+          "primary_run_ids": [
+            "demo1_injected"
+          ]
+        },
+        "scenario_types": [],
+        "scene_cfg_names": [],
+        "scope": "report",
+        "score": 0.0,
+        "semantic_tags": [
+          "w_er",
+          "dynamic_witness"
+        ],
+        "severity": "info",
+        "sources": [],
+        "summary": "No comparison run group was available for transfer-fragility analysis.",
+        "title": "W_ER witness summary",
+        "witness_id": "W_ER"
+      },
+      {
+        "attribution_hints": [],
+        "evidence_id": "failure:primary:scenario_type:nominal",
+        "evidence_refs": [
+          "demo1_injected"
+        ],
+        "evidence_type": "failure_hotspot",
+        "group_name": "nominal",
+        "grouping_key": "scenario_type",
+        "metrics": {
+          "average_return": 20.332736712594777,
+          "collision_rate": 0.3333333333333333,
+          "failure_pressure": 0.5445254739625774,
+          "min_distance": 0.0672684745200607,
+          "near_violation_ratio": 0.5787037037037037,
+          "success_rate": 0.6666666666666666
+        },
+        "payload": {
+          "average_return": 20.332736712594777,
+          "collision_rate": 0.3333333333333333,
+          "episode_count": 6,
+          "failure_pressure": 0.5445254739625774,
+          "min_distance": 0.0672684745200607,
+          "near_violation_ratio": 0.5787037037037037,
+          "run_count": 1,
+          "run_ids": [
+            "demo1_injected"
+          ],
+          "scenario_types": [
+            "nominal"
+          ],
+          "scene_cfg_names": [
+            "scene_cfg_nominal.yaml"
+          ],
+          "sources": [
+            "demo_boundary_lure"
+          ],
+          "success_rate": 0.6666666666666666
+        },
+        "scenario_types": [
+          "nominal"
+        ],
+        "scene_cfg_names": [
+          "scene_cfg_nominal.yaml"
+        ],
+        "scope": "primary",
+        "score": 0.5445254739625774,
+        "semantic_tags": [
+          "failure_hotspot",
+          "primary",
+          "scenario_type",
+          "nominal"
+        ],
+        "severity": "medium",
+        "sources": [
+          "demo_boundary_lure"
+        ],
+        "summary": "primary group 'nominal' under 'scenario_type' has failure pressure 0.545",
+        "title": "primary failure hotspot for scenario_type=nominal",
+        "witness_id": ""
+      },
+      {
+        "attribution_hints": [],
+        "evidence_id": "failure:primary:scene_cfg_name:scene_cfg_nominal.yaml",
+        "evidence_refs": [
+          "demo1_injected"
+        ],
+        "evidence_type": "failure_hotspot",
+        "group_name": "scene_cfg_nominal.yaml",
+        "grouping_key": "scene_cfg_name",
+        "metrics": {
+          "average_return": 20.332736712594777,
+          "collision_rate": 0.3333333333333333,
+          "failure_pressure": 0.5445254739625774,
+          "min_distance": 0.0672684745200607,
+          "near_violation_ratio": 0.5787037037037037,
+          "success_rate": 0.6666666666666666
+        },
+        "payload": {
+          "average_return": 20.332736712594777,
+          "collision_rate": 0.3333333333333333,
+          "episode_count": 6,
+          "failure_pressure": 0.5445254739625774,
+          "min_distance": 0.0672684745200607,
+          "near_violation_ratio": 0.5787037037037037,
+          "run_count": 1,
+          "run_ids": [
+            "demo1_injected"
+          ],
+          "scenario_types": [
+            "nominal"
+          ],
+          "scene_cfg_names": [
+            "scene_cfg_nominal.yaml"
+          ],
+          "sources": [
+            "demo_boundary_lure"
+          ],
+          "success_rate": 0.6666666666666666
+        },
+        "scenario_types": [
+          "nominal"
+        ],
+        "scene_cfg_names": [
+          "scene_cfg_nominal.yaml"
+        ],
+        "scope": "primary",
+        "score": 0.5445254739625774,
+        "semantic_tags": [
+          "failure_hotspot",
+          "primary",
+          "scene_cfg_name",
+          "scene_cfg_nominal.yaml"
+        ],
+        "severity": "medium",
+        "sources": [
+          "demo_boundary_lure"
+        ],
+        "summary": "primary group 'scene_cfg_nominal.yaml' under 'scene_cfg_name' has failure pressure 0.545",
+        "title": "primary failure hotspot for scene_cfg_name=scene_cfg_nominal.yaml",
+        "witness_id": ""
+      },
+      {
+        "attribution_hints": [],
+        "evidence_id": "failure:primary:source:demo_boundary_lure",
+        "evidence_refs": [
+          "demo1_injected"
+        ],
+        "evidence_type": "failure_hotspot",
+        "group_name": "demo_boundary_lure",
+        "grouping_key": "source",
+        "metrics": {
+          "average_return": 20.332736712594777,
+          "collision_rate": 0.3333333333333333,
+          "failure_pressure": 0.5445254739625774,
+          "min_distance": 0.0672684745200607,
+          "near_violation_ratio": 0.5787037037037037,
+          "success_rate": 0.6666666666666666
+        },
+        "payload": {
+          "average_return": 20.332736712594777,
+          "collision_rate": 0.3333333333333333,
+          "episode_count": 6,
+          "failure_pressure": 0.5445254739625774,
+          "min_distance": 0.0672684745200607,
+          "near_violation_ratio": 0.5787037037037037,
+          "run_count": 1,
+          "run_ids": [
+            "demo1_injected"
+          ],
+          "scenario_types": [
+            "nominal"
+          ],
+          "scene_cfg_names": [
+            "scene_cfg_nominal.yaml"
+          ],
+          "sources": [
+            "demo_boundary_lure"
+          ],
+          "success_rate": 0.6666666666666666
+        },
+        "scenario_types": [
+          "nominal"
+        ],
+        "scene_cfg_names": [
+          "scene_cfg_nominal.yaml"
+        ],
+        "scope": "primary",
+        "score": 0.5445254739625774,
+        "semantic_tags": [
+          "failure_hotspot",
+          "primary",
+          "source",
+          "demo_boundary_lure"
+        ],
+        "severity": "medium",
+        "sources": [
+          "demo_boundary_lure"
+        ],
+        "summary": "primary group 'demo_boundary_lure' under 'source' has failure pressure 0.545",
+        "title": "primary failure hotspot for source=demo_boundary_lure",
+        "witness_id": ""
+      }
+    ],
+    "failure_hotspots": [
+      {
+        "attribution_hints": [],
+        "evidence_id": "failure:primary:scenario_type:nominal",
+        "evidence_refs": [
+          "demo1_injected"
+        ],
+        "evidence_type": "failure_hotspot",
+        "group_name": "nominal",
+        "grouping_key": "scenario_type",
+        "metrics": {
+          "average_return": 20.332736712594777,
+          "collision_rate": 0.3333333333333333,
+          "failure_pressure": 0.5445254739625774,
+          "min_distance": 0.0672684745200607,
+          "near_violation_ratio": 0.5787037037037037,
+          "success_rate": 0.6666666666666666
+        },
+        "payload": {
+          "average_return": 20.332736712594777,
+          "collision_rate": 0.3333333333333333,
+          "episode_count": 6,
+          "failure_pressure": 0.5445254739625774,
+          "min_distance": 0.0672684745200607,
+          "near_violation_ratio": 0.5787037037037037,
+          "run_count": 1,
+          "run_ids": [
+            "demo1_injected"
+          ],
+          "scenario_types": [
+            "nominal"
+          ],
+          "scene_cfg_names": [
+            "scene_cfg_nominal.yaml"
+          ],
+          "sources": [
+            "demo_boundary_lure"
+          ],
+          "success_rate": 0.6666666666666666
+        },
+        "scenario_types": [
+          "nominal"
+        ],
+        "scene_cfg_names": [
+          "scene_cfg_nominal.yaml"
+        ],
+        "scope": "primary",
+        "score": 0.5445254739625774,
+        "semantic_tags": [
+          "failure_hotspot",
+          "primary",
+          "scenario_type",
+          "nominal"
+        ],
+        "severity": "medium",
+        "sources": [
+          "demo_boundary_lure"
+        ],
+        "summary": "primary group 'nominal' under 'scenario_type' has failure pressure 0.545",
+        "title": "primary failure hotspot for scenario_type=nominal",
+        "witness_id": ""
+      },
+      {
+        "attribution_hints": [],
+        "evidence_id": "failure:primary:scene_cfg_name:scene_cfg_nominal.yaml",
+        "evidence_refs": [
+          "demo1_injected"
+        ],
+        "evidence_type": "failure_hotspot",
+        "group_name": "scene_cfg_nominal.yaml",
+        "grouping_key": "scene_cfg_name",
+        "metrics": {
+          "average_return": 20.332736712594777,
+          "collision_rate": 0.3333333333333333,
+          "failure_pressure": 0.5445254739625774,
+          "min_distance": 0.0672684745200607,
+          "near_violation_ratio": 0.5787037037037037,
+          "success_rate": 0.6666666666666666
+        },
+        "payload": {
+          "average_return": 20.332736712594777,
+          "collision_rate": 0.3333333333333333,
+          "episode_count": 6,
+          "failure_pressure": 0.5445254739625774,
+          "min_distance": 0.0672684745200607,
+          "near_violation_ratio": 0.5787037037037037,
+          "run_count": 1,
+          "run_ids": [
+            "demo1_injected"
+          ],
+          "scenario_types": [
+            "nominal"
+          ],
+          "scene_cfg_names": [
+            "scene_cfg_nominal.yaml"
+          ],
+          "sources": [
+            "demo_boundary_lure"
+          ],
+          "success_rate": 0.6666666666666666
+        },
+        "scenario_types": [
+          "nominal"
+        ],
+        "scene_cfg_names": [
+          "scene_cfg_nominal.yaml"
+        ],
+        "scope": "primary",
+        "score": 0.5445254739625774,
+        "semantic_tags": [
+          "failure_hotspot",
+          "primary",
+          "scene_cfg_name",
+          "scene_cfg_nominal.yaml"
+        ],
+        "severity": "medium",
+        "sources": [
+          "demo_boundary_lure"
+        ],
+        "summary": "primary group 'scene_cfg_nominal.yaml' under 'scene_cfg_name' has failure pressure 0.545",
+        "title": "primary failure hotspot for scene_cfg_name=scene_cfg_nominal.yaml",
+        "witness_id": ""
+      },
+      {
+        "attribution_hints": [],
+        "evidence_id": "failure:primary:source:demo_boundary_lure",
+        "evidence_refs": [
+          "demo1_injected"
+        ],
+        "evidence_type": "failure_hotspot",
+        "group_name": "demo_boundary_lure",
+        "grouping_key": "source",
+        "metrics": {
+          "average_return": 20.332736712594777,
+          "collision_rate": 0.3333333333333333,
+          "failure_pressure": 0.5445254739625774,
+          "min_distance": 0.0672684745200607,
+          "near_violation_ratio": 0.5787037037037037,
+          "success_rate": 0.6666666666666666
+        },
+        "payload": {
+          "average_return": 20.332736712594777,
+          "collision_rate": 0.3333333333333333,
+          "episode_count": 6,
+          "failure_pressure": 0.5445254739625774,
+          "min_distance": 0.0672684745200607,
+          "near_violation_ratio": 0.5787037037037037,
+          "run_count": 1,
+          "run_ids": [
+            "demo1_injected"
+          ],
+          "scenario_types": [
+            "nominal"
+          ],
+          "scene_cfg_names": [
+            "scene_cfg_nominal.yaml"
+          ],
+          "sources": [
+            "demo_boundary_lure"
+          ],
+          "success_rate": 0.6666666666666666
+        },
+        "scenario_types": [
+          "nominal"
+        ],
+        "scene_cfg_names": [
+          "scene_cfg_nominal.yaml"
+        ],
+        "scope": "primary",
+        "score": 0.5445254739625774,
+        "semantic_tags": [
+          "failure_hotspot",
+          "primary",
+          "source",
+          "demo_boundary_lure"
+        ],
+        "severity": "medium",
+        "sources": [
+          "demo_boundary_lure"
+        ],
+        "summary": "primary group 'demo_boundary_lure' under 'source' has failure pressure 0.545",
+        "title": "primary failure hotspot for source=demo_boundary_lure",
+        "witness_id": ""
+      }
+    ],
+    "static_bundle_refs": {
+      "bundle_dir": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/reports/latest/injected/analysis/static/demo1_injected_static",
+      "bundle_name": "demo1_injected_static"
+    },
+    "static_findings": {
+      "count": 8,
+      "finding_ids": [
+        "constraint_runtime_binding:1",
+        "reward_constraint_conflicts:2",
+        "reward_proxy_suspicion:3",
+        "scene_family_coverage:4",
+        "scene_family_structure:5",
+        "scene_backend_capability:6",
+        "execution_mode_alignment:7",
+        "required_runtime_fields:8"
+      ],
+      "max_severity": "info"
+    },
+    "witness_summaries": [
+      {
+        "details": {
+          "episode_count": 6,
+          "mean_reward": 0.5647982420165216,
+          "near_violation_distance": 0.6,
+          "primary_run_ids": [
+            "demo1_injected"
+          ],
+          "step_count": 216
+        },
+        "metrics": [
+          {
+            "details": {},
+            "metric_id": "near_violation_step_ratio",
+            "value": 0.5787037037037037
+          },
+          {
+            "details": {},
+            "metric_id": "positive_reward_near_ratio",
+            "value": 0.5787037037037037
+          },
+          {
+            "details": {},
+            "metric_id": "reward_concentration_ratio",
+            "value": 0.6241089154592622
+          },
+          {
+            "details": {
+              "raw_corr": -0.35646386334008284
+            },
+            "metric_id": "negative_clearance_reward_corr",
+            "value": 0.35646386334008284
+          },
+          {
+            "details": {
+              "hazardous_episode_count": 2,
+              "hazardous_mean_return": 20.486964902893185,
+              "overall_mean_return": 20.332736712594777
+            },
+            "metric_id": "hazardous_terminal_return_ratio",
+            "value": 1.0
+          },
+          {
+            "details": {},
+            "metric_id": "proximity_pressure",
+            "value": 0.2993723736985534
+          },
+          {
+            "details": {},
+            "metric_id": "proximity_reward_alignment",
+            "value": 0.18496513108860135
+          },
+          {
+            "details": {},
+            "metric_id": "high_return_hazard_ratio",
+            "value": 1.0
+          }
+        ],
+        "score": 0.7180302016989563,
+        "severity": "medium",
+        "summary": "Reward-boundary coupling is elevated.",
+        "witness_id": "W_CR"
+      },
+      {
+        "details": {
+          "episode_count": 6,
+          "expected_dynamic_families": [],
+          "expected_families": [
+            "nominal"
+          ],
+          "family_failure_summary": {
+            "nominal": {
+              "average_return": 20.332736712594777,
+              "collision_rate": 0.3333333333333333,
+              "episode_count": 6.0,
+              "min_distance": 0.0672684745200607,
+              "near_violation_ratio": 0.5787037037037037,
+              "success_rate": 0.6666666666666666
+            }
+          },
+          "observed_dynamic_families": [],
+          "observed_families": [
+            "nominal"
+          ],
+          "primary_run_ids": [
+            "demo1_injected"
+          ],
+          "step_count": 216,
+          "visited_bands": {
+            "caution_band": true,
+            "collision_band": true,
+            "near_violation_band": true
+          }
+        },
+        "metrics": [
+          {
+            "details": {},
+            "metric_id": "family_coverage_ratio",
+            "value": 1.0
+          },
+          {
+            "details": {},
+            "metric_id": "critical_band_coverage_ratio",
+            "value": 1.0
+          },
+          {
+            "details": {},
+            "metric_id": "critical_exposure_ratio",
+            "value": 1.0
+          },
+          {
+            "details": {},
+            "metric_id": "dynamic_hazard_coverage_ratio",
+            "value": 1.0
+          },
+          {
+            "details": {},
+            "metric_id": "family_failure_pressure",
+            "value": 0.912037037037037
+          }
+        ],
+        "score": 0.1824074074074074,
+        "severity": "info",
+        "summary": "Critical-state coverage appears acceptable.",
+        "witness_id": "W_EC"
+      },
+      {
+        "details": {
+          "auto_inferred_comparison": false,
+          "baseline_families": [
+            "nominal"
+          ],
+          "baseline_family_summary": {
+            "nominal": {
+              "average_return": 20.332736712594777,
+              "collision_rate": 0.3333333333333333,
+              "episode_count": 6.0,
+              "min_distance": 0.0672684745200607,
+              "near_violation_ratio": 0.5787037037037037,
+              "success_rate": 0.6666666666666666
+            }
+          },
+          "baseline_summary": {
+            "average_return": 20.332736712594777,
+            "collision_rate": 0.3333333333333333,
+            "min_distance": 0.0672684745200607,
+            "near_violation_ratio": 0.5787037037037037,
+            "success_rate": 0.6666666666666666
+          },
+          "comparison_families": [],
+          "comparison_family_summary": {},
+          "comparison_run_ids": [],
+          "comparison_summary": {
+            "average_return": 0.0,
+            "collision_rate": 0.0,
+            "min_distance": 0.0,
+            "near_violation_ratio": 0.0,
+            "success_rate": 0.0
+          },
+          "primary_run_ids": [
+            "demo1_injected"
+          ]
+        },
+        "metrics": [
+          {
+            "details": {},
+            "metric_id": "success_rate_gap",
+            "value": 0.0
+          },
+          {
+            "details": {},
+            "metric_id": "collision_rate_gap",
+            "value": 0.0
+          },
+          {
+            "details": {},
+            "metric_id": "near_violation_ratio_gap",
+            "value": 0.0
+          },
+          {
+            "details": {},
+            "metric_id": "min_distance_gap",
+            "value": 0.0
+          },
+          {
+            "details": {},
+            "metric_id": "average_return_gap",
+            "value": 0.0
+          },
+          {
+            "details": {},
+            "metric_id": "source_pair_shift",
+            "value": 0.0
+          },
+          {
+            "details": {},
+            "metric_id": "family_shift_gap",
+            "value": 0.0
+          }
+        ],
+        "score": 0.0,
+        "severity": "info",
+        "summary": "No comparison run group was available for transfer-fragility analysis.",
+        "witness_id": "W_ER"
+      }
+    ]
+  },
+  "input_type": "semantic_analysis_input.v1",
+  "metadata": {
+    "reused_dynamic_semantic_input_type": "dynamic_semantic_input.v1",
+    "semantic_input_source": "phase6_semantic_builder"
+  },
+  "prompt_sections": {
+    "dynamic_context": {
+      "comparison_run_ids": [],
+      "primary_run_ids": [
+        "demo1_injected"
+      ],
+      "report_summary": {
+        "max_severity": "medium",
+        "num_findings": 3,
+        "passed": true
+      },
+      "witnesses": [
+        {
+          "details": {
+            "episode_count": 6,
+            "mean_reward": 0.5647982420165216,
+            "near_violation_distance": 0.6,
+            "primary_run_ids": [
+              "demo1_injected"
+            ],
+            "step_count": 216
+          },
+          "metrics": [
+            {
+              "details": {},
+              "metric_id": "near_violation_step_ratio",
+              "value": 0.5787037037037037
+            },
+            {
+              "details": {},
+              "metric_id": "positive_reward_near_ratio",
+              "value": 0.5787037037037037
+            },
+            {
+              "details": {},
+              "metric_id": "reward_concentration_ratio",
+              "value": 0.6241089154592622
+            },
+            {
+              "details": {
+                "raw_corr": -0.35646386334008284
+              },
+              "metric_id": "negative_clearance_reward_corr",
+              "value": 0.35646386334008284
+            },
+            {
+              "details": {
+                "hazardous_episode_count": 2,
+                "hazardous_mean_return": 20.486964902893185,
+                "overall_mean_return": 20.332736712594777
+              },
+              "metric_id": "hazardous_terminal_return_ratio",
+              "value": 1.0
+            },
+            {
+              "details": {},
+              "metric_id": "proximity_pressure",
+              "value": 0.2993723736985534
+            },
+            {
+              "details": {},
+              "metric_id": "proximity_reward_alignment",
+              "value": 0.18496513108860135
+            },
+            {
+              "details": {},
+              "metric_id": "high_return_hazard_ratio",
+              "value": 1.0
+            }
+          ],
+          "score": 0.7180302016989563,
+          "severity": "medium",
+          "summary": "Reward-boundary coupling is elevated.",
+          "witness_id": "W_CR"
+        },
+        {
+          "details": {
+            "episode_count": 6,
+            "expected_dynamic_families": [],
+            "expected_families": [
+              "nominal"
+            ],
+            "family_failure_summary": {
+              "nominal": {
+                "average_return": 20.332736712594777,
+                "collision_rate": 0.3333333333333333,
+                "episode_count": 6.0,
+                "min_distance": 0.0672684745200607,
+                "near_violation_ratio": 0.5787037037037037,
+                "success_rate": 0.6666666666666666
+              }
+            },
+            "observed_dynamic_families": [],
+            "observed_families": [
+              "nominal"
+            ],
+            "primary_run_ids": [
+              "demo1_injected"
+            ],
+            "step_count": 216,
+            "visited_bands": {
+              "caution_band": true,
+              "collision_band": true,
+              "near_violation_band": true
+            }
+          },
+          "metrics": [
+            {
+              "details": {},
+              "metric_id": "family_coverage_ratio",
+              "value": 1.0
+            },
+            {
+              "details": {},
+              "metric_id": "critical_band_coverage_ratio",
+              "value": 1.0
+            },
+            {
+              "details": {},
+              "metric_id": "critical_exposure_ratio",
+              "value": 1.0
+            },
+            {
+              "details": {},
+              "metric_id": "dynamic_hazard_coverage_ratio",
+              "value": 1.0
+            },
+            {
+              "details": {},
+              "metric_id": "family_failure_pressure",
+              "value": 0.912037037037037
+            }
+          ],
+          "score": 0.1824074074074074,
+          "severity": "info",
+          "summary": "Critical-state coverage appears acceptable.",
+          "witness_id": "W_EC"
+        },
+        {
+          "details": {
+            "auto_inferred_comparison": false,
+            "baseline_families": [
+              "nominal"
+            ],
+            "baseline_family_summary": {
+              "nominal": {
+                "average_return": 20.332736712594777,
+                "collision_rate": 0.3333333333333333,
+                "episode_count": 6.0,
+                "min_distance": 0.0672684745200607,
+                "near_violation_ratio": 0.5787037037037037,
+                "success_rate": 0.6666666666666666
+              }
+            },
+            "baseline_summary": {
+              "average_return": 20.332736712594777,
+              "collision_rate": 0.3333333333333333,
+              "min_distance": 0.0672684745200607,
+              "near_violation_ratio": 0.5787037037037037,
+              "success_rate": 0.6666666666666666
+            },
+            "comparison_families": [],
+            "comparison_family_summary": {},
+            "comparison_run_ids": [],
+            "comparison_summary": {
+              "average_return": 0.0,
+              "collision_rate": 0.0,
+              "min_distance": 0.0,
+              "near_violation_ratio": 0.0,
+              "success_rate": 0.0
+            },
+            "primary_run_ids": [
+              "demo1_injected"
+            ]
+          },
+          "metrics": [
+            {
+              "details": {},
+              "metric_id": "success_rate_gap",
+              "value": 0.0
+            },
+            {
+              "details": {},
+              "metric_id": "collision_rate_gap",
+              "value": 0.0
+            },
+            {
+              "details": {},
+              "metric_id": "near_violation_ratio_gap",
+              "value": 0.0
+            },
+            {
+              "details": {},
+              "metric_id": "min_distance_gap",
+              "value": 0.0
+            },
+            {
+              "details": {},
+              "metric_id": "average_return_gap",
+              "value": 0.0
+            },
+            {
+              "details": {},
+              "metric_id": "source_pair_shift",
+              "value": 0.0
+            },
+            {
+              "details": {},
+              "metric_id": "family_shift_gap",
+              "value": 0.0
+            }
+          ],
+          "score": 0.0,
+          "severity": "info",
+          "summary": "No comparison run group was available for transfer-fragility analysis.",
+          "witness_id": "W_ER"
+        }
+      ]
+    },
+    "evidence_hotspots": {
+      "attribution_candidates": [
+        {
+          "attribution_hints": [
+            "C-R",
+            "reward-constraint-coupling"
+          ],
+          "candidate_id": "witness:W_CR",
+          "evidence_refs": [
+            "demo1_injected"
+          ],
+          "evidence_type": "witness_summary",
+          "scope": "report",
+          "score": 0.7180302016989563,
+          "severity": "medium",
+          "summary": "Reward-boundary coupling is elevated."
+        },
+        {
+          "attribution_hints": [],
+          "candidate_id": "failure:primary:scenario_type:nominal",
+          "evidence_refs": [
+            "demo1_injected"
+          ],
+          "evidence_type": "failure_hotspot",
+          "scope": "primary",
+          "score": 0.5445254739625774,
+          "severity": "medium",
+          "summary": "primary group 'nominal' under 'scenario_type' has failure pressure 0.545"
+        },
+        {
+          "attribution_hints": [],
+          "candidate_id": "failure:primary:scene_cfg_name:scene_cfg_nominal.yaml",
+          "evidence_refs": [
+            "demo1_injected"
+          ],
+          "evidence_type": "failure_hotspot",
+          "scope": "primary",
+          "score": 0.5445254739625774,
+          "severity": "medium",
+          "summary": "primary group 'scene_cfg_nominal.yaml' under 'scene_cfg_name' has failure pressure 0.545"
+        },
+        {
+          "attribution_hints": [],
+          "candidate_id": "failure:primary:source:demo_boundary_lure",
+          "evidence_refs": [
+            "demo1_injected"
+          ],
+          "evidence_type": "failure_hotspot",
+          "scope": "primary",
+          "score": 0.5445254739625774,
+          "severity": "medium",
+          "summary": "primary group 'demo_boundary_lure' under 'source' has failure pressure 0.545"
+        },
+        {
+          "attribution_hints": [
+            "E-C",
+            "critical-state-undercoverage"
+          ],
+          "candidate_id": "witness:W_EC",
+          "evidence_refs": [
+            "demo1_injected"
+          ],
+          "evidence_type": "witness_summary",
+          "scope": "report",
+          "score": 0.1824074074074074,
+          "severity": "info",
+          "summary": "Critical-state coverage appears acceptable."
+        },
+        {
+          "attribution_hints": [
+            "E-R",
+            "shift-fragility"
+          ],
+          "candidate_id": "witness:W_ER",
+          "evidence_refs": [
+            "demo1_injected"
+          ],
+          "evidence_type": "witness_summary",
+          "scope": "report",
+          "score": 0.0,
+          "severity": "info",
+          "summary": "No comparison run group was available for transfer-fragility analysis."
+        }
+      ],
+      "evidence_objects": [
+        {
+          "attribution_hints": [
+            "C-R",
+            "reward-constraint-coupling"
+          ],
+          "evidence_id": "witness:W_CR",
+          "evidence_refs": [
+            "demo1_injected"
+          ],
+          "evidence_type": "witness_summary",
+          "group_name": "",
+          "grouping_key": "",
+          "metrics": {
+            "hazardous_terminal_return_ratio": 1.0,
+            "high_return_hazard_ratio": 1.0,
+            "near_violation_step_ratio": 0.5787037037037037,
+            "negative_clearance_reward_corr": 0.35646386334008284,
+            "positive_reward_near_ratio": 0.5787037037037037,
+            "proximity_pressure": 0.2993723736985534,
+            "proximity_reward_alignment": 0.18496513108860135,
+            "reward_concentration_ratio": 0.6241089154592622
+          },
+          "payload": {
+            "episode_count": 6,
+            "mean_reward": 0.5647982420165216,
+            "near_violation_distance": 0.6,
+            "primary_run_ids": [
+              "demo1_injected"
+            ],
+            "step_count": 216
+          },
+          "scenario_types": [],
+          "scene_cfg_names": [],
+          "scope": "report",
+          "score": 0.7180302016989563,
+          "semantic_tags": [
+            "w_cr",
+            "dynamic_witness"
+          ],
+          "severity": "medium",
+          "sources": [],
+          "summary": "Reward-boundary coupling is elevated.",
+          "title": "W_CR witness summary",
+          "witness_id": "W_CR"
+        },
+        {
+          "attribution_hints": [
+            "E-C",
+            "critical-state-undercoverage"
+          ],
+          "evidence_id": "witness:W_EC",
+          "evidence_refs": [
+            "demo1_injected"
+          ],
+          "evidence_type": "witness_summary",
+          "group_name": "",
+          "grouping_key": "",
+          "metrics": {
+            "critical_band_coverage_ratio": 1.0,
+            "critical_exposure_ratio": 1.0,
+            "dynamic_hazard_coverage_ratio": 1.0,
+            "family_coverage_ratio": 1.0,
+            "family_failure_pressure": 0.912037037037037
+          },
+          "payload": {
+            "episode_count": 6,
+            "expected_dynamic_families": [],
+            "expected_families": [
+              "nominal"
+            ],
+            "family_failure_summary": {
+              "nominal": {
+                "average_return": 20.332736712594777,
+                "collision_rate": 0.3333333333333333,
+                "episode_count": 6.0,
+                "min_distance": 0.0672684745200607,
+                "near_violation_ratio": 0.5787037037037037,
+                "success_rate": 0.6666666666666666
+              }
+            },
+            "observed_dynamic_families": [],
+            "observed_families": [
+              "nominal"
+            ],
+            "primary_run_ids": [
+              "demo1_injected"
+            ],
+            "step_count": 216,
+            "visited_bands": {
+              "caution_band": true,
+              "collision_band": true,
+              "near_violation_band": true
+            }
+          },
+          "scenario_types": [],
+          "scene_cfg_names": [],
+          "scope": "report",
+          "score": 0.1824074074074074,
+          "semantic_tags": [
+            "w_ec",
+            "dynamic_witness"
+          ],
+          "severity": "info",
+          "sources": [],
+          "summary": "Critical-state coverage appears acceptable.",
+          "title": "W_EC witness summary",
+          "witness_id": "W_EC"
+        },
+        {
+          "attribution_hints": [
+            "E-R",
+            "shift-fragility"
+          ],
+          "evidence_id": "witness:W_ER",
+          "evidence_refs": [
+            "demo1_injected"
+          ],
+          "evidence_type": "witness_summary",
+          "group_name": "",
+          "grouping_key": "",
+          "metrics": {
+            "average_return_gap": 0.0,
+            "collision_rate_gap": 0.0,
+            "family_shift_gap": 0.0,
+            "min_distance_gap": 0.0,
+            "near_violation_ratio_gap": 0.0,
+            "source_pair_shift": 0.0,
+            "success_rate_gap": 0.0
+          },
+          "payload": {
+            "auto_inferred_comparison": false,
+            "baseline_families": [
+              "nominal"
+            ],
+            "baseline_family_summary": {
+              "nominal": {
+                "average_return": 20.332736712594777,
+                "collision_rate": 0.3333333333333333,
+                "episode_count": 6.0,
+                "min_distance": 0.0672684745200607,
+                "near_violation_ratio": 0.5787037037037037,
+                "success_rate": 0.6666666666666666
+              }
+            },
+            "baseline_summary": {
+              "average_return": 20.332736712594777,
+              "collision_rate": 0.3333333333333333,
+              "min_distance": 0.0672684745200607,
+              "near_violation_ratio": 0.5787037037037037,
+              "success_rate": 0.6666666666666666
+            },
+            "comparison_families": [],
+            "comparison_family_summary": {},
+            "comparison_run_ids": [],
+            "comparison_summary": {
+              "average_return": 0.0,
+              "collision_rate": 0.0,
+              "min_distance": 0.0,
+              "near_violation_ratio": 0.0,
+              "success_rate": 0.0
+            },
+            "primary_run_ids": [
+              "demo1_injected"
+            ]
+          },
+          "scenario_types": [],
+          "scene_cfg_names": [],
+          "scope": "report",
+          "score": 0.0,
+          "semantic_tags": [
+            "w_er",
+            "dynamic_witness"
+          ],
+          "severity": "info",
+          "sources": [],
+          "summary": "No comparison run group was available for transfer-fragility analysis.",
+          "title": "W_ER witness summary",
+          "witness_id": "W_ER"
+        },
+        {
+          "attribution_hints": [],
+          "evidence_id": "failure:primary:scenario_type:nominal",
+          "evidence_refs": [
+            "demo1_injected"
+          ],
+          "evidence_type": "failure_hotspot",
+          "group_name": "nominal",
+          "grouping_key": "scenario_type",
+          "metrics": {
+            "average_return": 20.332736712594777,
+            "collision_rate": 0.3333333333333333,
+            "failure_pressure": 0.5445254739625774,
+            "min_distance": 0.0672684745200607,
+            "near_violation_ratio": 0.5787037037037037,
+            "success_rate": 0.6666666666666666
+          },
+          "payload": {
+            "average_return": 20.332736712594777,
+            "collision_rate": 0.3333333333333333,
+            "episode_count": 6,
+            "failure_pressure": 0.5445254739625774,
+            "min_distance": 0.0672684745200607,
+            "near_violation_ratio": 0.5787037037037037,
+            "run_count": 1,
+            "run_ids": [
+              "demo1_injected"
+            ],
+            "scenario_types": [
+              "nominal"
+            ],
+            "scene_cfg_names": [
+              "scene_cfg_nominal.yaml"
+            ],
+            "sources": [
+              "demo_boundary_lure"
+            ],
+            "success_rate": 0.6666666666666666
+          },
+          "scenario_types": [
+            "nominal"
+          ],
+          "scene_cfg_names": [
+            "scene_cfg_nominal.yaml"
+          ],
+          "scope": "primary",
+          "score": 0.5445254739625774,
+          "semantic_tags": [
+            "failure_hotspot",
+            "primary",
+            "scenario_type",
+            "nominal"
+          ],
+          "severity": "medium",
+          "sources": [
+            "demo_boundary_lure"
+          ],
+          "summary": "primary group 'nominal' under 'scenario_type' has failure pressure 0.545",
+          "title": "primary failure hotspot for scenario_type=nominal",
+          "witness_id": ""
+        },
+        {
+          "attribution_hints": [],
+          "evidence_id": "failure:primary:scene_cfg_name:scene_cfg_nominal.yaml",
+          "evidence_refs": [
+            "demo1_injected"
+          ],
+          "evidence_type": "failure_hotspot",
+          "group_name": "scene_cfg_nominal.yaml",
+          "grouping_key": "scene_cfg_name",
+          "metrics": {
+            "average_return": 20.332736712594777,
+            "collision_rate": 0.3333333333333333,
+            "failure_pressure": 0.5445254739625774,
+            "min_distance": 0.0672684745200607,
+            "near_violation_ratio": 0.5787037037037037,
+            "success_rate": 0.6666666666666666
+          },
+          "payload": {
+            "average_return": 20.332736712594777,
+            "collision_rate": 0.3333333333333333,
+            "episode_count": 6,
+            "failure_pressure": 0.5445254739625774,
+            "min_distance": 0.0672684745200607,
+            "near_violation_ratio": 0.5787037037037037,
+            "run_count": 1,
+            "run_ids": [
+              "demo1_injected"
+            ],
+            "scenario_types": [
+              "nominal"
+            ],
+            "scene_cfg_names": [
+              "scene_cfg_nominal.yaml"
+            ],
+            "sources": [
+              "demo_boundary_lure"
+            ],
+            "success_rate": 0.6666666666666666
+          },
+          "scenario_types": [
+            "nominal"
+          ],
+          "scene_cfg_names": [
+            "scene_cfg_nominal.yaml"
+          ],
+          "scope": "primary",
+          "score": 0.5445254739625774,
+          "semantic_tags": [
+            "failure_hotspot",
+            "primary",
+            "scene_cfg_name",
+            "scene_cfg_nominal.yaml"
+          ],
+          "severity": "medium",
+          "sources": [
+            "demo_boundary_lure"
+          ],
+          "summary": "primary group 'scene_cfg_nominal.yaml' under 'scene_cfg_name' has failure pressure 0.545",
+          "title": "primary failure hotspot for scene_cfg_name=scene_cfg_nominal.yaml",
+          "witness_id": ""
+        },
+        {
+          "attribution_hints": [],
+          "evidence_id": "failure:primary:source:demo_boundary_lure",
+          "evidence_refs": [
+            "demo1_injected"
+          ],
+          "evidence_type": "failure_hotspot",
+          "group_name": "demo_boundary_lure",
+          "grouping_key": "source",
+          "metrics": {
+            "average_return": 20.332736712594777,
+            "collision_rate": 0.3333333333333333,
+            "failure_pressure": 0.5445254739625774,
+            "min_distance": 0.0672684745200607,
+            "near_violation_ratio": 0.5787037037037037,
+            "success_rate": 0.6666666666666666
+          },
+          "payload": {
+            "average_return": 20.332736712594777,
+            "collision_rate": 0.3333333333333333,
+            "episode_count": 6,
+            "failure_pressure": 0.5445254739625774,
+            "min_distance": 0.0672684745200607,
+            "near_violation_ratio": 0.5787037037037037,
+            "run_count": 1,
+            "run_ids": [
+              "demo1_injected"
+            ],
+            "scenario_types": [
+              "nominal"
+            ],
+            "scene_cfg_names": [
+              "scene_cfg_nominal.yaml"
+            ],
+            "sources": [
+              "demo_boundary_lure"
+            ],
+            "success_rate": 0.6666666666666666
+          },
+          "scenario_types": [
+            "nominal"
+          ],
+          "scene_cfg_names": [
+            "scene_cfg_nominal.yaml"
+          ],
+          "scope": "primary",
+          "score": 0.5445254739625774,
+          "semantic_tags": [
+            "failure_hotspot",
+            "primary",
+            "source",
+            "demo_boundary_lure"
+          ],
+          "severity": "medium",
+          "sources": [
+            "demo_boundary_lure"
+          ],
+          "summary": "primary group 'demo_boundary_lure' under 'source' has failure pressure 0.545",
+          "title": "primary failure hotspot for source=demo_boundary_lure",
+          "witness_id": ""
+        }
+      ],
+      "failure_hotspots": [
+        {
+          "attribution_hints": [],
+          "evidence_id": "failure:primary:scenario_type:nominal",
+          "evidence_refs": [
+            "demo1_injected"
+          ],
+          "evidence_type": "failure_hotspot",
+          "group_name": "nominal",
+          "grouping_key": "scenario_type",
+          "metrics": {
+            "average_return": 20.332736712594777,
+            "collision_rate": 0.3333333333333333,
+            "failure_pressure": 0.5445254739625774,
+            "min_distance": 0.0672684745200607,
+            "near_violation_ratio": 0.5787037037037037,
+            "success_rate": 0.6666666666666666
+          },
+          "payload": {
+            "average_return": 20.332736712594777,
+            "collision_rate": 0.3333333333333333,
+            "episode_count": 6,
+            "failure_pressure": 0.5445254739625774,
+            "min_distance": 0.0672684745200607,
+            "near_violation_ratio": 0.5787037037037037,
+            "run_count": 1,
+            "run_ids": [
+              "demo1_injected"
+            ],
+            "scenario_types": [
+              "nominal"
+            ],
+            "scene_cfg_names": [
+              "scene_cfg_nominal.yaml"
+            ],
+            "sources": [
+              "demo_boundary_lure"
+            ],
+            "success_rate": 0.6666666666666666
+          },
+          "scenario_types": [
+            "nominal"
+          ],
+          "scene_cfg_names": [
+            "scene_cfg_nominal.yaml"
+          ],
+          "scope": "primary",
+          "score": 0.5445254739625774,
+          "semantic_tags": [
+            "failure_hotspot",
+            "primary",
+            "scenario_type",
+            "nominal"
+          ],
+          "severity": "medium",
+          "sources": [
+            "demo_boundary_lure"
+          ],
+          "summary": "primary group 'nominal' under 'scenario_type' has failure pressure 0.545",
+          "title": "primary failure hotspot for scenario_type=nominal",
+          "witness_id": ""
+        },
+        {
+          "attribution_hints": [],
+          "evidence_id": "failure:primary:scene_cfg_name:scene_cfg_nominal.yaml",
+          "evidence_refs": [
+            "demo1_injected"
+          ],
+          "evidence_type": "failure_hotspot",
+          "group_name": "scene_cfg_nominal.yaml",
+          "grouping_key": "scene_cfg_name",
+          "metrics": {
+            "average_return": 20.332736712594777,
+            "collision_rate": 0.3333333333333333,
+            "failure_pressure": 0.5445254739625774,
+            "min_distance": 0.0672684745200607,
+            "near_violation_ratio": 0.5787037037037037,
+            "success_rate": 0.6666666666666666
+          },
+          "payload": {
+            "average_return": 20.332736712594777,
+            "collision_rate": 0.3333333333333333,
+            "episode_count": 6,
+            "failure_pressure": 0.5445254739625774,
+            "min_distance": 0.0672684745200607,
+            "near_violation_ratio": 0.5787037037037037,
+            "run_count": 1,
+            "run_ids": [
+              "demo1_injected"
+            ],
+            "scenario_types": [
+              "nominal"
+            ],
+            "scene_cfg_names": [
+              "scene_cfg_nominal.yaml"
+            ],
+            "sources": [
+              "demo_boundary_lure"
+            ],
+            "success_rate": 0.6666666666666666
+          },
+          "scenario_types": [
+            "nominal"
+          ],
+          "scene_cfg_names": [
+            "scene_cfg_nominal.yaml"
+          ],
+          "scope": "primary",
+          "score": 0.5445254739625774,
+          "semantic_tags": [
+            "failure_hotspot",
+            "primary",
+            "scene_cfg_name",
+            "scene_cfg_nominal.yaml"
+          ],
+          "severity": "medium",
+          "sources": [
+            "demo_boundary_lure"
+          ],
+          "summary": "primary group 'scene_cfg_nominal.yaml' under 'scene_cfg_name' has failure pressure 0.545",
+          "title": "primary failure hotspot for scene_cfg_name=scene_cfg_nominal.yaml",
+          "witness_id": ""
+        },
+        {
+          "attribution_hints": [],
+          "evidence_id": "failure:primary:source:demo_boundary_lure",
+          "evidence_refs": [
+            "demo1_injected"
+          ],
+          "evidence_type": "failure_hotspot",
+          "group_name": "demo_boundary_lure",
+          "grouping_key": "source",
+          "metrics": {
+            "average_return": 20.332736712594777,
+            "collision_rate": 0.3333333333333333,
+            "failure_pressure": 0.5445254739625774,
+            "min_distance": 0.0672684745200607,
+            "near_violation_ratio": 0.5787037037037037,
+            "success_rate": 0.6666666666666666
+          },
+          "payload": {
+            "average_return": 20.332736712594777,
+            "collision_rate": 0.3333333333333333,
+            "episode_count": 6,
+            "failure_pressure": 0.5445254739625774,
+            "min_distance": 0.0672684745200607,
+            "near_violation_ratio": 0.5787037037037037,
+            "run_count": 1,
+            "run_ids": [
+              "demo1_injected"
+            ],
+            "scenario_types": [
+              "nominal"
+            ],
+            "scene_cfg_names": [
+              "scene_cfg_nominal.yaml"
+            ],
+            "sources": [
+              "demo_boundary_lure"
+            ],
+            "success_rate": 0.6666666666666666
+          },
+          "scenario_types": [
+            "nominal"
+          ],
+          "scene_cfg_names": [
+            "scene_cfg_nominal.yaml"
+          ],
+          "scope": "primary",
+          "score": 0.5445254739625774,
+          "semantic_tags": [
+            "failure_hotspot",
+            "primary",
+            "source",
+            "demo_boundary_lure"
+          ],
+          "severity": "medium",
+          "sources": [
+            "demo_boundary_lure"
+          ],
+          "summary": "primary group 'demo_boundary_lure' under 'source' has failure pressure 0.545",
+          "title": "primary failure hotspot for source=demo_boundary_lure",
+          "witness_id": ""
+        }
+      ]
+    },
+    "semantic_handoff": {
+      "prompt_seeds": [
+        "Which dynamic witness provides the strongest evidence of inconsistency, and why?",
+        "Which source-conditioned or family-conditioned hotspot should be explained first?",
+        "Does the dynamic evidence suggest a C-R, E-C, or E-R inconsistency pattern?",
+        "What runtime evidence best explains degradation between nominal and shifted conditions?"
+      ],
+      "semantic_contract_type": "phase6_dynamic_semantic_contract.v1",
+      "semantic_input_type": "dynamic_semantic_input.v1"
+    },
+    "spec_context": {
+      "constraint_ids": [
+        "collision_avoidance",
+        "safety_margin",
+        "speed_bound",
+        "workspace_boundary"
+      ],
+      "declared_families": [
+        "nominal"
+      ],
+      "reward_components": [
+        "manual_control",
+        "penalty_height",
+        "penalty_smooth",
+        "reward_progress",
+        "reward_safety_dynamic",
+        "reward_safety_static"
+      ],
+      "spec_version": "demo1-v0"
+    },
+    "static_context": {
+      "report_summary": {
+        "max_severity": "info",
+        "num_findings": 8,
+        "passed": true
+      },
+      "top_findings": [
+        {
+          "affected_paths": [
+            "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/constraint_spec_v0.yaml"
+          ],
+          "check_id": "constraint_runtime_binding",
+          "details": {
+            "missing_logged_variables": [],
+            "missing_threshold_refs": [],
+            "runtime_fields_checked": [
+              "collision",
+              "collision_flag",
+              "done_type",
+              "drone_state",
+              "episode_len",
+              "goal_distance",
+              "min_obstacle_distance",
+              "near_violation_flag",
+              "near_violation_ratio",
+              "near_violation_steps",
+              "out_of_bounds",
+              "out_of_bounds_flag",
+              "penalty_height",
+              "penalty_height_total",
+              "penalty_smooth",
+              "penalty_smooth_total",
+              "position",
+              "reach_goal",
+              "return",
+              "reward_components",
+              "reward_progress",
+              "reward_progress_total",
+              "reward_safety_dynamic",
+              "reward_safety_dynamic_total",
+              "reward_safety_static",
+              "reward_safety_static_total",
+              "reward_total",
+              "scenario_type",
+              "scene_cfg_name",
+              "scene_id",
+              "source",
+              "speed_norm",
+              "truncated",
+              "velocity",
+              "yaw_rate"
+            ]
+          },
+          "finding_id": "constraint_runtime_binding:1",
+          "passed": true,
+          "recommended_action": "Update the constraint spec or runtime schema so every required constraint has a valid logged_variable and threshold_ref.",
+          "severity": "info",
+          "summary": "All required constraints map to runtime fields and threshold references."
+        },
+        {
+          "affected_paths": [
+            "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml",
+            "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/constraint_spec_v0.yaml"
+          ],
+          "check_id": "reward_constraint_conflicts",
+          "details": {
+            "enabled_reward_components": [
+              "manual_control",
+              "penalty_height",
+              "penalty_smooth",
+              "reward_progress",
+              "reward_safety_static"
+            ],
+            "issues": []
+          },
+          "finding_id": "reward_constraint_conflicts:2",
+          "passed": true,
+          "recommended_action": "Rebalance reward components or constraint support terms so each declared safety requirement has an explicit behavioral counterweight.",
+          "severity": "info",
+          "summary": "No obvious reward/constraint direct conflicts were detected."
+        },
+        {
+          "affected_paths": [
+            "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml",
+            "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/policy_spec_v0.yaml"
+          ],
+          "check_id": "reward_proxy_suspicion",
+          "details": {
+            "assumptions": {
+              "collision_penalty_present": true,
+              "constant_step_bias_present": false,
+              "primary_progress_proxy": "shortest_corridor_progress",
+              "success_bonus_present": true
+            },
+            "warnings": []
+          },
+          "finding_id": "reward_proxy_suspicion:3",
+          "passed": true,
+          "recommended_action": "Review whether progress shaping, step bias, and success/collision signals reflect the intended task objective instead of only an easy proxy.",
+          "severity": "info",
+          "summary": "No suspicious reward proxy patterns were detected."
+        },
+        {
+          "affected_paths": [
+            "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/env_cfg/scene_cfg_nominal.yaml",
+            "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/constraint_spec_v0.yaml"
+          ],
+          "check_id": "scene_family_coverage",
+          "details": {
+            "family_capabilities": {
+              "nominal": {
+                "all_families": true,
+                "dynamic_obstacles": false,
+                "perforated_templates": false,
+                "route_adjacent_structure": false,
+                "shifted_distribution": false,
+                "static_obstacles": true,
+                "workspace_limits": true
+              }
+            },
+            "uncovered_requirements": []
+          },
+          "finding_id": "scene_family_coverage:4",
+          "passed": true,
+          "recommended_action": "Add or adjust scene-family capabilities so every declared constraint activation requirement is covered by at least one family.",
+          "severity": "info",
+          "summary": "Scene families cover the current constraint activation requirements."
+        },
+        {
+          "affected_paths": [
+            "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/env_cfg/scene_cfg_nominal.yaml"
+          ],
+          "check_id": "scene_family_structure",
+          "details": {
+            "issues": []
+          },
+          "finding_id": "scene_family_structure:5",
+          "passed": true,
+          "recommended_action": "Repair scene-family config structure so workspace, start-goal, template, and validation settings remain internally consistent.",
+          "severity": "info",
+          "summary": "Scene family configs satisfy the current structural validation rules."
+        },
+        {
+          "affected_paths": [
+            "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/env_cfg/scene_cfg_nominal.yaml",
+            "/home/mint/rl_dev/crerl_v1/isaac-training/training/envs/env_gen.py"
+          ],
+          "check_id": "scene_backend_capability",
+          "details": {
+            "issues": [],
+            "supported_dynamic_motion_types": [
+              "lane_patrol",
+              "random_walk",
+              "waypoint_patrol"
+            ],
+            "supported_rule_templates": [
+              "bottleneck",
+              "clutter_cluster",
+              "low_clearance_passage",
+              "moving_crossing",
+              "perforated_barrier",
+              "pillar_field"
+            ],
+            "supported_scene_families": [
+              "boundary_critical",
+              "nominal",
+              "shifted"
+            ]
+          },
+          "finding_id": "scene_backend_capability:6",
+          "passed": true,
+          "recommended_action": "Align scene-family declarations with the actual env_gen backend capabilities, or extend the backend to express the missing cases.",
+          "severity": "info",
+          "summary": "Scene backend capability matches the declared family requirements."
+        },
+        {
+          "affected_paths": [
+            "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml",
+            "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/policy_spec_v0.yaml"
+          ],
+          "check_id": "execution_mode_alignment",
+          "details": {
+            "issues": [],
+            "required_rollout_modes": [
+              "baseline",
+              "eval",
+              "train"
+            ],
+            "supported_execution_modes": [
+              "baseline",
+              "eval",
+              "manual",
+              "train"
+            ]
+          },
+          "finding_id": "execution_mode_alignment:7",
+          "passed": true,
+          "recommended_action": "Align reward component execution_modes with the supported manual, train, eval, and baseline execution paths.",
+          "severity": "info",
+          "summary": "Reward component execution modes align with the supported execution paths."
+        },
+        {
+          "affected_paths": [
+            "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml",
+            "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/policy_spec_v0.yaml"
+          ],
+          "check_id": "required_runtime_fields",
+          "details": {
+            "missing_core_fields": [],
+            "missing_done_type_labels": [],
+            "missing_reward_logged_keys": [],
+            "missing_reward_total_fields": [],
+            "runtime_fields_checked": [
+              "collision",
+              "collision_flag",
+              "done_type",
+              "drone_state",
+              "episode_index",
+              "episode_len",
+              "final_goal_distance",
+              "goal_distance",
+              "min_obstacle_distance",
+              "near_violation_flag",
+              "near_violation_ratio",
+              "near_violation_steps",
+              "num_steps",
+              "out_of_bounds",
+              "out_of_bounds_flag",
+              "penalty_height",
+              "penalty_height_total",
+              "penalty_smooth",
+              "penalty_smooth_total",
+              "position",
+              "reach_goal",
+              "return",
+              "return_total",
+              "reward_components",
+              "reward_components_total",
+              "reward_progress",
+              "reward_progress_total",
+              "reward_safety_dynamic",
+              "reward_safety_dynamic_total",
+              "reward_safety_static",
+              "reward_safety_static_total",
+              "reward_total",
+              "scenario_type",
+              "scene_cfg_name",
+              "scene_id",
+              "seed",
+              "source",
+              "speed_norm",
+              "success_flag",
+              "trajectory_length",
+              "truncated",
+              "velocity",
+              "yaw_rate"
+            ]
+          },
+          "finding_id": "required_runtime_fields:8",
+          "passed": true,
+          "recommended_action": "Align the runtime schema with the declared reward and policy expectations so all required fields are emitted and named consistently.",
+          "severity": "info",
+          "summary": "The runtime schema provides the required core fields and reward bindings."
+        }
+      ]
+    }
+  },
+  "spec_summary": {
+    "constraint_ids": [
+      "collision_avoidance",
+      "safety_margin",
+      "speed_bound",
+      "workspace_boundary"
+    ],
+    "environment_families": [
+      "nominal"
+    ],
+    "report_mode_artifacts": {
+      "benchmark_suite": [
+        "benchmark_manifest.json",
+        "benchmark_cases.json",
+        "benchmark_matrix.json",
+        "benchmark_summary.json",
+        "benchmark_summary.md",
+        "manifest.json",
+        "namespace_manifest.json"
+      ],
+      "dynamic_analysis": [
+        "dynamic_report.json",
+        "dynamic_evidence.json",
+        "semantic_inputs.json",
+        "summary.json",
+        "manifest.json",
+        "namespace_manifest.json"
+      ],
+      "integration_audit": [
+        "integration_plan.json",
+        "execution_matrix.json",
+        "run_binding.json",
+        "native_execution_consumer.json",
+        "integration_acceptance.json",
+        "integration_summary.json",
+        "integration_summary.md",
+        "manifest.json",
+        "namespace_manifest.json"
+      ],
+      "release_packaging": [
+        "release_plan.json",
+        "release_artifacts.json",
+        "demo_matrix.json",
+        "demo_consumer.json",
+        "release_acceptance.json",
+        "release_summary.json",
+        "release_summary.md",
+        "manifest.json",
+        "namespace_manifest.json"
+      ],
+      "repair_generation": [
+        "repair_plan.json",
+        "repair_candidates.json",
+        "spec_patch.json",
+        "spec_patch_preview.json",
+        "validation_context_preview.json",
+        "repair_summary.json",
+        "repair_summary.md",
+        "acceptance.json",
+        "repair_validation.json",
+        "validation_request.json",
+        "manifest.json",
+        "namespace_manifest.json"
+      ],
+      "report_generation": [
+        "report.json",
+        "ranked_findings.json",
+        "repair_handoff.json",
+        "report_summary.md",
+        "summary.json",
+        "manifest.json",
+        "namespace_manifest.json"
+      ],
+      "semantic_analysis": [
+        "semantic_report.json",
+        "semantic_claims.json",
+        "semantic_input.json",
+        "semantic_summary.md",
+        "semantic_merge_input.json",
+        "claim_consumer.json",
+        "summary.json",
+        "manifest.json",
+        "namespace_manifest.json"
+      ],
+      "static_audit": [
+        "static_report.json",
+        "summary.json",
+        "manifest.json",
+        "namespace_manifest.json"
+      ],
+      "validation_generation": [
+        "validation_plan.json",
+        "validation_runs.json",
+        "comparison.json",
+        "validation_decision.json",
+        "post_repair_evidence.json",
+        "validation_summary.json",
+        "validation_summary.md",
+        "manifest.json",
+        "namespace_manifest.json"
+      ]
+    },
+    "report_namespaces": {
+      "benchmark_suite": "analysis/benchmark",
+      "dynamic_analysis": "analysis/dynamic",
+      "integration_audit": "analysis/integration",
+      "release_packaging": "analysis/release",
+      "repair_generation": "analysis/repair",
+      "report_generation": "analysis/report",
+      "semantic_analysis": "analysis/semantic",
+      "static_audit": "analysis/static",
+      "validation_generation": "analysis/validation"
+    },
+    "reward_components": [
+      "manual_control",
+      "penalty_height",
+      "penalty_smooth",
+      "reward_progress",
+      "reward_safety_dynamic",
+      "reward_safety_static"
+    ],
+    "spec_version": "demo1-v0"
+  },
+  "spec_version": "demo1-v0",
+  "static_context": {
+    "bundle_dir": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/reports/latest/injected/analysis/static/demo1_injected_static",
+    "bundle_name": "demo1_injected_static",
+    "manifest": {
+      "bundle_type": "static_audit_bundle.v3",
+      "max_severity": "info",
+      "metadata": {
+        "check_ids": [
+          "constraint_runtime_binding",
+          "reward_constraint_conflicts",
+          "reward_proxy_suspicion",
+          "scene_family_coverage",
+          "scene_family_structure",
+          "scene_backend_capability",
+          "execution_mode_alignment",
+          "required_runtime_fields"
+        ],
+        "detector_type": "static",
+        "report_artifacts": [
+          "static_report.json",
+          "summary.json",
+          "manifest.json",
+          "namespace_manifest.json"
+        ],
+        "report_namespace": "analysis/static",
+        "source_paths": {
+          "constraint_spec": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/constraint_spec_v0.yaml",
+          "detector_thresholds": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/detector_cfg/detector_thresholds.yaml",
+          "policy_spec": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/policy_spec_v0.yaml",
+          "reward_spec": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml",
+          "scene_cfg_base": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/env_cfg/scene_cfg_base.yaml",
+          "scene_family:nominal": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/env_cfg/scene_cfg_nominal.yaml",
+          "witness_weights": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/cfg/detector_cfg/witness_weights.yaml"
+        }
+      },
+      "namespace": "analysis/static",
+      "num_findings": 8,
+      "passed": true,
+      "report_path": "static_report.json",
+      "report_type": "static_analyzer_report.v1",
+      "scene_family_set": [
+        "nominal"
+      ],
+      "spec_version": "demo1-v0",
+      "summary_path": "summary.json"
+    },
+    "summary": {
+      "max_severity": "info",
+      "num_findings": 8,
+      "passed": true,
+      "report_type": "static_analyzer_report.v1",
+      "scene_family_set": [
+        "nominal"
+      ],
+      "spec_version": "demo1-v0"
+    }
+  }
+}

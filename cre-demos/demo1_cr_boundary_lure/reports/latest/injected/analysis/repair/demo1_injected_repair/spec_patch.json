@@ -1,0 +1,28 @@
+{
+  "expected_metric_direction": [
+    "decrease_W_CR",
+    "increase_min_distance"
+  ],
+  "metadata": {
+    "operator_type": "strengthen_safety_reward",
+    "origin_claim_type": "C-R",
+    "preview_only": true
+  },
+  "operations": [
+    {
+      "after": 0.85,
+      "before": 0.35,
+      "metadata": {},
+      "operation": "set",
+      "operation_id": "repair_handoff:W_CR:1:strengthen_safety_reward:1",
+      "rationale": "Increase static-obstacle safety shaping to better support the declared clearance constraint.",
+      "target_file": "cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml",
+      "target_path": "components.reward_safety_static.weight"
+    }
+  ],
+  "patch_id": "patch:repair_handoff:W_CR:1:strengthen_safety_reward",
+  "patch_type": "phase8_spec_patch.v1",
+  "rationale": "Increase static-obstacle safety shaping to better support the declared clearance constraint.",
+  "target_component": "R",
+  "target_file": "cre-demos/demo1_cr_boundary_lure/cfg/spec_injected/reward_spec_v0.yaml"
+}

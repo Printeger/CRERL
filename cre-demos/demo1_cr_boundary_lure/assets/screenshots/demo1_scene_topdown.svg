@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="840" height="584" viewBox="0 0 840 584">
+<rect x="0" y="0" width="100%" height="100%" fill="#ffffff"/>
+<rect x="36.0" y="36.0" width="768.0" height="512.0" fill="#fbfbfb" stroke="#333333" stroke-width="2"/>
+<rect x="173.6" y="240.8" width="51.2" height="102.4" fill="#d9d9d9" stroke="#666666" stroke-width="1.5"/>
+<rect x="253.6" y="132.0" width="307.2" height="108.8" fill="#d9d9d9" stroke="#666666" stroke-width="1.5"/>
+<rect x="420.0" y="432.8" width="153.6" height="57.6" fill="#d9d9d9" stroke="#666666" stroke-width="1.5"/>
+<polyline points="100.0,138.4 221.6,138.4 292.0,103.2 541.6,103.2 644.0,138.4 740.0,176.8" fill="none" stroke="#d04b36" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" opacity="0.35"/>
+<polyline points="100.0,138.4 112.8,202.4 119.2,279.2 132.0,349.6 202.4,388.0 586.4,388.0 682.4,272.8 740.0,176.8" fill="none" stroke="#1b7f6b" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" opacity="0.35"/>
+<circle cx="100.0" cy="138.4" r="10" fill="#2f9e44"/>
+<circle cx="740.0" cy="176.8" r="10" fill="#f08c00"/>
+<text x="48.8" y="26.0" font-family="Helvetica, Arial, sans-serif" font-size="24" fill="#222222">Demo 1 Scene: one short risky corridor and one longer safe corridor</text>
+<text x="48.8" y="74.4" font-family="Helvetica, Arial, sans-serif" font-size="18" fill="#d04b36">Short inner corridor</text>
+<text x="228.0" y="439.2" font-family="Helvetica, Arial, sans-serif" font-size="18" fill="#1b7f6b">Long outer corridor</text>
+</svg>

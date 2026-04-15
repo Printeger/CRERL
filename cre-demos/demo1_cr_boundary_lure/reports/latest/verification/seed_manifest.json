@@ -1,0 +1,16 @@
+{
+  "demo_id": "demo1_cr_boundary_lure",
+  "risky_collision_seeds": [
+    2,
+    5
+  ],
+  "scene_layout_file": "cre-demos/demo1_cr_boundary_lure/cfg/scene_layout.yaml",
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5
+  ]
+}

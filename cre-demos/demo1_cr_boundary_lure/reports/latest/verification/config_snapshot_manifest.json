@@ -1,0 +1,30 @@
+{
+  "env_cfg": {
+    "scene_cfg_base": {
+      "path": "cre-demos/demo1_cr_boundary_lure/cfg/env_cfg/scene_cfg_base.yaml",
+      "sha256": "94c553e5af7a0348dca5a1d851f97848349fd8d0d71c5dc95a1009850b92a537"
+    },
+    "scene_cfg_nominal": {
+      "path": "cre-demos/demo1_cr_boundary_lure/cfg/env_cfg/scene_cfg_nominal.yaml",
+      "sha256": "42d7fac4ff19968cf4214909a71650d32d7c8bc95927b8ceb4dc774b0eae8267"
+    }
+  },
+  "scene_layout": {
+    "path": "cre-demos/demo1_cr_boundary_lure/cfg/scene_layout.yaml",
+    "sha256": "247584fc34573b423f8fcb0daba0d716c9cf98a313e5b6b5b4e36004367821fa"
+  },
+  "variants": {
+    "clean": {
+      "reward_spec_sha256": "fda5a7c9faf9cffbabe265d5d15dfc9bfa128122486e862f6b8bfba997770c68",
+      "spec_dir": "cre-demos/demo1_cr_boundary_lure/cfg/spec_clean"
+    },
+    "injected": {
+      "reward_spec_sha256": "f3937d064a85ca27874b459ca5e6a39a97e760ba01d8f35145b43fd939185f68",
+      "spec_dir": "cre-demos/demo1_cr_boundary_lure/cfg/spec_injected"
+    },
+    "repaired": {
+      "reward_spec_sha256": "e7e8de41490470c8aaa57290444aa4dcf91d6587963b99aff60409a4fcb780cb",
+      "spec_dir": "cre-demos/demo1_cr_boundary_lure/cfg/spec_repaired"
+    }
+  }
+}

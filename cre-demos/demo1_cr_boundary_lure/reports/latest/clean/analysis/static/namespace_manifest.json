@@ -1,0 +1,15 @@
+{
+  "bundle_dir": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/reports/latest/clean/analysis/static/demo1_clean_static",
+  "bundle_relative_dir": "demo1_clean_static",
+  "generated_at_utc": "2026-04-15T09:58:35.960500+00:00",
+  "latest_bundle": "demo1_clean_static",
+  "manifest_path": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/reports/latest/clean/analysis/static/demo1_clean_static/manifest.json",
+  "max_severity": "info",
+  "namespace": "analysis/static",
+  "namespace_type": "analysis_namespace.v1",
+  "num_findings": 8,
+  "passed": true,
+  "report_mode": "static_audit",
+  "report_path": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/reports/latest/clean/analysis/static/demo1_clean_static/static_report.json",
+  "summary_path": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/reports/latest/clean/analysis/static/demo1_clean_static/summary.json"
+}

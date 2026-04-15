@@ -1,0 +1,90 @@
+{
+  "acceptance_type": "phase8_repair_acceptance.v1",
+  "checks": [
+    {
+      "check_id": "selected_candidate_present",
+      "details": {},
+      "passed": true,
+      "severity": "high",
+      "summary": "Repair plan selects a primary candidate."
+    },
+    {
+      "check_id": "selected_patch_present",
+      "details": {},
+      "passed": true,
+      "severity": "high",
+      "summary": "Repair plan includes a selected patch preview."
+    },
+    {
+      "check_id": "selected_candidate_resolves",
+      "details": {},
+      "passed": true,
+      "severity": "high",
+      "summary": "Selected candidate id resolves inside the candidate set."
+    },
+    {
+      "check_id": "primary_claim_alignment",
+      "details": {
+        "candidate_claim_type": "C-R",
+        "primary_claim_type": "C-R"
+      },
+      "passed": true,
+      "severity": "medium",
+      "summary": "Selected candidate is aligned with the primary Phase 7 claim type."
+    },
+    {
+      "check_id": "supported_operator_type",
+      "details": {
+        "operator_type": "strengthen_safety_reward"
+      },
+      "passed": true,
+      "severity": "high",
+      "summary": "Selected candidate operator belongs to the supported Phase 8 repair library."
+    },
+    {
+      "check_id": "validation_targets_declared",
+      "details": {},
+      "passed": true,
+      "severity": "medium",
+      "summary": "Repair plan declares the Phase 9 metrics it expects to improve."
+    },
+    {
+      "check_id": "patch_has_operations",
+      "details": {},
+      "passed": true,
+      "severity": "high",
+      "summary": "Selected patch contains at least one explicit operation."
+    },
+    {
+      "check_id": "patch_is_minimal_preview",
+      "details": {
+        "operation_count": 1
+      },
+      "passed": true,
+      "severity": "medium",
+      "summary": "Selected patch remains a small structured preview rather than a broad uncontrolled mutation."
+    },
+    {
+      "check_id": "patch_target_files_exist",
+      "details": {
+        "missing_files": []
+      },
+      "passed": true,
+      "severity": "high",
+      "summary": "All patch target files exist in the repo."
+    },
+    {
+      "check_id": "patch_target_paths_declared",
+      "details": {},
+      "passed": true,
+      "severity": "medium",
+      "summary": "All patch operations specify a concrete target path."
+    }
+  ],
+  "failed_check_count": 0,
+  "max_severity": "info",
+  "num_checks": 10,
+  "passed": true,
+  "primary_claim_type": "C-R",
+  "selected_candidate_id": "candidate:repair_handoff:W_CR:1:strengthen_safety_reward"
+}

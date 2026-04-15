@@ -1,0 +1,23 @@
+{
+  "original_runs": [
+    {
+      "run_dir": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/reports/latest/injected/logs/demo1_injected",
+      "run_id": "demo1_injected",
+      "scenario_type": "nominal",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "source": "demo_boundary_lure"
+    }
+  ],
+  "repaired_runs": [
+    {
+      "run_dir": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/reports/latest/repaired/logs/demo1_repaired",
+      "run_id": "demo1_repaired",
+      "scenario_type": "nominal",
+      "scene_cfg_name": "scene_cfg_nominal.yaml",
+      "source": "demo_boundary_lure"
+    }
+  ],
+  "requested_rerun_mode": "not_requested",
+  "rerun_tasks": [],
+  "triggered_rerun_results": {}
+}

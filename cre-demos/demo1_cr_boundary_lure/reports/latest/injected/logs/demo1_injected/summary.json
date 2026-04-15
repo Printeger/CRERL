@@ -1,0 +1,31 @@
+{
+  "W_CR": 0.7180302016989563,
+  "W_EC": 0.1824074074074074,
+  "W_ER": 0.0,
+  "average_return": 20.332736712594777,
+  "collision_rate": 0.3333333333333333,
+  "done_type_counts": {
+    "collision": 2,
+    "success": 4
+  },
+  "episode_count": 6,
+  "min_distance": 0.0672684745200607,
+  "near_violation_distance": 0.6,
+  "near_violation_ratio": 0.5787037037037037,
+  "out_of_bounds_rate": 0.0,
+  "risky_route_rate": 1.0,
+  "run_dir": "/home/mint/rl_dev/crerl_v1/cre-demos/demo1_cr_boundary_lure/reports/latest/injected/logs/demo1_injected",
+  "run_id": "demo1_injected",
+  "run_metadata": {
+    "demo_id": "demo1_cr_boundary_lure",
+    "scene_layout_file": "cre-demos/demo1_cr_boundary_lure/cfg/scene_layout.yaml",
+    "spec_dir": "cre-demos/demo1_cr_boundary_lure/cfg/spec_injected",
+    "variant": "injected"
+  },
+  "safe_route_rate": 0.0,
+  "scene_layout_id": "demo1_cr_boundary_lure",
+  "schema_version": "cre_runtime_log.v1",
+  "source": "demo_boundary_lure",
+  "success_rate": 0.6666666666666666,
+  "variant_name": "injected"
+}

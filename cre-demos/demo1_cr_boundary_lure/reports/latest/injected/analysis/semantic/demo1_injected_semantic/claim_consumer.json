@@ -1,0 +1,82 @@
+{
+  "consumer_type": "phase7_claim_consumer.v1",
+  "crosscheck_summary": {
+    "claim_type_breakdown": {
+      "C-R": 1,
+      "E-C": 1
+    },
+    "rejected_count": 0,
+    "supported_count": 0,
+    "total_cross_checks": 2,
+    "weak_count": 2
+  },
+  "dynamic_bundle_name": "demo1_injected_dynamic",
+  "metadata": {
+    "consumer_contract_type": "phase7_claim_consumer_contract.v1",
+    "expected_consumers": [
+      "phase7_report_generator",
+      "phase8_repair_engine"
+    ]
+  },
+  "primary_claim_type": "C-R",
+  "rejected_claims": [],
+  "repair_ready_claims": [],
+  "review_claims": [
+    {
+      "affected_families": [],
+      "affected_scene_cfg_names": [],
+      "affected_sources": [
+        "unknown"
+      ],
+      "claim_id": "mock_semantic_provider.v1:claim:001",
+      "claim_priority": "review",
+      "claim_type": "C-R",
+      "confidence": 0.7180302016989563,
+      "crosscheck_support_status": "weak",
+      "rationale": "Generated from witness W_CR with score 0.718 and real runtime evidence from accepted bundles.",
+      "repair_direction_hint": "review reward shaping and constraint penalties",
+      "severity": "medium",
+      "status": "weak",
+      "summary": "Reward-boundary coupling is elevated.",
+      "supporting_evidence_ids": [
+        "witness:W_CR"
+      ],
+      "supporting_finding_ids": [
+        "W_CR:1",
+        "W_EC:2"
+      ],
+      "supporting_witness_ids": [
+        "W_CR"
+      ]
+    },
+    {
+      "affected_families": [],
+      "affected_scene_cfg_names": [],
+      "affected_sources": [
+        "unknown"
+      ],
+      "claim_id": "mock_semantic_provider.v1:claim:002",
+      "claim_priority": "review",
+      "claim_type": "E-C",
+      "confidence": 0.1824074074074074,
+      "crosscheck_support_status": "weak",
+      "rationale": "Generated from witness W_EC with score 0.182 and real runtime evidence from accepted bundles.",
+      "repair_direction_hint": "review family coverage and critical scenario exposure",
+      "severity": "warning",
+      "status": "weak",
+      "summary": "Critical-state coverage appears acceptable.",
+      "supporting_evidence_ids": [
+        "witness:W_EC"
+      ],
+      "supporting_finding_ids": [
+        "W_CR:1",
+        "W_EC:2"
+      ],
+      "supporting_witness_ids": [
+        "W_EC"
+      ]
+    }
+  ],
+  "semantic_bundle_name": "demo1_injected_semantic",
+  "static_bundle_name": "demo1_injected_static"
+}

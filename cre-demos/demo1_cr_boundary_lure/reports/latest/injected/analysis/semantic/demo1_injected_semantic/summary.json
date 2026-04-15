@@ -1,0 +1,13 @@
+{
+  "dynamic_bundle_name": "demo1_injected_dynamic",
+  "max_severity": "medium",
+  "num_findings": 2,
+  "passed": true,
+  "primary_claim_type": "C-R",
+  "rejected_claims": 0,
+  "report_type": "semantic_analyzer_report.v1",
+  "spec_version": "demo1-v0",
+  "static_bundle_name": "demo1_injected_static",
+  "supported_claims": 0,
+  "weak_claims": 2
+}

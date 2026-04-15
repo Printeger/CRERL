@@ -32,6 +32,8 @@ cre-demos/
     README.md
   demo2_ec_hidden_wedge/
     README.md
+  demo3_er_shifted_gate/
+    README.md
   cfg/
     env_cfg/
     spec_cfg/
@@ -55,6 +57,8 @@ Current dedicated subplans:
   - [demo1_cr_boundary_lure/README.md](demo1_cr_boundary_lure/README.md)
 - Demo 2:
   - [demo2_ec_hidden_wedge/README.md](demo2_ec_hidden_wedge/README.md)
+- Demo 3:
+  - [demo3_er_shifted_gate/README.md](demo3_er_shifted_gate/README.md)
 
 ## 3. Common Demo Contract
 
@@ -480,6 +484,10 @@ If that happens, the demo has become:
 - or a generic weak-policy demo
 
 ## 7. Demo 3: Class III (E-R) Decoupling Experiment
+
+Detailed Chinese subplan:
+
+- [demo3_er_shifted_gate/README.md](demo3_er_shifted_gate/README.md)
 
 ### 7.1 Goal
 

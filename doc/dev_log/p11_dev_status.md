@@ -1624,3 +1624,84 @@ Validation results:
   - required videos
   - final acceptance / anti-drift rules
 - the root isolated demo plan now links directly to the Demo 2 subplan
+
+## 24. Demo-3 Chinese Development-Plan Addendum
+
+After Demo 2, the isolated `cre-demos` workspace was extended with a dedicated
+Chinese planning document for the third demonstration:
+
+- `cre-demos/demo3_er_shifted_gate/README.md`
+
+This step is still documentation-only, but it is Phase 11-relevant because the
+benchmark packaging layer depends on each demo having a frozen causal story,
+artifact contract, and replay/visual proof surface before implementation.
+
+This addendum also updates the root isolated demo index in:
+
+- `cre-demos/README.md`
+
+so the shared three-demo plan now links to all three dedicated subplans:
+
+- Demo 1 / `C-R`
+- Demo 2 / `E-C`
+- Demo 3 / `E-R`
+
+What the new Demo 3 plan now makes explicit:
+
+1. **the one-factor causal boundary**
+   - reward definition stays fixed
+   - utility definition stays fixed
+   - the shifted evaluation environment is the primary variable
+   - repair must stay robustness-side
+
+2. **the utility contract**
+   - Demo 3 must define a non-reward utility metric before execution
+   - the document freezes a proposed `U_task_v1` and its component fields
+   - every proof artifact must present reward and utility together
+
+3. **what must be saved for Demo 3**
+   - config snapshots
+   - scene/seed manifests
+   - raw logs and trajectory records
+   - utility/reward comparison tables
+   - validation summaries
+   - representative screenshots and replay/video exports
+
+4. **what visual proof is required**
+   - nominal-vs-shifted scene structure
+   - same-seed trajectory comparison
+   - reward-vs-utility scatter
+   - repair recovery board
+   - split-screen replay
+
+Focused validation:
+
+```bash
+test -f cre-demos/demo3_er_shifted_gate/README.md
+```
+
+```bash
+rg -n "Demo 3|demo3_er_shifted_gate|reward vs utility|必保存实验数据|必拍视频|图像出片规范" \
+  cre-demos/README.md \
+  cre-demos/demo3_er_shifted_gate/README.md \
+  doc/dev_log/p11_dev_status.md
+```
+
+```bash
+git diff --check -- \
+  cre-demos/README.md \
+  cre-demos/demo3_er_shifted_gate/README.md \
+  doc/dev_log/p11_dev_status.md \
+  Traceability.md
+```
+
+Validation results:
+
+- the dedicated Demo 3 markdown now exists under its own isolated subfolder
+- the new plan now explicitly records:
+  - a staged implementation plan
+  - a data-retention plan
+  - a video-retention plan
+  - a figure/styling plan
+  - acceptance and anti-drift rules
+- the root isolated demo plan now links directly to the Demo 3 subplan

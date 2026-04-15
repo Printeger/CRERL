@@ -1220,3 +1220,77 @@ Validation results:
 - the deck remains white-background and self-contained:
   - no external runtime dependency is required to open it in a browser
   - no separate slide framework is required for local presentation
+
+## 20. Isolated Three-Demo Experiment-Plan Addendum
+
+The repository was then extended with an isolated markdown planning workspace
+for the three core CRE demonstrations so the demo implementation does not drift
+into uncontrolled edits across the main benchmark path.
+
+This update added one new isolated planning artifact at:
+
+- `cre-demos/README.md`
+
+Its purpose is to freeze the intended causal structure of the three demos
+before implementing any demo-only configs or scripts.
+
+What this addendum now makes explicit:
+
+1. **an isolated demo-only planning folder**
+   - the new planning note lives under:
+     - `cre-demos/`
+   - this keeps demo work logically separated from:
+     - main benchmark configs
+     - main training scripts
+     - the default Phase 11 release path
+
+2. **strict causal boundaries for the three demos**
+   - Demo 1 (`C-R`):
+     - reward may change
+     - environment must stay fixed
+   - Demo 2 (`E-C`):
+     - environment coverage may change
+     - reward must stay fixed
+   - Demo 3 (`E-R`):
+     - evaluation environment may shift
+     - reward and utility definitions must stay separate
+
+3. **visual-first scene concepts and acceptance criteria**
+   - each demo now has:
+     - a dedicated scene concept
+     - an allowed-change list
+     - a frozen-variable list
+     - required metrics
+     - required visualizations
+     - success criteria
+     - anti-drift rejection conditions
+
+Focused validation for this addendum:
+
+```bash
+test -f cre-demos/README.md
+```
+
+```bash
+rg -n "^## 5\\.|^## 6\\.|^## 7\\.|One-factor rule|One-Page Anti-Drift Summary" \
+  cre-demos/README.md
+```
+
+```bash
+git diff -- \
+  cre-demos/README.md \
+  doc/dev_log/p11_dev_status.md \
+  Traceability.md
+```
+
+Validation results:
+
+- the isolated demo-planning markdown now exists under `cre-demos/`
+- the plan now contains dedicated sections for:
+  - Demo 1 / `C-R`
+  - Demo 2 / `E-C`
+  - Demo 3 / `E-R`
+- the plan also now contains:
+  - shared visualization rules
+  - anti-drift rules
+  - a future isolated folder layout for demo-specific configs/scripts/assets
